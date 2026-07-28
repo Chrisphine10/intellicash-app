@@ -1,0 +1,15 @@
+{
+  "@@locale": "luo",
+  "_comment": "Dholuo. PARTIAL, best-effort — only terms we are reasonably confident about are translated. Every other key deliberately falls back to English rather than showing a guess. Needs a native-speaker review pass before field release.",
+  "navMeetings": "Chokruoge",
+  "navLoans": "Hola",
+  "navMore": "Mamoko",
+  "signIn": "Donji",
+  "signOut": "Wuok",
+  "sectionGroup": "Riwruok",
+  "sectionLanguage": "Dhok",
+  "language": "Dhok",
+  "next": "Nyime",
+  "back": "Duogi",
+  "cancel": "We"
+}

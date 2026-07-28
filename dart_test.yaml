@@ -1,0 +1,4 @@
+# Test tags. `live` tests hit a running backend; they self-skip unless an
+# IC_TOKEN is provided via --dart-define (see the test's `skip:` guard).
+tags:
+  live:

@@ -1,0 +1,21 @@
+{
+  "@@locale": "ki",
+  "_comment": "Gĩkũyũ. PARTIAL, best-effort — only terms we are reasonably confident about are translated. Every other key deliberately falls back to English rather than showing a guess. Needs a native-speaker review pass before field release.",
+  "navMeetings": "Mĩcemanio",
+  "navMembers": "Amemba",
+  "navLoans": "Mĩkopo",
+  "navMore": "Mangĩ",
+  "welcomeTitle": "Wamũkĩro Intelli-Cash",
+  "signIn": "Toonya",
+  "signOut": "Uma",
+  "groupNameLabel": "Rĩĩtwa rĩa gĩkundi",
+  "phoneNumber": "Namba ya thimũ",
+  "sectionGroup": "Gĩkundi",
+  "sectionReports": "Ripoti",
+  "sectionLanguage": "Rũthiomi",
+  "language": "Rũthiomi",
+  "startMeeting": "Ambĩrĩria Mũcemanio",
+  "next": "Thiĩ na mbere",
+  "back": "Cooka",
+  "cancel": "Tiga"
+}

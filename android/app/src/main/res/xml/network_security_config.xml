@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Cleartext HTTP is permitted only for local development backends: the
+  Android emulator's host loopback (10.0.2.2) and localhost. Production
+  traffic must use HTTPS.
+
+  Physical-device LAN testing: add the host machine's IP as another
+  <domain> entry below (e.g. <domain>192.168.1.42</domain>).
+-->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">10.0.2.2</domain>
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">127.0.0.1</domain>
+    </domain-config>
+</network-security-config>

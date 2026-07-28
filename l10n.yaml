@@ -1,0 +1,8 @@
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+output-class: L10n
+# Untranslated keys fall back to the English template rather than showing a
+# blank — deliberate, so a partially translated language is still usable.
+untranslated-messages-file: l10n_untranslated.txt
+nullable-getter: false

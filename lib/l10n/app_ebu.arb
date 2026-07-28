@@ -1,0 +1,14 @@
+{
+  "@@locale": "ebu",
+  "_comment": "Kĩembu. PARTIAL, best-effort — only terms we are reasonably confident about are translated. Every other key deliberately falls back to English rather than showing a guess. Needs a native-speaker review pass before field release.",
+  "navMeetings": "Micemanio",
+  "navMembers": "Amemba",
+  "navLoans": "Mikopo",
+  "sectionGroup": "Gikundi",
+  "sectionReports": "Ripoti",
+  "sectionLanguage": "Ruthiomi",
+  "language": "Ruthiomi",
+  "next": "Thii na mbere",
+  "back": "Cooka",
+  "cancel": "Tiga"
+}

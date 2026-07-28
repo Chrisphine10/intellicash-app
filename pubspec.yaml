@@ -1,0 +1,63 @@
+name: intellicash_mobile
+description: "Intelli-Cash - Digital VSLA platform. Paperless, transparent, connected."
+publish_to: 'none'
+version: 2.0.0+4
+
+environment:
+  sdk: ^3.9.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  provider: ^6.1.0
+  sqflite: ^2.3.0
+  path: ^1.8.3
+  path_provider: ^2.1.2
+  shared_preferences: ^2.3.0
+  connectivity_plus: ^6.0.0
+  http: ^1.2.0
+  intl: ^0.20.2
+  fl_chart: ^0.70.0
+  uuid: ^4.2.2
+  flutter_secure_storage: ^9.0.0
+  flutter_dotenv: ^5.1.0
+  crypto: ^3.0.3
+  share_plus: ^10.0.0
+  pdf: ^3.11.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  sqflite_common_ffi: ^2.3.0
+  flutter_launcher_icons: ^0.14.1
+  flutter_native_splash: ^2.4.1
+
+flutter:
+  uses-material-design: true
+  # Generates L10n from lib/l10n/*.arb (see l10n.yaml).
+  generate: true
+  assets:
+    - assets/branding/
+    - .env
+
+# Launcher icon: adaptive green wallet mark on the app's dark ground.
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "branding/ic_full.png"
+  min_sdk_android: 21
+  adaptive_icon_background: "#0E1113"
+  adaptive_icon_foreground: "branding/ic_fg.png"
+  remove_alpha_ios: true
+  background_color_ios: "#0E1113"
+
+# Native launch splash: logo mark on the dark ground (matches the app theme).
+flutter_native_splash:
+  color: "#0E1113"
+  image: "branding/ic_fg.png"
+  android_12:
+    color: "#0E1113"
+    image: "branding/ic_fg.png"
