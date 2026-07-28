@@ -94,6 +94,27 @@ class ApiClient {
     return decoded['data'];
   }
 
+  Future<dynamic> putData(
+    String path, {
+    Map<String, dynamic>? body,
+    bool auth = true,
+  }) async {
+    final decoded = await _send('PUT $path', () => _http
+        .put(
+          _uri(path),
+          headers: _headers(auth: auth, json: true),
+          body: jsonEncode(body ?? const {}),
+        )
+        .timeout(_timeout));
+    return decoded['data'];
+  }
+
+  Future<dynamic> deleteData(String path, {bool auth = true}) async {
+    final decoded = await _send('DELETE $path', () =>
+        _http.delete(_uri(path), headers: _headers(auth: auth)).timeout(_timeout));
+    return decoded['data'];
+  }
+
   /// Unauthenticated liveness probe against the server root (`/health`).
   Future<Map<String, dynamic>> getRoot(String path) async {
     return _send('GET $path', () =>

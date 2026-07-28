@@ -17,6 +17,7 @@ import '../reports/member_reports_screen.dart';
 import '../shareout/share_out_screen.dart';
 import 'language_screen.dart';
 import 'meeting_security_screen.dart';
+import '../settings/payment_providers_screen.dart';
 import '../store/store_screen.dart';
 import '../server/server_settings_screen.dart';
 import '../server/sign_in_options_screen.dart';
@@ -183,6 +184,7 @@ class MoreScreen extends StatelessWidget {
             child: Column(
               children: [
                 _connectionTile(context),
+                _paymentProvidersTile(context),
                 const Divider(indent: 16, endIndent: 16),
                 _syncTile(context, appState),
                 if (context.watch<ConnectionProvider>().isConnected) ...[
@@ -337,6 +339,31 @@ class MoreScreen extends StatelessWidget {
     // still behind this screen if they just want to keep working.
     navigator.push(
       MaterialPageRoute(builder: (_) => const SignInOptionsScreen()),
+    );
+  }
+
+  /// Where members' money is received. Only meaningful once the phone is
+  /// connected and a group is chosen, so it stays hidden otherwise rather than
+  /// opening a screen that can only show an error.
+  Widget _paymentProvidersTile(BuildContext context) {
+    final connection = context.watch<ConnectionProvider>();
+    if (!connection.isConnected || connection.selectedGroup == null) {
+      return const SizedBox.shrink();
+    }
+
+    return ListTile(
+      leading: const Icon(Icons.account_balance_wallet_outlined, size: 20),
+      title: const Text('Payment Providers', style: TextStyle(fontSize: 14)),
+      subtitle: Text(
+        'Where money from members is received',
+        style: Theme.of(context).textTheme.bodySmall,
+      ),
+      trailing: const Icon(Icons.chevron_right, size: 20),
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const PaymentProvidersScreen()),
+        );
+      },
     );
   }
 

@@ -18,6 +18,7 @@ import 'data/repositories/share_out_repository.dart';
 import 'data/repositories/sync_repository.dart';
 import 'data/services/remote_api.dart';
 import 'data/services/remote_external_loans_api.dart';
+import 'data/services/remote_payment_providers_api.dart';
 import 'data/services/remote_payments_api.dart';
 import 'data/services/remote_polls_api.dart';
 import 'data/services/remote_store_api.dart';
@@ -143,6 +144,9 @@ Future<void> main() async {
         // state and just needs the shared, credential-aware client.
         Provider<RemotePaymentsApi>(
           create: (_) => RemotePaymentsApi(apiClient),
+        ),
+        Provider<RemotePaymentProvidersApi>(
+          create: (_) => RemotePaymentProvidersApi(apiClient),
         ),
         ChangeNotifierProvider(
           create: (_) => ShareOutProvider(ShareOutRepository(db)),
