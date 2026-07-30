@@ -304,9 +304,13 @@ class AppDatabase {
       // Welfare spending. Until this existed the share-out pool was
       // computed from GROSS contributions, so a group that had spent its
       // welfare would distribute money it no longer held.
-      await db.execute(_welfareExpensesTable);
+      // IF NOT EXISTS: an upgrade must tolerate being re-run. A database
+      // reporting v5 while already carrying the table would otherwise
+      // crash on 'table already exists' and leave the install unusable.
+      await db.execute(_welfareExpensesTable
+          .replaceFirst('CREATE TABLE', 'CREATE TABLE IF NOT EXISTS'));
       await db.execute(
-          'CREATE INDEX idx_welfare_group ON welfare_expenses(group_id, cycle_number)');
+          'CREATE INDEX IF NOT EXISTS idx_welfare_group ON welfare_expenses(group_id, cycle_number)');
     }
   }
 }
