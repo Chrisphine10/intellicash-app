@@ -10,7 +10,7 @@ class AppDatabase {
   AppDatabase._();
   static final AppDatabase instance = AppDatabase._();
 
-  static const int _version = 5;
+  static const int _version = 6;
   Database? _db;
 
   /// Test hook: lets tests inject an in-memory/ffi database factory.
@@ -168,6 +168,8 @@ class AppDatabase {
       batch.execute(ddl);
     }
     batch.execute(_shareOutPayoutsTable);
+    batch.execute(_welfareExpensesTable);
+    batch.execute('CREATE INDEX idx_welfare_group ON welfare_expenses(group_id, cycle_number)');
     batch.execute(
         'CREATE INDEX idx_shareout_group ON share_out_payouts(group_id, cycle_number)');
     batch.execute(
@@ -220,6 +222,33 @@ class AppDatabase {
   /// End-of-cycle share-out payouts (schema v4). One row per member per
   /// share-out, forming the permanent distribution record. Shared by
   /// [_createSchema] and [_upgradeSchema].
+
+  /// Welfare spending (schema v6).
+  ///
+  /// Welfare money is paid OUT of the social fund during a cycle, and what
+  /// remains at the end is what gets shared out. Without these rows the phone
+  /// computes the share-out pool from GROSS contributions and distributes
+  /// money the group has already spent.
+  ///
+  /// `remote_id` is how a server-recorded expense is recognised on sync, so an
+  /// expense entered on the web is not duplicated here. NULL means locally
+  /// created and not yet pushed.
+  static const String _welfareExpensesTable = '''
+      CREATE TABLE welfare_expenses (
+        id TEXT PRIMARY KEY,
+        group_id TEXT NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+        meeting_id TEXT REFERENCES meetings(id) ON DELETE SET NULL,
+        cycle_number INTEGER NOT NULL DEFAULT 1,
+        category TEXT NOT NULL,
+        amount REAL NOT NULL,
+        payee_member_id TEXT REFERENCES members(id) ON DELETE SET NULL,
+        payee_name TEXT,
+        note TEXT,
+        remote_id TEXT UNIQUE,
+        created_at TEXT NOT NULL
+      )
+    ''';
+
   static const String _shareOutPayoutsTable = '''
       CREATE TABLE share_out_payouts (
         id TEXT PRIMARY KEY,
@@ -270,6 +299,14 @@ class AppDatabase {
           'ALTER TABLE groups ADD COLUMN require_three_key INTEGER NOT NULL DEFAULT 1');
       await db.execute('ALTER TABLE members ADD COLUMN pin_hash TEXT');
       await db.execute('ALTER TABLE meetings ADD COLUMN unlocked_by TEXT');
+    }
+    if (oldVersion < 6) {
+      // Welfare spending. Until this existed the share-out pool was
+      // computed from GROSS contributions, so a group that had spent its
+      // welfare would distribute money it no longer held.
+      await db.execute(_welfareExpensesTable);
+      await db.execute(
+          'CREATE INDEX idx_welfare_group ON welfare_expenses(group_id, cycle_number)');
     }
   }
 }

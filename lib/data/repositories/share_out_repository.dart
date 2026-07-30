@@ -109,7 +109,9 @@ class ShareOutRepository {
            WHERE mt.group_id = ?1 AND f.created_at > ?2) AS fines,
         (SELECT COALESCE(SUM(s.amount), 0) FROM social_fund_entries s
            JOIN meetings mt ON mt.id = s.meeting_id
-           WHERE mt.group_id = ?1 AND s.created_at > ?2) AS social
+           WHERE mt.group_id = ?1 AND s.created_at > ?2) AS social,
+        (SELECT COALESCE(SUM(w.amount), 0) FROM welfare_expenses w
+           WHERE w.group_id = ?1 AND w.created_at > ?2) AS welfare_spent
     ''', [gid, start])).first;
 
     final members = <ShareOutMember>[];
@@ -128,8 +130,14 @@ class ShareOutRepository {
     final shareCapitalCents = _cents((totalsRow['share_capital'] as num).toDouble());
     final repaymentsCents = _cents((totalsRow['repayments'] as num).toDouble());
     final disbursedCents = _cents((totalsRow['disbursed'] as num).toDouble());
-    final welfareCents = _cents((totalsRow['fines'] as num).toDouble()) +
-        _cents((totalsRow['social'] as num).toDouble());
+    // What is LEFT, not what came in. Welfare is spent down during the
+    // cycle; distributing gross contributions would hand out money the
+    // group has already paid to a hospital or a bereaved family.
+    final welfareSpentCents =
+        _cents((totalsRow['welfare_spent'] as num).toDouble());
+    final welfareCents = (_cents((totalsRow['fines'] as num).toDouble()) +
+            _cents((totalsRow['social'] as num).toDouble())) -
+        welfareSpentCents;
 
     // Loan-fund cash (C) = capital + repayments − disbursements.
     // Group equity / distributable pool (E) = C + outstanding receivables.
@@ -141,7 +149,9 @@ class ShareOutRepository {
       members: members,
       savingsPoolCents: poolCents < 0 ? 0 : poolCents,
       shareCapitalCents: shareCapitalCents,
-      welfarePoolCents: welfareCents,
+      // Clamped: an overspent welfare fund is a reconciliation problem, not a
+      // negative pool to divide among members.
+      welfarePoolCents: welfareCents < 0 ? 0 : welfareCents,
       distributeWelfare: distributeWelfare,
     );
   }
