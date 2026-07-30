@@ -18,6 +18,7 @@ import 'data/repositories/share_out_repository.dart';
 import 'data/repositories/sync_repository.dart';
 import 'data/services/remote_api.dart';
 import 'data/services/remote_external_loans_api.dart';
+import 'data/services/remote_governance_api.dart';
 import 'data/services/remote_payment_providers_api.dart';
 import 'data/services/welfare_expense_sync.dart';
 import 'data/services/remote_payments_api.dart';
@@ -151,6 +152,9 @@ Future<void> main() async {
         ),
         Provider<RemotePaymentProvidersApi>(
           create: (_) => RemotePaymentProvidersApi(apiClient),
+        ),
+        Provider<RemoteGovernanceApi>(
+          create: (_) => RemoteGovernanceApi(apiClient),
         ),
         ChangeNotifierProvider(
           create: (_) => ShareOutProvider(ShareOutRepository(db)),

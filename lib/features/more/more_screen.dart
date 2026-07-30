@@ -17,6 +17,8 @@ import '../reports/member_reports_screen.dart';
 import '../shareout/share_out_screen.dart';
 import 'language_screen.dart';
 import 'meeting_security_screen.dart';
+import '../settings/cycles_screen.dart';
+import '../settings/group_policy_screen.dart';
 import '../settings/payment_providers_screen.dart';
 import '../store/store_screen.dart';
 import '../server/server_settings_screen.dart';
@@ -185,6 +187,10 @@ class MoreScreen extends StatelessWidget {
               children: [
                 _connectionTile(context),
                 _paymentProvidersTile(context),
+                _governanceTile(context, 'Group Rules', Icons.rule_outlined,
+                    'Loan term and where expenses come from', const GroupPolicyScreen()),
+                _governanceTile(context, 'Saving Cycles', Icons.event_repeat_outlined,
+                    'Close a cycle and start the next', const CyclesScreen()),
                 const Divider(indent: 16, endIndent: 16),
                 _syncTile(context, appState),
                 if (context.watch<ConnectionProvider>().isConnected) ...[
@@ -345,6 +351,24 @@ class MoreScreen extends StatelessWidget {
   /// Where members' money is received. Only meaningful once the phone is
   /// connected and a group is chosen, so it stays hidden otherwise rather than
   /// opening a screen that can only show an error.
+  /// Cloud-only settings. Hidden until a group is chosen, so the screen
+  /// cannot open onto an error the person cannot act on.
+  Widget _governanceTile(BuildContext context, String title, IconData icon,
+      String subtitle, Widget screen) {
+    final connection = context.watch<ConnectionProvider>();
+    if (!connection.isConnected || connection.selectedGroup == null) {
+      return const SizedBox.shrink();
+    }
+    return ListTile(
+      leading: Icon(icon, size: 20),
+      title: Text(title, style: const TextStyle(fontSize: 14)),
+      subtitle: Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+      trailing: const Icon(Icons.chevron_right, size: 20),
+      onTap: () => Navigator.of(context)
+          .push(MaterialPageRoute(builder: (_) => screen)),
+    );
+  }
+
   Widget _paymentProvidersTile(BuildContext context) {
     final connection = context.watch<ConnectionProvider>();
     if (!connection.isConnected || connection.selectedGroup == null) {
