@@ -57,6 +57,34 @@ class LoanRepository {
 
   /// Instant eligibility check — computed from savings before the
   /// disbursement form will accept a principal.
+  /// What the group actually has available to LEND, in shillings.
+  ///
+  /// Distinct from the cash box: social contributions and fines belong to the
+  /// welfare fund and are not lending capital. This mirrors the backend's
+  /// INTERNAL_LOAN fund exactly — SHARE_PURCHASE and LOAN_REPAYMENT credit it,
+  /// INTERNAL_LOAN_DISBURSEMENT debits it — so the phone and the server agree
+  /// on the same number rather than each computing its own.
+  ///
+  /// A member's borrowing headroom is a SEPARATE limit. Both must hold: a
+  /// member with headroom still cannot be paid out of an empty fund.
+  Future<double> loanFundBalance(String groupId) async {
+    final db = await _db.database;
+    final rows = await db.rawQuery('''
+      SELECT
+        (SELECT COALESCE(SUM(sp.amount), 0) FROM share_purchases sp
+          JOIN meetings m ON m.id = sp.meeting_id WHERE m.group_id = ?1)
+      + (SELECT COALESCE(SUM(r.amount), 0) FROM loan_repayments r
+          JOIN loans l ON l.id = r.loan_id WHERE l.group_id = ?1)
+      - (SELECT COALESCE(SUM(l.principal), 0) FROM loans l
+          WHERE l.group_id = ?1)
+      AS balance
+    ''', [groupId]);
+    final balance = ((rows.first['balance'] ?? 0) as num).toDouble();
+    // Clamp: a negative lending fund is not a thing a treasurer can act on,
+    // and it would make "short by" arithmetic read strangely.
+    return balance < 0 ? 0 : balance;
+  }
+
   Future<LoanEligibility> eligibility({
     required Group group,
     required String memberId,

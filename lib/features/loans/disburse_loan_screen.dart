@@ -30,6 +30,9 @@ class _DisburseLoanScreenState extends State<DisburseLoanScreen> {
   final _principalCtrl = TextEditingController();
   String? _memberId;
   LoanEligibility? _eligibility;
+  /// The group's lending capital. A member with headroom still cannot be
+  /// paid out of an empty fund, so this is a second, independent gate.
+  double _loanFund = 0;
   late DateTime _dueDate;
   bool _saving = false;
 
@@ -38,8 +41,10 @@ class _DisburseLoanScreenState extends State<DisburseLoanScreen> {
     super.initState();
     final group = context.read<AppState>().group!;
     _dueDate = _addMonths(DateTime.now(), group.defaultLoanTermMonths);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       context.read<MemberProvider>().load(group.id);
+      final fund = await context.read<LoanProvider>().loanFundBalance(group.id);
+      if (mounted) setState(() => _loanFund = fund);
     });
   }
 
@@ -135,6 +140,25 @@ class _DisburseLoanScreenState extends State<DisburseLoanScreen> {
                     style: TextStyle(fontSize: 12, color: AppColors.defaulted),
                   ),
                 ),
+              // Say WHY the button is dead. A disabled control with no reason
+              // is the thing a treasurer phones about.
+              if (_loanFund <= 0)
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Text(
+                    'The loan fund is empty. Collect share purchases or loan '
+                    'repayments before lending again.',
+                    style: TextStyle(fontSize: 12, color: AppColors.defaulted),
+                  ),
+                )
+              else
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Text(
+                    'Loan fund available · ${Formatters.money(_loanFund)}',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
             ],
             const SizedBox(height: 16),
             TextFormField(
@@ -151,6 +175,12 @@ class _DisburseLoanScreenState extends State<DisburseLoanScreen> {
                 if (amount > available) {
                   return 'Exceeds available '
                       '${Formatters.moneyCompact(available)}';
+                }
+                // Second, independent limit: the group's lending capital.
+                if (amount > _loanFund) {
+                  return 'Loan fund holds only '
+                      '${Formatters.moneyCompact(_loanFund)} — short by '
+                      '${Formatters.moneyCompact(amount - _loanFund)}';
                 }
                 return null;
               },
@@ -185,8 +215,11 @@ class _DisburseLoanScreenState extends State<DisburseLoanScreen> {
             ),
             const SizedBox(height: 20),
             FilledButton.icon(
-              onPressed:
-                  (eligibility?.canBorrow ?? false) && !_saving ? _disburse : null,
+              onPressed: (eligibility?.canBorrow ?? false) &&
+                      _loanFund > 0 &&
+                      !_saving
+                  ? _disburse
+                  : null,
               icon: const Icon(Icons.payments_outlined, size: 18),
               label: const Text('Disburse Loan'),
             ),

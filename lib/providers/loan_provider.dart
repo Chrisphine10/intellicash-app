@@ -23,6 +23,11 @@ class LoanProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// What the group has available to lend. Checked alongside — not instead
+  /// of — the member's borrowing headroom.
+  Future<double> loanFundBalance(String groupId) =>
+      _repository.loanFundBalance(groupId);
+
   Future<LoanEligibility> eligibility({
     required Group group,
     required String memberId,
