@@ -81,12 +81,6 @@ class _MeetingHubScreenState extends State<MeetingHubScreen> {
             childAspectRatio: 2.6,
             children: [
               _ActionTile(
-                icon: Icons.savings_outlined,
-                label: 'Buy Shares',
-                enabled: isOpen,
-                onTap: () => _openSheet(const BuySharesSheet()),
-              ),
-              _ActionTile(
                 icon: Icons.favorite_outline,
                 label: 'Social Fund',
                 enabled: true,
@@ -99,6 +93,12 @@ class _MeetingHubScreenState extends State<MeetingHubScreen> {
                   );
                   await meetingProvider.refreshTotals();
                 },
+              ),
+              _ActionTile(
+                icon: Icons.savings_outlined,
+                label: 'Buy Shares',
+                enabled: isOpen,
+                onTap: () => _openSheet(const BuySharesSheet()),
               ),
               _ActionTile(
                 icon: Icons.error_outline,
@@ -206,9 +206,9 @@ class _MeetingHubScreenState extends State<MeetingHubScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
               child: Column(
                 children: [
+                  KeyValueRow('Social fund', Formatters.money(totals.socialFund)),
                   KeyValueRow('Shares collected',
                       Formatters.money(totals.sharesAmount)),
-                  KeyValueRow('Social fund', Formatters.money(totals.socialFund)),
                   KeyValueRow('Fines', Formatters.money(totals.fines)),
                   KeyValueRow('Loan repayments',
                       Formatters.money(totals.loanRepayments)),
