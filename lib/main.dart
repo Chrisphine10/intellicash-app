@@ -19,6 +19,7 @@ import 'data/repositories/sync_repository.dart';
 import 'data/services/remote_api.dart';
 import 'data/services/remote_external_loans_api.dart';
 import 'data/services/remote_payment_providers_api.dart';
+import 'data/services/welfare_expense_sync.dart';
 import 'data/services/remote_payments_api.dart';
 import 'data/services/remote_polls_api.dart';
 import 'data/services/remote_store_api.dart';
@@ -87,6 +88,9 @@ Future<void> main() async {
     idMap: idMap,
     meetings: MeetingRepository(db),
     writeSync: writeSyncService,
+    // Mirrors server-recorded welfare spending down, so share-out subtracts
+    // what the group has actually spent rather than gross contributions.
+    welfareSync: WelfareExpenseSync(db, apiClient),
   );
   syncService.onSync = autoSync.syncBoundGroups;
   // The badge counts real unsynced work, not the vestigial write-queue, so it

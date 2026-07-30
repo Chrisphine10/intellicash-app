@@ -3,6 +3,7 @@ import '../models/meeting.dart';
 import '../repositories/id_map_repository.dart';
 import '../repositories/meeting_repository.dart';
 import 'write_sync_service.dart';
+import 'welfare_expense_sync.dart';
 
 /// Pushes local writes to the backend automatically when connectivity returns.
 ///
@@ -20,6 +21,7 @@ class AutoSyncCoordinator {
     required IdMapRepository idMap,
     required MeetingRepository meetings,
     required WriteSyncService writeSync,
+    this.welfareSync,
   })  : _idMap = idMap,
         _meetings = meetings,
         _writeSync = writeSync;
@@ -27,6 +29,12 @@ class AutoSyncCoordinator {
   final IdMapRepository _idMap;
   final MeetingRepository _meetings;
   final WriteSyncService _writeSync;
+
+  /// Optional: when present, server-recorded welfare expenses are mirrored
+  /// down on each sync. Optional rather than required so existing call sites
+  /// keep compiling — a phone without it simply does not learn about welfare
+  /// spending, which is the behaviour before this existed.
+  final WelfareExpenseSync? welfareSync;
 
   /// How many closed meetings are still waiting to reach the backend, across
   /// every bound group. This is what the "waiting to back up" badge shows.
@@ -43,6 +51,23 @@ class AutoSyncCoordinator {
 
     var pending = 0;
     for (final localGroupId in boundGroups.keys) {
+      // Welfare spending first: share-out subtracts it, so a phone that
+      // pushed meetings but never learned what the group had SPENT would
+      // still distribute money that is already gone.
+      final remoteGroupId = boundGroups[localGroupId];
+      if (welfareSync != null && remoteGroupId != null) {
+        try {
+          final pulled = await welfareSync!
+              .pull(remoteGroupId, localGroupId: localGroupId);
+          if (pulled > 0) {
+            log.info('autosync', 'Pulled $pulled welfare expense(s)');
+          }
+        } catch (e) {
+          // Never let welfare block the meeting push it precedes.
+          log.warn('autosync', 'Welfare expenses did not pull: $e');
+        }
+      }
+
       final items = await _meetings.meetingsForGroup(localGroupId);
       for (final item in items) {
         if (await _needsSync(item.meeting)) pending++;
