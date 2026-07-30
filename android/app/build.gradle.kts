@@ -15,6 +15,40 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
+
+// Refuse to produce a release APK/AAB whose backend is wrong.
+//
+// The app reports this at runtime too, but only in a log — by then the artifact
+// exists and may already be on a phone. Failing the BUILD is the only check a
+// hurried release cannot skip.
+//
+// Runs on release variants only, so debug builds against a laptop still work.
+val checkReleaseConfig = tasks.register<Exec>("checkReleaseConfig") {
+    workingDir = rootProject.projectDir.parentFile          // the Flutter project root
+
+    // `dart` is not on Gradle's PATH on a normal machine, so resolve it from
+    // the Flutter SDK the build is already using rather than assuming the
+    // developer's shell environment.
+    val flutterSdk = Properties().apply {
+        rootProject.file("local.properties").inputStream().use { load(it) }
+    }.getProperty("flutter.sdk")
+    val isWindows = System.getProperty("os.name").startsWith("Windows", ignoreCase = true)
+    val dart = if (flutterSdk != null) {
+        File(flutterSdk, if (isWindows) "bin/dart.bat" else "bin/dart").absolutePath
+    } else {
+        if (isWindows) "dart.bat" else "dart"
+    }
+
+    commandLine(dart, "run", "tool/check_release_config.dart")
+    // The script prints the reason and exits 1; let that surface verbatim
+    // rather than burying it in a Gradle stacktrace.
+    isIgnoreExitValue = false
+}
+
+tasks.matching { it.name.matches(Regex("(assemble|bundle)Release")) }.configureEach {
+    dependsOn(checkReleaseConfig)
+}
+
 android {
     namespace = "com.intellicash.app"
     compileSdk = flutter.compileSdkVersion
