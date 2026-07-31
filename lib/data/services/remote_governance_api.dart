@@ -88,10 +88,108 @@ class RemoteGroupPolicy {
   }
 }
 
+/// One payment out of the welfare fund.
+class RemoteWelfareExpense {
+  const RemoteWelfareExpense({
+    required this.id,
+    required this.category,
+    required this.amountCents,
+    required this.createdAt,
+    this.payeeName,
+    this.note,
+  });
+
+  final String id;
+  final String category;
+  final int amountCents;
+  final DateTime? createdAt;
+
+  /// Who received the money. Often NOT a member — welfare is commonly paid to
+  /// a member's family or straight to a hospital.
+  final String? payeeName;
+  final String? note;
+
+  factory RemoteWelfareExpense.fromJson(Map<String, dynamic> j) {
+    // The amount lives on the ledger entry, not the expense row: the ledger is
+    // the money, the expense record is the context around it.
+    final ledger = (j['ledgerEntry'] as Map?) ?? const {};
+    final payeeMember = (j['payeeMember'] as Map?) ?? const {};
+    return RemoteWelfareExpense(
+      id: '${j['id']}',
+      category: '${j['category'] ?? 'OTHER'}',
+      amountCents: (ledger['amountCents'] as num?)?.toInt() ?? 0,
+      createdAt: DateTime.tryParse('${ledger['createdAt'] ?? j['createdAt']}'),
+      payeeName: (j['payeeName'] as String?) ?? (payeeMember['fullName'] as String?),
+      note: j['note'] as String?,
+    );
+  }
+}
+
+/// Welfare spending, and — the figure that actually matters — what is LEFT.
+class RemoteWelfare {
+  const RemoteWelfare({
+    required this.expenses,
+    required this.spentCents,
+    required this.balanceCents,
+  });
+
+  final List<RemoteWelfareExpense> expenses;
+  final int spentCents;
+
+  /// Contributions minus expenses. THIS is what share-out distributes, not the
+  /// gross contributions — every shilling spent here is a shilling members do
+  /// not receive at the end of the cycle.
+  final int balanceCents;
+
+  factory RemoteWelfare.fromJson(Map<String, dynamic> j) => RemoteWelfare(
+        expenses: ((j['expenses'] as List?) ?? const [])
+            .map((e) => RemoteWelfareExpense.fromJson(Map<String, dynamic>.from(e as Map)))
+            .toList(growable: false),
+        spentCents: (j['spentCents'] as num?)?.toInt() ?? 0,
+        balanceCents: (j['welfareBalanceCents'] as num?)?.toInt() ?? 0,
+      );
+}
+
 class RemoteGovernanceApi {
   RemoteGovernanceApi(this._client);
 
   final ApiClient _client;
+
+  Future<RemoteWelfare> welfare(String groupId) async {
+    final data = await _client.getData('/groups/$groupId/welfare-expenses');
+    return RemoteWelfare.fromJson(Map<String, dynamic>.from(data as Map));
+  }
+
+  /// Records money paid out of the welfare fund.
+  ///
+  /// Goes straight to the server rather than into the offline queue, and that
+  /// is deliberate: the fund balance is only knowable server-side, so two
+  /// phones queueing expenses offline could each spend the same shilling. The
+  /// server refuses an overdraw; a queue could not.
+  ///
+  /// Returns the welfare balance AFTER the payment — the money share-out will
+  /// distribute if nothing else changes.
+  Future<({String message, int balanceCents})> recordWelfareExpense(
+    String groupId, {
+    required int amountCents,
+    required String category,
+    String? payeeName,
+    String? payeeMemberId,
+    String? note,
+  }) async {
+    final data = await _client.postData('/groups/$groupId/welfare-expenses', body: {
+      'amountCents': amountCents,
+      'category': category,
+      if (payeeName != null && payeeName.isNotEmpty) 'payeeName': payeeName,
+      if (payeeMemberId != null) 'payeeMemberId': payeeMemberId,
+      if (note != null && note.isNotEmpty) 'note': note,
+    });
+    final map = Map<String, dynamic>.from(data as Map);
+    return (
+      message: 'Welfare payment recorded.',
+      balanceCents: (map['welfareBalanceCents'] as num?)?.toInt() ?? 0,
+    );
+  }
 
   Future<RemoteCycles> cycles(String groupId) async {
     final data = await _client.getData('/groups/$groupId/cycles');

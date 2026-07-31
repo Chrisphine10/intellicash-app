@@ -19,6 +19,7 @@ import 'language_screen.dart';
 import 'meeting_security_screen.dart';
 import '../settings/cycles_screen.dart';
 import '../settings/group_policy_screen.dart';
+import '../settings/welfare_screen.dart';
 import '../settings/payment_providers_screen.dart';
 import '../store/store_screen.dart';
 import '../server/server_settings_screen.dart';
@@ -191,6 +192,8 @@ class MoreScreen extends StatelessWidget {
                     'Loan term and where expenses come from', const GroupPolicyScreen()),
                 _governanceTile(context, 'Saving Cycles', Icons.event_repeat_outlined,
                     'Close a cycle and start the next', const CyclesScreen()),
+                _governanceTile(context, 'Welfare Fund', Icons.volunteer_activism_outlined,
+                    'What is left to share, and what was paid out', const WelfareScreen()),
                 const Divider(indent: 16, endIndent: 16),
                 _syncTile(context, appState),
                 if (context.watch<ConnectionProvider>().isConnected) ...[
