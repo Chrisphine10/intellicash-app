@@ -16,6 +16,9 @@ class MemberOverview {
     required this.loansReceived,
     required this.loansRepaid,
     required this.loanOutstanding,
+    required this.loanInterest,
+    required this.welfareReceived,
+    required this.shareOutReceived,
     this.generatedAt,
   });
 
@@ -34,7 +37,21 @@ class MemberOverview {
 
   /// Summed per group, each already floored at zero — overpaying in one group
   /// must never cancel a real debt in another.
+  ///
+  /// INCLUDES interest. The server also sends `loanOutstandingCents`, the bare
+  /// ledger difference, which omits it; borrowing in two groups used to show a
+  /// combined debt smaller than either group would actually collect.
   final double loanOutstanding;
+
+  /// The interest portion of [loanOutstanding].
+  final double loanInterest;
+
+  /// Welfare paid OUT to this person, across every group — the opposite
+  /// direction from their welfare contributions, which are in [social].
+  final double welfareReceived;
+
+  /// What past share-outs have already paid them.
+  final double shareOutReceived;
 
   final DateTime? generatedAt;
 
@@ -65,7 +82,14 @@ class MemberOverview {
       totalPaidIn: cents('totalPaidInCents'),
       loansReceived: cents('loansReceivedCents'),
       loansRepaid: cents('loansRepaidCents'),
-      loanOutstanding: cents('loanOutstandingCents'),
+      // Falls back to the interest-free field only for a server too old to
+      // send the interest-aware one.
+      loanOutstanding: combined['loanOutstandingWithInterestCents'] == null
+          ? cents('loanOutstandingCents')
+          : cents('loanOutstandingWithInterestCents'),
+      loanInterest: cents('loanInterestCents'),
+      welfareReceived: cents('welfareReceivedCents'),
+      shareOutReceived: cents('shareOutReceivedCents'),
       generatedAt: DateTime.tryParse('${json['generatedAt']}'),
     );
   }

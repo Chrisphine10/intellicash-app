@@ -102,6 +102,10 @@ Future<List<int>> buildPassbookPdfBytes(MemberPassbook book) async {
         _sectionLabel('My loans'),
         _row('Loans received', Formatters.money(book.loansReceived)),
         _row('Repaid', Formatters.money(book.loansRepaid)),
+        // Shown separately so "still owing" is not larger than received minus
+        // repaid for reasons the member cannot see on the page.
+        if (book.loanInterest > 0)
+          _row('Interest charged', Formatters.money(book.loanInterest)),
         pw.Divider(height: 14),
         _row('Still owing', Formatters.money(owing), strong: true),
         if (book.attendanceTotal > 0) ...[
@@ -153,8 +157,16 @@ Future<List<int>> buildOverviewPdfBytes(MemberOverview overview) async {
         pw.SizedBox(height: 6),
         _row('Loans received', Formatters.money(overview.loansReceived)),
         _row('Repaid', Formatters.money(overview.loansRepaid)),
+        if (overview.loanInterest > 0)
+          _row('Interest charged', Formatters.money(overview.loanInterest)),
         pw.Divider(height: 14),
         _row('Still owing', Formatters.money(overview.loanOutstanding), strong: true),
+        // Money the member has RECEIVED, which a statement of contributions
+        // alone would leave out entirely.
+        if (overview.welfareReceived > 0)
+          _row('Welfare received', Formatters.money(overview.welfareReceived)),
+        if (overview.shareOutReceived > 0)
+          _row('Share-outs paid to me', Formatters.money(overview.shareOutReceived)),
 
         // Then each group on its own, so the totals above can be checked.
         for (final position in overview.groups) ...[

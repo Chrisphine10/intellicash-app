@@ -14,6 +14,7 @@ class MemberPassbook {
     required this.loansReceived,
     required this.loansRepaid,
     required this.loanOutstanding,
+    required this.loanInterest,
     required this.attendancePresent,
     required this.attendanceTotal,
     required this.attendanceRate,
@@ -31,7 +32,19 @@ class MemberPassbook {
 
   final double loansReceived;
   final double loansRepaid;
+
+  /// What the member still owes, INCLUDING interest.
+  ///
+  /// The server also sends `loanOutstandingCents`, which is only the ledger
+  /// difference — disbursed minus repaid — and so silently omits every
+  /// shilling of interest. That is the money the group is owed, so this reads
+  /// the interest-aware figure and falls back to the old one only when talking
+  /// to a server too old to send it.
   final double loanOutstanding;
+
+  /// The interest portion of [loanOutstanding], so a statement can show why
+  /// the balance is larger than the sum of the repayments would suggest.
+  final double loanInterest;
 
   final int attendancePresent;
   final int attendanceTotal;
@@ -60,7 +73,10 @@ class MemberPassbook {
       totalPaidIn: _money(summary['totalPaidInCents']),
       loansReceived: _money(summary['loansReceivedCents']),
       loansRepaid: _money(summary['loansRepaidCents']),
-      loanOutstanding: _money(summary['loanOutstandingCents']),
+      loanOutstanding: _money(
+        summary['loanOutstandingWithInterestCents'] ?? summary['loanOutstandingCents'],
+      ),
+      loanInterest: _money(summary['loanInterestCents']),
       attendancePresent: ((attendance['present'] as num?) ?? 0).toInt(),
       attendanceTotal: ((attendance['total'] as num?) ?? 0).toInt(),
       attendanceRate: (attendance['rate'] as num?)?.toDouble(),
