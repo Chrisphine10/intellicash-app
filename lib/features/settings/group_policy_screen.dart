@@ -25,6 +25,9 @@ class _GroupPolicyScreenState extends State<GroupPolicyScreen> {
   bool _saving = false;
   int _term = 1;
   String _fund = 'SOCIAL';
+  /// Basis points. Shown to the user as a percentage — nobody running a group
+  /// thinks in bps — and converted only at the edges.
+  int _rateBps = 0;
 
   static const _funds = <String, String>{
     'SOCIAL': 'Welfare (social) fund',
@@ -60,6 +63,7 @@ class _GroupPolicyScreenState extends State<GroupPolicyScreen> {
         _policy = policy;
         _term = policy.defaultLoanTermMonths;
         _fund = policy.expenseFundType;
+        _rateBps = policy.loanInterestRateBps;
         _loading = false;
       });
     } catch (error) {
@@ -78,6 +82,7 @@ class _GroupPolicyScreenState extends State<GroupPolicyScreen> {
             _groupId!,
             defaultLoanTermMonths: _term,
             expenseFundType: _fund,
+            loanInterestRateBps: _rateBps,
           );
       await _load();
       if (!mounted) return;
@@ -140,6 +145,35 @@ class _GroupPolicyScreenState extends State<GroupPolicyScreen> {
         Text(
           'Applies to new loans. Loans already given keep the term they were '
           'agreed with — changing this never changes what a member already owes.',
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        const SizedBox(height: 20),
+
+        Text('Interest charged', style: Theme.of(context).textTheme.titleSmall),
+        Row(
+          children: [
+            Expanded(
+              child: Slider(
+                divisions: 40,
+                label: '${(_rateBps / 100).toStringAsFixed(1)}% a month',
+                max: 2000,
+                min: 0,
+                onChanged:
+                    editable ? (v) => setState(() => _rateBps = (v / 50).round() * 50) : null,
+                value: _rateBps.toDouble().clamp(0, 2000),
+              ),
+            ),
+            SizedBox(
+              width: 64,
+              child: Text('${(_rateBps / 100).toStringAsFixed(1)}%'),
+            ),
+          ],
+        ),
+        Text(
+          'Flat on the amount borrowed each month — it does not fall as the '
+          'member repays, and it stops at the end of the agreed term. Zero is '
+          'fine: many groups lend interest-free. Each loan keeps the rate it '
+          'was made at, so changing this never reprices money already lent.',
           style: Theme.of(context).textTheme.bodySmall,
         ),
         const SizedBox(height: 20),

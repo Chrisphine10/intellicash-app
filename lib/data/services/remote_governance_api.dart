@@ -66,12 +66,17 @@ class RemoteGroupPolicy {
   const RemoteGroupPolicy({
     required this.defaultLoanTermMonths,
     required this.expenseFundType,
+    required this.loanInterestRateBps,
     required this.configured,
     required this.canConfigure,
   });
 
   final int defaultLoanTermMonths;
   final String expenseFundType;
+
+  /// Basis points per month, FLAT on the original principal. 0 is legitimate —
+  /// plenty of groups lend interest-free.
+  final int loanInterestRateBps;
 
   /// False when the group is running on platform defaults.
   final bool configured;
@@ -82,6 +87,7 @@ class RemoteGroupPolicy {
     return RemoteGroupPolicy(
       defaultLoanTermMonths: (policy['defaultLoanTermMonths'] as num?)?.toInt() ?? 1,
       expenseFundType: '${policy['expenseFundType'] ?? 'SOCIAL'}',
+      loanInterestRateBps: (policy['loanInterestRateBps'] as num?)?.toInt() ?? 0,
       configured: policy['configured'] == true,
       canConfigure: j['canConfigure'] == true,
     );
@@ -213,10 +219,12 @@ class RemoteGovernanceApi {
     String groupId, {
     int? defaultLoanTermMonths,
     String? expenseFundType,
+    int? loanInterestRateBps,
   }) async {
     final data = await _client.putData('/groups/$groupId/policy', body: {
       if (defaultLoanTermMonths != null) 'defaultLoanTermMonths': defaultLoanTermMonths,
       if (expenseFundType != null) 'expenseFundType': expenseFundType,
+      if (loanInterestRateBps != null) 'loanInterestRateBps': loanInterestRateBps,
     });
     final map = Map<String, dynamic>.from(data as Map);
     return '${map['message'] ?? 'Saved.'}';
