@@ -15,6 +15,7 @@ import '../../shared/widgets/common.dart';
 import '../../shared/widgets/status_chip.dart';
 import '../loans/loan_detail_screen.dart';
 import '../reports/member_report_local_screen.dart';
+import 'edit_member_sheet.dart';
 
 /// One member's profile: savings position, attendance rate and loan history.
 class MemberDetailScreen extends StatefulWidget {
@@ -119,6 +120,15 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
       appBar: AppBar(
         title: const Text('Members'),
         actions: [
+          if (member != null)
+            IconButton(
+              tooltip: 'Edit details',
+              icon: const Icon(Icons.edit_outlined, size: 22),
+              onPressed: () async {
+                final saved = await EditMemberSheet.show(context, member);
+                if (saved == true && mounted) await _load();
+              },
+            ),
           if (member != null)
             IconButton(
               tooltip: 'Member report',

@@ -353,44 +353,50 @@ class MoreScreen extends StatelessWidget {
 
   /// Where members' money is received. Only meaningful once the phone is
   /// connected and a group is chosen, so it stays hidden otherwise rather than
-  /// opening a screen that can only show an error.
-  /// Cloud-only settings. Hidden until a group is chosen, so the screen
-  /// cannot open onto an error the person cannot act on.
+  /// Cloud-only settings.
+  ///
+  /// These used to be HIDDEN until a group was chosen, and that was a mistake:
+  /// a feature that renders nothing is indistinguishable from a feature that
+  /// was never built. Officials on the published build reported the welfare
+  /// module as "missing" when it was there all along, waiting behind a cloud
+  /// connection nobody was told about. Now the row is always visible and says
+  /// what to do to use it.
   Widget _governanceTile(BuildContext context, String title, IconData icon,
       String subtitle, Widget screen) {
     final connection = context.watch<ConnectionProvider>();
-    if (!connection.isConnected || connection.selectedGroup == null) {
-      return const SizedBox.shrink();
-    }
+    final ready = connection.isConnected && connection.selectedGroup != null;
+    final muted = Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.6);
+
     return ListTile(
+      enabled: ready,
       leading: Icon(icon, size: 20),
       title: Text(title, style: const TextStyle(fontSize: 14)),
-      subtitle: Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
-      trailing: const Icon(Icons.chevron_right, size: 20),
-      onTap: () => Navigator.of(context)
-          .push(MaterialPageRoute(builder: (_) => screen)),
+      subtitle: Text(
+        ready
+            ? subtitle
+            : connection.isConnected
+                ? 'Choose your group under Cloud Account to use this'
+                : 'Sign in under Cloud Account to use this',
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: ready ? null : muted,
+            ),
+      ),
+      trailing: Icon(ready ? Icons.chevron_right : Icons.lock_outline, size: 20),
+      onTap: ready
+          ? () => Navigator.of(context)
+              .push(MaterialPageRoute(builder: (_) => screen))
+          : null,
     );
   }
 
   Widget _paymentProvidersTile(BuildContext context) {
-    final connection = context.watch<ConnectionProvider>();
-    if (!connection.isConnected || connection.selectedGroup == null) {
-      return const SizedBox.shrink();
-    }
-
-    return ListTile(
-      leading: const Icon(Icons.account_balance_wallet_outlined, size: 20),
-      title: const Text('Payment Providers', style: TextStyle(fontSize: 14)),
-      subtitle: Text(
-        'Where money from members is received',
-        style: Theme.of(context).textTheme.bodySmall,
-      ),
-      trailing: const Icon(Icons.chevron_right, size: 20),
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const PaymentProvidersScreen()),
-        );
-      },
+    // Same reasoning as _governanceTile: visible but locked, never absent.
+    return _governanceTile(
+      context,
+      'Payment Providers',
+      Icons.account_balance_wallet_outlined,
+      'Where money from members is received',
+      const PaymentProvidersScreen(),
     );
   }
 
