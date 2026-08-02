@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
+import '../../data/models/remote/remote_models.dart';
+import '../../data/services/remote_api.dart';
 import '../../data/services/remote_governance_api.dart';
 import '../../providers/connection_provider.dart';
 import '../../shared/widgets/common.dart';
@@ -23,6 +25,9 @@ class WelfareScreen extends StatefulWidget {
 
 class _WelfareScreenState extends State<WelfareScreen> {
   RemoteWelfare? _data;
+  /// Welfare is recorded DURING a meeting, so the screen needs the open ones.
+  List<RemoteMeeting> _openMeetings = const [];
+  String? _meetingId;
   String? _error;
   bool _loading = true;
   bool _saving = false;
@@ -73,10 +78,22 @@ class _WelfareScreenState extends State<WelfareScreen> {
       _error = null;
     });
     try {
-      final data = await context.read<RemoteGovernanceApi>().welfare(groupId);
+      // Both read BEFORE the first await: reading context after an async gap
+      // is how a popped screen throws on return.
+      final governance = context.read<RemoteGovernanceApi>();
+      final remote = context.read<RemoteApi>();
+      final data = await governance.welfare(groupId);
+      final meetings = await remote.groupMeetings(groupId);
+      final open = meetings.where((m) => m.status == 'IN_PROGRESS').toList();
       if (!mounted) return;
       setState(() {
         _data = data;
+        _openMeetings = open;
+        // One open meeting is the normal case — preselect rather than making
+        // an official choose from a list of one.
+        _meetingId = open.any((m) => m.id == _meetingId)
+            ? _meetingId
+            : (open.isEmpty ? null : open.first.id);
         _loading = false;
       });
     } catch (error) {
@@ -104,6 +121,15 @@ class _WelfareScreenState extends State<WelfareScreen> {
       // The server refuses this too. Asking here saves a round trip and says
       // why in the same breath.
       showAppSnack(context, 'Record who received the money.', error: true);
+      return;
+    }
+    final meetingId = _meetingId;
+    if (meetingId == null) {
+      showAppSnack(
+        context,
+        'Open a meeting first — welfare is paid out in front of the members.',
+        error: true,
+      );
       return;
     }
 
@@ -137,6 +163,7 @@ class _WelfareScreenState extends State<WelfareScreen> {
         groupId,
         amountCents: amountCents,
         category: _category,
+        meetingId: meetingId,
         payeeName: _payee.text.trim(),
         note: _note.text.trim(),
       );
@@ -222,7 +249,28 @@ class _WelfareScreenState extends State<WelfareScreen> {
               ),
             ),
           )
+        else if (_openMeetings.isEmpty)
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Text(
+                'No meeting is open. Welfare is paid out during a meeting, in '
+                'front of the members — open one first, then record it there.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+          )
         else ...[
+          DropdownButtonFormField<String>(
+            decoration: const InputDecoration(labelText: 'Recorded in meeting'),
+            initialValue: _meetingId,
+            items: [
+              for (final meeting in _openMeetings)
+                DropdownMenuItem(value: meeting.id, child: Text(meeting.title)),
+            ],
+            onChanged: _saving ? null : (v) => setState(() => _meetingId = v),
+          ),
+          const SizedBox(height: 10),
           TextField(
             controller: _amount,
             decoration: const InputDecoration(

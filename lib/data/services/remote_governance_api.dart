@@ -179,6 +179,9 @@ class RemoteGovernanceApi {
     String groupId, {
     required int amountCents,
     required String category,
+    // Required by the server: welfare leaves the fund in front of the members
+    // it belongs to, during an open meeting — never between them.
+    required String meetingId,
     String? payeeName,
     String? payeeMemberId,
     String? note,
@@ -186,6 +189,7 @@ class RemoteGovernanceApi {
     final data = await _client.postData('/groups/$groupId/welfare-expenses', body: {
       'amountCents': amountCents,
       'category': category,
+      'meetingId': meetingId,
       if (payeeName != null && payeeName.isNotEmpty) 'payeeName': payeeName,
       if (payeeMemberId != null) 'payeeMemberId': payeeMemberId,
       if (note != null && note.isNotEmpty) 'note': note,
