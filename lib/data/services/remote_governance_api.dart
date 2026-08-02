@@ -94,6 +94,23 @@ class RemoteGroupPolicy {
   }
 }
 
+/// A meeting, reduced to what a picker needs.
+class RemoteOpenMeeting {
+  const RemoteOpenMeeting({required this.id, required this.title, required this.status});
+
+  final String id;
+  final String title;
+  final String status;
+
+  bool get isOpen => status == 'IN_PROGRESS';
+
+  factory RemoteOpenMeeting.fromJson(Map<String, dynamic> j) => RemoteOpenMeeting(
+        id: '${j['id']}',
+        title: '${j['title'] ?? 'Meeting'}',
+        status: '${j['status'] ?? ''}',
+      );
+}
+
 /// One payment out of the welfare fund.
 class RemoteWelfareExpense {
   const RemoteWelfareExpense({
@@ -160,6 +177,21 @@ class RemoteGovernanceApi {
   RemoteGovernanceApi(this._client);
 
   final ApiClient _client;
+
+  /// Meetings still open, for anything that must be recorded inside one.
+  ///
+  /// Lives here rather than being read off `RemoteApi`: that class is built in
+  /// main.dart but never registered as a Provider, so `context.read<RemoteApi>()`
+  /// throws ProviderNotFound the moment a screen tries it. Found by opening
+  /// the welfare screen on a device — the code was in the build, and the build
+  /// crashed.
+  Future<List<RemoteOpenMeeting>> openMeetings(String groupId) async {
+    final list = await _client.getList('/groups/$groupId/meetings');
+    return list
+        .map((e) => RemoteOpenMeeting.fromJson(Map<String, dynamic>.from(e as Map)))
+        .where((meeting) => meeting.isOpen)
+        .toList(growable: false);
+  }
 
   Future<RemoteWelfare> welfare(String groupId) async {
     final data = await _client.getData('/groups/$groupId/welfare-expenses');

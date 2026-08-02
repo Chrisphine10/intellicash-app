@@ -3,8 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
-import '../../data/models/remote/remote_models.dart';
-import '../../data/services/remote_api.dart';
 import '../../data/services/remote_governance_api.dart';
 import '../../providers/connection_provider.dart';
 import '../../shared/widgets/common.dart';
@@ -26,7 +24,7 @@ class WelfareScreen extends StatefulWidget {
 class _WelfareScreenState extends State<WelfareScreen> {
   RemoteWelfare? _data;
   /// Welfare is recorded DURING a meeting, so the screen needs the open ones.
-  List<RemoteMeeting> _openMeetings = const [];
+  List<RemoteOpenMeeting> _openMeetings = const [];
   String? _meetingId;
   String? _error;
   bool _loading = true;
@@ -81,10 +79,8 @@ class _WelfareScreenState extends State<WelfareScreen> {
       // Both read BEFORE the first await: reading context after an async gap
       // is how a popped screen throws on return.
       final governance = context.read<RemoteGovernanceApi>();
-      final remote = context.read<RemoteApi>();
       final data = await governance.welfare(groupId);
-      final meetings = await remote.groupMeetings(groupId);
-      final open = meetings.where((m) => m.status == 'IN_PROGRESS').toList();
+      final open = await governance.openMeetings(groupId);
       if (!mounted) return;
       setState(() {
         _data = data;
