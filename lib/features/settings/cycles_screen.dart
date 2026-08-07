@@ -124,7 +124,26 @@ class _CyclesScreenState extends State<CyclesScreen> {
       );
     }
     final data = _data;
-    if (data == null) return const SizedBox.shrink();
+    if (data == null) {
+      // Never render nothing: an empty screen reads as "this feature does not
+      // exist", which is exactly how the welfare module came to be reported
+      // missing. Say what happened and offer the one control that recovers it.
+      return ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Text("Could not load this group's saving cycles.",
+              style: Theme.of(context).textTheme.titleSmall),
+          const SizedBox(height: 6),
+          Text(
+            'Pull down to try again. If it keeps happening, check the group is '
+            'still selected under Cloud Account.',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          const SizedBox(height: 14),
+          FilledButton(onPressed: _load, child: const Text('Try again')),
+        ],
+      );
+    }
 
     return ListView(
       padding: const EdgeInsets.all(16),

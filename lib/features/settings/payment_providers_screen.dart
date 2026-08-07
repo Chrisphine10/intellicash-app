@@ -221,7 +221,30 @@ class _PaymentProvidersScreenState extends State<PaymentProvidersScreen> {
       );
     }
     final data = _data;
-    if (data == null) return const SizedBox.shrink();
+    if (data == null) {
+      // Never render nothing. This branch is supposed to be unreachable —
+      // every path that clears _loading also sets _data or _error — but it was
+      // reached on a device, and an empty screen tells the person holding the
+      // phone that the feature is missing rather than that something failed.
+      // Say so, and give them the one control that can recover it.
+      return ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Text(
+            'Could not load this group\'s payment settings.',
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Pull down to try again. If it keeps happening, check the group is '
+            'still selected under Cloud Account.',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          const SizedBox(height: 14),
+          FilledButton(onPressed: _load, child: const Text('Try again')),
+        ],
+      );
+    }
 
     return ListView(
       padding: const EdgeInsets.all(16),
