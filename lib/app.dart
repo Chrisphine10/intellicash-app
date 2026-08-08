@@ -8,6 +8,7 @@ import 'core/theme/app_theme.dart';
 import 'features/agent/agent_home_screen.dart';
 import 'features/member/member_passbook_screen.dart';
 import 'features/onboarding/welcome_screen.dart';
+import 'features/server/sign_in_options_screen.dart';
 import 'features/shell/main_shell.dart';
 import 'l10n/app_localizations.dart';
 import 'providers/app_state.dart';
@@ -55,7 +56,14 @@ class IntelliCashApp extends StatelessWidget {
 /// functionality, not one app with a few tiles hidden. A member never sets up
 /// a group and never sees one; an agent sees their caseload; only a group
 /// account gets the record book.
-enum RootDestination { splash, welcome, agentHome, memberPassbook, groupShell }
+enum RootDestination {
+  splash,
+  welcome,
+  chooseAccount,
+  agentHome,
+  memberPassbook,
+  groupShell,
+}
 
 /// The whole routing rule, as a pure function so it can be tested directly.
 ///
@@ -68,13 +76,23 @@ RootDestination rootDestinationFor({
   required bool sessionReady,
   required AppStatus status,
   required StoredAccount? account,
+  bool hasSignedInBefore = false,
 }) {
   if (!themeReady || !localeReady) return RootDestination.splash;
   if (status == AppStatus.loading || !sessionReady) {
     return RootDestination.splash;
   }
   // Signed out — including on a phone that still holds a group's book.
-  if (account == null) return RootDestination.welcome;
+  //
+  // A phone that has been signed into before goes to "who is signing in?",
+  // not back to the account it just left. Signing out of the group account is
+  // how a treasurer switches to their own member account on the same handset,
+  // so the account TYPE has to be the first question asked.
+  if (account == null) {
+    return hasSignedInBefore
+        ? RootDestination.chooseAccount
+        : RootDestination.welcome;
+  }
   if (account.isAgent) return RootDestination.agentHome;
   if (account.isMember) return RootDestination.memberPassbook;
   // Only a group account opens the record book. Every other role — a platform
@@ -118,10 +136,13 @@ class _Bootstrapper extends StatelessWidget {
       account: context.select<ConnectionProvider, StoredAccount?>(
         (c) => c.account,
       ),
+      hasSignedInBefore:
+          context.select<ConnectionProvider, bool>((c) => c.hasSignedInBefore),
     );
     return switch (destination) {
       RootDestination.splash => const _SplashScreen(),
       RootDestination.welcome => const WelcomeScreen(),
+      RootDestination.chooseAccount => const SignInOptionsScreen(),
       RootDestination.agentHome => const AgentHomeScreen(),
       RootDestination.memberPassbook => const MemberPassbookScreen(),
       RootDestination.groupShell => const MainShell(),

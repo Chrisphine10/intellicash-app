@@ -45,6 +45,7 @@ class ConnectionProvider extends ChangeNotifier {
   RemoteUser? _signedInUser;
   StoredAccount? _account;
   String? _lastIdentifier;
+  String? _lastRole;
 
   ApiCredentials get credentials => _credentials;
   ConnectionStatus get status => _status;
@@ -74,6 +75,16 @@ class ConnectionProvider extends ChangeNotifier {
   /// The phone/email last used to sign in, for pre-filling the login form.
   String? get lastIdentifier => _lastIdentifier;
 
+  /// Which kind of account last signed in here, so the form only pre-fills
+  /// when the same kind is chosen again.
+  String? get lastRole => _lastRole;
+
+  /// This phone has been signed into before. Distinguishes "signed out" from
+  /// "brand new phone": the first should be asked which account is signing
+  /// in, the second should be offered account creation.
+  bool get hasSignedInBefore =>
+      _lastIdentifier != null && _lastIdentifier!.isNotEmpty;
+
   List<RemoteGroup> get groups => _groups;
   RemoteGroup? get selectedGroup => _selectedGroup;
   List<RemoteMember> get members => _members;
@@ -102,6 +113,7 @@ class ConnectionProvider extends ChangeNotifier {
       // works on a phone with no signal.
       _account = await _store.loadAccount();
       _lastIdentifier = await _store.lastIdentifier();
+      _lastRole = await _store.lastRole();
       if (_credentials.isConfigured) {
         await testConnection(silent: true);
       }
@@ -360,7 +372,10 @@ class ConnectionProvider extends ChangeNotifier {
       // Ignored on purpose — see above.
     }
     _account = account;
-    _lastIdentifier = account.identifier.isEmpty ? _lastIdentifier : account.identifier;
+    if (account.identifier.isNotEmpty) {
+      _lastIdentifier = account.identifier;
+      _lastRole = account.role;
+    }
   }
 
   RemoteApi get api => _api;

@@ -245,7 +245,31 @@ class _MemberPassbookScreenState extends State<MemberPassbookScreen> {
                 ),
               ),
             ),
-            GroupSwitcher(memberships: _memberships, onSwitch: _switchGroup),
+            // Every group this person saves with, always listed. This used to
+            // be a popup menu that hid itself below two groups, so a member
+            // could not see which groups they belong to at all — and with two
+            // or more, the list was behind a tap most people never made.
+            if (_memberships.isNotEmpty) ...[
+              SectionLabel(
+                _memberships.length == 1
+                    ? 'My group'
+                    : 'My groups (${_memberships.length})',
+              ),
+              Card(
+                child: Column(
+                  children: [
+                    for (var i = 0; i < _memberships.length; i++) ...[
+                      if (i > 0) const Divider(height: 1, indent: 16, endIndent: 16),
+                      _MembershipRow(
+                        membership: _memberships[i],
+                        onTap: () => _switchGroup(_memberships[i]),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(height: 4),
+            ],
             if (_loading)
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 40),
@@ -371,6 +395,47 @@ class _TxnRow extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// One group in the member's list of groups.
+///
+/// Tapping a row makes that group the active one; everything the API returns
+/// — passbook totals, ledger, meetings — is scoped to it, so this is how a
+/// member reads their record in each group they belong to.
+class _MembershipRow extends StatelessWidget {
+  const _MembershipRow({required this.membership, required this.onTap});
+
+  final Membership membership;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final active = membership.isActive;
+    return ListTile(
+      onTap: active ? null : onTap,
+      leading: Icon(
+        active ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+        size: 20,
+        color: active ? AppColors.primary : AppColors.textSecondary,
+      ),
+      title: Text(
+        membership.groupName.isEmpty ? 'Group' : membership.groupName,
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+        ),
+      ),
+      subtitle: Text(
+        active
+            ? 'Showing this group below'
+            : 'Tap to see your savings here',
+        style: Theme.of(context).textTheme.bodySmall,
+      ),
+      trailing: active
+          ? null
+          : Icon(Icons.chevron_right, size: 20, color: AppColors.textSecondary),
     );
   }
 }

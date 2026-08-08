@@ -143,7 +143,7 @@ class L10nKi extends L10n {
 
   @override
   String get sessionNote =>
-      'Your session lasts 8 hours; the offline record book keeps working without signing in again.';
+      'Your session lasts 8 hours. The group\'s record book keeps working offline once you are signed in.';
 
   @override
   String get sectionGroup => 'Gĩkundi';

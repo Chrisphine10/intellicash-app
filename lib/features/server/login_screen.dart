@@ -44,8 +44,24 @@ class _LoginScreenState extends State<LoginScreen> {
     // A group signing back in on its own phone is the common case, and typing
     // a phone number again on a small keyboard is enough friction to put
     // people off signing out at all. Pre-fill, don't force.
-    final last = context.read<ConnectionProvider>().lastIdentifier;
-    if (last != null && last.isNotEmpty) _idCtrl.text = last;
+    //
+    // Only when the SAME kind of account is being signed into, though. The
+    // whole point of signing out is often to switch from the group account to
+    // your own member account on a shared handset — offering the group's
+    // number on the "Just Me" form would be actively misleading.
+    final connection = context.read<ConnectionProvider>();
+    final last = connection.lastIdentifier;
+    final wire = switch (widget.role) {
+      SignInRole.member => 'MEMBER',
+      SignInRole.group => 'GROUP_ACCOUNT',
+      SignInRole.agent => 'VILLAGE_AGENT',
+      // No role chosen (generic sign-in): any remembered account may be the
+      // one signing in again, so pre-filling is safe.
+      null => connection.lastRole,
+    };
+    if (last != null && last.isNotEmpty && connection.lastRole == wire) {
+      _idCtrl.text = last;
+    }
   }
 
   @override

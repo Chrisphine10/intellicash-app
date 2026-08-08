@@ -51,7 +51,7 @@
   "signInWithPhone": "Sign in with your phone number and password.",
   "phoneOrEmail": "Phone number or email",
   "signingIn": "Signing in…",
-  "sessionNote": "Your session lasts 8 hours; the offline record book keeps working without signing in again.",
+  "sessionNote": "Your session lasts 8 hours. The group's record book keeps working offline once you are signed in.",
   "sectionGroup": "Group",
   "sectionReports": "Reports",
   "sectionEndOfCycle": "End of cycle",

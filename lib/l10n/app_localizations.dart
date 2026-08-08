@@ -352,7 +352,7 @@ abstract class L10n {
   /// No description provided for @sessionNote.
   ///
   /// In en, this message translates to:
-  /// **'Your session lasts 8 hours; the offline record book keeps working without signing in again.'**
+  /// **'Your session lasts 8 hours. The group\'s record book keeps working offline once you are signed in.'**
   String get sessionNote;
 
   /// No description provided for @sectionGroup.

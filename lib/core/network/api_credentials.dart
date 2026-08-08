@@ -73,6 +73,12 @@ class CredentialStore {
   /// people avoid signing out at all.
   static const _kLastIdentifier = 'last_identifier';
 
+  /// Which kind of account last signed in here. Kept alongside the identifier
+  /// so the login form only pre-fills when the SAME kind is chosen again —
+  /// offering a group's phone number to someone signing in as "Just Me" is
+  /// worse than offering nothing.
+  static const _kLastRole = 'last_role';
+
   final FlutterSecureStorage _storage;
 
   Future<ApiCredentials> load() async {
@@ -131,6 +137,7 @@ class CredentialStore {
     await _storage.write(key: _kIdentifier, value: account.identifier);
     if (account.identifier.isNotEmpty) {
       await _storage.write(key: _kLastIdentifier, value: account.identifier);
+      await _storage.write(key: _kLastRole, value: account.role);
     }
   }
 
@@ -145,6 +152,14 @@ class CredentialStore {
   Future<String?> lastIdentifier() async {
     try {
       return await _storage.read(key: _kLastIdentifier);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<String?> lastRole() async {
+    try {
+      return await _storage.read(key: _kLastRole);
     } catch (_) {
       return null;
     }

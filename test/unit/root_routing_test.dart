@@ -36,6 +36,7 @@ RootDestination destinationFor({
   bool themeReady = true,
   bool localeReady = true,
   bool sessionReady = true,
+  bool hasSignedInBefore = false,
 }) =>
     rootDestinationFor(
       themeReady: themeReady,
@@ -43,6 +44,7 @@ RootDestination destinationFor({
       sessionReady: sessionReady,
       status: status,
       account: account,
+      hasSignedInBefore: hasSignedInBefore,
     );
 
 void main() {
@@ -109,6 +111,39 @@ void main() {
     test('a phone with no group shows the welcome screen', () {
       expect(
         destinationFor(status: AppStatus.needsSetup, account: null),
+        RootDestination.welcome,
+      );
+    });
+
+    test('asks which kind of account is signing in', () {
+      // Signing out of the group account is how a treasurer switches to their
+      // own member account on the same handset. Sending them back to the
+      // account they just left would make that impossible.
+      expect(
+        destinationFor(
+          status: AppStatus.ready,
+          account: null,
+          hasSignedInBefore: true,
+        ),
+        RootDestination.chooseAccount,
+      );
+      expect(
+        destinationFor(
+          status: AppStatus.needsSetup,
+          account: null,
+          hasSignedInBefore: true,
+        ),
+        RootDestination.chooseAccount,
+      );
+    });
+
+    test('a brand new phone is offered account creation instead', () {
+      expect(
+        destinationFor(
+          status: AppStatus.needsSetup,
+          account: null,
+          hasSignedInBefore: false,
+        ),
         RootDestination.welcome,
       );
     });
