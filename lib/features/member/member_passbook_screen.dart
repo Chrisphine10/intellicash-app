@@ -11,7 +11,6 @@ import '../../providers/connection_provider.dart';
 import '../../shared/widgets/common.dart';
 import '../more/language_screen.dart';
 import 'join_group_screen.dart';
-import '../server/sign_in_options_screen.dart';
 import '../reports/member_report_screen.dart';
 import '../reports/my_savings_screen.dart';
 
@@ -136,10 +135,8 @@ class _MemberPassbookScreenState extends State<MemberPassbookScreen> {
     if (confirmed != true) return;
     await connection.disconnect();
     // Back to "who is signing in?" — a shared phone often changes hands here.
-    navigator.pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const SignInOptionsScreen()),
-      (route) => route.isFirst,
-    );
+    // The root renders that itself once the account is cleared.
+    navigator.popUntil((route) => route.isFirst);
   }
 
   double _sum(String type) => _entries

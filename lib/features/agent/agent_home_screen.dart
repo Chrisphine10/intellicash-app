@@ -8,7 +8,6 @@ import '../../l10n/app_localizations.dart';
 import '../../providers/connection_provider.dart';
 import '../../shared/widgets/common.dart';
 import '../more/language_screen.dart';
-import '../server/sign_in_options_screen.dart';
 import '../reports/agent_report_screen.dart';
 import 'agent_group_detail_screen.dart';
 import 'credit_band_chip.dart';
@@ -72,10 +71,8 @@ class _AgentHomeScreenState extends State<AgentHomeScreen> {
     if (confirmed != true) return;
     await connection.disconnect();
     // Back to "who is signing in?" — a shared phone often changes hands here.
-    navigator.pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const SignInOptionsScreen()),
-      (route) => route.isFirst,
-    );
+    // The root renders that itself once the account is cleared.
+    navigator.popUntil((route) => route.isFirst);
   }
 
   @override

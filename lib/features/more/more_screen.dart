@@ -23,7 +23,6 @@ import '../settings/welfare_screen.dart';
 import '../settings/payment_providers_screen.dart';
 import '../store/store_screen.dart';
 import '../server/server_settings_screen.dart';
-import '../server/sign_in_options_screen.dart';
 
 /// Group settings, cloud sync and app info — configuration lives here so
 /// it can't be touched by accident mid-meeting.
@@ -344,11 +343,11 @@ class MoreScreen extends StatelessWidget {
     final messenger = ScaffoldMessenger.of(context);
     await connection.disconnect();
     messenger.showSnackBar(SnackBar(content: Text(l10n.signedOut)));
-    // Offer the account chooser straight away; the group's offline book is
-    // still behind this screen if they just want to keep working.
-    navigator.push(
-      MaterialPageRoute(builder: (_) => const SignInOptionsScreen()),
-    );
+    // Drop every screen and let the root decide what this phone shows now.
+    // Pushing a login screen on top instead — which is what this did — left
+    // the whole group app alive underneath, one back-press away: member
+    // balances, group settings, meeting PINs, share-out.
+    navigator.popUntil((route) => route.isFirst);
   }
 
   /// Where members' money is received. Only meaningful once the phone is

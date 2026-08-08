@@ -26,6 +26,34 @@ class ApiCredentials {
   }
 }
 
+/// Who is signed in on this phone, remembered across launches.
+///
+/// The token alone cannot answer "which app should this person see?", because
+/// deciding that from the live session needs a network round-trip, and this
+/// app is used in places with no coverage for days. Persisting the role makes
+/// the answer available at cold start, offline: a member opens the app on a
+/// plane-mode phone and still gets their passbook rather than the group's
+/// record book.
+class StoredAccount {
+  const StoredAccount({
+    required this.role,
+    required this.name,
+    required this.identifier,
+  });
+
+  /// The backend's authoritative role: GROUP_ACCOUNT | MEMBER | VILLAGE_AGENT.
+  final String role;
+  final String name;
+
+  /// The phone or email typed at sign-in. Kept so the login form can be
+  /// pre-filled after a sign-out.
+  final String identifier;
+
+  bool get isAgent => role == 'VILLAGE_AGENT';
+  bool get isMember => role == 'MEMBER';
+  bool get isGroupAccount => role == 'GROUP_ACCOUNT';
+}
+
 /// Persists [ApiCredentials] in secure storage.
 class CredentialStore {
   CredentialStore({FlutterSecureStorage? storage})
@@ -35,6 +63,15 @@ class CredentialStore {
   static const _kKey = 'api_key';
   // Legacy key from the pre-Bearer scaffolding; cleared on save/clear.
   static const _kLegacySecret = 'api_secret';
+  static const _kRole = 'account_role';
+  static const _kName = 'account_name';
+  static const _kIdentifier = 'account_identifier';
+
+  /// Deliberately NOT cleared on sign-out: the next person to sign in on a
+  /// group's phone is almost always the same group, and retyping a phone
+  /// number on a feature-phone keyboard is the kind of friction that makes
+  /// people avoid signing out at all.
+  static const _kLastIdentifier = 'last_identifier';
 
   final FlutterSecureStorage _storage;
 
@@ -70,5 +107,46 @@ class CredentialStore {
     await _storage.delete(key: _kBaseUrl);
     await _storage.delete(key: _kKey);
     await _storage.delete(key: _kLegacySecret);
+  }
+
+  Future<StoredAccount?> loadAccount() async {
+    try {
+      final role = await _storage.read(key: _kRole);
+      if (role == null || role.isEmpty) return null;
+      return StoredAccount(
+        role: role,
+        name: await _storage.read(key: _kName) ?? '',
+        identifier: await _storage.read(key: _kIdentifier) ?? '',
+      );
+    } catch (_) {
+      // Secure storage unavailable — treat as signed out rather than crashing
+      // into a screen the person may not be entitled to see.
+      return null;
+    }
+  }
+
+  Future<void> saveAccount(StoredAccount account) async {
+    await _storage.write(key: _kRole, value: account.role);
+    await _storage.write(key: _kName, value: account.name);
+    await _storage.write(key: _kIdentifier, value: account.identifier);
+    if (account.identifier.isNotEmpty) {
+      await _storage.write(key: _kLastIdentifier, value: account.identifier);
+    }
+  }
+
+  /// Forgets who was signed in. Keeps [lastIdentifier] so the login form can
+  /// be pre-filled.
+  Future<void> clearAccount() async {
+    await _storage.delete(key: _kRole);
+    await _storage.delete(key: _kName);
+    await _storage.delete(key: _kIdentifier);
+  }
+
+  Future<String?> lastIdentifier() async {
+    try {
+      return await _storage.read(key: _kLastIdentifier);
+    } catch (_) {
+      return null;
+    }
   }
 }

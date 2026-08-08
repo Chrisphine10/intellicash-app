@@ -258,7 +258,7 @@ class L10nSw extends L10n {
 
   @override
   String get signOutKeepsRecords =>
-      'Utatoka kwenye akaunti ya wingu. Akiba, mikopo na mikutano ya kikundi chenu vitabaki vimehifadhiwa kwenye simu hii na vitaendelea kufanya kazi bila intaneti.';
+      'Akiba, mikopo na mikutano ya kikundi chenu vitabaki vimehifadhiwa kwenye simu hii, lakini hakuna atakayeweza kuvifungua hadi uingie tena. Nambari yako ya simu itakumbukwa.';
 
   @override
   String get whoIsSigningIn => 'Nani anaingia?';

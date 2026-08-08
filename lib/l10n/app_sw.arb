@@ -78,7 +78,7 @@
   "back": "Rudi",
   "cancel": "Ghairi",
   "signedOut": "Umetoka.",
-  "signOutKeepsRecords": "Utatoka kwenye akaunti ya wingu. Akiba, mikopo na mikutano ya kikundi chenu vitabaki vimehifadhiwa kwenye simu hii na vitaendelea kufanya kazi bila intaneti.",
+  "signOutKeepsRecords": "Akiba, mikopo na mikutano ya kikundi chenu vitabaki vimehifadhiwa kwenye simu hii, lakini hakuna atakayeweza kuvifungua hadi uingie tena. Nambari yako ya simu itakumbukwa.",
   "whoIsSigningIn": "Nani anaingia?",
   "whoIsSigningInSubtitle": "Chagua aina ya akaunti unayotumia, kisha weka nambari yako ya simu na nenosiri."
 }

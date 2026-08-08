@@ -259,7 +259,7 @@ class L10nEbu extends L10n {
 
   @override
   String get signOutKeepsRecords =>
-      'You will be signed out of the cloud account. Your group\'s savings, loans and meetings stay saved on this phone and keep working without internet.';
+      'Your group\'s savings, loans and meetings stay saved on this phone, but nobody can open them until you sign in again. Your phone number will be remembered.';
 
   @override
   String get whoIsSigningIn => 'Who is signing in?';

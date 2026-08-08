@@ -3,12 +3,9 @@ import 'package:provider/provider.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../l10n/app_localizations.dart';
-import '../../providers/app_state.dart';
 import '../../providers/connection_provider.dart';
 import '../../providers/locale_controller.dart';
 import '../../shared/widgets/common.dart';
-import '../agent/agent_home_screen.dart';
-import '../member/member_passbook_screen.dart';
 
 /// The kind of account someone said they were on the previous screen. It
 /// only tailors the copy — the backend remains the authority on the real
@@ -40,6 +37,16 @@ class _LoginScreenState extends State<LoginScreen> {
   final _idCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   bool _obscure = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // A group signing back in on its own phone is the common case, and typing
+    // a phone number again on a small keyboard is enough friction to put
+    // people off signing out at all. Pre-fill, don't force.
+    final last = context.read<ConnectionProvider>().lastIdentifier;
+    if (last != null && last.isNotEmpty) _idCtrl.text = last;
+  }
 
   @override
   void dispose() {
@@ -165,26 +172,11 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
     showAppSnack(context, 'Signed in as ${user?.name ?? 'your account'}.');
 
-    // No local group yet (signed in from the welcome screen): pop back to
-    // the root — the welcome screen itself routes agents and members to
-    // their home by role, so no push here.
-    if (context.read<AppState>().status == AppStatus.needsSetup) {
-      navigator.popUntil((route) => route.isFirst);
-      return;
-    }
-
-    // Route by the backend's authoritative role, regardless of entry point.
-    if (user?.isAgent ?? false) {
-      navigator.pushReplacement(
-        MaterialPageRoute(builder: (_) => const AgentHomeScreen()),
-      );
-    } else if (user?.isMember ?? false) {
-      navigator.pushReplacement(
-        MaterialPageRoute(builder: (_) => const MemberPassbookScreen()),
-      );
-    } else {
-      // Group / admin / other: return to the connected app.
-      navigator.pop();
-    }
+    // Drop back to the root and let it route by role. Pushing the role home
+    // from here instead used to leave whatever was underneath still mounted:
+    // a member landed on their passbook, but one back-press — or the next
+    // launch — put them in the group's record book, because the root itself
+    // had no idea a member had signed in.
+    navigator.popUntil((route) => route.isFirst);
   }
 }

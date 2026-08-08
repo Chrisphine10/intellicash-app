@@ -43,6 +43,8 @@ class ConnectionProvider extends ChangeNotifier {
   RemoteNotifications _notifications =
       const RemoteNotifications(items: [], unreadCount: 0);
   RemoteUser? _signedInUser;
+  StoredAccount? _account;
+  String? _lastIdentifier;
 
   ApiCredentials get credentials => _credentials;
   ConnectionStatus get status => _status;
@@ -57,6 +59,20 @@ class ConnectionProvider extends ChangeNotifier {
 
   /// A live signed-in session (restored or fresh).
   bool get hasSession => isConnected && _signedInUser != null;
+
+  /// Who this phone belongs to, from secure storage.
+  ///
+  /// Use this — not [hasSession] — to decide which app a person sees.
+  /// [hasSession] is false whenever the phone is offline, because restoring a
+  /// session re-validates it over the network; routing on it would lock a
+  /// group out of its own record book the moment it lost signal.
+  StoredAccount? get account => _account;
+
+  /// Signed out, or never signed in on this phone.
+  bool get isSignedOut => _account == null;
+
+  /// The phone/email last used to sign in, for pre-filling the login form.
+  String? get lastIdentifier => _lastIdentifier;
 
   List<RemoteGroup> get groups => _groups;
   RemoteGroup? get selectedGroup => _selectedGroup;
@@ -82,6 +98,10 @@ class ConnectionProvider extends ChangeNotifier {
     try {
       _credentials = await _store.load();
       _applyCredentials(_credentials);
+      // Read who this phone belongs to BEFORE any network call, so routing
+      // works on a phone with no signal.
+      _account = await _store.loadAccount();
+      _lastIdentifier = await _store.lastIdentifier();
       if (_credentials.isConfigured) {
         await testConnection(silent: true);
       }
@@ -125,6 +145,7 @@ class ConnectionProvider extends ChangeNotifier {
       _applyCredentials(_credentials);
       await _store.save(_credentials);
       _signedInUser = result.user;
+      await _rememberAccount(result.user, identifier);
       _groups = await _api.groups();
       await _selectGroup(_groups.isNotEmpty ? _groups.first : null);
       _notifications = await _safe(
@@ -174,6 +195,7 @@ class ConnectionProvider extends ChangeNotifier {
       _applyCredentials(_credentials);
       await _store.save(_credentials);
       _signedInUser = result.user;
+      await _rememberAccount(result.user, phone);
       _groups = await _safe(() => _api.groups(), const []);
       await _selectGroup(_groups.isNotEmpty ? _groups.first : null);
       _status = ConnectionStatus.connected;
@@ -211,6 +233,14 @@ class ConnectionProvider extends ChangeNotifier {
         const RemoteNotifications(items: [], unreadCount: 0),
       );
       _signedInUser = await _safe(() => _api.me(), _signedInUser);
+      // Phones upgrading from a build that stored only the token have a live
+      // session but no remembered role. Adopt it here rather than making
+      // everyone sign in again on update; the identifier is unknown, and the
+      // login form falls back to whatever it already had.
+      final user = _signedInUser;
+      if (_account == null && user != null) {
+        await _rememberAccount(user, _lastIdentifier ?? '');
+      }
       _status = ConnectionStatus.connected;
       _error = null;
       return true;
@@ -305,9 +335,32 @@ class ConnectionProvider extends ChangeNotifier {
     _meetings = [];
     _notifications = const RemoteNotifications(items: [], unreadCount: 0);
     _signedInUser = null;
+    // Forget the role too, or the root would keep showing this account's app
+    // to whoever picks the phone up next. The identifier survives so the login
+    // form can be pre-filled.
+    await _store.clearAccount();
+    _account = null;
     _error = null;
     notifyListeners();
     return revoked;
+  }
+
+  /// Remembers the role so the next cold start can route without a network
+  /// call. Never fatal: a phone whose secure storage refuses to write should
+  /// still complete the sign-in it just did.
+  Future<void> _rememberAccount(RemoteUser user, String identifier) async {
+    final account = StoredAccount(
+      role: user.role,
+      name: user.name,
+      identifier: identifier.trim(),
+    );
+    try {
+      await _store.saveAccount(account);
+    } catch (_) {
+      // Ignored on purpose — see above.
+    }
+    _account = account;
+    _lastIdentifier = account.identifier.isEmpty ? _lastIdentifier : account.identifier;
   }
 
   RemoteApi get api => _api;

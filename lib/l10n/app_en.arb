@@ -88,7 +88,7 @@
   "back": "Back",
   "cancel": "Cancel",
   "signedOut": "Signed out.",
-  "signOutKeepsRecords": "You will be signed out of the cloud account. Your group's savings, loans and meetings stay saved on this phone and keep working without internet.",
+  "signOutKeepsRecords": "Your group's savings, loans and meetings stay saved on this phone, but nobody can open them until you sign in again. Your phone number will be remembered.",
   "whoIsSigningIn": "Who is signing in?",
   "whoIsSigningInSubtitle": "Choose the kind of account you use, then enter your phone number and password."
 }

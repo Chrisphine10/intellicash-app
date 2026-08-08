@@ -574,7 +574,7 @@ abstract class L10n {
   /// No description provided for @signOutKeepsRecords.
   ///
   /// In en, this message translates to:
-  /// **'You will be signed out of the cloud account. Your group\'s savings, loans and meetings stay saved on this phone and keep working without internet.'**
+  /// **'Your group\'s savings, loans and meetings stay saved on this phone, but nobody can open them until you sign in again. Your phone number will be remembered.'**
   String get signOutKeepsRecords;
 
   /// No description provided for @whoIsSigningIn.
