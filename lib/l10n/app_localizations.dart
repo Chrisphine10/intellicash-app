@@ -250,7 +250,7 @@ abstract class L10n {
   /// No description provided for @accountTypeAgentSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'I support and monitor several groups.'**
+  /// **'Village Agent or CBT — I support and monitor several groups.'**
   String get accountTypeAgentSubtitle;
 
   /// No description provided for @change.

@@ -89,7 +89,7 @@ class L10nSw extends L10n {
 
   @override
   String get accountTypeAgentSubtitle =>
-      'Nasaidia na kufuatilia vikundi kadhaa.';
+      'Wakala wa Kijiji au CBT — nasaidia na kufuatilia vikundi kadhaa.';
 
   @override
   String get change => 'Badilisha';

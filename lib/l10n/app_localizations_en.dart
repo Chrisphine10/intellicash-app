@@ -90,7 +90,7 @@ class L10nEn extends L10n {
 
   @override
   String get accountTypeAgentSubtitle =>
-      'I support and monitor several groups.';
+      'Village Agent or CBT — I support and monitor several groups.';
 
   @override
   String get change => 'Change';

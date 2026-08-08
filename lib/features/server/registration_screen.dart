@@ -44,8 +44,12 @@ const _accountTypes = [
       'This phone will keep our group\'s savings, loans and meetings.'),
   _AccountType('MEMBER', Icons.person_outline, 'Just Me',
       'I want to see my own savings, shares and loans.'),
+  // Village Agent, VA and CBT (Community-Based Trainer) are the same job and
+  // the same backend role. Programmes use different words for it, so name all
+  // of them here — someone who only knows themselves as a CBT should not have
+  // to guess that "Field Agent" means them.
   _AccountType('AGENT', Icons.badge_outlined, 'Field Agent',
-      'I support and monitor several groups.'),
+      'Village Agent or CBT — I support and monitor several groups.'),
 ];
 
 class _RegistrationScreenState extends State<RegistrationScreen> {

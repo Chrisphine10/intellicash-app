@@ -49,6 +49,7 @@ class StoredAccount {
   /// pre-filled after a sign-out.
   final String identifier;
 
+  /// Village Agent, VA and CBT are the same role: `VILLAGE_AGENT`.
   bool get isAgent => role == 'VILLAGE_AGENT';
   bool get isMember => role == 'MEMBER';
   bool get isGroupAccount => role == 'GROUP_ACCOUNT';

@@ -260,6 +260,13 @@ class RemoteUser {
   /// language chosen yet adopts it on sign-in.
   final String? languagePreference;
 
+  /// Village Agent, VA and CBT (Community-Based Trainer) are one job with one
+  /// backend role, `VILLAGE_AGENT`. Different programmes use different words
+  /// for the same person — do not add a second role for CBT.
+  ///
+  /// If the backend ever does gain another agent role, add it here: the root
+  /// fails closed, so an agent whose role string is unrecognised lands on the
+  /// sign-in screen rather than in someone's record book.
   bool get isAgent => role == 'VILLAGE_AGENT';
   bool get isMember => role == 'MEMBER';
   bool get isGroupAccount => role == 'GROUP_ACCOUNT';
