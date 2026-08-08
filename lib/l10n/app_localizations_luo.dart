@@ -262,6 +262,14 @@ class L10nLuo extends L10n {
       'Your group\'s savings, loans and meetings stay saved on this phone, but nobody can open them until you sign in again. Your phone number will be remembered.';
 
   @override
+  String get signOutMemberNote =>
+      'You will need to sign in again to see your savings. Your phone number will be remembered.';
+
+  @override
+  String get signOutAgentNote =>
+      'You will need to sign in again to see your groups. Your phone number will be remembered.';
+
+  @override
   String get whoIsSigningIn => 'Who is signing in?';
 
   @override

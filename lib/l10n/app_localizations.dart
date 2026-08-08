@@ -577,6 +577,18 @@ abstract class L10n {
   /// **'Your group\'s savings, loans and meetings stay saved on this phone, but nobody can open them until you sign in again. Your phone number will be remembered.'**
   String get signOutKeepsRecords;
 
+  /// No description provided for @signOutMemberNote.
+  ///
+  /// In en, this message translates to:
+  /// **'You will need to sign in again to see your savings. Your phone number will be remembered.'**
+  String get signOutMemberNote;
+
+  /// No description provided for @signOutAgentNote.
+  ///
+  /// In en, this message translates to:
+  /// **'You will need to sign in again to see your groups. Your phone number will be remembered.'**
+  String get signOutAgentNote;
+
   /// No description provided for @whoIsSigningIn.
   ///
   /// In en, this message translates to:

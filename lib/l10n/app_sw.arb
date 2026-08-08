@@ -79,6 +79,8 @@
   "cancel": "Ghairi",
   "signedOut": "Umetoka.",
   "signOutKeepsRecords": "Akiba, mikopo na mikutano ya kikundi chenu vitabaki vimehifadhiwa kwenye simu hii, lakini hakuna atakayeweza kuvifungua hadi uingie tena. Nambari yako ya simu itakumbukwa.",
+  "signOutMemberNote": "Utahitaji kuingia tena ili kuona akiba yako. Nambari yako ya simu itakumbukwa.",
+  "signOutAgentNote": "Utahitaji kuingia tena ili kuona vikundi vyako. Nambari yako ya simu itakumbukwa.",
   "whoIsSigningIn": "Nani anaingia?",
   "whoIsSigningInSubtitle": "Chagua aina ya akaunti unayotumia, kisha weka nambari yako ya simu na nenosiri."
 }

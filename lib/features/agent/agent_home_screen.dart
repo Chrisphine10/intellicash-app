@@ -54,7 +54,9 @@ class _AgentHomeScreenState extends State<AgentHomeScreen> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: Text(l10n.signOut, style: const TextStyle(fontSize: 17)),
-        content: Text(l10n.signOutKeepsRecords,
+        // An agent's caseload lives on the server, not in a book on this
+        // phone; the group wording was simply about someone else's app.
+        content: Text(l10n.signOutAgentNote,
             style: const TextStyle(fontSize: 13.5)),
         actions: [
           TextButton(

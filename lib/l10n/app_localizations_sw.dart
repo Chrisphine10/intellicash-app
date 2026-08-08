@@ -261,6 +261,14 @@ class L10nSw extends L10n {
       'Akiba, mikopo na mikutano ya kikundi chenu vitabaki vimehifadhiwa kwenye simu hii, lakini hakuna atakayeweza kuvifungua hadi uingie tena. Nambari yako ya simu itakumbukwa.';
 
   @override
+  String get signOutMemberNote =>
+      'Utahitaji kuingia tena ili kuona akiba yako. Nambari yako ya simu itakumbukwa.';
+
+  @override
+  String get signOutAgentNote =>
+      'Utahitaji kuingia tena ili kuona vikundi vyako. Nambari yako ya simu itakumbukwa.';
+
+  @override
   String get whoIsSigningIn => 'Nani anaingia?';
 
   @override

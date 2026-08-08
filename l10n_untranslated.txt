@@ -69,6 +69,8 @@
     "meetingInProgress",
     "signedOut",
     "signOutKeepsRecords",
+    "signOutMemberNote",
+    "signOutAgentNote",
     "whoIsSigningIn",
     "whoIsSigningInSubtitle"
   ],
@@ -136,6 +138,8 @@
     "meetingInProgress",
     "signedOut",
     "signOutKeepsRecords",
+    "signOutMemberNote",
+    "signOutAgentNote",
     "whoIsSigningIn",
     "whoIsSigningInSubtitle"
   ],
@@ -209,6 +213,8 @@
     "meetingInProgress",
     "signedOut",
     "signOutKeepsRecords",
+    "signOutMemberNote",
+    "signOutAgentNote",
     "whoIsSigningIn",
     "whoIsSigningInSubtitle"
   ]

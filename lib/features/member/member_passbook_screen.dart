@@ -118,7 +118,9 @@ class _MemberPassbookScreenState extends State<MemberPassbookScreen> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: Text(l10n.signOut, style: const TextStyle(fontSize: 17)),
-        content: Text(l10n.signOutKeepsRecords,
+        // A member has no group record book on this phone — telling them their
+        // group's meetings "stay saved here" describes someone else's app.
+        content: Text(l10n.signOutMemberNote,
             style: const TextStyle(fontSize: 13.5)),
         actions: [
           TextButton(

@@ -89,6 +89,8 @@
   "cancel": "Cancel",
   "signedOut": "Signed out.",
   "signOutKeepsRecords": "Your group's savings, loans and meetings stay saved on this phone, but nobody can open them until you sign in again. Your phone number will be remembered.",
+  "signOutMemberNote": "You will need to sign in again to see your savings. Your phone number will be remembered.",
+  "signOutAgentNote": "You will need to sign in again to see your groups. Your phone number will be remembered.",
   "whoIsSigningIn": "Who is signing in?",
   "whoIsSigningInSubtitle": "Choose the kind of account you use, then enter your phone number and password."
 }
