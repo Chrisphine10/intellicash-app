@@ -31,6 +31,7 @@ class _PaymentProvidersScreenState extends State<PaymentProvidersScreen> {
     'MPESA_PASSKEY': 'Passkey',
     'MPESA_INITIATOR_NAME': 'Initiator name',
     'MPESA_SECURITY_CREDENTIAL': 'Security credential',
+    'MPESA_ENVIRONMENT': 'Environment (SANDBOX or LIVE)',
     'PAYSTACK_SECRET_KEY': 'Secret key',
     'PAYSTACK_PUBLIC_KEY': 'Public key',
   };
@@ -205,10 +206,7 @@ class _PaymentProvidersScreenState extends State<PaymentProvidersScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Payment Providers')),
-      body: RefreshIndicator(
-        onRefresh: _load,
-        child: _buildBody(),
-      ),
+      body: RefreshIndicator(onRefresh: _load, child: _buildBody()),
     );
   }
 
@@ -322,17 +320,30 @@ class _PaymentProvidersScreenState extends State<PaymentProvidersScreen> {
               ),
             if (data.canConfigure) ...[
               const SizedBox(height: 10),
+              // Both buttons must be Expanded, not bare. The app theme gives
+              // filled and outlined buttons a minimumSize of Size.fromHeight,
+              // whose width is double.infinity — that is what makes them fill
+              // their parent. A Row hands its children an unbounded width, so
+              // nothing clamps that infinity and the button asks to be
+              // infinitely wide; layout stops there and the whole screen
+              // renders blank, with no exception logged. Expanded gives each
+              // button a finite width, which is what every other Row of
+              // buttons in this app already does.
               Row(
                 children: [
-                  FilledButton(
-                    onPressed: busy ? null : () => _edit(provider),
-                    child: Text(provider.configured ? 'Update' : 'Set up'),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: busy ? null : () => _edit(provider),
+                      child: Text(provider.configured ? 'Update' : 'Set up'),
+                    ),
                   ),
                   if (provider.configured) ...[
                     const SizedBox(width: 8),
-                    OutlinedButton(
-                      onPressed: busy ? null : () => _revert(provider),
-                      child: const Text('Use platform'),
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: busy ? null : () => _revert(provider),
+                        child: const Text('Use platform'),
+                      ),
                     ),
                   ],
                 ],

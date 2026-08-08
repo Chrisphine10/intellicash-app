@@ -96,6 +96,13 @@ abstract final class AppTheme {
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
+      // The minimumSize below is Size.fromHeight, i.e. a width of
+      // double.infinity. That is deliberate — it is what makes buttons fill
+      // their parent — but it only works where the parent bounds the width.
+      // Put one of these buttons directly in a Row and nothing clamps the
+      // infinity: layout aborts at that button and the entire screen paints
+      // blank, with no exception in the logs. Always wrap them in Expanded or
+      // Flexible inside a Row.
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: AppColors.primary,
