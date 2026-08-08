@@ -4,32 +4,31 @@ Newest first.
 
 ---
 
-## 2.2.0 (build 10) — 8 August 2026
+## 2.2.0 — 8 August 2026
 
-`app-release.aab` · 47.5 MB · signed · commits `2ef3925`, `ebe7ff1`
+**Edit a member's details.** Open a member and tap Edit to correct a
+misspelled name or change a phone number. The member keeps their savings,
+shares and loan history. Two members cannot end up sharing one number.
 
-**Store copy**
+**Payment Providers now opens.** Set up M-Pesa (Daraja) or Paystack so money
+your members pay comes into your group's own account instead of the platform
+account. The screen shows which account each provider currently collects into,
+and names anything still missing before a setup is finished. Saved secrets
+are never shown back to you — you replace them, you don't read them.
 
-> Fixed a problem where the Payment Providers screen opened blank. It now shows
-> M-Pesa (Daraja) and Paystack for your group: whether each one collects into
-> your group's own account or into the platform account, and what is still
-> missing before a setup is finished.
+**Cloud features are visible before you connect.** Welfare Fund, Saving
+Cycles, Group Rules and Payment Providers used to disappear entirely until the
+group was connected to a Cloud Account. They now appear locked, with a line
+explaining what to do, so it is clear the feature exists rather than looking
+like it is missing.
 
-**Changed**
+**Welfare Fund opens reliably.** It no longer fails to open on some phones.
 
-- Payment Providers opened blank. A button in a `Row` inherited the theme's
-  infinite minimum width, nothing clamped it, and layout aborted — silently,
-  taking the screen with it. Buttons are now width-bounded; the trap is
-  documented in the theme.
-- M-Pesa environment field showed its raw key instead of a label.
+**Screens say when something went wrong.** A screen that cannot load its
+information now says so and offers Try again, instead of showing an empty
+page.
 
-**Affects** anyone on 2.1.0 (build 9), which shipped the blank screen. Group
-accounts and admins reach this screen; members never do. No migration, no
-server change, no re-authentication.
+### Upgrading
 
-**Verified** full flow on emulator from a clean install against production.
-Bundle checked for the new code; `versionCode` read back as `10`. The AAB
-itself was not installed and run — only a debug build of the same commit.
-
-**Rollback** halt the staged rollout. Nothing to undo server-side; build 9
-restores the bug, so prefer rolling forward.
+Nothing to do. Your groups, members, savings and offline records carry over,
+and you stay signed in.
