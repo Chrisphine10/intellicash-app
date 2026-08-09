@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Debug builds only.
+
+  Android blocks cleartext HTTP by default, which is right: this app carries a
+  group's savings records and a release build must never speak plain http — the
+  release config check already refuses to produce one that would.
+
+  A developer's API, though, runs on http://localhost, and the emulator reaches
+  the host as 10.0.2.2. Without this, testing the app against a local backend is
+  impossible and the temptation is to relax cleartext for the whole app, which
+  would follow the APK into production.
+
+  This file lives under src/debug, so it is compiled into debug builds and does
+  not exist in a release one.
+-->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <!-- The host machine, as seen from the Android emulator. -->
+        <domain includeSubdomains="false">10.0.2.2</domain>
+        <domain includeSubdomains="false">localhost</domain>
+        <domain includeSubdomains="false">127.0.0.1</domain>
+    </domain-config>
+</network-security-config>
