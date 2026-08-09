@@ -96,10 +96,28 @@ Future<void> main() async {
     // what the group has actually spent rather than gross contributions.
     welfareSync: WelfareExpenseSync(db, apiClient),
   );
-  syncService.onSync = autoSync.syncBoundGroups;
+  // Visits ride the same reconnect trigger rather than getting a second
+  // coordinator. An agent finishes a visit in a valley and walks back into
+  // signal hours later; without this the visit would sit on the phone until
+  // they happened to open the app and submit another one.
+  final visitSync = VisitSyncService(api: RemoteVisitsApi(apiClient));
+  syncService.onSync = () async {
+    final meetings = await autoSync.syncBoundGroups();
+    // A failure pushing visits must not stop meetings syncing, or vice
+    // versa: they are independent bodies of work and one being stuck is not
+    // a reason to strand the other.
+    var visits = 0;
+    try {
+      visits = await visitSync.pushDue();
+    } catch (_) {
+      // Already recorded against the outbox entry, which owns the retry.
+    }
+    return meetings + visits;
+  };
   // The badge counts real unsynced work, not the vestigial write-queue, so it
   // tracks the sync it can see and clears as meetings back up.
-  syncService.pendingProbe = autoSync.pendingMeetings;
+  syncService.pendingProbe = () async =>
+      await autoSync.pendingMeetings() + await visitSync.pendingCount();
 
   runApp(
     MultiProvider(
@@ -168,9 +186,9 @@ Future<void> main() async {
         Provider<VisitRepository>(
           create: (_) => VisitRepository(),
         ),
-        Provider<VisitSyncService>(
-          create: (context) => VisitSyncService(api: context.read<RemoteVisitsApi>()),
-        ),
+        // The SAME instance the reconnect trigger drives — two would each
+        // hold their own view of the queue.
+        Provider<VisitSyncService>.value(value: visitSync),
         ChangeNotifierProvider(
           create: (_) => ShareOutProvider(ShareOutRepository(db)),
         ),
