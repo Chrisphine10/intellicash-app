@@ -58,6 +58,11 @@ void main() {
       () async {
     // --- build, then rewind to v5 -------------------------------------------
     var db = await AppDatabase.instance.database;
+    // What a freshly created database reports. Assertions below compare
+    // against this rather than a literal, so the test tracks the schema
+    // instead of needing an edit on every version bump.
+    final currentSchemaVersion =
+        (await db.rawQuery('PRAGMA user_version')).first.values.first;
     await db.insert('groups', groupRow('g1', 'Tujijenge Women'));
     await db.insert('groups', groupRow('g2', 'Umoja Savings'));
 
@@ -76,8 +81,12 @@ void main() {
     // --- reopen: the real onUpgrade runs ------------------------------------
     db = await AppDatabase.instance.database;
 
+    // Compared against what a fresh database reports rather than a literal:
+    // this test is about v5 -> current, and hardcoding a number means it
+    // breaks on every future schema bump for no real reason.
     final afterVersion = (await db.rawQuery('PRAGMA user_version')).first.values.first;
-    expect(afterVersion, 6, reason: 'upgrade must advance the schema version');
+    expect(afterVersion, currentSchemaVersion,
+        reason: 'upgrade must advance the schema version');
 
     // The group's records must survive. An upgrade that loses them would be
     // worse than one that fails outright, because it fails silently.
@@ -111,12 +120,15 @@ void main() {
     // A build installed over itself, or an interrupted upgrade retried, must
     // not fail on "table already exists".
     var db = await AppDatabase.instance.database;
+    final currentSchemaVersion =
+        (await db.rawQuery('PRAGMA user_version')).first.values.first;
     await db.insert('groups', groupRow('g3', 'Repeat Group'));
     await db.execute('PRAGMA user_version = 5');
     await AppDatabase.instance.close();
 
     db = await AppDatabase.instance.database;
-    expect((await db.rawQuery('PRAGMA user_version')).first.values.first, 6);
+    expect((await db.rawQuery('PRAGMA user_version')).first.values.first,
+        currentSchemaVersion);
     expect((await db.rawQuery('SELECT COUNT(*) c FROM groups')).first['c'], 1);
   });
 }

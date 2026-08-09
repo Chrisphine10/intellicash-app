@@ -10,7 +10,7 @@ class AppDatabase {
   AppDatabase._();
   static final AppDatabase instance = AppDatabase._();
 
-  static const int _version = 6;
+  static const int _version = 7;
   Database? _db;
 
   /// Test hook: lets tests inject an in-memory/ffi database factory.
@@ -169,6 +169,10 @@ class AppDatabase {
     }
     batch.execute(_shareOutPayoutsTable);
     batch.execute(_welfareExpensesTable);
+    batch.execute(_groupVisitsTable);
+    batch.execute(_outboxTable);
+    batch.execute('CREATE INDEX idx_visits_group ON group_visits(remote_group_id, started_at)');
+    batch.execute('CREATE INDEX idx_outbox_status ON outbox(status, next_attempt_at)');
     batch.execute('CREATE INDEX idx_welfare_group ON welfare_expenses(group_id, cycle_number)');
     batch.execute(
         'CREATE INDEX idx_shareout_group ON share_out_payouts(group_id, cycle_number)');
@@ -249,6 +253,71 @@ class AppDatabase {
       )
     ''';
 
+  /// A field visit as captured on the phone.
+  ///
+  /// `client_request_id` is minted once, when the opening PIN passes, and is
+  /// never regenerated — not on retry, not on resume, not after a reinstall.
+  /// It is the whole idempotency story: the server keys on it, so a visit
+  /// pushed twice is recorded once.
+  ///
+  /// `remote_id` is NULL until the server has accepted the visit, which is how
+  /// anything that depends on the visit knows whether it can be pushed yet.
+  static const String _groupVisitsTable = '''
+      CREATE TABLE group_visits (
+        id TEXT PRIMARY KEY,
+        client_request_id TEXT NOT NULL UNIQUE,
+        remote_group_id TEXT NOT NULL,
+        group_name TEXT,
+        visit_type TEXT NOT NULL DEFAULT 'FOLLOW_UP',
+        status TEXT NOT NULL DEFAULT 'DRAFT',
+        started_at TEXT NOT NULL,
+        completed_at TEXT,
+        pin_verified_at TEXT,
+        latitude REAL,
+        longitude REAL,
+        accuracy_m REAL,
+        location_captured_at TEXT,
+        location_note TEXT,
+        notes TEXT,
+        remote_id TEXT UNIQUE,
+        synced_at TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )
+    ''';
+
+  /// The durable send queue.
+  ///
+  /// Deliberately not the older `sync_queue`, and different from it in the
+  /// ways that matter:
+  ///
+  /// 1. It stores a POINTER (`record_type` + `record_id`), not a payload, so a
+  ///    record edited after being queued pushes its corrected state rather
+  ///    than a stale snapshot.
+  /// 2. It has an explicit lifecycle — `status`, `attempts`, `next_attempt_at`,
+  ///    `last_error` — which is exactly what a Draft / Pending / Synced /
+  ///    Failed indicator reads. `sync_queue` has no status at all.
+  /// 3. `depends_on_id` makes it structurally impossible to push a child
+  ///    before its parent has a remote id.
+  /// 4. UNIQUE(record_type, record_id) makes a double enqueue a no-op instead
+  ///    of a second send.
+  static const String _outboxTable = '''
+      CREATE TABLE outbox (
+        id TEXT PRIMARY KEY,
+        record_type TEXT NOT NULL,
+        record_id TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'PENDING',
+        attempts INTEGER NOT NULL DEFAULT 0,
+        next_attempt_at TEXT,
+        last_error TEXT,
+        last_error_code TEXT,
+        depends_on_id TEXT REFERENCES outbox(id) ON DELETE SET NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        UNIQUE(record_type, record_id)
+      )
+    ''';
+
   static const String _shareOutPayoutsTable = '''
       CREATE TABLE share_out_payouts (
         id TEXT PRIMARY KEY,
@@ -311,6 +380,25 @@ class AppDatabase {
           .replaceFirst('CREATE TABLE', 'CREATE TABLE IF NOT EXISTS'));
       await db.execute(
           'CREATE INDEX IF NOT EXISTS idx_welfare_group ON welfare_expenses(group_id, cycle_number)');
+    }
+    if (oldVersion < 7) {
+      // Field-agent visits, and the outbox that gets them to the server.
+      //
+      // Note this does NOT touch sync_queue. That table is written on every
+      // local write and drained nowhere — main.dart supplies an onSync
+      // callback, so SyncService never reaches the /sync/push path, and that
+      // endpoint has never existed on the backend anyway. Removing it means
+      // editing fifteen call sites inside the meeting and loan money paths,
+      // which is its own change with its own tests. The outbox below is
+      // deliberately a separate table rather than a reuse of it.
+      await db.execute(_groupVisitsTable
+          .replaceFirst('CREATE TABLE', 'CREATE TABLE IF NOT EXISTS'));
+      await db.execute(
+          _outboxTable.replaceFirst('CREATE TABLE', 'CREATE TABLE IF NOT EXISTS'));
+      await db.execute(
+          'CREATE INDEX IF NOT EXISTS idx_visits_group ON group_visits(remote_group_id, started_at)');
+      await db.execute(
+          'CREATE INDEX IF NOT EXISTS idx_outbox_status ON outbox(status, next_attempt_at)');
     }
   }
 }
