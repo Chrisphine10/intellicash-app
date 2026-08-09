@@ -8,6 +8,7 @@ import '../../data/models/remote/group_report.dart';
 import '../../data/models/remote/remote_models.dart';
 import '../../providers/connection_provider.dart';
 import '../../shared/widgets/common.dart';
+import '../visits/record_visit_screen.dart';
 import 'credit_band_chip.dart';
 
 /// A group in the agent's caseload: its credit rating (governance + VSLA
@@ -80,6 +81,26 @@ class _AgentGroupDetailScreenState extends State<AgentGroupDetailScreen> {
           Text('${widget.group.code} · ${widget.group.county}',
               style: Theme.of(context).textTheme.bodySmall),
 
+          const SizedBox(height: 14),
+          // The one write an agent can make. Deliberately above the rating:
+          // the reason they opened this screen standing in front of the group
+          // is to record the visit, not to read a score they already saw on
+          // the caseload list.
+          FilledButton.icon(
+            onPressed: () async {
+              final recorded = await Navigator.of(context).push<bool>(
+                MaterialPageRoute(
+                  builder: (_) => RecordVisitScreen(
+                    groupId: widget.group.id,
+                    groupName: widget.group.name,
+                  ),
+                ),
+              );
+              if (recorded == true && mounted) setState(() {});
+            },
+            icon: const Icon(Icons.assignment_turned_in_outlined, size: 18),
+            label: const Text('Record a visit'),
+          ),
           const SectionLabel('Credit rating'),
           if (_loading)
             const Padding(

@@ -24,6 +24,10 @@ dependencies:
   flutter_secure_storage: ^9.0.0
   flutter_dotenv: ^5.1.0
   crypto: ^3.0.3
+  # Field visits record where they happened. geolocator also exposes the
+  # permission and location-services state, which the visit flow has to
+  # explain to the agent rather than silently failing.
+  geolocator: ^13.0.2
   share_plus: ^10.0.0
   pdf: ^3.11.0
 

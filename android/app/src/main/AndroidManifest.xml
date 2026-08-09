@@ -1,5 +1,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!--
+      Field visits record where they happened, so a visit cannot be filed from
+      somewhere the agent never went.
+
+      COARSE as well as FINE: a group meeting under a tin roof in a valley
+      often never gets a fine fix, and a coarse one is still worth having —
+      the server treats a low-accuracy reading as "cannot tell" rather than as
+      proof either way. Neither is background location; the app only asks
+      while a visit is being recorded.
+    -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <application
         android:label="Intelli-Cash"
         android:name="${applicationName}"

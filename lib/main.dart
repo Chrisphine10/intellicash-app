@@ -19,6 +19,9 @@ import 'data/repositories/sync_repository.dart';
 import 'data/services/remote_api.dart';
 import 'data/services/remote_external_loans_api.dart';
 import 'data/services/remote_governance_api.dart';
+import 'data/services/remote_visits_api.dart';
+import 'data/services/visit_sync_service.dart';
+import 'data/repositories/visit_repository.dart';
 import 'data/services/remote_payment_providers_api.dart';
 import 'data/services/welfare_expense_sync.dart';
 import 'data/services/remote_payments_api.dart';
@@ -155,6 +158,18 @@ Future<void> main() async {
         ),
         Provider<RemoteGovernanceApi>(
           create: (_) => RemoteGovernanceApi(apiClient),
+        ),
+        // Field visits. The repository and the outbox-backed sync service are
+        // plain Providers: the visit flow drives its own screen state and only
+        // needs shared, credential-aware collaborators.
+        Provider<RemoteVisitsApi>(
+          create: (_) => RemoteVisitsApi(apiClient),
+        ),
+        Provider<VisitRepository>(
+          create: (_) => VisitRepository(),
+        ),
+        Provider<VisitSyncService>(
+          create: (context) => VisitSyncService(api: context.read<RemoteVisitsApi>()),
         ),
         ChangeNotifierProvider(
           create: (_) => ShareOutProvider(ShareOutRepository(db)),
