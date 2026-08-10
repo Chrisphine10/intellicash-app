@@ -7,11 +7,13 @@ import '../../core/location/location_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../data/repositories/assessment_repository.dart';
 import '../../data/repositories/mentorship_repository.dart';
+import '../../data/services/mentorship_sync_service.dart';
 import '../../data/repositories/visit_repository.dart';
 import '../../data/services/visit_sync_service.dart';
 import '../../shared/widgets/common.dart';
 import 'open_action_items_card.dart';
 import 'visit_assessment_screen.dart';
+import 'visit_mentorship_screen.dart';
 import 'visit_pin_screen.dart';
 
 /// Recording a field visit, after the group's PIN has been accepted.
@@ -48,6 +50,10 @@ class _RecordVisitScreenState extends State<RecordVisitScreen> {
   /// A one-line recap of the scorecard, so an agent about to hit Finish can
   /// see they left half of it blank.
   String? _assessmentSummary;
+
+  /// A one-line recap of the coaching, so an agent about to hit Finish can see
+  /// they never handed the phone over to be scored.
+  String? _mentorshipSummary;
   bool _loading = true;
   bool _capturingLocation = false;
   bool _submitting = false;
@@ -230,6 +236,32 @@ class _RecordVisitScreenState extends State<RecordVisitScreen> {
     });
   }
 
+  /// Opens the coaching screen, then refreshes the one-line recap.
+  Future<void> _openMentorship() async {
+    final visit = _visit;
+    if (visit == null) return;
+
+    await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => VisitMentorshipScreen(
+          visitId: visit.id,
+          groupName: widget.groupName,
+          mentorship: _mentorship,
+        ),
+      ),
+    );
+
+    final sessions = await _mentorship.sessionsFor(visit.id);
+    final ratings = await _mentorship.ratingsFor(visit.id);
+    if (!mounted) return;
+    setState(() {
+      _mentorshipSummary = sessions.isEmpty && ratings.isEmpty
+          ? null
+          : '${sessions.length} topic${sessions.length == 1 ? '' : 's'}'
+              '${ratings.isEmpty ? ' · not yet scored' : ' · scored by the group'}';
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_loading) {
@@ -347,6 +379,7 @@ class _RecordVisitScreenState extends State<RecordVisitScreen> {
               remoteGroupId: widget.groupId,
               visitId: _visit!.id,
               mentorship: _mentorship,
+              sync: context.read<MentorshipSyncService>(),
             ),
           const SectionLabel('Assessment'),
           Card(
@@ -358,6 +391,19 @@ class _RecordVisitScreenState extends State<RecordVisitScreen> {
               ),
               trailing: const Icon(Icons.chevron_right),
               onTap: _visit == null ? null : _openAssessment,
+            ),
+          ),
+          const SectionLabel('Mentorship'),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.school_outlined),
+              title: const Text("Coaching and the group's rating"),
+              subtitle: Text(
+                _mentorshipSummary ?? 'Record what you coached on, then let the '
+                    'group score it.',
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: _visit == null ? null : _openMentorship,
             ),
           ),
           const SectionLabel('Notes'),

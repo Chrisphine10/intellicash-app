@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/utils/action_item_state.dart';
 import '../../data/repositories/mentorship_repository.dart';
+import '../../data/services/mentorship_sync_service.dart';
 
 /// What the group still owes from last time, shown at the START of a visit.
 ///
@@ -20,6 +21,7 @@ class OpenActionItemsCard extends StatefulWidget {
     required this.remoteGroupId,
     required this.visitId,
     required this.mentorship,
+    this.sync,
     this.onChanged,
   });
 
@@ -28,6 +30,13 @@ class OpenActionItemsCard extends StatefulWidget {
   /// The visit being recorded, so closing an item records where it was closed.
   final String visitId;
   final MentorshipRepository mentorship;
+
+  /// Pulls the server's items into the local cache when there is signal.
+  ///
+  /// Optional so the card can be tested without a network stack — but without
+  /// it in the app, work raised at a previous visit never reaches this phone
+  /// and the card reads "Nothing outstanding" forever.
+  final MentorshipSyncService? sync;
   final VoidCallback? onChanged;
 
   @override
@@ -41,7 +50,24 @@ class _OpenActionItemsCardState extends State<OpenActionItemsCard> {
   @override
   void initState() {
     super.initState();
-    _load();
+    _loadThenRefresh();
+  }
+
+  /// Local first, then the network.
+  ///
+  /// The cached list renders immediately and is the only thing available in a
+  /// field with no signal. A refresh, when it succeeds, fills in anything
+  /// raised at a previous visit or by the office — without it the card is
+  /// permanently empty for every item this phone did not itself create.
+  Future<void> _loadThenRefresh() async {
+    await _load();
+
+    final sync = widget.sync;
+    if (sync == null) return;
+    final written = await sync.refreshOpenItems(widget.remoteGroupId);
+    // Only re-read when something actually changed; a failed refresh (no
+    // signal) leaves the cached list exactly as it was.
+    if (written > 0 && mounted) await _load();
   }
 
   Future<void> _load() async {

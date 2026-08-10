@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intellicash_mobile/data/repositories/mentorship_repository.dart';
+import 'package:intellicash_mobile/data/services/mentorship_sync_service.dart';
 import 'package:intellicash_mobile/features/visits/open_action_items_card.dart';
 
 /// What the agent sees before they start a visit.
@@ -13,9 +14,11 @@ import 'package:intellicash_mobile/features/visits/open_action_items_card.dart';
 /// card, and the lateness arithmetic it displays, which is the real thing.
 void main() {
   late _FakeMentorshipRepository mentorship;
+  late _FakeSync sync;
 
   setUp(() {
     mentorship = _FakeMentorshipRepository();
+    sync = _FakeSync(mentorship);
   });
 
   Future<void> pump(WidgetTester tester) async {
@@ -26,6 +29,7 @@ void main() {
             remoteGroupId: 'remote-g1',
             visitId: 'v1',
             mentorship: mentorship,
+            sync: sync,
           ),
         ),
       ),
@@ -104,6 +108,45 @@ void main() {
     expect(mentorship.closed, [('a1', 'DONE', 'v1')]);
   });
 
+  testWidgets("pulls the server's items so work raised elsewhere appears",
+      (tester) async {
+    // The bug this exists for: the card read only the local cache and nothing
+    // ever populated it, so an item raised at a previous visit — or by the
+    // office — never reached the phone and the card said "Nothing outstanding"
+    // forever. Unit tests passed either way; the emulator did not.
+    sync.serverItems.add(
+      LocalActionItem(
+        id: 'remote-cached-1',
+        remoteGroupId: 'remote-g1',
+        title: 'Elect a new treasurer',
+        status: 'OPEN',
+        isDirty: false,
+        dueDate: DateTime.now().subtract(const Duration(days: 40)),
+      ),
+    );
+
+    await pump(tester);
+    // The refresh resolves after the first local read, so pump again.
+    await tester.pump();
+    await tester.pump();
+
+    expect(sync.refreshedFor, ['remote-g1']);
+    expect(find.text('Elect a new treasurer'), findsOneWidget);
+    expect(find.textContaining('40 days overdue'), findsOneWidget);
+  });
+
+  testWidgets('keeps the cached list when a refresh finds nothing',
+      (tester) async {
+    // No signal is not a reason to blank the screen.
+    give(title: 'Write up the ledger', overdueBy: const Duration(days: 3));
+    sync.fails = true;
+
+    await pump(tester);
+    await tester.pump();
+
+    expect(find.text('Write up the ledger'), findsOneWidget);
+  });
+
   testWidgets('renders on a 320x480 handset without overflowing', (tester) async {
     // The field device, not the emulator's default.
     tester.view.physicalSize = const Size(320, 480);
@@ -122,6 +165,28 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.text('From the last visit'), findsOneWidget);
   });
+}
+
+/// Stands in for the network. `refreshOpenItems` writes into the same fake
+/// repository the card reads from, which is exactly the wiring that was missing.
+class _FakeSync implements MentorshipSyncService {
+  _FakeSync(this._repository);
+
+  final _FakeMentorshipRepository _repository;
+  final List<LocalActionItem> serverItems = [];
+  final List<String> refreshedFor = [];
+  bool fails = false;
+
+  @override
+  Future<int> refreshOpenItems(String remoteGroupId) async {
+    refreshedFor.add(remoteGroupId);
+    if (fails) return 0;
+    _repository.items.addAll(serverItems);
+    return serverItems.length;
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 /// In-memory stand-in. The lateness arithmetic still comes from the real

@@ -23,6 +23,7 @@ import 'data/repositories/assessment_repository.dart';
 import 'data/repositories/attachment_repository.dart';
 import 'data/repositories/mentorship_repository.dart';
 import 'data/services/attachment_sync_service.dart';
+import 'data/services/mentorship_catalogue.dart';
 import 'data/services/mentorship_sync_service.dart';
 import 'data/services/group_restore_service.dart';
 import 'data/services/remote_assessments_api.dart';
@@ -114,6 +115,7 @@ Future<void> main() async {
   final mentorship = MentorshipRepository();
   final mentorshipSync =
       MentorshipSyncService(client: apiClient, mentorship: mentorship);
+  final mentorshipCatalogue = MentorshipCatalogueStore(client: apiClient);
   final visitSync = VisitSyncService(
     api: RemoteVisitsApi(apiClient),
     assessmentsApi: assessmentsApi,
@@ -169,6 +171,9 @@ Future<void> main() async {
     var coaching = 0;
     try {
       coaching = await mentorshipSync.pushDue();
+      // Refresh the topic list while there is signal, so the phone renders what
+      // IWL currently asks rather than what it shipped with.
+      await mentorshipCatalogue.refresh();
     } catch (_) {
       // Rows stay on the phone and are retried.
     }
@@ -268,6 +273,7 @@ Future<void> main() async {
         Provider<AttachmentSyncService>.value(value: attachmentSync),
         Provider<MentorshipRepository>.value(value: mentorship),
         Provider<MentorshipSyncService>.value(value: mentorshipSync),
+        Provider<MentorshipCatalogueStore>.value(value: mentorshipCatalogue),
         ChangeNotifierProvider(
           create: (_) => ShareOutProvider(ShareOutRepository(db)),
         ),
