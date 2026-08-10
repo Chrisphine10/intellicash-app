@@ -18,6 +18,9 @@ dependencies:
   shared_preferences: ^2.3.0
   connectivity_plus: ^6.0.0
   http: ^1.2.0
+  # Already present transitively via http; declared because api_client
+  # imports MediaType directly for multipart photo uploads.
+  http_parser: ^4.0.2
   intl: ^0.20.2
   fl_chart: ^0.70.0
   uuid: ^4.2.2
@@ -28,6 +31,13 @@ dependencies:
   # permission and location-services state, which the visit flow has to
   # explain to the agent rather than silently failing.
   geolocator: ^13.0.2
+  # Field evidence. image_picker opens the camera; flutter_image_compress
+  # downscales before anything is queued, because a modern handset shoots
+  # 4 MB frames and fifteen of those per visit over 2G is not a thing that
+  # completes. Compressing at capture also bounds what sits on the device
+  # while it waits for signal.
+  image_picker: ^1.1.2
+  flutter_image_compress: ^2.3.0
   share_plus: ^10.0.0
   pdf: ^3.11.0
 

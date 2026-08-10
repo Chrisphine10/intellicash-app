@@ -10,7 +10,7 @@ class AppDatabase {
   AppDatabase._();
   static final AppDatabase instance = AppDatabase._();
 
-  static const int _version = 8;
+  static const int _version = 9;
   Database? _db;
 
   /// Test hook: lets tests inject an in-memory/ffi database factory.
@@ -174,11 +174,14 @@ class AppDatabase {
     batch.execute(_assessmentSnapshotsTable);
     batch.execute(_visitAssessmentsTable);
     batch.execute(_visitAnswersTable);
+    batch.execute(_visitAttachmentsTable);
     batch.execute('CREATE INDEX idx_visits_group ON group_visits(remote_group_id, started_at)');
     batch.execute('CREATE INDEX idx_outbox_status ON outbox(status, next_attempt_at)');
     batch.execute(
         'CREATE INDEX idx_snapshots_current ON assessment_snapshots(is_current, version DESC)');
     batch.execute('CREATE INDEX idx_answers_visit ON visit_answers(visit_id)');
+    batch.execute(
+        'CREATE INDEX idx_attachments_visit ON visit_attachments(visit_id, status)');
     batch.execute('CREATE INDEX idx_welfare_group ON welfare_expenses(group_id, cycle_number)');
     batch.execute(
         'CREATE INDEX idx_shareout_group ON share_out_payouts(group_id, cycle_number)');
@@ -385,6 +388,40 @@ class AppDatabase {
       )
     ''';
 
+  /// Photographs taken during a visit, waiting to reach the server.
+  ///
+  /// The FILE stays on the device until the upload succeeds. Deleting it on
+  /// enqueue would mean a failed push loses the evidence permanently, and by
+  /// then the group has dispersed and the moment cannot be photographed
+  /// again. `local_path` is the source of truth until `remote_id` is set.
+  ///
+  /// Two ids doing different jobs: `client_request_id` makes the binding step
+  /// idempotent, and `sha256` lets the server recognise the same photograph
+  /// arriving again after a reinstall lost the request id.
+  static const String _visitAttachmentsTable = '''
+      CREATE TABLE visit_attachments (
+        id TEXT PRIMARY KEY,
+        visit_id TEXT NOT NULL REFERENCES group_visits(id) ON DELETE CASCADE,
+        section_key TEXT NOT NULL,
+        question_key TEXT,
+        client_request_id TEXT NOT NULL UNIQUE,
+        local_path TEXT NOT NULL,
+        file_name TEXT NOT NULL,
+        mime_type TEXT NOT NULL,
+        size_bytes INTEGER NOT NULL,
+        sha256 TEXT,
+        caption TEXT,
+        captured_at TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'PENDING',
+        attempts INTEGER NOT NULL DEFAULT 0,
+        last_error TEXT,
+        remote_id TEXT,
+        storage_path TEXT,
+        uploaded_at TEXT,
+        created_at TEXT NOT NULL
+      )
+    ''';
+
   static const String _shareOutPayoutsTable = '''
       CREATE TABLE share_out_payouts (
         id TEXT PRIMARY KEY,
@@ -484,6 +521,15 @@ class AppDatabase {
           'CREATE INDEX IF NOT EXISTS idx_snapshots_current ON assessment_snapshots(is_current, version DESC)');
       await db.execute(
           'CREATE INDEX IF NOT EXISTS idx_answers_visit ON visit_answers(visit_id)');
+    }
+
+    if (oldVersion < 9) {
+      // Field evidence. Additive only: a phone holding un-synced visits and
+      // answers keeps both, and simply gains somewhere to queue photographs.
+      await db.execute(_visitAttachmentsTable
+          .replaceFirst('CREATE TABLE', 'CREATE TABLE IF NOT EXISTS'));
+      await db.execute(
+          'CREATE INDEX IF NOT EXISTS idx_attachments_visit ON visit_attachments(visit_id, status)');
     }
   }
 }

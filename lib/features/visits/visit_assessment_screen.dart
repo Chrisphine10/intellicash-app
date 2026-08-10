@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
+import '../../core/media/photo_capture_service.dart';
 import '../../core/utils/visit_assessment_scoring.dart';
 import '../../data/repositories/assessment_repository.dart';
+import '../../data/repositories/attachment_repository.dart';
 import '../../shared/widgets/common.dart';
 
 /// The field scorecard: one section per page, scored as the agent taps.
@@ -20,6 +24,8 @@ class VisitAssessmentScreen extends StatefulWidget {
     required this.visitId,
     required this.groupName,
     this.repository,
+    this.attachments,
+    this.camera,
   });
 
   final String visitId;
@@ -27,6 +33,8 @@ class VisitAssessmentScreen extends StatefulWidget {
 
   /// Injected in tests; built from the shared database otherwise.
   final AssessmentRepository? repository;
+  final AttachmentRepository? attachments;
+  final PhotoCaptureService? camera;
 
   @override
   State<VisitAssessmentScreen> createState() => _VisitAssessmentScreenState();
@@ -35,7 +43,13 @@ class VisitAssessmentScreen extends StatefulWidget {
 class _VisitAssessmentScreenState extends State<VisitAssessmentScreen> {
   late final AssessmentRepository _repository =
       widget.repository ?? AssessmentRepository();
+  late final AttachmentRepository _attachments =
+      widget.attachments ?? AttachmentRepository();
+  late final PhotoCaptureService _camera = widget.camera ?? PhotoCaptureService();
   final _pageController = PageController();
+
+  /// Photos already taken, by question key, so a tile can show its own.
+  Map<String, List<LocalAttachment>> _photos = {};
 
   CachedSnapshot? _cached;
   Map<String, String> _choices = {};
@@ -71,12 +85,14 @@ class _VisitAssessmentScreenState extends State<VisitAssessmentScreen> {
       await _repository.beginAssessment(visitId: widget.visitId, snapshot: cached);
       final choices = await _repository.choicesFor(widget.visitId);
       final score = await _repository.rescore(widget.visitId);
+      final photos = await _loadPhotos();
 
       if (!mounted) return;
       setState(() {
         _cached = cached;
         _choices = choices;
         _score = score;
+        _photos = photos;
         _loading = false;
       });
     } catch (error) {
@@ -115,6 +131,68 @@ class _VisitAssessmentScreenState extends State<VisitAssessmentScreen> {
       _choices = choices;
       _score = score;
     });
+  }
+
+  Future<Map<String, List<LocalAttachment>>> _loadPhotos() async {
+    final all = await _attachments.forVisit(widget.visitId);
+    final byQuestion = <String, List<LocalAttachment>>{};
+    for (final photo in all) {
+      final key = photo.questionKey;
+      if (key == null) continue;
+      byQuestion.putIfAbsent(key, () => []).add(photo);
+    }
+    return byQuestion;
+  }
+
+  /// Opens the camera for one question and queues what comes back.
+  ///
+  /// Capture is offered ONLY from a question, never as a general 'add photo'
+  /// button. A picture with no claim attached to it is not evidence of
+  /// anything, and the server refuses one anyway.
+  Future<void> _capture(
+    AssessmentSectionSnapshot section,
+    AssessmentQuestionSnapshot question,
+  ) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final photo = await _camera.capture();
+    // Null covers a cancelled capture and a refused camera permission alike.
+    // Both are ordinary things for a person to do, not error states.
+    if (photo == null) return;
+
+    final saved = await _attachments.enqueue(
+      visitId: widget.visitId,
+      sectionKey: section.key,
+      questionKey: question.key,
+      localPath: photo.path,
+      fileName: photo.fileName,
+      mimeType: photo.mimeType,
+      sizeBytes: photo.sizeBytes,
+      capturedAt: photo.capturedAt,
+    );
+
+    if (!mounted) return;
+    if (saved == null) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            'This visit already has '
+            '${AttachmentRepository.maxPerVisit} photos.',
+          ),
+        ),
+      );
+      return;
+    }
+
+    final photos = await _loadPhotos();
+    if (!mounted) return;
+    setState(() => _photos = photos);
+  }
+
+  Future<void> _discardPhoto(LocalAttachment photo) async {
+    await _attachments.discard(photo.id);
+    final photos = await _loadPhotos();
+    if (!mounted) return;
+    setState(() => _photos = photos);
   }
 
   /// This section's subtotal, or an empty one before the first score exists.
@@ -175,7 +253,10 @@ class _VisitAssessmentScreenState extends State<VisitAssessmentScreen> {
           section: sections[index],
           choices: _choices,
           sectionResult: _resultFor(sections[index], index),
+          photos: _photos,
           onAnswer: (question, choice) => _answer(sections[index], question, choice),
+          onCapture: (question) => _capture(sections[index], question),
+          onDiscardPhoto: _discardPhoto,
         ),
       ),
       bottomNavigationBar: SafeArea(
@@ -292,13 +373,19 @@ class _SectionPage extends StatelessWidget {
     required this.section,
     required this.choices,
     required this.sectionResult,
+    required this.photos,
     required this.onAnswer,
+    required this.onCapture,
+    required this.onDiscardPhoto,
   });
 
   final AssessmentSectionSnapshot section;
   final Map<String, String> choices;
   final AssessmentSectionResult sectionResult;
+  final Map<String, List<LocalAttachment>> photos;
   final void Function(AssessmentQuestionSnapshot, AssessmentChoice) onAnswer;
+  final void Function(AssessmentQuestionSnapshot) onCapture;
+  final void Function(LocalAttachment) onDiscardPhoto;
 
   @override
   Widget build(BuildContext context) {
@@ -323,7 +410,10 @@ class _SectionPage extends StatelessWidget {
           _QuestionTile(
             question: question,
             selected: choices[question.key],
+            photos: photos[question.key] ?? const [],
             onAnswer: (choice) => onAnswer(question, choice),
+            onCapture: () => onCapture(question),
+            onDiscardPhoto: onDiscardPhoto,
           ),
       ],
     );
@@ -334,12 +424,18 @@ class _QuestionTile extends StatelessWidget {
   const _QuestionTile({
     required this.question,
     required this.selected,
+    required this.photos,
     required this.onAnswer,
+    required this.onCapture,
+    required this.onDiscardPhoto,
   });
 
   final AssessmentQuestionSnapshot question;
   final String? selected;
+  final List<LocalAttachment> photos;
   final ValueChanged<AssessmentChoice> onAnswer;
+  final VoidCallback onCapture;
+  final void Function(LocalAttachment) onDiscardPhoto;
 
   @override
   Widget build(BuildContext context) {
@@ -372,9 +468,83 @@ class _QuestionTile extends StatelessWidget {
                   ),
               ],
             ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                TextButton.icon(
+                  onPressed: onCapture,
+                  icon: const Icon(Icons.photo_camera_outlined, size: 18),
+                  label: Text(photos.isEmpty ? 'Add photo' : 'Add another'),
+                ),
+                if (photos.isNotEmpty)
+                  Text(
+                    '${photos.length} attached',
+                    style: theme.textTheme.bodySmall,
+                  ),
+              ],
+            ),
+            if (photos.isNotEmpty)
+              SizedBox(
+                height: 72,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: photos.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                  itemBuilder: (context, index) => _PhotoThumb(
+                    photo: photos[index],
+                    onDiscard: () => onDiscardPhoto(photos[index]),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
+    );
+  }
+}
+
+/// One captured photo, with its sync state showing.
+///
+/// The state matters to an agent: a photo still on the phone is one they may
+/// need to keep the handset around for, and one already sent is safe.
+class _PhotoThumb extends StatelessWidget {
+  const _PhotoThumb({required this.photo, required this.onDiscard});
+
+  final LocalAttachment photo;
+  final VoidCallback onDiscard;
+
+  @override
+  Widget build(BuildContext context) {
+    final file = photo.localPath.isEmpty ? null : File(photo.localPath);
+
+    return Stack(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(6),
+          child: SizedBox(
+            width: 72,
+            height: 72,
+            child: file != null && file.existsSync()
+                ? Image.file(file, fit: BoxFit.cover)
+                // The file is gone once the photo is safely on the server, so
+                // this is the ordinary end state, not a broken image.
+                : const ColoredBox(
+                    color: Color(0x22000000),
+                    child: Icon(Icons.cloud_done_outlined, size: 20),
+                  ),
+          ),
+        ),
+        if (!photo.isSynced)
+          Positioned(
+            top: -6,
+            right: -6,
+            child: IconButton(
+              tooltip: 'Remove',
+              icon: const Icon(Icons.close, size: 16),
+              onPressed: onDiscard,
+            ),
+          ),
+      ],
     );
   }
 }

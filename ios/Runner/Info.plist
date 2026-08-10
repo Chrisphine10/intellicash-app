@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 	<dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Intelli-Cash uses the camera to photograph what you find during a group visit — a registration certificate, a passbook, a cash count. Photos are attached to the question they answer and are not read from your photo library.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Intelli-Cash records where a group visit took place, so a visit cannot be filed from somewhere you never went. Location is only read while you are recording a visit.</string>
 		<key>CFBundleDevelopmentRegion</key>

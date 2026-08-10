@@ -20,6 +20,8 @@ import 'data/services/remote_api.dart';
 import 'data/services/remote_external_loans_api.dart';
 import 'data/services/remote_governance_api.dart';
 import 'data/repositories/assessment_repository.dart';
+import 'data/repositories/attachment_repository.dart';
+import 'data/services/attachment_sync_service.dart';
 import 'data/services/remote_assessments_api.dart';
 import 'data/services/remote_visits_api.dart';
 import 'data/services/visit_sync_service.dart';
@@ -104,6 +106,8 @@ Future<void> main() async {
   // they happened to open the app and submit another one.
   final assessmentsApi = RemoteAssessmentsApi(apiClient);
   final assessments = AssessmentRepository();
+  final attachments = AttachmentRepository();
+  final attachmentSync = AttachmentSyncService(client: apiClient, attachments: attachments);
   final visitSync = VisitSyncService(
     api: RemoteVisitsApi(apiClient),
     assessmentsApi: assessmentsApi,
@@ -142,12 +146,25 @@ Future<void> main() async {
     } catch (_) {
       // Already recorded against the outbox entry, which owns the retry.
     }
-    return meetings + visits;
+
+    // Photographs go last and separately. They are the largest and slowest
+    // thing to push, and a failure here must never be able to hold back a
+    // visit that has already landed.
+    var photos = 0;
+    try {
+      photos = await attachmentSync.pushDue();
+    } catch (_) {
+      // Recorded against the attachment row; the file stays on the device.
+    }
+
+    return meetings + visits + photos;
   };
   // The badge counts real unsynced work, not the vestigial write-queue, so it
   // tracks the sync it can see and clears as meetings back up.
   syncService.pendingProbe = () async =>
-      await autoSync.pendingMeetings() + await visitSync.pendingCount();
+      await autoSync.pendingMeetings() +
+      await visitSync.pendingCount() +
+      await attachmentSync.pendingCount();
 
   runApp(
     MultiProvider(
@@ -220,6 +237,8 @@ Future<void> main() async {
         // hold their own view of the queue.
         Provider<VisitSyncService>.value(value: visitSync),
         Provider<AssessmentRepository>.value(value: assessments),
+        Provider<AttachmentRepository>.value(value: attachments),
+        Provider<AttachmentSyncService>.value(value: attachmentSync),
         ChangeNotifierProvider(
           create: (_) => ShareOutProvider(ShareOutRepository(db)),
         ),

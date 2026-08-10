@@ -12,6 +12,13 @@
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
+    <!-- Field evidence: an agent photographs what they find during a visit.
+         CAMERA only — there is deliberately no gallery permission, because
+         evidence is captured at the group, not chosen afterwards from a
+         phone's photo roll. -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
     <application
         android:label="Intelli-Cash"
         android:name="${applicationName}"

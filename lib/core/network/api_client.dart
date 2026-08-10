@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart' show MediaType;
 
 import '../utils/app_logger.dart';
 import 'api_credentials.dart';
@@ -106,6 +107,44 @@ class ApiClient {
           body: jsonEncode(body ?? const {}),
         )
         .timeout(_timeout));
+    return decoded['data'];
+  }
+
+  /// POST a file as multipart/form-data, returning the decoded `data` field.
+  ///
+  /// Separate from [postData] because a photograph must not be base64'd into a
+  /// JSON body: that inflates it by a third and forces the whole image into
+  /// memory on a handset that may only have a few hundred megabytes to spare.
+  ///
+  /// The timeout is deliberately longer than the JSON one. A 400 KB image over
+  /// a rural 2G link takes tens of seconds, and cutting it off at the usual
+  /// limit would mean an upload that can never succeed where it is needed most.
+  Future<dynamic> postMultipart(
+    String path, {
+    required String field,
+    required String filePath,
+    required String fileName,
+    required String contentType,
+    Map<String, String> fields = const {},
+    bool auth = true,
+    Duration? timeout,
+  }) async {
+    final request = http.MultipartRequest('POST', _uri(path))
+      ..headers.addAll(_headers(auth: auth))
+      ..fields.addAll(fields)
+      ..files.add(
+        await http.MultipartFile.fromPath(
+          field,
+          filePath,
+          filename: fileName,
+          contentType: MediaType.parse(contentType),
+        ),
+      );
+
+    final decoded = await _send('POST $path', () async {
+      final streamed = await request.send().timeout(timeout ?? const Duration(minutes: 2));
+      return http.Response.fromStream(streamed);
+    });
     return decoded['data'];
   }
 
