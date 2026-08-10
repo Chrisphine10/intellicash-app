@@ -10,7 +10,7 @@ class AppDatabase {
   AppDatabase._();
   static final AppDatabase instance = AppDatabase._();
 
-  static const int _version = 7;
+  static const int _version = 8;
   Database? _db;
 
   /// Test hook: lets tests inject an in-memory/ffi database factory.
@@ -171,8 +171,14 @@ class AppDatabase {
     batch.execute(_welfareExpensesTable);
     batch.execute(_groupVisitsTable);
     batch.execute(_outboxTable);
+    batch.execute(_assessmentSnapshotsTable);
+    batch.execute(_visitAssessmentsTable);
+    batch.execute(_visitAnswersTable);
     batch.execute('CREATE INDEX idx_visits_group ON group_visits(remote_group_id, started_at)');
     batch.execute('CREATE INDEX idx_outbox_status ON outbox(status, next_attempt_at)');
+    batch.execute(
+        'CREATE INDEX idx_snapshots_current ON assessment_snapshots(is_current, version DESC)');
+    batch.execute('CREATE INDEX idx_answers_visit ON visit_answers(visit_id)');
     batch.execute('CREATE INDEX idx_welfare_group ON welfare_expenses(group_id, cycle_number)');
     batch.execute(
         'CREATE INDEX idx_shareout_group ON share_out_payouts(group_id, cycle_number)');
@@ -318,6 +324,67 @@ class AppDatabase {
       )
     ''';
 
+  /// The published scorecard, cached so the form renders with no signal.
+  ///
+  /// Keyed by the server's snapshot id and stamped with its checksum: the phone
+  /// re-downloads only when the checksum moves, which over 2G is the difference
+  /// between a usable app and an unusable one. Old snapshots are kept, not
+  /// replaced — a visit answered against v1 must still render as v1 while it
+  /// waits in the outbox.
+  static const String _assessmentSnapshotsTable = '''
+      CREATE TABLE assessment_snapshots (
+        id TEXT PRIMARY KEY,
+        template_id TEXT NOT NULL,
+        version INTEGER NOT NULL,
+        checksum TEXT NOT NULL,
+        max_points REAL NOT NULL,
+        scoring_contract_version TEXT NOT NULL,
+        snapshot_json TEXT NOT NULL,
+        is_current INTEGER NOT NULL DEFAULT 0,
+        fetched_at TEXT NOT NULL
+      )
+    ''';
+
+  /// One assessment per visit, scored locally and provisionally.
+  ///
+  /// `is_provisional` is the honest bit: the phone's figure is what the agent
+  /// sees in the field, but the server re-scores on submit and its answer wins.
+  static const String _visitAssessmentsTable = '''
+      CREATE TABLE visit_assessments (
+        visit_id TEXT PRIMARY KEY REFERENCES group_visits(id) ON DELETE CASCADE,
+        snapshot_id TEXT NOT NULL,
+        template_version INTEGER NOT NULL,
+        checksum TEXT NOT NULL,
+        earned_points REAL NOT NULL DEFAULT 0,
+        applicable_points REAL NOT NULL DEFAULT 0,
+        max_points REAL NOT NULL DEFAULT 0,
+        percentage REAL NOT NULL DEFAULT 0,
+        band_key TEXT,
+        band_label TEXT,
+        is_complete INTEGER NOT NULL DEFAULT 0,
+        is_provisional INTEGER NOT NULL DEFAULT 1,
+        updated_at TEXT NOT NULL
+      )
+    ''';
+
+  /// Answers, written as the agent taps rather than at the end.
+  ///
+  /// UNIQUE(visit_id, question_key) so re-answering a question overwrites
+  /// instead of appending — an agent correcting themselves must not produce two
+  /// answers to one question.
+  static const String _visitAnswersTable = '''
+      CREATE TABLE visit_answers (
+        id TEXT PRIMARY KEY,
+        visit_id TEXT NOT NULL REFERENCES group_visits(id) ON DELETE CASCADE,
+        section_key TEXT NOT NULL,
+        question_key TEXT NOT NULL,
+        choice TEXT NOT NULL,
+        note TEXT,
+        answered_at TEXT NOT NULL,
+        UNIQUE(visit_id, question_key)
+      )
+    ''';
+
   static const String _shareOutPayoutsTable = '''
       CREATE TABLE share_out_payouts (
         id TEXT PRIMARY KEY,
@@ -399,6 +466,24 @@ class AppDatabase {
           'CREATE INDEX IF NOT EXISTS idx_visits_group ON group_visits(remote_group_id, started_at)');
       await db.execute(
           'CREATE INDEX IF NOT EXISTS idx_outbox_status ON outbox(status, next_attempt_at)');
+    }
+
+    if (oldVersion < 8) {
+      // The assessment scorecard: the cached form, and the answers to it.
+      //
+      // Additive only. A phone mid-visit when it updates keeps its draft in
+      // group_visits and simply gains somewhere to record answers; nothing
+      // already queued in the outbox is disturbed.
+      await db.execute(_assessmentSnapshotsTable
+          .replaceFirst('CREATE TABLE', 'CREATE TABLE IF NOT EXISTS'));
+      await db.execute(_visitAssessmentsTable
+          .replaceFirst('CREATE TABLE', 'CREATE TABLE IF NOT EXISTS'));
+      await db.execute(_visitAnswersTable
+          .replaceFirst('CREATE TABLE', 'CREATE TABLE IF NOT EXISTS'));
+      await db.execute(
+          'CREATE INDEX IF NOT EXISTS idx_snapshots_current ON assessment_snapshots(is_current, version DESC)');
+      await db.execute(
+          'CREATE INDEX IF NOT EXISTS idx_answers_visit ON visit_answers(visit_id)');
     }
   }
 }

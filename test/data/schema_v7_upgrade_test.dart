@@ -52,8 +52,13 @@ void main() {
   }
 
   /// Removes the v7 tables and marks the file as the given version.
-  Future<void> rewindTo(int version) async {
+  ///
+  /// Returns the version the database was at beforehand — i.e. the current
+  /// schema version — so assertions compare against that rather than a literal
+  /// that has to be edited on every future bump.
+  Future<Object?> rewindTo(int version) async {
     final db = await AppDatabase.instance.database;
+    final current = (await db.rawQuery('PRAGMA user_version')).first.values.first;
     await db.execute('DROP INDEX IF EXISTS idx_visits_group');
     await db.execute('DROP INDEX IF EXISTS idx_outbox_status');
     await db.execute('DROP TABLE IF EXISTS outbox');
@@ -64,6 +69,7 @@ void main() {
     }
     await db.execute('PRAGMA user_version = $version');
     await AppDatabase.instance.close();
+    return current;
   }
 
   test('upgrading a populated v6 database keeps the data and adds the tables',
@@ -71,11 +77,12 @@ void main() {
     var db = await AppDatabase.instance.database;
     await db.insert('groups', groupRow('g1', 'Tujijenge Women'));
     await db.insert('groups', groupRow('g2', 'Umoja Savings'));
-    await rewindTo(6);
+    final currentSchemaVersion = await rewindTo(6);
 
     db = await AppDatabase.instance.database;
 
-    expect((await db.rawQuery('PRAGMA user_version')).first.values.first, 7);
+    expect((await db.rawQuery('PRAGMA user_version')).first.values.first,
+        currentSchemaVersion);
 
     // The group's records must survive. An upgrade that loses them is worse
     // than one that fails outright, because it fails silently.
@@ -156,11 +163,12 @@ void main() {
     // does. Each `if (oldVersion < N)` block must run in turn.
     var db = await AppDatabase.instance.database;
     await db.insert('groups', groupRow('g5', 'Skipped Releases'));
-    await rewindTo(5);
+    final currentSchemaVersion = await rewindTo(5);
 
     db = await AppDatabase.instance.database;
 
-    expect((await db.rawQuery('PRAGMA user_version')).first.values.first, 7);
+    expect((await db.rawQuery('PRAGMA user_version')).first.values.first,
+        currentSchemaVersion);
     expect((await db.rawQuery('SELECT COUNT(*) c FROM groups')).first['c'], 1);
     // v6's table and v7's must both be present after the jump.
     expect(
@@ -175,13 +183,16 @@ void main() {
     // not fail on "table already exists".
     var db = await AppDatabase.instance.database;
     await db.insert('groups', groupRow('g6', 'Repeat Group'));
+    final currentSchemaVersion =
+        (await db.rawQuery('PRAGMA user_version')).first.values.first;
     // Mark as v6 WITHOUT dropping the v7 tables, so the upgrade re-runs
     // against a database that already has them.
     await db.execute('PRAGMA user_version = 6');
     await AppDatabase.instance.close();
 
     db = await AppDatabase.instance.database;
-    expect((await db.rawQuery('PRAGMA user_version')).first.values.first, 7);
+    expect((await db.rawQuery('PRAGMA user_version')).first.values.first,
+        currentSchemaVersion);
     expect((await db.rawQuery('SELECT COUNT(*) c FROM groups')).first['c'], 1);
   });
 }

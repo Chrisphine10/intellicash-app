@@ -1,0 +1,120 @@
+{
+  "$comment": "Golden fixture asserted by BOTH the TypeScript contract and its Dart mirror in intellicash_mobile. The server is authoritative: if the two disagree, the phone's figure was provisional and the phone is wrong. Regenerate only alongside a deliberate contract version bump.",
+  "snapshot": {
+    "templateId": "fixture_tmpl",
+    "version": 1,
+    "title": "Cross-engine fixture",
+    "sections": [
+      {
+        "key": "alpha",
+        "title": "Alpha",
+        "position": 0,
+        "questions": [
+          {
+            "key": "a1",
+            "prompt": "Full credit question",
+            "weight": 4,
+            "position": 0
+          },
+          {
+            "key": "a2",
+            "prompt": "Half credit question",
+            "weight": 6,
+            "position": 1
+          }
+        ]
+      },
+      {
+        "key": "beta",
+        "title": "Beta",
+        "position": 1,
+        "questions": [
+          {
+            "key": "b1",
+            "prompt": "Inapplicable question",
+            "weight": 2,
+            "position": 0
+          },
+          {
+            "key": "b2",
+            "prompt": "Unanswered question",
+            "weight": 8,
+            "position": 1
+          }
+        ]
+      }
+    ],
+    "bands": [
+      {
+        "key": "strong",
+        "label": "Strong",
+        "minPoints": 14,
+        "maxPoints": 20,
+        "guidance": "Well run."
+      },
+      {
+        "key": "fair",
+        "label": "Fair",
+        "minPoints": 8,
+        "maxPoints": 13
+      },
+      {
+        "key": "weak",
+        "label": "Weak",
+        "minPoints": 0,
+        "maxPoints": 7
+      }
+    ],
+    "maxPoints": 20,
+    "scoringContractVersion": "1.0.0"
+  },
+  "answers": [
+    {
+      "questionKey": "a1",
+      "choice": "YES"
+    },
+    {
+      "questionKey": "a2",
+      "choice": "PARTIAL"
+    },
+    {
+      "questionKey": "b1",
+      "choice": "NOT_APPLICABLE"
+    },
+    {
+      "questionKey": "retired_q",
+      "choice": "YES"
+    }
+  ],
+  "expected": {
+    "scoringContractVersion": "1.0.0",
+    "earnedPoints": 7,
+    "applicablePoints": 18,
+    "maxPoints": 20,
+    "scaledPoints": 7.78,
+    "percentage": 38.89,
+    "bandKey": "weak",
+    "bandLabel": "Weak",
+    "complete": false,
+    "unansweredKeys": [
+      "b2"
+    ],
+    "unknownAnswerKeys": [
+      "retired_q"
+    ],
+    "sections": [
+      {
+        "sectionKey": "alpha",
+        "earnedPoints": 7,
+        "applicablePoints": 10,
+        "percentage": 70
+      },
+      {
+        "sectionKey": "beta",
+        "earnedPoints": 0,
+        "applicablePoints": 8,
+        "percentage": 0
+      }
+    ]
+  }
+}

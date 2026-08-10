@@ -5,9 +5,11 @@ import 'package:provider/provider.dart';
 
 import '../../core/location/location_service.dart';
 import '../../core/theme/app_colors.dart';
+import '../../data/repositories/assessment_repository.dart';
 import '../../data/repositories/visit_repository.dart';
 import '../../data/services/visit_sync_service.dart';
 import '../../shared/widgets/common.dart';
+import 'visit_assessment_screen.dart';
 import 'visit_pin_screen.dart';
 
 /// Recording a field visit, after the group's PIN has been accepted.
@@ -38,6 +40,11 @@ class _RecordVisitScreenState extends State<RecordVisitScreen> {
   final _locationNoteController = TextEditingController();
 
   LocalVisit? _visit;
+  final _assessments = AssessmentRepository();
+
+  /// A one-line recap of the scorecard, so an agent about to hit Finish can
+  /// see they left half of it blank.
+  String? _assessmentSummary;
   bool _loading = true;
   bool _capturingLocation = false;
   bool _submitting = false;
@@ -191,6 +198,35 @@ class _RecordVisitScreenState extends State<RecordVisitScreen> {
     };
   }
 
+  /// Opens the scorecard, then refreshes the one-line summary shown above.
+  ///
+  /// Nothing is submitted from that screen — answers are already on disk, and
+  /// the visit's own Finish step is what queues the whole document.
+  Future<void> _openAssessment() async {
+    final visit = _visit;
+    if (visit == null) return;
+
+    await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => VisitAssessmentScreen(
+          visitId: visit.id,
+          groupName: widget.groupName,
+        ),
+      ),
+    );
+
+    final score = await _assessments.rescore(visit.id);
+    if (!mounted) return;
+    setState(() {
+      _assessmentSummary = score == null
+          ? null
+          : '${score.earnedPoints.toStringAsFixed(0)} of '
+              '${score.maxPoints.toStringAsFixed(0)} points'
+              '${score.bandLabel == null ? '' : ' · ${score.bandLabel}'}'
+              '${score.complete ? '' : ' · ${score.unansweredKeys.length} unanswered'}';
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_loading) {
@@ -302,6 +338,18 @@ class _RecordVisitScreenState extends State<RecordVisitScreen> {
               ),
             ),
           ],
+          const SectionLabel('Assessment'),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.fact_check_outlined),
+              title: const Text('Score the group'),
+              subtitle: Text(
+                _assessmentSummary ?? 'Work through the scorecard with the officials.',
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: _visit == null ? null : _openAssessment,
+            ),
+          ),
           const SectionLabel('Notes'),
           TextField(
             controller: _notesController,

@@ -53,3 +53,17 @@ android/key.properties
 
 # Backend configuration (API keys) — never commit real credentials.
 .env
+
+# Backups of .env. The pattern above only catches the exact name, and a
+# timestamped copy (.env.bak-20260728) carried a live IC_API_KEY into
+# `git add -A`. This repository is public.
+.env.*
+*.env.bak*
+
+# Android signing material. The upload certificate and any keystore must
+# never be published — losing control of them means losing control of who
+# can ship an update to this app.
+*.der
+*.jks
+*.keystore
+play-store/upload_certificate.der

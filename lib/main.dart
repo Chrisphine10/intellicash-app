@@ -19,6 +19,8 @@ import 'data/repositories/sync_repository.dart';
 import 'data/services/remote_api.dart';
 import 'data/services/remote_external_loans_api.dart';
 import 'data/services/remote_governance_api.dart';
+import 'data/repositories/assessment_repository.dart';
+import 'data/services/remote_assessments_api.dart';
 import 'data/services/remote_visits_api.dart';
 import 'data/services/visit_sync_service.dart';
 import 'data/repositories/visit_repository.dart';
@@ -100,9 +102,37 @@ Future<void> main() async {
   // coordinator. An agent finishes a visit in a valley and walks back into
   // signal hours later; without this the visit would sit on the phone until
   // they happened to open the app and submit another one.
-  final visitSync = VisitSyncService(api: RemoteVisitsApi(apiClient));
+  final assessmentsApi = RemoteAssessmentsApi(apiClient);
+  final assessments = AssessmentRepository();
+  final visitSync = VisitSyncService(
+    api: RemoteVisitsApi(apiClient),
+    assessmentsApi: assessmentsApi,
+    assessments: assessments,
+  );
   syncService.onSync = () async {
     final meetings = await autoSync.syncBoundGroups();
+
+    // Refresh the cached scorecard while there is signal. Guarded on the
+    // checksum so the 46-question document is downloaded when it changes and
+    // not on every reconnect — over 2G that difference is the whole user
+    // experience. A failure here is silent by design: the form already on the
+    // phone is still perfectly usable.
+    try {
+      final template = await assessmentsApi.fetchCurrent();
+      if (template != null && template.checksum != await assessments.currentChecksum()) {
+        await assessments.cacheSnapshot(
+          snapshotId: template.snapshotId,
+          templateId: template.templateId,
+          version: template.version,
+          checksum: template.checksum,
+          maxPoints: template.maxPoints,
+          scoringContractVersion: template.scoringContractVersion,
+          snapshot: template.snapshotJson,
+        );
+      }
+    } catch (_) {
+      // No form yet, or no signal. Neither is a reason to fail the sync.
+    }
     // A failure pushing visits must not stop meetings syncing, or vice
     // versa: they are independent bodies of work and one being stuck is not
     // a reason to strand the other.
@@ -189,6 +219,7 @@ Future<void> main() async {
         // The SAME instance the reconnect trigger drives — two would each
         // hold their own view of the queue.
         Provider<VisitSyncService>.value(value: visitSync),
+        Provider<AssessmentRepository>.value(value: assessments),
         ChangeNotifierProvider(
           create: (_) => ShareOutProvider(ShareOutRepository(db)),
         ),
