@@ -4,6 +4,39 @@ Newest first.
 
 ---
 
+## 2.3.0 — 10 August 2026
+
+**Record a full field visit on your phone.** A group official enters their
+4-digit PIN to confirm you are really there, then the whole visit is recorded
+in one place: where it happened, the scorecard, photos, coaching, and what the
+group agreed to do next. Everything is saved on the phone first and sent when
+you have signal.
+
+**Score the group against the 92-point scorecard.** Work through it one
+section at a time with the officials. Each question is Yes, Partial, No or Not
+applicable, and you see the running score and band as you go — so you can tell
+the group how they did before you leave.
+
+**Photograph what you find.** Take a photo from the question it answers, so
+every picture says what it is evidence of. Photos are shrunk before they are
+queued and stay on your phone until they have safely reached the office.
+
+**See what the group still owes before you start.** Anything agreed at the
+last visit is on screen when you open the new one, with anything overdue
+marked and counted. Tap Done as each is completed.
+
+**Record your coaching, and let the group rate it.** Tick what you covered and
+write what you advised, then hand the phone to an official to score the session
+out of 5. The score is theirs, not yours.
+
+**Load an existing group onto a new phone.** If your group is already on the
+system, sign in and tap Load my group rather than setting it up again — your
+savings history stays in one record instead of being split in two.
+
+**Personal accounts no longer ask you to create a group.** Signing in as Just
+Me or as a Field Agent takes you straight to your own screen.
+
+---
 ## 2.2.0 — 8 August 2026
 
 **Edit a member's details.** Open a member and tap Edit to correct a
