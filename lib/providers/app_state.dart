@@ -91,6 +91,12 @@ class AppState extends ChangeNotifier {
   /// group directly (e.g. a share-out rolls the cycle).
   Future<void> reloadGroup() async {
     _group = await _groupRepository.currentGroup();
+    // Status follows the group, always. It used to be left untouched here,
+    // which was harmless while the only caller already had a group — but a
+    // reload that FINDS a group (restoring one from the server onto a fresh
+    // phone) left the app in needsSetup, so the root router kept showing
+    // "set up your group" over a group that was now sitting in the database.
+    _status = _group == null ? AppStatus.needsSetup : AppStatus.ready;
     await refreshPendingSync();
     notifyListeners();
   }

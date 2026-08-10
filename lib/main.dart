@@ -22,6 +22,7 @@ import 'data/services/remote_governance_api.dart';
 import 'data/repositories/assessment_repository.dart';
 import 'data/repositories/attachment_repository.dart';
 import 'data/services/attachment_sync_service.dart';
+import 'data/services/group_restore_service.dart';
 import 'data/services/remote_assessments_api.dart';
 import 'data/services/remote_visits_api.dart';
 import 'data/services/visit_sync_service.dart';
@@ -236,6 +237,16 @@ Future<void> main() async {
         // The SAME instance the reconnect trigger drives — two would each
         // hold their own view of the queue.
         Provider<VisitSyncService>.value(value: visitSync),
+        // Lets a group that already exists on the server be pulled onto this
+        // phone, instead of the treasurer creating a duplicate one.
+        Provider<GroupRestoreService>(
+          create: (_) => GroupRestoreService(
+            api: RemoteApiRestoreAdapter(remoteApi),
+            groups: GroupRepository(AppDatabase.instance),
+            members: MemberRepository(AppDatabase.instance),
+            idMap: IdMapRepository(AppDatabase.instance),
+          ),
+        ),
         Provider<AssessmentRepository>.value(value: assessments),
         Provider<AttachmentRepository>.value(value: attachments),
         Provider<AttachmentSyncService>.value(value: attachmentSync),

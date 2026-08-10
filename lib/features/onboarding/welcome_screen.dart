@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../l10n/app_localizations.dart';
+import '../../data/services/group_restore_service.dart';
+import '../../providers/app_state.dart';
 import '../../providers/connection_provider.dart';
 import '../../providers/locale_controller.dart';
 import '../agent/agent_home_screen.dart';
@@ -152,16 +154,26 @@ class WelcomeScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              if (option == WelcomeOption.setUpGroup)
+              if (option == WelcomeOption.setUpGroup) ...[
+                // The server already knows this account's group, so pulling
+                // it down comes FIRST. Offering only 'set up' to a treasurer
+                // who reinstalled the app is how one group ends up recorded
+                // twice under two codes, with the savings history split
+                // between them.
+                if (user?.groupId != null)
+                  _RestoreGroupCard(remoteGroupId: user!.groupId!),
                 _OptionCard(
                   icon: Icons.menu_book_outlined,
                   title: l10n.setUpGroup,
-                  subtitle: l10n.setUpGroupSubtitle,
-                  emphasized: true,
+                  subtitle: user?.groupId == null
+                      ? l10n.setUpGroupSubtitle
+                      : 'Start a different group on this phone.',
+                  emphasized: user?.groupId == null,
                   onTap: () => Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const GroupSetupWizard()),
                   ),
-                )
+                ),
+              ]
               else
                 // Signed in, but this app has nothing for this role. Say so
                 // plainly and leave sign-out as the way forward. Offering
@@ -277,6 +289,115 @@ class _OptionCard extends StatelessWidget {
               Icon(Icons.chevron_right, color: AppColors.textSecondary),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Pulls a group that already exists on the server onto this phone.
+///
+/// Stateful for one reason: the pull takes a moment over a rural link and
+/// the button has to say so, or an agent taps it three times and wonders why
+/// nothing happened.
+class _RestoreGroupCard extends StatefulWidget {
+  const _RestoreGroupCard({required this.remoteGroupId});
+
+  final String remoteGroupId;
+
+  @override
+  State<_RestoreGroupCard> createState() => _RestoreGroupCardState();
+}
+
+class _RestoreGroupCardState extends State<_RestoreGroupCard> {
+  bool _busy = false;
+  String? _error;
+
+  Future<void> _restore() async {
+    final messenger = ScaffoldMessenger.of(context);
+    final service = context.read<GroupRestoreService>();
+    final appState = context.read<AppState>();
+
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+
+    try {
+      final result = await service.restore(widget.remoteGroupId);
+      // Reload so the root router sees the group and opens the record book.
+      await appState.reloadGroup();
+      if (!mounted) return;
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(result.alreadyPresent
+              ? 'This group is already on this phone.'
+              : 'Loaded ${result.group?.name ?? 'your group'} with '
+                  '${result.membersRestored} members.'),
+        ),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      // Named plainly rather than swallowed: without signal there is nothing
+      // to restore FROM, and the treasurer needs to know to try later rather
+      // than to start creating a second group.
+      setState(() => _error =
+          'Could not load your group. Check your connection and try again.');
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: AppColors.primaryTint,
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.cloud_download_outlined,
+                    size: 18, color: AppColors.primary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Load your group onto this phone',
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Your group is already on the server. Load it here instead of '
+              'creating a new one, so your savings history stays in one '
+              'record.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            if (_error != null) ...[
+              const SizedBox(height: 6),
+              Text(_error!,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(color: Theme.of(context).colorScheme.error)),
+            ],
+            const SizedBox(height: 10),
+            FilledButton.icon(
+              onPressed: _busy ? null : _restore,
+              icon: _busy
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.download, size: 18),
+              label: Text(_busy ? 'Loading…' : 'Load my group'),
+            ),
+          ],
         ),
       ),
     );
