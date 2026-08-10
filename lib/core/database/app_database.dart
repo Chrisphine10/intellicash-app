@@ -10,7 +10,7 @@ class AppDatabase {
   AppDatabase._();
   static final AppDatabase instance = AppDatabase._();
 
-  static const int _version = 9;
+  static const int _version = 10;
   Database? _db;
 
   /// Test hook: lets tests inject an in-memory/ffi database factory.
@@ -175,6 +175,9 @@ class AppDatabase {
     batch.execute(_visitAssessmentsTable);
     batch.execute(_visitAnswersTable);
     batch.execute(_visitAttachmentsTable);
+    batch.execute(_visitMentorshipTable);
+    batch.execute(_visitRatingsTable);
+    batch.execute(_actionItemsTable);
     batch.execute('CREATE INDEX idx_visits_group ON group_visits(remote_group_id, started_at)');
     batch.execute('CREATE INDEX idx_outbox_status ON outbox(status, next_attempt_at)');
     batch.execute(
@@ -182,6 +185,9 @@ class AppDatabase {
     batch.execute('CREATE INDEX idx_answers_visit ON visit_answers(visit_id)');
     batch.execute(
         'CREATE INDEX idx_attachments_visit ON visit_attachments(visit_id, status)');
+    batch.execute(
+        'CREATE INDEX idx_actions_group ON visit_action_items(remote_group_id, status)');
+    batch.execute('CREATE INDEX idx_actions_dirty ON visit_action_items(is_dirty)');
     batch.execute('CREATE INDEX idx_welfare_group ON welfare_expenses(group_id, cycle_number)');
     batch.execute(
         'CREATE INDEX idx_shareout_group ON share_out_payouts(group_id, cycle_number)');
@@ -422,6 +428,68 @@ class AppDatabase {
       )
     ''';
 
+  /// Coaching delivered at a visit. Belongs to the visit and is pushed with it.
+  static const String _visitMentorshipTable = '''
+      CREATE TABLE visit_mentorship (
+        id TEXT PRIMARY KEY,
+        visit_id TEXT NOT NULL REFERENCES group_visits(id) ON DELETE CASCADE,
+        topic_key TEXT NOT NULL,
+        topic_title TEXT NOT NULL,
+        notes TEXT,
+        duration_minutes INTEGER,
+        created_at TEXT NOT NULL,
+        UNIQUE(visit_id, topic_key)
+      )
+    ''';
+
+  /// The group representative scores the coaching, one row per dimension.
+  ///
+  /// `rated_by_role` is stored rather than assumed: an agent who scores their
+  /// own session is recorded honestly, and the server excludes it from the
+  /// group average instead of silently trusting the label.
+  static const String _visitRatingsTable = '''
+      CREATE TABLE visit_ratings (
+        id TEXT PRIMARY KEY,
+        visit_id TEXT NOT NULL REFERENCES group_visits(id) ON DELETE CASCADE,
+        dimension_key TEXT NOT NULL,
+        score INTEGER NOT NULL,
+        rated_by_role TEXT NOT NULL DEFAULT 'GROUP_REPRESENTATIVE',
+        comment TEXT,
+        created_at TEXT NOT NULL,
+        UNIQUE(visit_id, dimension_key)
+      )
+    ''';
+
+  /// Work agreed at a visit, which OUTLIVES it.
+  ///
+  /// Two kinds of row share this table, distinguished by `remote_id`:
+  /// items raised on this phone and not yet pushed, and items pulled down
+  /// from the server so the agent can see what the group still owes from
+  /// previous visits. Both are needed offline — the whole point is that last
+  /// time's commitments are on screen when the next visit starts, and that
+  /// moment is usually in a field with no signal.
+  ///
+  /// `state` is NOT stored. Lateness is computed from due_date when read,
+  /// the same way the server does it.
+  static const String _actionItemsTable = '''
+      CREATE TABLE visit_action_items (
+        id TEXT PRIMARY KEY,
+        visit_id TEXT,
+        remote_group_id TEXT NOT NULL,
+        title TEXT NOT NULL,
+        detail TEXT,
+        owner TEXT,
+        due_date TEXT,
+        status TEXT NOT NULL DEFAULT 'OPEN',
+        closing_note TEXT,
+        closed_at_visit_id TEXT,
+        remote_id TEXT,
+        is_dirty INTEGER NOT NULL DEFAULT 1,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )
+    ''';
+
   static const String _shareOutPayoutsTable = '''
       CREATE TABLE share_out_payouts (
         id TEXT PRIMARY KEY,
@@ -530,6 +598,22 @@ class AppDatabase {
           .replaceFirst('CREATE TABLE', 'CREATE TABLE IF NOT EXISTS'));
       await db.execute(
           'CREATE INDEX IF NOT EXISTS idx_attachments_visit ON visit_attachments(visit_id, status)');
+    }
+
+    if (oldVersion < 10) {
+      // Mentorship, the group's rating of it, and the action plan.
+      // Additive only: a phone mid-visit keeps its draft, its answers and
+      // its queued photographs.
+      await db.execute(_visitMentorshipTable
+          .replaceFirst('CREATE TABLE', 'CREATE TABLE IF NOT EXISTS'));
+      await db.execute(_visitRatingsTable
+          .replaceFirst('CREATE TABLE', 'CREATE TABLE IF NOT EXISTS'));
+      await db.execute(_actionItemsTable
+          .replaceFirst('CREATE TABLE', 'CREATE TABLE IF NOT EXISTS'));
+      await db.execute(
+          'CREATE INDEX IF NOT EXISTS idx_actions_group ON visit_action_items(remote_group_id, status)');
+      await db.execute(
+          'CREATE INDEX IF NOT EXISTS idx_actions_dirty ON visit_action_items(is_dirty)');
     }
   }
 }

@@ -178,6 +178,21 @@ class VisitRepository {
         'synced_at': DateTime.now().toIso8601String(),
       });
 
+  /// Visits that HAVE reached the server.
+  ///
+  /// Anything hanging off a visit — mentorship, ratings, action items — can
+  /// only be addressed once the visit itself has a remote id, because that id
+  /// is in the URL.
+  Future<List<LocalVisit>> synced() async {
+    final db = await _database.database;
+    final rows = await db.query(
+      'group_visits',
+      where: 'remote_id IS NOT NULL',
+      orderBy: 'started_at DESC',
+    );
+    return rows.map(LocalVisit.fromRow).toList();
+  }
+
   /// Visits waiting to reach the server, oldest first.
   Future<List<LocalVisit>> unsynced() async {
     final db = await _database.database;

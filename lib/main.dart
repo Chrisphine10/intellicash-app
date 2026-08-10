@@ -21,7 +21,9 @@ import 'data/services/remote_external_loans_api.dart';
 import 'data/services/remote_governance_api.dart';
 import 'data/repositories/assessment_repository.dart';
 import 'data/repositories/attachment_repository.dart';
+import 'data/repositories/mentorship_repository.dart';
 import 'data/services/attachment_sync_service.dart';
+import 'data/services/mentorship_sync_service.dart';
 import 'data/services/group_restore_service.dart';
 import 'data/services/remote_assessments_api.dart';
 import 'data/services/remote_visits_api.dart';
@@ -109,6 +111,9 @@ Future<void> main() async {
   final assessments = AssessmentRepository();
   final attachments = AttachmentRepository();
   final attachmentSync = AttachmentSyncService(client: apiClient, attachments: attachments);
+  final mentorship = MentorshipRepository();
+  final mentorshipSync =
+      MentorshipSyncService(client: apiClient, mentorship: mentorship);
   final visitSync = VisitSyncService(
     api: RemoteVisitsApi(apiClient),
     assessmentsApi: assessmentsApi,
@@ -158,14 +163,25 @@ Future<void> main() async {
       // Recorded against the attachment row; the file stays on the device.
     }
 
-    return meetings + visits + photos;
+    // Coaching notes and the action plan. Independent of the rest for the same
+    // reason: a visit that has landed must not be held back by anything that
+    // hangs off it.
+    var coaching = 0;
+    try {
+      coaching = await mentorshipSync.pushDue();
+    } catch (_) {
+      // Rows stay on the phone and are retried.
+    }
+
+    return meetings + visits + photos + coaching;
   };
   // The badge counts real unsynced work, not the vestigial write-queue, so it
   // tracks the sync it can see and clears as meetings back up.
   syncService.pendingProbe = () async =>
       await autoSync.pendingMeetings() +
       await visitSync.pendingCount() +
-      await attachmentSync.pendingCount();
+      await attachmentSync.pendingCount() +
+      await mentorshipSync.pendingCount();
 
   runApp(
     MultiProvider(
@@ -250,6 +266,8 @@ Future<void> main() async {
         Provider<AssessmentRepository>.value(value: assessments),
         Provider<AttachmentRepository>.value(value: attachments),
         Provider<AttachmentSyncService>.value(value: attachmentSync),
+        Provider<MentorshipRepository>.value(value: mentorship),
+        Provider<MentorshipSyncService>.value(value: mentorshipSync),
         ChangeNotifierProvider(
           create: (_) => ShareOutProvider(ShareOutRepository(db)),
         ),

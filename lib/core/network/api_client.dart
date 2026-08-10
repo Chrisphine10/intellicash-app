@@ -148,6 +148,25 @@ class ApiClient {
     return decoded['data'];
   }
 
+  /// PATCH a JSON body, returning the decoded `data` field.
+  ///
+  /// Used for partial updates where PUT would mean "replace the whole record" —
+  /// closing one action item should not have to resend everything else about it.
+  Future<dynamic> patchData(
+    String path, {
+    Map<String, dynamic>? body,
+    bool auth = true,
+  }) async {
+    final decoded = await _send('PATCH $path', () => _http
+        .patch(
+          _uri(path),
+          headers: _headers(auth: auth, json: true),
+          body: jsonEncode(body ?? const {}),
+        )
+        .timeout(_timeout));
+    return decoded['data'];
+  }
+
   Future<dynamic> deleteData(String path, {bool auth = true}) async {
     final decoded = await _send('DELETE $path', () =>
         _http.delete(_uri(path), headers: _headers(auth: auth)).timeout(_timeout));

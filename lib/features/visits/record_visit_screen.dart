@@ -6,9 +6,11 @@ import 'package:provider/provider.dart';
 import '../../core/location/location_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../data/repositories/assessment_repository.dart';
+import '../../data/repositories/mentorship_repository.dart';
 import '../../data/repositories/visit_repository.dart';
 import '../../data/services/visit_sync_service.dart';
 import '../../shared/widgets/common.dart';
+import 'open_action_items_card.dart';
 import 'visit_assessment_screen.dart';
 import 'visit_pin_screen.dart';
 
@@ -41,6 +43,7 @@ class _RecordVisitScreenState extends State<RecordVisitScreen> {
 
   LocalVisit? _visit;
   final _assessments = AssessmentRepository();
+  final _mentorship = MentorshipRepository();
 
   /// A one-line recap of the scorecard, so an agent about to hit Finish can
   /// see they left half of it blank.
@@ -338,6 +341,13 @@ class _RecordVisitScreenState extends State<RecordVisitScreen> {
               ),
             ),
           ],
+          const SectionLabel('Before you start'),
+          if (_visit != null)
+            OpenActionItemsCard(
+              remoteGroupId: widget.groupId,
+              visitId: _visit!.id,
+              mentorship: _mentorship,
+            ),
           const SectionLabel('Assessment'),
           Card(
             child: ListTile(
