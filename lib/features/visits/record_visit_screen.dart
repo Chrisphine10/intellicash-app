@@ -11,12 +11,19 @@ import '../../data/services/mentorship_sync_service.dart';
 import '../../data/repositories/visit_repository.dart';
 import '../../data/services/visit_sync_service.dart';
 import '../../shared/widgets/common.dart';
+import '../../core/network/api_client.dart';
+import 'business_profile_screen.dart';
 import 'open_action_items_card.dart';
 import 'visit_assessment_screen.dart';
 import 'visit_mentorship_screen.dart';
-import 'visit_pin_screen.dart';
 
-/// Recording a field visit, after the group's PIN has been accepted.
+/// Recording a field visit.
+///
+/// There is no PIN step. A visit used to open with a 4-digit PIN held by the
+/// group — their attestation that the agent was in front of them — and that was
+/// removed on the owner's instruction. What a visit now carries is the agent's
+/// signed-in session, the GPS fix (adjudicated by the server against the
+/// group's registered point, never by this phone), the device id and the time.
 ///
 /// Every step writes to the local database as it happens. An agent whose
 /// battery dies halfway through must be able to resume, and cannot be asked to
@@ -83,13 +90,10 @@ class _RecordVisitScreenState extends State<RecordVisitScreen> {
 
   Future<void> _begin() async {
     // Captured before any await: using `context` afterwards is unsound because
-    // the screen may have been disposed while the database or the PIN screen
-    // was busy.
+    // the screen may have been disposed while the database was busy.
     final repository = context.read<VisitRepository>();
-    final navigator = Navigator.of(context);
 
-    // Resume rather than start again. One occasion must not become two
-    // records, and the agent must not be asked for the PIN a second time.
+    // Resume rather than start again. One occasion must not become two records.
     final existing = await repository.openDraftFor(widget.groupId);
     if (existing != null) {
       if (!mounted) return;
@@ -100,17 +104,6 @@ class _RecordVisitScreenState extends State<RecordVisitScreen> {
         _locationNoteController.text = existing.locationNote ?? '';
         _loading = false;
       });
-      return;
-    }
-
-    final verified = await navigator.push<bool>(
-      MaterialPageRoute(
-        builder: (_) => VisitPinScreen(groupId: widget.groupId, groupName: widget.groupName),
-      ),
-    );
-    if (!mounted) return;
-    if (verified != true) {
-      navigator.pop();
       return;
     }
 
@@ -262,6 +255,24 @@ class _RecordVisitScreenState extends State<RecordVisitScreen> {
     });
   }
 
+  Future<void> _openBusinessProfile() async {
+    final visit = _visit;
+    if (visit == null) return;
+
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => BusinessProfileScreen(
+          remoteGroupId: widget.groupId,
+          groupName: widget.groupName,
+          client: context.read<ApiClient>(),
+          // Null until the visit itself has synced — the profile still saves
+          // against the group, just without an occasion to compare against.
+          remoteVisitId: visit.remoteId,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_loading) {
@@ -404,6 +415,18 @@ class _RecordVisitScreenState extends State<RecordVisitScreen> {
               ),
               trailing: const Icon(Icons.chevron_right),
               onTap: _visit == null ? null : _openMentorship,
+            ),
+          ),
+          const SectionLabel('Group business'),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.storefront_outlined),
+              title: const Text('The group’s enterprise'),
+              subtitle: const Text(
+                'What they run together, and how it is doing.',
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: _visit == null ? null : _openBusinessProfile,
             ),
           ),
           const SectionLabel('Notes'),

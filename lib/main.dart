@@ -274,6 +274,10 @@ Future<void> main() async {
         Provider<MentorshipRepository>.value(value: mentorship),
         Provider<MentorshipSyncService>.value(value: mentorshipSync),
         Provider<MentorshipCatalogueStore>.value(value: mentorshipCatalogue),
+        // The raw client, for screens that talk to an endpoint directly rather
+        // than through a repository — the group business profile is online-only
+        // and has no local mirror to go through.
+        Provider<ApiClient>.value(value: apiClient),
         ChangeNotifierProvider(
           create: (_) => ShareOutProvider(ShareOutRepository(db)),
         ),

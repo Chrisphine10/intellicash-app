@@ -55,13 +55,6 @@ class _FakeVisitsApi implements RemoteVisitsApi {
   }
 
   @override
-  Future<bool> pinConfigured(String groupId) async => true;
-
-  @override
-  Future<VisitPinResult> verifyPin({required String groupId, required String pin}) async =>
-      const VisitPinResult.ok();
-
-  @override
   Future<List<RemoteVisit>> myVisits() async => const [];
 
   @override

@@ -4,13 +4,25 @@ Newest first.
 
 ---
 
+## 2.4.0 — 11 August 2026
+
+**Starting a visit no longer asks for a group PIN.** Open the group, tap
+Record a visit, and you are straight into it. The PIN belongs to meetings —
+opening one and closing it — and is not asked for anywhere else.
+
+**Please update.** Version 2.3.0 will ask for a visit PIN that no longer
+exists, and will not let you past that screen. Everything else works exactly as
+it did: the scorecard, photos, coaching, the group's rating and the action plan
+are all unchanged, and anything already saved on your phone still syncs.
+
+---
+
 ## 2.3.0 — 10 August 2026
 
-**Record a full field visit on your phone.** A group official enters their
-4-digit PIN to confirm you are really there, then the whole visit is recorded
-in one place: where it happened, the scorecard, photos, coaching, and what the
-group agreed to do next. Everything is saved on the phone first and sent when
-you have signal.
+**Record a full field visit on your phone.** (The PIN step described here was
+removed in 2.4.0.) The whole visit is recorded in one place: where it
+happened, the scorecard, photos, coaching, and what the group agreed to do
+next. Everything is saved on the phone first and sent when you have signal.
 
 **Score the group against the 92-point scorecard.** Work through it one
 section at a time with the officials. Each question is Yes, Partial, No or Not

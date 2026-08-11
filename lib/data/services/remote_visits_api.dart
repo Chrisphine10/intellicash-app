@@ -1,21 +1,4 @@
 import '../../core/network/api_client.dart';
-import '../../core/network/api_exception.dart';
-
-/// Why a PIN check did not pass. Kept as a type rather than a message so the
-/// UI can respond differently to "wrong" (try again) and "locked" (stop).
-enum VisitPinFailure { wrong, locked, notSet, offline, unknown }
-
-class VisitPinResult {
-  const VisitPinResult.ok()
-      : verified = true,
-        failure = null,
-        message = null;
-  const VisitPinResult.failed(this.failure, this.message) : verified = false;
-
-  final bool verified;
-  final VisitPinFailure? failure;
-  final String? message;
-}
 
 /// A visit as the server has recorded it.
 class RemoteVisit {
@@ -72,42 +55,6 @@ class RemoteVisitsApi {
   RemoteVisitsApi(this._client);
 
   final ApiClient _client;
-
-  /// Checks the group's 4-digit PIN.
-  ///
-  /// Distinguishes the failures because they mean different things to the
-  /// person holding the phone: a wrong PIN invites another try, a locked one
-  /// means stop, and "not set" is not their fault at all — an official has to
-  /// set one before any visit can be recorded here.
-  Future<VisitPinResult> verifyPin({
-    required String groupId,
-    required String pin,
-  }) async {
-    try {
-      await _client.postData('/groups/$groupId/visit-pin/verify', body: {'pin': pin});
-      return const VisitPinResult.ok();
-    } on ApiException catch (error) {
-      return switch (error.code) {
-        'VISIT_PIN_INCORRECT' => const VisitPinResult.failed(
-            VisitPinFailure.wrong, 'That PIN is not correct.'),
-        'VISIT_PIN_LOCKED' => VisitPinResult.failed(VisitPinFailure.locked, error.message),
-        'VISIT_PIN_NOT_SET' => VisitPinResult.failed(VisitPinFailure.notSet, error.message),
-        _ => VisitPinResult.failed(VisitPinFailure.unknown, error.message),
-      };
-    } catch (_) {
-      // No signal. The PIN cannot be checked centrally right now, which is a
-      // fact about the network rather than about the PIN.
-      return const VisitPinResult.failed(
-          VisitPinFailure.offline, 'No connection — the PIN cannot be checked yet.');
-    }
-  }
-
-  /// Whether this group has a visit PIN at all, so the flow can say so before
-  /// the agent has typed anything.
-  Future<bool> pinConfigured(String groupId) async {
-    final data = await _client.getData('/groups/$groupId/visit-pin');
-    return data['configured'] == true;
-  }
 
   /// Submits a visit.
   ///
