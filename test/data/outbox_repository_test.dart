@@ -188,8 +188,10 @@ void main() {
       recordType: OutboxRecordType.visit,
       recordId: 'visit-recent',
     );
-    await outbox.markSynced(old.id);
-    await outbox.markSynced(recent.id);
+    // Stamped against the same clock the prune is measured with. Using the
+    // real one here made the result depend on today's date.
+    await outbox.markSynced(old.id, now: now);
+    await outbox.markSynced(recent.id, now: now);
 
     // Nothing is old enough yet.
     expect(await outbox.pruneSynced(now: now), 0);

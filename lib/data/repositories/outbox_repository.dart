@@ -225,7 +225,13 @@ class OutboxRepository {
     return (rows.first['c'] as int?) ?? 0;
   }
 
-  Future<void> markSynced(String id) async {
+  /// [now] exists so a caller can pin the timestamp.
+  ///
+  /// `pruneSynced` already took an injectable clock while this stamped the real
+  /// one, so any test exercising both mixed a fixed cutoff with a wall-clock
+  /// entry — it passed or failed depending on the calendar date, and duly began
+  /// failing on 16 Aug 2026 for every developer at once.
+  Future<void> markSynced(String id, {DateTime? now}) async {
     final db = await _database.database;
     await db.update(
       'outbox',
@@ -234,7 +240,7 @@ class OutboxRepository {
         'last_error': null,
         'last_error_code': null,
         'next_attempt_at': null,
-        'updated_at': DateTime.now().toIso8601String(),
+        'updated_at': (now ?? DateTime.now()).toIso8601String(),
       },
       where: 'id = ?',
       whereArgs: [id],
