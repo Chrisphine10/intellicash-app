@@ -511,6 +511,18 @@ class _PinSheetState extends State<_PinSheet> {
       setState(() => _error = 'Wrong PIN. Try again.');
       return;
     }
+    /*
+     * Upgrade the stored hash the moment the PIN is known to be right.
+     *
+     * The PIN itself is never stored, so a hash written under the old SHA-256
+     * scheme can only be re-hashed here — at the one instant the plaintext is
+     * in hand and proven correct. Left alone it would stay a fast hash of a
+     * four-digit secret for the life of the phone.
+     */
+    if (MeetingUnlock.needsRehash(widget.member.pinHash)) {
+      await widget.onSetPin(MeetingUnlock.hashPin(widget.member.id, pin));
+    }
+    if (!mounted) return;
     Navigator.of(context).pop(true);
   }
 }

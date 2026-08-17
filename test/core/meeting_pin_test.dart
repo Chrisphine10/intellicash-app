@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intellicash_mobile/core/utils/meeting_unlock.dart';
+import 'package:intellicash_mobile/data/models/member.dart';
 
 /// The meeting PIN is now four digits, chosen by the member.
 ///
@@ -77,4 +78,79 @@ void main() {
       isNot(MeetingUnlock.hashPin('member-b', '0427')),
     );
   });
+
+  group('PIN hashing', () {
+    test('a new hash is PBKDF2, not a bare SHA-256', () {
+      final hash = MeetingUnlock.hashPin('m1', '0427');
+      expect(hash.startsWith('pbkdf2-sha256\$30000\$'), isTrue, reason: hash);
+      // The old scheme was 64 hex characters and nothing else.
+      expect(RegExp(r'^[0-9a-f]{64}\$').hasMatch(hash), isFalse);
+    });
+
+    test('salts randomly, so the same PIN never hashes the same twice', () {
+      // The old scheme salted on member id alone, which is not secret and is
+      // reused wherever the member appears — so it forced no extra work.
+      expect(
+        MeetingUnlock.hashPin('m1', '0427'),
+        isNot(MeetingUnlock.hashPin('m1', '0427')),
+      );
+    });
+
+    test('verifies a PIN it hashed', () {
+      final member = _memberWithHash('m1', MeetingUnlock.hashPin('m1', '0427'));
+      expect(MeetingUnlock.verifyPin(member, '0427'), isTrue);
+      expect(MeetingUnlock.verifyPin(member, '0428'), isFalse);
+    });
+
+    test('will not verify another member PIN', () {
+      final member = _memberWithHash('m2', MeetingUnlock.hashPin('m1', '0427'));
+      expect(MeetingUnlock.verifyPin(member, '0427'), isFalse);
+    });
+
+    test('still verifies a PIN hashed the old way', () {
+      // Every member who set a PIN before this holds a SHA-256 hash. Refusing
+      // it would lock every existing group out of its own meetings.
+      final legacy = MeetingUnlock.legacyHashPin('m1', '048271');
+      final member = _memberWithHash('m1', legacy);
+      expect(MeetingUnlock.verifyPin(member, '048271'), isTrue);
+      expect(MeetingUnlock.verifyPin(member, '048272'), isFalse);
+    });
+
+    test('flags a legacy hash for upgrade, and a new one as done', () {
+      expect(MeetingUnlock.needsRehash(MeetingUnlock.legacyHashPin('m1', '0427')), isTrue);
+      expect(MeetingUnlock.needsRehash(MeetingUnlock.hashPin('m1', '0427')), isFalse);
+      expect(MeetingUnlock.needsRehash(null), isFalse);
+      expect(MeetingUnlock.needsRehash(''), isFalse);
+    });
+
+    test('refuses a malformed stored value instead of throwing', () {
+      for (final broken in ['pbkdf2-sha256\$', 'pbkdf2-sha256\$x\$y\$z', 'pbkdf2-sha256\$0\$s\$h']) {
+        final member = _memberWithHash('m1', broken);
+        expect(MeetingUnlock.verifyPin(member, '0427'), isFalse, reason: broken);
+      }
+    });
+
+    test('matches the published PBKDF2-HMAC-SHA256 vectors', () {
+      // The KDF is hand-written, so it is checked against values produced by
+      // other implementations. Comparing it only against itself would prove
+      // nothing at all.
+      expect(
+        MeetingUnlock.pbkdf2Hex(password: 'password', salt: 'salt', iterations: 1),
+        '120fb6cffcf8b32c43e7225256c4f837a86548c92ccc35480805987cb70be17b',
+      );
+      expect(
+        MeetingUnlock.pbkdf2Hex(password: 'password', salt: 'salt', iterations: 2),
+        'ae4d0c95af6b46d32d0adff928f06dd02a303f8ef3c251dfd6e2d85a95474c43',
+      );
+    });
+  });
+
 }
+
+Member _memberWithHash(String id, String hash) => Member(
+      id: id,
+      groupId: 'g1',
+      name: 'Test Member',
+      joinedAt: DateTime(2026, 1, 1),
+      pinHash: hash,
+    );

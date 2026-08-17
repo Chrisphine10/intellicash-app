@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:crypto/crypto.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../data/models/member.dart';
 
@@ -27,15 +29,142 @@ abstract final class MeetingUnlock {
   /// existing group would be locked out of its own meetings by an app update.
   static const int legacyPinLength = 6;
 
-  /// Hashes a PIN with a per-member salt so equal PINs don't hash equal.
-  static String hashPin(String memberId, String pin) {
+  /// Work factor for [hashPin].
+  ///
+  /// A meeting PIN is four digits, so the whole keyspace is 10,000 values. The
+  /// old scheme was a single SHA-256, which a laptop walks in milliseconds:
+  /// anyone holding this phone's database file held every member's PIN, and
+  /// those PINs are the three keys that open a meeting.
+  ///
+  /// 30,000 iterations turns that into ~3x10^8 HMAC operations for a full
+  /// sweep. It also costs a fraction of a second on a low-end handset for the
+  /// one hash a person's tap actually needs. It runs on the UI isolate, which
+  /// is the reason for not going higher; moving it to `compute` would allow it.
+  static const int _pbkdf2Iterations = 30000;
+
+  /// Marks the algorithm in the stored value, so [verifyPin] can tell a new
+  /// hash from a legacy one without guessing from its shape.
+  static const String _pbkdf2Prefix = 'pbkdf2-sha256';
+
+  /// Hashes a PIN with a random per-hash salt.
+  ///
+  /// Returns `pbkdf2-sha256$<iterations>$<salt>$<hash>`. The salt is random
+  /// rather than the member id: a member id is not secret and is reused
+  /// wherever that member appears, so it never forced an attacker to redo work.
+  static String hashPin(String memberId, String pin, {String? salt}) {
+    final saltValue = salt ?? _randomSalt();
+    final derived = _pbkdf2(
+      password: '$memberId:${pin.trim()}',
+      salt: saltValue,
+      iterations: _pbkdf2Iterations,
+    );
+    return '$_pbkdf2Prefix\$$_pbkdf2Iterations\$$saltValue\$$derived';
+  }
+
+  /// The scheme this replaced: one round of SHA-256, salted only by member id.
+  ///
+  /// Kept solely so a PIN set before the change still verifies. Anything that
+  /// verifies this way should be re-hashed; see [needsRehash].
+  static String legacyHashPin(String memberId, String pin) {
     return sha256.convert(utf8.encode('$memberId:${pin.trim()}')).toString();
   }
+
+  /// True when [stored] is in the old format and should be upgraded after a
+  /// successful verify. Upgrading on use is the only way to migrate: the PIN
+  /// itself is never stored, so it can only be re-hashed at the moment someone
+  /// types it correctly.
+  static bool needsRehash(String? stored) =>
+      stored != null && stored.isNotEmpty && !stored.startsWith('$_pbkdf2Prefix\$');
 
   static bool verifyPin(Member member, String pin) {
     final stored = member.pinHash;
     if (stored == null || stored.isEmpty) return false;
-    return stored == hashPin(member.id, pin);
+
+    if (!stored.startsWith('$_pbkdf2Prefix\$')) {
+      return _constantTimeEquals(stored, legacyHashPin(member.id, pin));
+    }
+
+    final parts = stored.split('\$');
+    if (parts.length != 4) return false;
+    final iterations = int.tryParse(parts[1]);
+    if (iterations == null || iterations <= 0) return false;
+
+    final derived = _pbkdf2(
+      password: '${member.id}:${pin.trim()}',
+      salt: parts[2],
+      iterations: iterations,
+    );
+    return _constantTimeEquals(parts[3], derived);
+  }
+
+  static String _randomSalt() {
+    final random = Random.secure();
+    final bytes = List<int>.generate(16, (_) => random.nextInt(256));
+    return base64Url.encode(bytes).replaceAll('=', '');
+  }
+
+  /// PBKDF2-HMAC-SHA256. Written out rather than pulled from a package: it is
+  /// twenty lines, and one fewer dependency in the path that guards a group's
+  /// meetings is worth more than the twenty lines saved.
+  static String _pbkdf2({
+    required String password,
+    required String salt,
+    required int iterations,
+    int lengthBytes = 32,
+  }) {
+    final hmac = Hmac(sha256, utf8.encode(password));
+    final output = <int>[];
+    var block = 1;
+
+    while (output.length < lengthBytes) {
+      // U1 = HMAC(password, salt || INT_32_BE(block))
+      final blockSuffix = ByteData(4)..setUint32(0, block, Endian.big);
+      var u = hmac
+          .convert([...utf8.encode(salt), ...blockSuffix.buffer.asUint8List()])
+          .bytes;
+      final accumulated = List<int>.from(u);
+
+      for (var i = 1; i < iterations; i += 1) {
+        u = hmac.convert(u).bytes;
+        for (var j = 0; j < accumulated.length; j += 1) {
+          accumulated[j] ^= u[j];
+        }
+      }
+
+      output.addAll(accumulated);
+      block += 1;
+    }
+
+    return base64Url.encode(output.sublist(0, lengthBytes)).replaceAll('=', '');
+  }
+
+  /// Raw derived bytes as hex, so the hand-written KDF can be checked against
+  /// published test vectors rather than only against itself.
+  @visibleForTesting
+  static String pbkdf2Hex({
+    required String password,
+    required String salt,
+    required int iterations,
+    int lengthBytes = 32,
+  }) {
+    final b64 = _pbkdf2(
+      password: password,
+      salt: salt,
+      iterations: iterations,
+      lengthBytes: lengthBytes,
+    );
+    final bytes = base64Url.decode(b64.padRight((b64.length + 3) ~/ 4 * 4, '='));
+    return bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
+  }
+
+  /// Compares without leaking where two values first differ.
+  static bool _constantTimeEquals(String a, String b) {
+    if (a.length != b.length) return false;
+    var diff = 0;
+    for (var i = 0; i < a.length; i += 1) {
+      diff |= a.codeUnitAt(i) ^ b.codeUnitAt(i);
+    }
+    return diff == 0;
   }
 
   // `[0-9]` rather than `\d`: these patterns interpolate the length, so they
