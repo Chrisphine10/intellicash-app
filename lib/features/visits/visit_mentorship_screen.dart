@@ -10,8 +10,17 @@ import '../../data/services/mentorship_catalogue.dart';
 ///
 ///  - The agent writes what they coached on.
 ///  - The GROUP scores it. An agent rating their own session gives 4 or 5 every
-///    time and the aggregate means nothing; the representative is already
-///    holding the phone for the sign-off PIN, so asking them costs nothing.
+///    time and the aggregate means nothing, so the phone is handed over and
+///    the answer is recorded against whoever gave it.
+///
+/// **No PIN is asked for anywhere in this flow**, and none should be added.
+/// The rationale here used to say the representative was "already holding the
+/// phone for the sign-off PIN" — that PIN was removed, and a comment justifying
+/// a design by a mechanism that no longer exists is how the mechanism gets
+/// reintroduced by someone tidying up. Scoring is a question put to a person,
+/// not an authentication step: `ratedByRole` records who answered so an
+/// aggregate can exclude anything the agent scored themselves, which is what
+/// makes the number trustworthy — not a secret.
 ///
 /// Everything is written as it is entered and works with no signal.
 class VisitMentorshipScreen extends StatefulWidget {
