@@ -4,10 +4,9 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../data/models/remote/credit_rating.dart';
 import '../../data/models/remote/remote_models.dart';
-import '../../l10n/app_localizations.dart';
 import '../../providers/connection_provider.dart';
 import '../../shared/widgets/common.dart';
-import '../more/language_screen.dart';
+import '../account/account_route.dart';
 import '../reports/agent_report_screen.dart';
 import 'agent_group_detail_screen.dart';
 import 'credit_band_chip.dart';
@@ -45,38 +44,6 @@ class _AgentHomeScreenState extends State<AgentHomeScreen> {
     if (mounted) setState(() => _loadingRatings = false);
   }
 
-  Future<void> _signOut() async {
-    final l10n = L10n.of(context);
-    final connection = context.read<ConnectionProvider>();
-    final navigator = Navigator.of(context);
-    // Confirm first — a mis-tap on a toolbar icon shouldn't end the session.
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.signOut, style: const TextStyle(fontSize: 17)),
-        // An agent's caseload lives on the server, not in a book on this
-        // phone; the group wording was simply about someone else's app.
-        content: Text(l10n.signOutAgentNote,
-            style: const TextStyle(fontSize: 13.5)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(l10n.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(l10n.signOut),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true) return;
-    await connection.disconnect();
-    // Back to "who is signing in?" — a shared phone often changes hands here.
-    // The root renders that itself once the account is cleared.
-    navigator.popUntil((route) => route.isFirst);
-  }
-
   @override
   Widget build(BuildContext context) {
     final connection = context.watch<ConnectionProvider>();
@@ -86,16 +53,12 @@ class _AgentHomeScreenState extends State<AgentHomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Groups'),
+        /*
+         * Two icons, not four. Language and sign out moved to Account, where
+         * they are labelled. Three unlabelled icons in a row put a destructive
+         * action a mis-tap away from a routine one.
+         */
         actions: [
-          IconButton(
-            icon: const Icon(Icons.translate, size: 20),
-            tooltip: 'Language',
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const LanguageScreen()),
-              );
-            },
-          ),
           IconButton(
             icon: const Icon(Icons.description_outlined, size: 20),
             tooltip: 'Caseload report',
@@ -110,9 +73,11 @@ class _AgentHomeScreenState extends State<AgentHomeScreen> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.logout, size: 20),
-            tooltip: 'Sign out',
-            onPressed: _signOut,
+            icon: const Icon(Icons.account_circle_outlined, size: 22),
+            tooltip: 'Account',
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const AccountRoute()),
+            ),
           ),
         ],
       ),
@@ -127,7 +92,11 @@ class _AgentHomeScreenState extends State<AgentHomeScreen> {
           children: [
             Card(
               color: AppColors.surfaceRaised,
-              child: Padding(
+              child: InkWell(
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const AccountRoute()),
+                ),
+                child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Row(
                   children: [
@@ -149,8 +118,10 @@ class _AgentHomeScreenState extends State<AgentHomeScreen> {
                         ],
                       ),
                     ),
+                    const Icon(Icons.chevron_right, size: 20),
                   ],
                 ),
+              ),
               ),
             ),
             _CaseloadSummary(ratings: _ratings, total: groups.length),

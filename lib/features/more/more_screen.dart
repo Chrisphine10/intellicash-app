@@ -7,15 +7,14 @@ import '../../core/utils/formatters.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/app_state.dart';
 import '../../providers/connection_provider.dart';
-import '../../providers/locale_controller.dart';
 import '../../providers/theme_controller.dart';
 import '../../shared/widgets/common.dart';
 import '../../shared/widgets/status_chip.dart';
+import '../account/account_route.dart';
 import '../onboarding/group_setup_wizard.dart';
 import '../reports/group_report_screen.dart';
 import '../reports/member_reports_screen.dart';
 import '../shareout/share_out_screen.dart';
-import 'language_screen.dart';
 import 'meeting_security_screen.dart';
 import '../settings/cycles_screen.dart';
 import '../settings/group_policy_screen.dart';
@@ -220,43 +219,26 @@ class MoreScreen extends StatelessWidget {
               },
             ),
           ),
-          SectionLabel(l10n.sectionAppearance),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(l10n.themeLabel,
-                      style: const TextStyle(
-                          fontSize: 14, fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Choose how Intelli-Cash looks on this phone.',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  const SizedBox(height: 12),
-                  const _AppearancePicker(),
-                ],
-              ),
-            ),
-          ),
-          SectionLabel(l10n.sectionLanguage),
+          /*
+           * Your account: identity, language, appearance, server and version.
+           * Appearance and Language used to be two more sections here, which
+           * meant a group account and an agent changed the same setting in two
+           * unrelated places. They live on Account now, which every role can
+           * reach.
+           */
+          SectionLabel('Your account'),
           Card(
             child: ListTile(
-              leading: const Icon(Icons.translate, size: 20),
-              title: Text(l10n.language,
-                  style: const TextStyle(fontSize: 14)),
+              leading: const Icon(Icons.account_circle_outlined, size: 22),
+              title: const Text('Account', style: TextStyle(fontSize: 14)),
               subtitle: Text(
-                context.watch<LocaleController>().language.nativeName,
+                'Who is signed in, language, appearance and app details',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               trailing: const Icon(Icons.chevron_right, size: 20),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const LanguageScreen()),
-                );
-              },
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const AccountRoute()),
+              ),
             ),
           ),
           SectionLabel(l10n.sectionAbout),
@@ -475,44 +457,6 @@ class MoreScreen extends StatelessWidget {
 /// Light / Dark / System picker for [ThemeController]. Applying a change
 /// re-keys the app content (see [ThemeController]'s doc comment), so this
 /// screen closes and the app returns to its root screen right after.
-class _AppearancePicker extends StatelessWidget {
-  const _AppearancePicker();
-
-  @override
-  Widget build(BuildContext context) {
-    final controller = context.watch<ThemeController>();
-    return SegmentedButton<ThemeMode>(
-      segments: const [
-        ButtonSegment(
-          value: ThemeMode.light,
-          label: Text('Light'),
-          icon: Icon(Icons.light_mode_outlined, size: 16),
-        ),
-        ButtonSegment(
-          value: ThemeMode.dark,
-          label: Text('Dark'),
-          icon: Icon(Icons.dark_mode_outlined, size: 16),
-        ),
-        ButtonSegment(
-          value: ThemeMode.system,
-          label: Text('System'),
-          icon: Icon(Icons.smartphone_outlined, size: 16),
-        ),
-      ],
-      selected: {controller.mode},
-      onSelectionChanged: (selection) => controller.setMode(selection.first),
-      style: SegmentedButton.styleFrom(
-        selectedBackgroundColor: AppColors.primaryTint,
-        selectedForegroundColor: AppColors.primary,
-        foregroundColor: AppColors.textSecondary,
-        side: BorderSide(color: AppColors.outline),
-        textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-      ),
-      showSelectedIcon: false,
-    );
-  }
-}
-
 /// Optional: let this group create sign-in accounts for its members, so each
 /// member can check their own savings on their own phone.
 class _MemberAccountsToggle extends StatefulWidget {
