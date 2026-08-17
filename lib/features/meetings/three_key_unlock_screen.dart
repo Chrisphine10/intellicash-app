@@ -454,7 +454,11 @@ class _PinSheetState extends State<_PinSheet> {
             autofocus: true,
             obscureText: true,
             keyboardType: TextInputType.number,
-            maxLength: 6,
+            // Four to set; up to six to enter, because that is what members who
+            // set a PIN before this change are still holding.
+            maxLength: _isFirstTime
+                ? MeetingUnlock.pinLength
+                : MeetingUnlock.legacyPinLength,
             decoration: InputDecoration(
               labelText: _isFirstTime ? 'New PIN' : 'PIN',
               counterText: '',
@@ -467,7 +471,7 @@ class _PinSheetState extends State<_PinSheet> {
               controller: _confirmCtrl,
               obscureText: true,
               keyboardType: TextInputType.number,
-              maxLength: 6,
+              maxLength: MeetingUnlock.pinLength,
               decoration: const InputDecoration(
                 labelText: 'Repeat PIN',
                 counterText: '',
@@ -497,6 +501,10 @@ class _PinSheetState extends State<_PinSheet> {
       }
       await widget.onSetPin(MeetingUnlock.hashPin(widget.member.id, pin));
       if (mounted) Navigator.of(context).pop(true);
+      return;
+    }
+    if (!MeetingUnlock.isEnterablePin(pin)) {
+      setState(() => _error = 'Enter your PIN.');
       return;
     }
     if (!MeetingUnlock.verifyPin(widget.member, pin)) {

@@ -29,11 +29,23 @@ void main() {
           reason: 'a member without a PIN can never verify');
     });
 
-    test('a valid PIN is exactly 6 digits', () {
-      expect(MeetingUnlock.isValidPin('123456'), isTrue);
-      expect(MeetingUnlock.isValidPin('12345'), isFalse);
-      expect(MeetingUnlock.isValidPin('1234567'), isFalse);
-      expect(MeetingUnlock.isValidPin('12a456'), isFalse);
+    test('a PIN that may be SET is exactly 4 digits', () {
+      // Changed from six. The full rule set, including which values are too
+      // guessable to choose and why entry still accepts the old length, is in
+      // `meeting_pin_test.dart`.
+      expect(MeetingUnlock.isValidPin('0427'), isTrue);
+      expect(MeetingUnlock.isValidPin('042'), isFalse);
+      expect(MeetingUnlock.isValidPin('04275'), isFalse);
+      expect(MeetingUnlock.isValidPin('123456'), isFalse);
+      expect(MeetingUnlock.isValidPin('04a7'), isFalse);
+    });
+
+    test('a six-digit PIN set before the change can still be entered', () {
+      // verifyPin hashes whatever is typed, so an existing member's PIN keeps
+      // working; only choosing a NEW one is held to four digits.
+      final member = _member('m1', pin: '123456');
+      expect(MeetingUnlock.isEnterablePin('123456'), isTrue);
+      expect(MeetingUnlock.verifyPin(member, '123456'), isTrue);
     });
   });
 
