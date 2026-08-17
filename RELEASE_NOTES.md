@@ -4,6 +4,27 @@ Newest first.
 
 ---
 
+## 2.4.1 — 17 August 2026
+
+**Your meeting PIN is now 4 digits, and you choose it yourself.** No more
+waiting for a code by SMS. Pick something only you would think of — the app
+will not accept 1234 or four of the same digit. If you already have a PIN, keep
+using it; the app will ask you for a new 4-digit one when you next set it.
+
+**Everything about your account in one place.** Tap Account to see who is
+signed in, change the language, switch between light and dark, and check which
+server the phone is talking to. Sign out lives there too, clearly labelled,
+instead of an unnamed icon in the corner.
+
+**Agents can now change the language and appearance.** These settings were
+previously only reachable from a group's settings screen, which an agent never
+opens.
+
+**Your PIN is stored more safely on the phone.** Nothing to do — it is upgraded
+automatically the next time you enter it correctly.
+
+---
+
 ## 2.4.0 — 11 August 2026
 
 **Starting a visit no longer asks for a group PIN.** Open the group, tap
