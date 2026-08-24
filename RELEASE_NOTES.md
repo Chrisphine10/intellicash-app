@@ -4,6 +4,22 @@ Newest first.
 
 ---
 
+## 2.4.2 — 24 August 2026
+
+**Your PIN works again.** Entering your PIN could be refused with a message
+asking for six digits when the app wanted four. Members holding an older
+six-digit PIN could not get in at all. Both are fixed — set a new PIN with four
+digits, or keep entering the one you already have.
+
+**You are signed out properly when your session ends.** If the server ends your
+session, the app now takes you back to sign-in instead of leaving you on a
+screen where nothing loads.
+
+**Welfare and Intelli-Store moved into the meeting.** They sit next to Voting,
+where the group decides on them, instead of in the settings list.
+
+---
+
 ## 2.4.1 — 17 August 2026
 
 **Your meeting PIN is now 4 digits, and you choose it yourself.** No more

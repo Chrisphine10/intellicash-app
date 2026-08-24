@@ -1,0 +1,5 @@
+Your PIN works again. Entering it could be refused with a message asking for six digits when the app wanted four, and older six-digit PINs were rejected outright. Both fixed.
+
+You are now signed out properly when your session ends, instead of being left on a screen where nothing loads.
+
+Welfare and Intelli-Store have moved into the meeting, next to Voting.
