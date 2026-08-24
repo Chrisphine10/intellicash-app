@@ -9,6 +9,20 @@ import 'remote_write_api.dart' show LedgerEntryInput;
 /// Every route here is reachable with a `MOBILE_CORE` key — the preset carries
 /// `meetings:write`, `meeting-keys:write`, `ledger:read/write` (verified in
 /// `apps/api/src/domain/api-keys.ts`).
+/// **Not part of the app's sync path.** Nothing in `lib/` constructs this.
+///
+/// Meeting attendance, ledger rows and key submissions are pushed by
+/// `WriteSyncService`, which is what `main.dart` wires and what runs on a real
+/// phone. This class is a parallel implementation that survived being
+/// superseded, and it is kept only because `test/integration/
+/// live_meeting_governance_test.dart` drives a live server through it.
+///
+/// Said plainly because the danger is not that it runs — it never does — but
+/// that someone adds a meeting feature by extending the class that looks like
+/// the meeting API, and their code never executes. That is exactly how
+/// `refreshOpenItems` came to be written, tested and never called.
+///
+/// If the integration test is ever retired, delete this with it.
 class RemoteMeetingApi {
   RemoteMeetingApi(this._client);
 
