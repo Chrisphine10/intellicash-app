@@ -13,6 +13,7 @@ import '../../shared/widgets/status_chip.dart';
 import '../loans/disburse_loan_screen.dart';
 import '../store/external_loans_screen.dart';
 import '../store/store_screen.dart';
+import '../settings/welfare_screen.dart';
 import '../voting/polls_screen.dart';
 import 'attendance_screen.dart';
 import 'buy_shares_sheet.dart';
@@ -147,6 +148,35 @@ class _MeetingHubScreenState extends State<MeetingHubScreen> {
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const PollsScreen()),
+                  );
+                },
+              ),
+              /*
+               * Welfare sits beside Voting because it is decided the same way:
+               * the group agrees a payout in the meeting, in front of everyone.
+               * It used to live in the settings list, which is where a
+               * treasurer goes to configure things, not to record what the
+               * group just decided.
+               */
+              _ActionTile(
+                icon: Icons.volunteer_activism_outlined,
+                label: 'Welfare',
+                enabled: true,
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const WelfareScreen()),
+                  );
+                },
+              ),
+              // The group's shop is a thing the meeting does, so it is reached
+              // from here rather than from settings.
+              _ActionTile(
+                icon: Icons.storefront_outlined,
+                label: 'Intelli-Store',
+                enabled: true,
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const StoreScreen()),
                   );
                 },
               ),

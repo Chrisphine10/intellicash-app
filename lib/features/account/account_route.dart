@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kReleaseMode;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -52,9 +53,20 @@ class AccountRoute extends StatelessWidget {
       onTheme: () => Navigator.of(context).push(
         MaterialPageRoute(builder: (_) => const AppearanceScreen()),
       ),
-      onServer: () => Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const ServerSettingsScreen()),
-      ),
+      /*
+       * Informational in a release build, not a way in.
+       *
+       * A release authenticates by password and carries a session token;
+       * `IC_API_KEY` is ignored entirely. So the access-key form behind this
+       * row cannot help a member and can only break the connection they
+       * already have. Passing null leaves the row showing which server the
+       * phone talks to — worth seeing — with nothing to tap.
+       */
+      onServer: kReleaseMode
+          ? null
+          : () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const ServerSettingsScreen()),
+              ),
       onSignOut: () => _confirmSignOut(context),
     );
   }

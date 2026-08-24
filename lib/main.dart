@@ -83,6 +83,10 @@ Future<void> main() async {
     apiKey: '',
   );
   final apiClient = ApiClient(credentials: () => liveCredentials);
+  // Wired below, once the ConnectionProvider that owns the session exists.
+  // Without this a session the server has expired surfaces as an ordinary
+  // error on whatever screen is open, and the phone goes on believing it is
+  // signed in while every call fails.
   final remoteApi = RemoteApi(apiClient);
 
   // Write-path (Phase 2a) dependencies.
@@ -210,11 +214,17 @@ Future<void> main() async {
           create: (_) => LoanProvider(LoanRepository(db)),
         ),
         ChangeNotifierProvider(
-          create: (_) => ConnectionProvider(
-            store: CredentialStore(),
-            api: remoteApi,
-            applyCredentials: (creds) => liveCredentials = creds,
-          )..bootstrap(),
+          create: (_) {
+            final connection = ConnectionProvider(
+              store: CredentialStore(),
+              api: remoteApi,
+              applyCredentials: (creds) => liveCredentials = creds,
+            );
+            // A 401 on an authenticated call means this session is dead. Sign
+            // out rather than leaving the phone believing otherwise.
+            apiClient.onSessionExpired = connection.handleSessionExpired;
+            return connection..bootstrap();
+          },
         ),
         ChangeNotifierProvider(
           create: (_) => SyncProvider(

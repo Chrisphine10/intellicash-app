@@ -18,9 +18,7 @@ import '../shareout/share_out_screen.dart';
 import 'meeting_security_screen.dart';
 import '../settings/cycles_screen.dart';
 import '../settings/group_policy_screen.dart';
-import '../settings/welfare_screen.dart';
 import '../settings/payment_providers_screen.dart';
-import '../store/store_screen.dart';
 import '../server/server_settings_screen.dart';
 
 /// Group settings, cloud sync and app info — configuration lives here so
@@ -190,8 +188,6 @@ class MoreScreen extends StatelessWidget {
                     'Loan term and where expenses come from', const GroupPolicyScreen()),
                 _governanceTile(context, 'Saving Cycles', Icons.event_repeat_outlined,
                     'Close a cycle and start the next', const CyclesScreen()),
-                _governanceTile(context, 'Welfare Fund', Icons.volunteer_activism_outlined,
-                    'What is left to share, and what was paid out', const WelfareScreen()),
                 const Divider(indent: 16, endIndent: 16),
                 _syncTile(context, appState),
                 if (context.watch<ConnectionProvider>().isConnected) ...[
@@ -199,24 +195,6 @@ class MoreScreen extends StatelessWidget {
                   _signOutTile(context),
                 ],
               ],
-            ),
-          ),
-          SectionLabel(l10n.sectionStore),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.storefront_outlined, size: 20),
-              title: Text(l10n.intelliStores,
-                  style: const TextStyle(fontSize: 14)),
-              subtitle: Text(
-                'Shop on credit — priced by your rating',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              trailing: const Icon(Icons.chevron_right, size: 20),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const StoreScreen()),
-                );
-              },
             ),
           ),
           /*

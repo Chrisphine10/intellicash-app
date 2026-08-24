@@ -327,6 +327,22 @@ class ConnectionProvider extends ChangeNotifier {
     }
   }
 
+  /// Clears the session because the SERVER rejected it, not because the person
+  /// asked to leave.
+  ///
+  /// Skips the logout call: the credential is already dead, so telling the
+  /// server to revoke it would just fail and delay the sign-out. Everything
+  /// else matches [disconnect], so the phone lands on the sign-in screen the
+  /// same way rather than sitting on a screen that can no longer load.
+  ///
+  /// Idempotent — several in-flight requests can each come back 401, and only
+  /// the first should do any work.
+  Future<void> handleSessionExpired() async {
+    if (_status == ConnectionStatus.unconfigured && _signedInUser == null) return;
+    await _clearSessionState();
+    notifyListeners();
+  }
+
   /// Signs out. Returns false when the server could not be told — the local
   /// session is cleared regardless, so the phone is safe to hand over, but the
   /// caller may want to say the session will end when signal returns.
@@ -334,6 +350,18 @@ class ConnectionProvider extends ChangeNotifier {
     // Revoke on the server FIRST, while the credential still works. Clearing
     // locally only would leave a live session behind on a shared handset.
     final revoked = await _api.logout();
+    await _clearSessionState();
+    notifyListeners();
+    return revoked;
+  }
+
+  /// Everything that must be true once no one is signed in.
+  ///
+  /// Shared by [disconnect] and [handleSessionExpired] so the two cannot drift:
+  /// a session ended by the server has to leave the phone in exactly the state
+  /// a deliberate sign-out does, or the next person picks up a half-signed-in
+  /// handset.
+  Future<void> _clearSessionState() async {
     await _store.clear();
     _credentials = ApiCredentials(
       baseUrl: ApiConfig.defaultBaseUrl(),
@@ -353,8 +381,6 @@ class ConnectionProvider extends ChangeNotifier {
     await _store.clearAccount();
     _account = null;
     _error = null;
-    notifyListeners();
-    return revoked;
   }
 
   /// Remembers the role so the next cold start can route without a network

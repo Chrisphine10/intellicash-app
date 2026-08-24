@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kReleaseMode;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -19,6 +20,18 @@ class ServerSettingsScreen extends StatefulWidget {
 }
 
 class _ServerSettingsScreenState extends State<ServerSettingsScreen> {
+  /*
+   * Whether this build lets anyone type an access key.
+   *
+   * A release authenticates by password and carries a session token;
+   * `IC_API_KEY` is ignored outright (see `ApiConfig`). So in production this
+   * form cannot connect anybody and can only break a connection that already
+   * works — which is the opposite of what someone opening "Cloud Account"
+   * wants. Gated here rather than at the six screens that link to this one,
+   * because gating call sites is how one gets missed.
+   */
+  static const bool _keyEntryAvailable = !kReleaseMode;
+
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _keyCtrl;
   bool _obscureKey = true;
@@ -58,17 +71,19 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen> {
                 label: const Text('Sign In'),
               ),
               const SizedBox(height: 10),
-              Row(
-                children: [
-                  const Expanded(child: Divider(endIndent: 10)),
-                  Text('or use a group access key',
-                      style: Theme.of(context).textTheme.bodySmall),
-                  const Expanded(child: Divider(indent: 10)),
-                ],
-              ),
-              const SizedBox(height: 10),
+              if (_keyEntryAvailable) ...[
+                Row(
+                  children: [
+                    const Expanded(child: Divider(endIndent: 10)),
+                    Text('or use a group access key',
+                        style: Theme.of(context).textTheme.bodySmall),
+                    const Expanded(child: Divider(indent: 10)),
+                  ],
+                ),
+                const SizedBox(height: 10),
+              ],
             ],
-            TextFormField(
+            if (_keyEntryAvailable) TextFormField(
               controller: _keyCtrl,
               autocorrect: false,
               obscureText: _obscureKey,
@@ -87,7 +102,8 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen> {
                   (v == null || v.trim().isEmpty) ? 'Enter your access key' : null,
             ),
             const SizedBox(height: 8),
-            Card(
+            if (_keyEntryAvailable)
+              Card(
               child: Padding(
                 padding: const EdgeInsets.all(14),
                 child: Row(
@@ -108,8 +124,9 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            OutlinedButton.icon(
-              onPressed: connection.busy ? null : _connect,
+            if (_keyEntryAvailable)
+              OutlinedButton.icon(
+                onPressed: connection.busy ? null : _connect,
               icon: connection.busy
                   ? const SizedBox(
                       width: 18,
@@ -117,9 +134,9 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.link, size: 18),
-              label: Text(
-                  connection.busy ? 'Connecting…' : 'Connect with Key'),
-            ),
+                label: Text(
+                    connection.busy ? 'Connecting…' : 'Connect with Key'),
+              ),
             if (connection.isConnected) ...[
               const SizedBox(height: 12),
               OutlinedButton.icon(

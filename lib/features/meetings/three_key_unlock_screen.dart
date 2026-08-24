@@ -395,7 +395,7 @@ class _OtpSheetState extends State<_OtpSheet> {
   }
 }
 
-/// Enter (or first set) a member's 6-digit PIN. Pops true when the PIN is
+/// Enter (or first set) a member's PIN. Pops true when the PIN is
 /// verified — setting a fresh PIN counts as this member's key too.
 class _PinSheet extends StatefulWidget {
   const _PinSheet({required this.member, required this.onSetPin});
@@ -443,9 +443,10 @@ class _PinSheetState extends State<_PinSheet> {
           const SizedBox(height: 4),
           Text(
             _isFirstTime
-                ? 'Choose a secret 6-digit PIN. Only you should know it — '
+                ? 'Choose a secret ${MeetingUnlock.pinLength}-digit PIN. Only you should '
+                    'know it — '
                     'it is your key to the group\'s meetings.'
-                : 'Enter your secret 6-digit PIN to turn your key.',
+                : 'Enter your secret PIN to turn your key.',
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 14),

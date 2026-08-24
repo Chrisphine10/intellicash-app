@@ -27,6 +27,21 @@ class ApiClient {
   final http.Client _http;
   final Duration _timeout;
 
+  /*
+   * Called when the server says this session is no longer good.
+   *
+   * `ApiException.isUnauthorized` existed and was read by nobody, so a session
+   * the server had expired or revoked surfaced as an ordinary error on whatever
+   * screen happened to be open. The phone went on believing it was signed in,
+   * every later call failed the same way, and the person was left tapping a
+   * screen that could not work — with no route back to signing in.
+   *
+   * Set once, by whoever owns the session. It fires only for a 401 on a call
+   * that CARRIED credentials: a failed sign-in is a wrong password, not an
+   * expired session, and must not be mistaken for one.
+   */
+  void Function()? onSessionExpired;
+
   Map<String, String> _headers({bool auth = true, bool json = false}) {
     final creds = _credentials();
     return {
@@ -307,6 +322,7 @@ class ApiClient {
     final traceId = error is Map ? error['traceId'] : null;
     log.warn('api',
         '$label -> ${response.statusCode} $code${traceId != null ? ' (trace $traceId)' : ''}: ${failure.message}');
+    if (failure.isUnauthorized) onSessionExpired?.call();
     throw failure;
   }
 
@@ -330,7 +346,7 @@ class ApiClient {
     }
 
     final message = switch (status) {
-      401 => 'Invalid or expired API key. Re-check the token in Server settings.',
+      401 => 'Your session has ended. Please sign in again.',
       403 => rawMessage ??
           'This API key lacks permission for that action (code: $code).',
       404 => rawMessage ?? 'Not found on the server.',
