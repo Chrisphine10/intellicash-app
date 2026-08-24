@@ -490,11 +490,26 @@ class _PinSheetState extends State<_PinSheet> {
 
   Future<void> _submit() async {
     final pin = _pinCtrl.text.trim();
-    if (!MeetingUnlock.isValidPin(pin)) {
-      setState(() => _error = 'The PIN must be exactly 6 digits.');
-      return;
-    }
+
+    /*
+     * Setting and entering are validated by DIFFERENT rules, and conflating
+     * them is what locked members out.
+     *
+     * A single `isValidPin` guard used to run first for both. That demands
+     * exactly four digits and refuses guessable values — right for choosing a
+     * PIN, wrong for typing one: it rejected every member still holding a
+     * six-digit PIN, and anyone whose existing PIN happened to be guessable,
+     * while reporting "must be exactly 6 digits" because the message was never
+     * updated with the rule. Validate for four, complain about six, accept
+     * neither.
+     */
     if (_isFirstTime) {
+      if (!MeetingUnlock.isValidPin(pin)) {
+        setState(() => _error = MeetingUnlock.isGuessablePin(pin)
+            ? 'Choose a less obvious PIN — not four of the same digit, and not a run like 1234.'
+            : 'The PIN must be exactly ${MeetingUnlock.pinLength} digits.');
+        return;
+      }
       if (_confirmCtrl.text.trim() != pin) {
         setState(() => _error = 'The two PINs don\'t match.');
         return;
