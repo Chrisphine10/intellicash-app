@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
+import 'package:provider/provider.dart';
+
 import '../../core/theme/app_colors.dart';
 import '../../l10n/app_localizations.dart';
+import '../../providers/locale_controller.dart';
+import '../more/language_screen.dart';
 import 'login_screen.dart';
 import 'registration_screen.dart';
 
@@ -55,6 +59,24 @@ class SignInOptionsScreen extends StatelessWidget {
               ),
               icon: const Icon(Icons.person_add_alt, size: 18),
               label: Text(l10n.createAccount),
+            ),
+          ),
+          // Language belongs here, not only on the welcome screen. This is
+          // where a person lands after signing out, so on a shared phone it is
+          // the first thing the NEXT user sees — and if the phone is set to a
+          // language they cannot read, every other route out of here is
+          // written in it. A first-time user reaches the welcome screen; a
+          // second user of the same handset does not.
+          Center(
+            child: TextButton.icon(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const LanguageScreen()),
+              ),
+              icon: const Icon(Icons.translate, size: 18),
+              label: Text(
+                '${l10n.language} · '
+                '${context.watch<LocaleController>().language.nativeName}',
+              ),
             ),
           ),
         ],
