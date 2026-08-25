@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/app_state.dart';
 import '../../providers/dashboard_provider.dart';
 import '../../shared/widgets/common.dart';
@@ -37,6 +38,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final appState = context.watch<AppState>();
     final provider = context.watch<DashboardProvider>();
     final group = appState.group;
@@ -45,7 +47,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dashboard'),
+        title: Text(l10n.navDashboard),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
@@ -63,7 +65,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
           children: [
-            Text('Hello 👋', style: Theme.of(context).textTheme.headlineSmall),
+            Text(l10n.dashboardHello, style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 2),
             Text(
               '${group.name} · Cycle ${group.cycleNumber}',
@@ -80,32 +82,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 StatCard(
                   value: Formatters.moneyCompact(summary.totalSavings),
-                  label: 'Total Savings',
+                  label: l10n.dashboardTotalSavings,
                   icon: Icons.savings_outlined,
                 ),
                 StatCard(
                   value: '${summary.activeLoans}',
-                  label: 'Active Loans',
+                  label: l10n.dashboardActiveLoans,
                   icon: Icons.payments_outlined,
                 ),
                 StatCard(
                   value: '${summary.memberCount}',
-                  label: 'Members',
+                  label: l10n.navMembers,
                   icon: Icons.people_outline,
                 ),
                 StatCard(
                   value: '${summary.meetingCount}',
-                  label: 'Meetings',
+                  label: l10n.navMeetings,
                   icon: Icons.event_note_outlined,
                 ),
                 StatCard(
                   value: Formatters.moneyCompact(summary.finesCollected),
-                  label: 'Fines Collected',
+                  label: l10n.dashboardFinesCollected,
                   icon: Icons.error_outline,
                 ),
                 StatCard(
                   value: Formatters.moneyCompact(summary.socialFund),
-                  label: 'Social Fund',
+                  label: l10n.meetingHubSocialFund,
                   icon: Icons.favorite_outline,
                 ),
               ],
@@ -119,8 +121,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         height: 140,
                         child: Center(
                           child: Text(
-                            'The savings curve appears after your first '
-                            'two meetings.',
+                            l10n.dashboardTheSavingsCurveAppearsAfterYour,
                             style: TextStyle(
                               fontSize: 12,
                               color: AppColors.textSecondary,

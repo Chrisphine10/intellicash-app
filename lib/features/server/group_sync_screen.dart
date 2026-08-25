@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../data/models/member.dart';
 import '../../data/models/remote/remote_models.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/app_state.dart';
 import '../../providers/connection_provider.dart';
 import '../../providers/sync_provider.dart';
@@ -35,13 +36,14 @@ class _GroupSyncScreenState extends State<GroupSyncScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final connection = context.watch<ConnectionProvider>();
     final sync = context.watch<SyncProvider>();
     final group = context.watch<AppState>().group;
     if (group == null) return const SizedBox.shrink();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Back Up to Cloud')),
+      appBar: AppBar(title: Text(l10n.groupSyncBackUpToCloud)),
       body: !connection.isConnected
           ? _NeedsConnection()
           : ListView(
@@ -115,20 +117,20 @@ class _GroupSyncScreenState extends State<GroupSyncScreen> {
   }
 
   Future<void> _unlink(String localGroupId) async {
+    final l10n = L10n.of(context);
     final syncProvider = context.read<SyncProvider>();
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Unlink group?', style: TextStyle(fontSize: 17)),
-        content: const Text(
-          'This clears the local↔backend mapping. Already-synced records '
-          'stay on the server; nothing is deleted.',
+        title: Text(l10n.groupSyncUnlinkGroup, style: TextStyle(fontSize: 17)),
+        content: Text(
+          l10n.groupSyncThisClearsTheLocalBackendMapping,
           style: TextStyle(fontSize: 13.5),
         ),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Cancel')),
+              child: Text(l10n.cancel)),
           FilledButton(
             style: FilledButton.styleFrom(
                 backgroundColor: AppColors.defaulted,
@@ -136,7 +138,7 @@ class _GroupSyncScreenState extends State<GroupSyncScreen> {
                 minimumSize: const Size(0, 40),
                 padding: const EdgeInsets.symmetric(horizontal: 20)),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Unlink'),
+            child: Text(l10n.groupSyncUnlink),
           ),
         ],
       ),
@@ -192,6 +194,7 @@ class _GroupSyncScreenState extends State<GroupSyncScreen> {
 class _NeedsConnection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -201,12 +204,11 @@ class _NeedsConnection extends StatelessWidget {
             Icon(Icons.cloud_off_outlined,
                 size: 44, color: AppColors.textSecondary),
             const SizedBox(height: 14),
-            Text('Not connected',
+            Text(l10n.groupSyncNotConnected,
                 style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 6),
             Text(
-              'Connect to the IntelliCash backend before linking and syncing '
-              'this group.',
+              l10n.groupSyncConnectToTheIntellicashBackendBefore,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodySmall,
             ),
@@ -216,7 +218,7 @@ class _NeedsConnection extends StatelessWidget {
                 MaterialPageRoute(
                     builder: (_) => const ServerSettingsScreen()),
               ),
-              child: const Text('Open Server Connection'),
+              child: Text(l10n.groupSyncOpenServerConnection),
             ),
           ],
         ),
@@ -242,20 +244,21 @@ class _LinkSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SectionLabel('Link to a backend group'),
         if (remoteGroups.isEmpty)
-          const EmptyState(
+          EmptyState(
             icon: Icons.groups_outlined,
-            title: 'No backend groups',
-            message: 'This API key cannot see any groups to link to.',
+            title: l10n.groupSyncNoBackendGroups,
+            message: l10n.groupSyncThisApiKeyCannotSee,
           )
         else ...[
           DropdownButtonFormField<String>(
             initialValue: selected ?? remoteGroups.first.id,
-            decoration: const InputDecoration(labelText: 'Backend group'),
+            decoration: InputDecoration(labelText: l10n.groupSyncBackendGroup),
             dropdownColor: AppColors.surfaceRaised,
             items: [
               for (final g in remoteGroups)
@@ -278,9 +281,7 @@ class _LinkSection extends StatelessWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'Linking matches your local members to the backend '
-                      'roster by phone, then name. Unmatched members can be '
-                      'linked by hand afterwards.',
+                      l10n.groupSyncLinkingMatchesYourLocalMembersTo,
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ),
@@ -322,6 +323,7 @@ class _BoundSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final remote = connection.groups
         .where((g) => g.id == sync.remoteGroupId)
         .firstOrNull;
@@ -360,8 +362,7 @@ class _BoundSection extends StatelessWidget {
         if (sync.unmatchedMembers.isNotEmpty) ...[
           const SectionLabel('Unmatched members'),
           Text(
-            'These local members have no backend match. Link them before '
-            'their transactions can sync.',
+            l10n.groupSyncTheseLocalMembersHaveNoBackend,
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 10),
@@ -379,17 +380,14 @@ class _BoundSection extends StatelessWidget {
                         fontSize: 11, color: AppColors.textSecondary)),
                 trailing: TextButton(
                   onPressed: () => onLinkMember(m),
-                  child: const Text('Link'),
+                  child: Text(l10n.groupSyncLink),
                 ),
               ),
             ),
         ],
         const SectionLabel('Push meetings'),
         Text(
-          'Uploads attendance and ledger (shares, social fund, loans, '
-          'repayments) for every closed meeting. Safe to re-run — already '
-          'synced records are skipped. Fines and meeting sealing come in a '
-          'later phase.',
+          l10n.groupSyncUploadsAttendanceAndLedgerSharesSocial,
           style: Theme.of(context).textTheme.bodySmall,
         ),
         const SizedBox(height: 12),
@@ -431,7 +429,7 @@ class _BoundSection extends StatelessWidget {
           ),
           onPressed: onUnlink,
           icon: const Icon(Icons.link_off, size: 18),
-          label: const Text('Unlink Group'),
+          label: Text(l10n.groupSyncUnlinkGroup2),
         ),
       ],
     );

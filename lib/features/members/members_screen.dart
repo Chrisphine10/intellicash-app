@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/enums.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/app_state.dart';
 import '../../providers/connection_provider.dart';
 import '../../providers/member_provider.dart';
@@ -67,6 +68,7 @@ class _MembersScreenState extends State<MembersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final group = context.watch<AppState>().group;
     final provider = context.watch<MemberProvider>();
     final members = provider.members
@@ -77,11 +79,11 @@ class _MembersScreenState extends State<MembersScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Members'),
+        title: Text(l10n.navMembers),
         actions: [
           if (_pendingJoins > 0)
             IconButton(
-              tooltip: 'Requests to join',
+              tooltip: l10n.membersRequestsToJoin,
               onPressed: _openJoinRequests,
               icon: Badge(
                 label: Text('$_pendingJoins'),
@@ -106,7 +108,7 @@ class _MembersScreenState extends State<MembersScreen> {
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.fromLTRB(20, 4, 20, 90),
           children: [
-            Text('Members', style: Theme.of(context).textTheme.headlineSmall),
+            Text(l10n.navMembers, style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 2),
             Text(
               '${provider.members.length} active · ${group?.name ?? ''}',
@@ -116,18 +118,17 @@ class _MembersScreenState extends State<MembersScreen> {
             TextField(
               onChanged: (v) => setState(() => _query = v),
               decoration: InputDecoration(
-                hintText: 'Search members',
+                hintText: l10n.membersSearchMembers,
                 prefixIcon: Icon(Icons.search,
                     size: 20, color: AppColors.textSecondary),
               ),
             ),
             const SizedBox(height: 12),
             if (members.isEmpty && !provider.loading)
-              const EmptyState(
+              EmptyState(
                 icon: Icons.people_outline,
-                title: 'No members found',
-                message: 'Add members with the button below — each gets an '
-                    'individual savings and loan profile.',
+                title: l10n.membersNoMembersFound,
+                message: l10n.membersAddMembersWithTheButtonBelow,
               ),
             for (final financials in members)
               Card(

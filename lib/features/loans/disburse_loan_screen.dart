@@ -5,6 +5,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/domain_exception.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/loan.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/app_state.dart';
 import '../../providers/loan_provider.dart';
 import '../../providers/member_provider.dart';
@@ -71,23 +72,24 @@ class _DisburseLoanScreenState extends State<DisburseLoanScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final group = context.watch<AppState>().group!;
     final members = context.watch<MemberProvider>().members;
     final eligibility = _eligibility;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Loans')),
+      appBar: AppBar(title: Text(l10n.navLoans)),
       body: Form(
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
           children: [
-            Text('Disburse Loan',
+            Text(l10n.meetingHubDisburseLoan,
                 style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               initialValue: _memberId,
-              decoration: const InputDecoration(labelText: 'Select Member'),
+              decoration: InputDecoration(labelText: l10n.disburseLoanSelectMember),
               dropdownColor: AppColors.surfaceRaised,
               validator: (v) => v == null ? 'Pick a member' : null,
               items: [
@@ -111,8 +113,8 @@ class _DisburseLoanScreenState extends State<DisburseLoanScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Loan Eligibility',
+                      Text(
+                        l10n.disburseLoanLoanEligibility,
                         style: TextStyle(
                             fontSize: 13, fontWeight: FontWeight.w600),
                       ),
@@ -135,8 +137,7 @@ class _DisburseLoanScreenState extends State<DisburseLoanScreen> {
                 Padding(
                   padding: const EdgeInsets.only(top: 10),
                   child: Text(
-                    'This member has no borrowing headroom — savings must '
-                    'grow or the current loan must reduce first.',
+                    l10n.disburseLoanThisMemberHasNoBorrowingHeadroom,
                     style: TextStyle(fontSize: 12, color: AppColors.defaulted),
                   ),
                 ),
@@ -146,8 +147,7 @@ class _DisburseLoanScreenState extends State<DisburseLoanScreen> {
                 Padding(
                   padding: const EdgeInsets.only(top: 10),
                   child: Text(
-                    'The loan fund is empty. Collect share purchases or loan '
-                    'repayments before lending again.',
+                    l10n.disburseLoanTheLoanFundIsEmptyCollect,
                     style: TextStyle(fontSize: 12, color: AppColors.defaulted),
                   ),
                 )
@@ -167,7 +167,7 @@ class _DisburseLoanScreenState extends State<DisburseLoanScreen> {
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
               decoration:
-                  const InputDecoration(labelText: 'Principal Amount (KSh)'),
+                  InputDecoration(labelText: l10n.disburseLoanPrincipalAmountKsh),
               validator: (v) {
                 final amount = double.tryParse(v ?? '') ?? 0;
                 if (amount <= 0) return 'Enter an amount above zero';
@@ -198,8 +198,8 @@ class _DisburseLoanScreenState extends State<DisburseLoanScreen> {
                 if (picked != null) setState(() => _dueDate = picked);
               },
               child: InputDecorator(
-                decoration: const InputDecoration(
-                  labelText: 'Due Date',
+                decoration: InputDecoration(
+                  labelText: l10n.disburseLoanDueDate,
                   suffixIcon: Icon(Icons.calendar_today_outlined, size: 18),
                 ),
                 child: Text(Formatters.isoDate(_dueDate),
@@ -221,7 +221,7 @@ class _DisburseLoanScreenState extends State<DisburseLoanScreen> {
                   ? _disburse
                   : null,
               icon: const Icon(Icons.payments_outlined, size: 18),
-              label: const Text('Disburse Loan'),
+              label: Text(l10n.meetingHubDisburseLoan),
             ),
           ],
         ),

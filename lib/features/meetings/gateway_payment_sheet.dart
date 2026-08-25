@@ -9,6 +9,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/enums.dart';
 import '../../data/services/remote_payments_api.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Collects the money through a payment gateway before the purchase is
 /// recorded: M-Pesa sends an STK prompt to the member's handset, Paystack
@@ -141,6 +142,7 @@ class _GatewayPaymentSheetState extends State<GatewayPaymentSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final payment = _payment;
     final waiting = payment != null && payment.isPending && _error == null;
 
@@ -175,8 +177,7 @@ class _GatewayPaymentSheetState extends State<GatewayPaymentSheet> {
                 Expanded(
                   child: Text(
                     _isMpesa
-                        ? 'Request sent. Ask the member to enter their M-Pesa '
-                            'PIN on their phone.'
+                        ? l10n.gatewayPaymentRequestSentAskTheMemberTo
                         : 'Waiting for the payment to go through…',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
@@ -192,7 +193,7 @@ class _GatewayPaymentSheetState extends State<GatewayPaymentSheet> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Open this link to pay:',
+                      Text(l10n.gatewayPaymentOpenThisLinkToPay,
                           style: Theme.of(context).textTheme.bodySmall),
                       const SizedBox(height: 4),
                       SelectableText(

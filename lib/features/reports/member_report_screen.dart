@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/remote/member_passbook.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/connection_provider.dart';
 import '../../shared/widgets/common.dart';
 import 'member_pdf.dart';
@@ -131,6 +132,7 @@ class _MemberReportScreenState extends State<MemberReportScreen> {
   };
 
   String _buildReportText(String memberName, String groupName) {
+    final l10n = L10n.of(context);
     final f = _figures;
     final shares = f.shares;
     final social = f.social;
@@ -157,8 +159,7 @@ class _MemberReportScreenState extends State<MemberReportScreen> {
       '',
       f.fromServer
           ? 'Figures confirmed by the IntelliCash server.'
-          : 'Figures from this phone only - records saved elsewhere may not be '
-              'included yet.',
+          : l10n.memberReportLocalFiguresFromThisPhoneOnlyRecords,
     ];
 
     final recent = _entries.take(10).toList();
@@ -183,17 +184,18 @@ class _MemberReportScreenState extends State<MemberReportScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final connection = context.watch<ConnectionProvider>();
     final user = connection.signedInUser;
     final group = connection.selectedGroup;
 
     if (!connection.hasSession || group == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('My Report')),
-        body: const EmptyState(
+        appBar: AppBar(title: Text(l10n.memberReportMyReport)),
+        body: EmptyState(
           icon: Icons.cloud_off_outlined,
-          title: 'Not signed in',
-          message: 'Sign in to your account to see and share your report.',
+          title: l10n.memberReportNotSignedIn,
+          message: l10n.memberReportSignInToYourAccount,
         ),
       );
     }
@@ -209,7 +211,7 @@ class _MemberReportScreenState extends State<MemberReportScreen> {
     final memberName = user?.name ?? 'Member';
 
     return Scaffold(
-      appBar: AppBar(title: const Text('My Report')),
+      appBar: AppBar(title: Text(l10n.memberReportMyReport)),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
@@ -297,11 +299,10 @@ class _MemberReportScreenState extends State<MemberReportScreen> {
                       ),
                       const SectionLabel('Recent transactions'),
                       if (_entries.isEmpty)
-                        const EmptyState(
+                        EmptyState(
                           icon: Icons.receipt_long_outlined,
-                          title: 'No transactions yet',
-                          message: 'Your savings and loan records will '
-                              'appear here.',
+                          title: l10n.memberPassbookNoTransactionsYet,
+                          message: l10n.memberPassbookYourSavingsAndLoanRecords,
                         ),
                       for (final e in _entries.take(10)) _ReportTxnRow(entry: e),
                     ],
@@ -321,7 +322,7 @@ class _MemberReportScreenState extends State<MemberReportScreen> {
                           _buildReportText(memberName, group.name),
                         ),
                         icon: const Icon(Icons.share, size: 18),
-                        label: const Text('Share'),
+                        label: Text(l10n.memberReportShare),
                       ),
                     ),
                     const SizedBox(width: 10),

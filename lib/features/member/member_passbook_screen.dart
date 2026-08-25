@@ -147,6 +147,7 @@ class _MemberPassbookScreenState extends State<MemberPassbookScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final connection = context.watch<ConnectionProvider>();
     final user = connection.signedInUser;
     final group = connection.selectedGroup;
@@ -165,11 +166,11 @@ class _MemberPassbookScreenState extends State<MemberPassbookScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Passbook'),
+        title: Text(l10n.memberPassbookMyPassbook),
         actions: [
           IconButton(
             icon: const Icon(Icons.translate, size: 20),
-            tooltip: 'Language',
+            tooltip: l10n.sectionLanguage,
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const LanguageScreen()),
@@ -178,7 +179,7 @@ class _MemberPassbookScreenState extends State<MemberPassbookScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.description_outlined, size: 20),
-            tooltip: 'My report',
+            tooltip: l10n.memberPassbookMyReport,
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
@@ -196,7 +197,7 @@ class _MemberPassbookScreenState extends State<MemberPassbookScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.savings_outlined, size: 20),
-            tooltip: 'My savings across all groups',
+            tooltip: l10n.memberPassbookMySavingsAcrossAllGroups,
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const MySavingsScreen()),
@@ -205,12 +206,12 @@ class _MemberPassbookScreenState extends State<MemberPassbookScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.group_add_outlined, size: 20),
-            tooltip: 'Join another group',
+            tooltip: l10n.memberPassbookJoinAnotherGroup,
             onPressed: _openJoinGroup,
           ),
           IconButton(
             icon: const Icon(Icons.logout, size: 20),
-            tooltip: 'Sign out',
+            tooltip: l10n.signOut,
             onPressed: _signOut,
           ),
         ],
@@ -287,21 +288,20 @@ class _MemberPassbookScreenState extends State<MemberPassbookScreen> {
                 ),
               )
             else if (group == null) ...[
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(top: 32),
                 child: EmptyState(
                   icon: Icons.groups_outlined,
-                  title: 'You are not in a group yet',
+                  title: l10n.memberPassbookYouAreNotInA,
                   message:
-                      'Ask your group to add you and your savings will show '
-                      'up here.',
+                      l10n.memberPassbookAskYourGroupToAddYou,
                 ),
               ),
               const SizedBox(height: 16),
               FilledButton.icon(
                 onPressed: _openJoinGroup,
                 icon: const Icon(Icons.add, size: 18),
-                label: const Text('Join a group'),
+                label: Text(l10n.memberPassbookJoinAGroup),
               ),
             ] else ...[
               const SectionLabel('My savings'),
@@ -344,10 +344,10 @@ class _MemberPassbookScreenState extends State<MemberPassbookScreen> {
               ),
               const SectionLabel('Recent transactions'),
               if (_entries.isEmpty)
-                const EmptyState(
+                EmptyState(
                   icon: Icons.receipt_long_outlined,
-                  title: 'No transactions yet',
-                  message: 'Your savings and loan records will appear here.',
+                  title: l10n.memberPassbookNoTransactionsYet,
+                  message: l10n.memberPassbookYourSavingsAndLoanRecords,
                 ),
               for (final e in _entries.take(30)) _TxnRow(entry: e),
             ],

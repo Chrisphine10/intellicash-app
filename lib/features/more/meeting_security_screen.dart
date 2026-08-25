@@ -5,6 +5,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/meeting_unlock.dart';
 import '../../data/models/enums.dart';
 import '../../data/models/member.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/app_state.dart';
 import '../../providers/member_provider.dart';
 import '../../shared/widgets/common.dart';
@@ -32,6 +33,7 @@ class _MeetingSecurityScreenState extends State<MeetingSecurityScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final appState = context.watch<AppState>();
     final group = appState.group;
     final members = context.watch<MemberProvider>().members;
@@ -41,7 +43,7 @@ class _MeetingSecurityScreenState extends State<MeetingSecurityScreen> {
         members.where((m) => m.member.isOfficial).length;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Meeting Security')),
+      appBar: AppBar(title: Text(l10n.meetingSecurity)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
         children: [
@@ -59,7 +61,7 @@ class _MeetingSecurityScreenState extends State<MeetingSecurityScreen> {
                       : '3-key unlock is off — meetings start without PINs.',
                 );
               },
-              title: const Text('3-key unlock before meetings',
+              title: Text(l10n.meetingSecurity3KeyUnlockBeforeMeetings,
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
               subtitle: Text(
                 'A meeting only starts after ${MeetingUnlock.officialsRequired} '
@@ -80,9 +82,7 @@ class _MeetingSecurityScreenState extends State<MeetingSecurityScreen> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'Assign a chairperson, secretary and treasurer below '
-                        'so three officials can unlock meetings. Until then, '
-                        'most members\' PINs are needed instead.',
+                        l10n.meetingSecurityAssignAChairpersonSecretaryAndTreasurer,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ),
@@ -168,25 +168,25 @@ class _MemberSecurityTile extends StatelessWidget {
   }
 
   Future<void> _resetPin(BuildContext context) async {
+    final l10n = L10n.of(context);
     final provider = context.read<MemberProvider>();
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: Text('Reset ${member.name}\'s PIN?',
             style: const TextStyle(fontSize: 17)),
-        content: const Text(
-          'The old PIN stops working. The member chooses a new PIN the next '
-          'time they turn their key at a meeting unlock.',
+        content: Text(
+          l10n.meetingSecurityTheOldPinStopsWorkingThe,
           style: TextStyle(fontSize: 13.5),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Keep PIN'),
+            child: Text(l10n.meetingSecurityKeepPin),
           ),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Reset'),
+            child: Text(l10n.meetingSecurityReset),
           ),
         ],
       ),

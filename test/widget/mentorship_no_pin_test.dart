@@ -5,6 +5,7 @@ import 'package:intellicash_mobile/data/repositories/mentorship_repository.dart'
 import 'package:intellicash_mobile/data/services/mentorship_catalogue.dart';
 import 'package:intellicash_mobile/features/visits/visit_mentorship_screen.dart';
 import 'package:intellicash_mobile/shared/widgets/numeric_keypad.dart';
+import '../support/localized_app.dart';
 
 /// Coaching is scored by asking a person, not by authenticating one.
 ///
@@ -26,8 +27,7 @@ void main() {
 
   Future<void> pump(WidgetTester tester) async {
     await tester.pumpWidget(
-      MaterialApp(
-        home: VisitMentorshipScreen(
+      localizedApp(home: VisitMentorshipScreen(
           visitId: 'visit-1',
           groupName: 'Demo Test VSLA',
           mentorship: mentorship,

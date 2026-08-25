@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../data/services/remote_payment_providers_api.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/connection_provider.dart';
 import '../../shared/widgets/common.dart';
 
@@ -81,6 +82,7 @@ class _PaymentProvidersScreenState extends State<PaymentProvidersScreen> {
   }
 
   Future<void> _edit(GroupPaymentProvider provider) async {
+    final l10n = L10n.of(context);
     final controllers = <String, TextEditingController>{
       for (final key in provider.values.keys) key: TextEditingController(),
     };
@@ -103,7 +105,7 @@ class _PaymentProvidersScreenState extends State<PaymentProvidersScreen> {
               Text(provider.label, style: Theme.of(sheetContext).textTheme.titleMedium),
               const SizedBox(height: 4),
               Text(
-                'Leave a box empty to keep what is already saved.',
+                l10n.paymentProvidersLeaveABoxEmptyTo,
                 style: Theme.of(sheetContext).textTheme.bodySmall,
               ),
               const SizedBox(height: 12),
@@ -124,7 +126,7 @@ class _PaymentProvidersScreenState extends State<PaymentProvidersScreen> {
               const SizedBox(height: 6),
               FilledButton(
                 onPressed: () => Navigator.of(sheetContext).pop(true),
-                child: const Text('Save'),
+                child: Text(l10n.paymentProvidersSave),
               ),
             ],
           ),
@@ -160,10 +162,11 @@ class _PaymentProvidersScreenState extends State<PaymentProvidersScreen> {
   }
 
   Future<void> _revert(GroupPaymentProvider provider) async {
+    final l10n = L10n.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Use the platform account?'),
+        title: Text(l10n.paymentProvidersUseThePlatformAccount),
         content: Text(
           'Remove this group\'s own ${provider.label} details. '
           'Money collected will go to the platform account instead.',
@@ -171,11 +174,11 @@ class _PaymentProvidersScreenState extends State<PaymentProvidersScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Remove'),
+            child: Text(l10n.groupSetupWizardRemove),
           ),
         ],
       ),
@@ -204,13 +207,15 @@ class _PaymentProvidersScreenState extends State<PaymentProvidersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Payment Providers')),
+      appBar: AppBar(title: Text(l10n.paymentProvidersPaymentProviders)),
       body: RefreshIndicator(onRefresh: _load, child: _buildBody()),
     );
   }
 
   Widget _buildBody() {
+    final l10n = L10n.of(context);
     if (_loading) return const Center(child: CircularProgressIndicator());
     if (_error != null) {
       return ListView(
@@ -234,12 +239,11 @@ class _PaymentProvidersScreenState extends State<PaymentProvidersScreen> {
           ),
           const SizedBox(height: 6),
           Text(
-            'Pull down to try again. If it keeps happening, check the group is '
-            'still selected under Cloud Account.',
+            l10n.cyclesPullDownToTryAgainIf,
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 14),
-          FilledButton(onPressed: _load, child: const Text('Try again')),
+          FilledButton(onPressed: _load, child: Text(l10n.welfareTryAgain)),
         ],
       );
     }
@@ -256,8 +260,7 @@ class _PaymentProvidersScreenState extends State<PaymentProvidersScreen> {
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Text(
-              'M-Pesa Classic needs nothing here — the member types in the '
-              'transaction code from their phone.',
+              l10n.paymentProvidersMPesaClassicNeedsNothingHere,
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
@@ -266,8 +269,7 @@ class _PaymentProvidersScreenState extends State<PaymentProvidersScreen> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 10),
             child: Text(
-              'You can see this but not change it. Only the group account or a '
-              'platform admin can move where money is received.',
+              l10n.paymentProvidersYouCanSeeThisButNot,
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
@@ -278,6 +280,7 @@ class _PaymentProvidersScreenState extends State<PaymentProvidersScreen> {
   }
 
   Widget _providerCard(GroupPaymentProviders data, GroupPaymentProvider provider) {
+    final l10n = L10n.of(context);
     final busy = _busyProvider == provider.provider;
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -306,9 +309,9 @@ class _PaymentProvidersScreenState extends State<PaymentProvidersScreen> {
             // platform still collects the money.
             if (provider.configured && !provider.isComplete)
               Text(
-                'Not finished — still needed: '
-                '${provider.missingKeys.map((k) => _fieldLabels[k] ?? k).join(', ')}. '
-                'Until then money still goes to the platform account.',
+                l10n.paymentProvidersStillNeeded(provider.missingKeys
+                    .map((k) => _fieldLabels[k] ?? k)
+                    .join(', ')),
                 style: TextStyle(fontSize: 12, color: AppColors.pending),
               )
             else
@@ -342,7 +345,7 @@ class _PaymentProvidersScreenState extends State<PaymentProvidersScreen> {
                     Expanded(
                       child: OutlinedButton(
                         onPressed: busy ? null : () => _revert(provider),
-                        child: const Text('Use platform'),
+                        child: Text(l10n.paymentProvidersUsePlatform),
                       ),
                     ),
                   ],

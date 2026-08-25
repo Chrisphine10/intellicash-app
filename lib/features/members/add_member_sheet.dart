@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../data/models/enums.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/app_state.dart';
 import '../../providers/member_provider.dart';
 import '../../shared/widgets/common.dart';
@@ -30,6 +31,7 @@ class _AddMemberSheetState extends State<AddMemberSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     return Padding(
       padding: EdgeInsets.only(
         left: 20,
@@ -42,13 +44,13 @@ class _AddMemberSheetState extends State<AddMemberSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Add Member',
+            Text(l10n.addMemberAddMember,
                 style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 16),
             TextFormField(
               controller: _nameCtrl,
               textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(labelText: 'Full Name'),
+              decoration: InputDecoration(labelText: l10n.addMemberFullName),
               validator: (v) => (v == null || v.trim().isEmpty)
                   ? 'Enter the member\'s name'
                   : null,
@@ -57,15 +59,15 @@ class _AddMemberSheetState extends State<AddMemberSheet> {
             TextFormField(
               controller: _phoneCtrl,
               keyboardType: TextInputType.phone,
-              decoration: const InputDecoration(
-                labelText: 'Phone (optional)',
+              decoration: InputDecoration(
+                labelText: l10n.addMemberPhoneOptional,
                 hintText: '07XX XXX XXX',
               ),
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<MemberRole>(
               initialValue: _role,
-              decoration: const InputDecoration(labelText: 'Role'),
+              decoration: InputDecoration(labelText: l10n.addMemberRole),
               dropdownColor: AppColors.surfaceRaised,
               items: [
                 for (final role in MemberRole.values)
@@ -81,7 +83,7 @@ class _AddMemberSheetState extends State<AddMemberSheet> {
             FilledButton.icon(
               onPressed: _saving ? null : _save,
               icon: const Icon(Icons.person_add_alt, size: 18),
-              label: const Text('Register Member'),
+              label: Text(l10n.addMemberRegisterMember),
             ),
           ],
         ),

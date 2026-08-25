@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../data/models/enums.dart';
 import '../../data/models/group.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/app_state.dart';
 import '../../providers/connection_provider.dart';
 import '../../shared/widgets/common.dart';
@@ -103,6 +104,7 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(_isEdit ? 'Group Settings' : 'Set Up Your Group')),
       body: SafeArea(
@@ -135,7 +137,7 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
                       child: OutlinedButton(
                         onPressed:
                             _saving ? null : () => setState(() => _step--),
-                        child: const Text('Back'),
+                        child: Text(l10n.back),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -168,12 +170,13 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
   // ---------- steps ----------
 
   List<Widget> _basicsStep() {
+    final l10n = L10n.of(context);
     return [
       const SectionLabel('Group basics', padding: EdgeInsets.only(bottom: 12)),
       TextFormField(
         controller: _nameCtrl,
         textCapitalization: TextCapitalization.words,
-        decoration: const InputDecoration(labelText: 'Group Name'),
+        decoration: InputDecoration(labelText: l10n.groupSetupWizardGroupName),
         validator: (v) =>
             (v == null || v.trim().isEmpty) ? 'Enter the group name' : null,
       ),
@@ -181,9 +184,9 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
       TextFormField(
         controller: _cycleCtrl,
         keyboardType: TextInputType.number,
-        decoration: const InputDecoration(
-          labelText: 'Cycle Number',
-          helperText: 'Which savings cycle is this group on?',
+        decoration: InputDecoration(
+          labelText: l10n.groupSetupWizardCycleNumber,
+          helperText: l10n.groupSetupWizardWhichSavingsCycleIsThis,
         ),
         validator: (v) =>
             (int.tryParse(v ?? '') ?? 0) < 1 ? 'Enter a cycle of 1 or more' : null,
@@ -191,7 +194,7 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
       if (!_isEdit) ...[
         const SectionLabel('Founding members'),
         Text(
-          'Add the members joining this cycle. You can always add more later.',
+          l10n.groupSetupWizardAddTheMembersJoiningThis,
           style: Theme.of(context).textTheme.bodySmall,
         ),
         const SizedBox(height: 12),
@@ -201,7 +204,7 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
               child: TextFormField(
                 controller: _memberCtrl,
                 textCapitalization: TextCapitalization.words,
-                decoration: const InputDecoration(labelText: 'Member Name'),
+                decoration: InputDecoration(labelText: l10n.groupSetupWizardMemberName),
                 onFieldSubmitted: (_) => _addMemberName(),
               ),
             ),
@@ -209,7 +212,7 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
             IconButton.filled(
               onPressed: _addMemberName,
               icon: const Icon(Icons.add),
-              tooltip: 'Add member',
+              tooltip: l10n.groupSetupWizardAddMember,
             ),
           ],
         ),
@@ -223,7 +226,7 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
               trailing: IconButton(
                 icon: const Icon(Icons.close, size: 18),
                 onPressed: () => setState(() => _memberNames.removeAt(i)),
-                tooltip: 'Remove',
+                tooltip: l10n.groupSetupWizardRemove,
               ),
             ),
           ),
@@ -232,6 +235,7 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
   }
 
   List<Widget> _savingsStep() {
+    final l10n = L10n.of(context);
     return [
       const SectionLabel('Savings configuration',
           padding: EdgeInsets.only(bottom: 4)),
@@ -243,13 +247,13 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
             RadioListTile<SavingsMode>(
               value: SavingsMode.fixed,
               title: Text(SavingsMode.fixed.label),
-              subtitle: const Text('Everyone buys shares at one fixed price'),
+              subtitle: Text(l10n.groupSetupWizardEveryoneBuysSharesAtOne),
               contentPadding: EdgeInsets.zero,
             ),
             RadioListTile<SavingsMode>(
               value: SavingsMode.flexible,
               title: Text(SavingsMode.flexible.label),
-              subtitle: const Text('Members save what they can each meeting'),
+              subtitle: Text(l10n.groupSetupWizardMembersSaveWhatTheyCan),
               contentPadding: EdgeInsets.zero,
             ),
           ],
@@ -259,7 +263,7 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
       TextFormField(
         controller: _shareValueCtrl,
         keyboardType: TextInputType.number,
-        decoration: const InputDecoration(labelText: 'Share Value (KSh)'),
+        decoration: InputDecoration(labelText: l10n.groupSetupWizardShareValueKsh),
         validator: _positiveAmount,
       ),
       const SizedBox(height: 16),
@@ -267,7 +271,7 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
         controller: _maxSharesCtrl,
         keyboardType: TextInputType.number,
         decoration:
-            const InputDecoration(labelText: 'Max Shares per Meeting'),
+            InputDecoration(labelText: l10n.groupSetupWizardMaxSharesPerMeeting),
         validator: (v) =>
             (int.tryParse(v ?? '') ?? 0) < 1 ? 'Enter 1 or more' : null,
       ),
@@ -275,9 +279,9 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
       TextFormField(
         controller: _socialFundCtrl,
         keyboardType: TextInputType.number,
-        decoration: const InputDecoration(
-          labelText: 'Social Fund per Meeting (KSh)',
-          helperText: 'Tracked separately from savings',
+        decoration: InputDecoration(
+          labelText: l10n.groupSetupWizardSocialFundPerMeetingKsh,
+          helperText: l10n.groupSetupWizardTrackedSeparatelyFromSavings,
         ),
         validator: _nonNegativeAmount,
       ),
@@ -290,14 +294,15 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
   }
 
   List<Widget> _loansStep() {
+    final l10n = L10n.of(context);
     return [
       const SectionLabel('Loan configuration',
           padding: EdgeInsets.only(bottom: 12)),
       TextFormField(
         controller: _interestRateCtrl,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        decoration: const InputDecoration(
-          labelText: 'Interest Rate (% per month)',
+        decoration: InputDecoration(
+          labelText: l10n.groupSetupWizardInterestRatePerMonth,
         ),
         validator: _nonNegativeAmount,
       ),
@@ -324,8 +329,8 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
       TextFormField(
         controller: _multiplierCtrl,
         keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        decoration: const InputDecoration(
-          labelText: 'Max Loan Multiplier (× savings)',
+        decoration: InputDecoration(
+          labelText: l10n.groupSetupWizardMaxLoanMultiplierSavings,
         ),
         validator: _positiveAmount,
       ),
@@ -333,8 +338,8 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
       TextFormField(
         controller: _termCtrl,
         keyboardType: TextInputType.number,
-        decoration: const InputDecoration(
-          labelText: 'Default Loan Term (months)',
+        decoration: InputDecoration(
+          labelText: l10n.groupSetupWizardDefaultLoanTermMonths,
         ),
         validator: (v) =>
             (int.tryParse(v ?? '') ?? 0) < 1 ? 'Enter 1 or more' : null,

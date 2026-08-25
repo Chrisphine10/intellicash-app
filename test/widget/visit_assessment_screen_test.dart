@@ -6,6 +6,7 @@ import 'package:intellicash_mobile/core/utils/visit_assessment_scoring.dart';
 import 'package:intellicash_mobile/data/repositories/assessment_repository.dart';
 import 'package:intellicash_mobile/data/repositories/attachment_repository.dart';
 import 'package:intellicash_mobile/features/visits/visit_assessment_screen.dart';
+import '../support/localized_app.dart';
 
 /// The scorecard screen as an agent meets it: a small phone, sunlight, and a
 /// group waiting while they tap.
@@ -82,8 +83,7 @@ void main() {
 
   Future<void> pump(WidgetTester tester) async {
     await tester.pumpWidget(
-      MaterialApp(
-        home: VisitAssessmentScreen(
+      localizedApp(home: VisitAssessmentScreen(
           visitId: 'v1',
           groupName: 'Tujijenge Women',
           repository: repository,

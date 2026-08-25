@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../data/services/remote_governance_api.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/connection_provider.dart';
 import '../../shared/widgets/common.dart';
 
@@ -97,13 +98,15 @@ class _GroupPolicyScreenState extends State<GroupPolicyScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Group Rules')),
+      appBar: AppBar(title: Text(l10n.groupRules)),
       body: RefreshIndicator(onRefresh: _load, child: _body()),
     );
   }
 
   Widget _body() {
+    final l10n = L10n.of(context);
     if (_loading) return const Center(child: CircularProgressIndicator());
     if (_error != null) {
       return ListView(
@@ -123,12 +126,11 @@ class _GroupPolicyScreenState extends State<GroupPolicyScreen> {
               style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: 6),
           Text(
-            'Pull down to try again. If it keeps happening, check the group is '
-            'still selected under Cloud Account.',
+            l10n.cyclesPullDownToTryAgainIf,
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 14),
-          FilledButton(onPressed: _load, child: const Text('Try again')),
+          FilledButton(onPressed: _load, child: Text(l10n.welfareTryAgain)),
         ],
       );
     }
@@ -145,7 +147,7 @@ class _GroupPolicyScreenState extends State<GroupPolicyScreen> {
         ),
         const SizedBox(height: 16),
 
-        Text('How long a loan runs', style: Theme.of(context).textTheme.titleSmall),
+        Text(l10n.groupPolicyHowLongALoanRuns, style: Theme.of(context).textTheme.titleSmall),
         Row(
           children: [
             Expanded(
@@ -162,13 +164,12 @@ class _GroupPolicyScreenState extends State<GroupPolicyScreen> {
           ],
         ),
         Text(
-          'Applies to new loans. Loans already given keep the term they were '
-          'agreed with — changing this never changes what a member already owes.',
+          l10n.groupPolicyAppliesToNewLoansLoansAlready,
           style: Theme.of(context).textTheme.bodySmall,
         ),
         const SizedBox(height: 20),
 
-        Text('Interest charged', style: Theme.of(context).textTheme.titleSmall),
+        Text(l10n.groupPolicyInterestCharged, style: Theme.of(context).textTheme.titleSmall),
         Row(
           children: [
             Expanded(
@@ -189,15 +190,12 @@ class _GroupPolicyScreenState extends State<GroupPolicyScreen> {
           ],
         ),
         Text(
-          'Flat on the amount borrowed each month — it does not fall as the '
-          'member repays, and it stops at the end of the agreed term. Zero is '
-          'fine: many groups lend interest-free. Each loan keeps the rate it '
-          'was made at, so changing this never reprices money already lent.',
+          l10n.groupPolicyFlatOnTheAmountBorrowedEach,
           style: Theme.of(context).textTheme.bodySmall,
         ),
         const SizedBox(height: 20),
 
-        Text('Expenses are paid from', style: Theme.of(context).textTheme.titleSmall),
+        Text(l10n.groupPolicyExpensesArePaidFrom, style: Theme.of(context).textTheme.titleSmall),
         DropdownButtonFormField<String>(
           initialValue: _fund,
           items: [
@@ -215,8 +213,7 @@ class _GroupPolicyScreenState extends State<GroupPolicyScreen> {
           )
         else
           Text(
-            'You can see these rules but not change them. Only the group account '
-            'or a platform admin can.',
+            l10n.groupPolicyYouCanSeeTheseRulesBut,
             style: Theme.of(context).textTheme.bodySmall,
           ),
 
@@ -227,14 +224,11 @@ class _GroupPolicyScreenState extends State<GroupPolicyScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Rules that are fixed',
+                Text(l10n.groupPolicyRulesThatAreFixed,
                     style: Theme.of(context).textTheme.titleSmall),
                 const SizedBox(height: 6),
                 Text(
-                  'Unpaid fines and welfare are taken off a member\'s share-out '
-                  'payout — they never stop a member from sharing out.\n\n'
-                  'Outstanding loans are taken off at share-out and are never '
-                  'carried into the next cycle.',
+                  l10n.groupPolicyUnpaidFinesAndWelfareAreTaken,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],

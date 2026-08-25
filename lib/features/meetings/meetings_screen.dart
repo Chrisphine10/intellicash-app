@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/domain_exception.dart';
 import '../../core/utils/formatters.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/app_state.dart';
 import '../../providers/meeting_provider.dart';
 import '../../shared/widgets/common.dart';
@@ -68,13 +69,14 @@ class _MeetingsScreenState extends State<MeetingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final appState = context.watch<AppState>();
     final provider = context.watch<MeetingProvider>();
     final hasOpenMeeting = provider.activeMeeting?.isOpen ?? false;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Meetings'),
+        title: Text(l10n.navMeetings),
         actions: [
           if (appState.pendingSync > 0)
             Padding(
@@ -104,20 +106,18 @@ class _MeetingsScreenState extends State<MeetingsScreen> {
               Padding(
                 padding: const EdgeInsets.only(top: 6),
                 child: Text(
-                  '3-key unlock is on: officials confirm their PINs before '
-                  'the meeting opens.',
+                  l10n.meetings3KeyUnlockIsOnOfficials,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ),
             const SizedBox(height: 16),
             if (provider.meetings.isEmpty && !provider.loading)
-              const EmptyState(
+              EmptyState(
                 icon: Icons.event_note_outlined,
-                title: 'No meetings yet',
+                title: l10n.meetingsNoMeetingsYet,
                 message:
-                    'Start your first meeting to record attendance, '
-                    'savings, fines and loans.',
+                    l10n.meetingsStartYourFirstMeetingToRecord,
               ),
             for (final item in provider.meetings)
               Card(
@@ -155,8 +155,7 @@ class _MeetingsScreenState extends State<MeetingsScreen> {
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(
-                  'Closed meetings are locked — their records form the '
-                  'group\'s permanent audit trail.',
+                  l10n.meetingsClosedMeetingsAreLockedTheirRecords,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),

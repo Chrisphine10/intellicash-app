@@ -5,15 +5,16 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/domain_exception.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/meeting.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/app_state.dart';
 import '../../providers/meeting_provider.dart';
 import '../../providers/member_provider.dart';
 import '../../shared/widgets/common.dart';
 import '../../shared/widgets/status_chip.dart';
 import '../loans/disburse_loan_screen.dart';
+import '../settings/welfare_screen.dart';
 import '../store/external_loans_screen.dart';
 import '../store/store_screen.dart';
-import '../settings/welfare_screen.dart';
 import '../voting/polls_screen.dart';
 import 'attendance_screen.dart';
 import 'buy_shares_sheet.dart';
@@ -47,13 +48,14 @@ class _MeetingHubScreenState extends State<MeetingHubScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final provider = context.watch<MeetingProvider>();
     final meeting = provider.activeMeeting ?? widget.meeting;
     final totals = provider.totals;
     final isOpen = meeting.isOpen;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Meetings')),
+      appBar: AppBar(title: Text(l10n.navMeetings)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
         children: [
@@ -83,7 +85,7 @@ class _MeetingHubScreenState extends State<MeetingHubScreen> {
             children: [
               _ActionTile(
                 icon: Icons.favorite_outline,
-                label: 'Social Fund',
+                label: l10n.meetingHubSocialFund,
                 enabled: true,
                 onTap: () async {
                   final meetingProvider = context.read<MeetingProvider>();
@@ -97,19 +99,19 @@ class _MeetingHubScreenState extends State<MeetingHubScreen> {
               ),
               _ActionTile(
                 icon: Icons.savings_outlined,
-                label: 'Buy Shares',
+                label: l10n.meetingHubBuyShares,
                 enabled: isOpen,
                 onTap: () => _openSheet(const BuySharesSheet()),
               ),
               _ActionTile(
                 icon: Icons.error_outline,
-                label: 'Record Fine',
+                label: l10n.meetingHubRecordFine,
                 enabled: isOpen,
                 onTap: () => _openSheet(const RecordFineSheet()),
               ),
               _ActionTile(
                 icon: Icons.payments_outlined,
-                label: 'Disburse Loan',
+                label: l10n.meetingHubDisburseLoan,
                 enabled: isOpen,
                 onTap: () async {
                   final meetingProvider = context.read<MeetingProvider>();
@@ -124,13 +126,13 @@ class _MeetingHubScreenState extends State<MeetingHubScreen> {
               ),
               _ActionTile(
                 icon: Icons.check_circle_outline,
-                label: 'Repayment',
+                label: l10n.meetingHubRepayment,
                 enabled: isOpen,
                 onTap: () => _openSheet(const RepaymentSheet()),
               ),
               _ActionTile(
                 icon: Icons.receipt_long_outlined,
-                label: 'Share Records',
+                label: l10n.meetingHubShareRecords,
                 enabled: true,
                 onTap: () {
                   Navigator.of(context).push(
@@ -143,7 +145,7 @@ class _MeetingHubScreenState extends State<MeetingHubScreen> {
               // Elections and decisions are taken here, in front of everyone.
               _ActionTile(
                 icon: Icons.how_to_vote_outlined,
-                label: 'Voting',
+                label: l10n.meetingHubVoting,
                 enabled: true,
                 onTap: () {
                   Navigator.of(context).push(
@@ -160,7 +162,7 @@ class _MeetingHubScreenState extends State<MeetingHubScreen> {
                */
               _ActionTile(
                 icon: Icons.volunteer_activism_outlined,
-                label: 'Welfare',
+                label: l10n.meetingHubWelfare,
                 enabled: true,
                 onTap: () {
                   Navigator.of(context).push(
@@ -172,7 +174,7 @@ class _MeetingHubScreenState extends State<MeetingHubScreen> {
               // from here rather than from settings.
               _ActionTile(
                 icon: Icons.storefront_outlined,
-                label: 'Intelli-Store',
+                label: l10n.meetingHubIntelliStore,
                 enabled: true,
                 onTap: () {
                   Navigator.of(context).push(
@@ -193,7 +195,7 @@ class _MeetingHubScreenState extends State<MeetingHubScreen> {
                 );
               },
               icon: const Icon(Icons.how_to_reg_outlined, size: 18),
-              label: const Text('Edit attendance'),
+              label: Text(l10n.meetingHubEditAttendance),
             ),
           ],
           // Shopping and outside finance are raised and agreed here, in the
@@ -209,7 +211,7 @@ class _MeetingHubScreenState extends State<MeetingHubScreen> {
             children: [
               _ActionTile(
                 icon: Icons.storefront_outlined,
-                label: 'Intelli-Stores',
+                label: l10n.intelliStores,
                 enabled: true,
                 onTap: () {
                   Navigator.of(context).push(
@@ -219,7 +221,7 @@ class _MeetingHubScreenState extends State<MeetingHubScreen> {
               ),
               _ActionTile(
                 icon: Icons.account_balance_outlined,
-                label: 'External Loans',
+                label: l10n.meetingHubExternalLoans,
                 enabled: true,
                 onTap: () {
                   Navigator.of(context).push(
@@ -261,11 +263,11 @@ class _MeetingHubScreenState extends State<MeetingHubScreen> {
               ),
               onPressed: _confirmClose,
               icon: const Icon(Icons.lock_outline, size: 18),
-              label: const Text('Close & Lock Meeting'),
+              label: Text(l10n.meetingHubCloseLockMeeting),
             ),
             const SizedBox(height: 8),
             Text(
-              'Closing locks all records permanently.',
+              l10n.meetingHubClosingLocksAllRecordsPermanently,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodySmall,
             ),
@@ -280,8 +282,7 @@ class _MeetingHubScreenState extends State<MeetingHubScreen> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'This meeting is closed. Its records are '
-                        'read-only and form part of the audit trail.',
+                        l10n.meetingHubThisMeetingIsClosedItsRecords,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ),
@@ -303,6 +304,7 @@ class _MeetingHubScreenState extends State<MeetingHubScreen> {
   }
 
   Future<void> _confirmClose() async {
+    final l10n = L10n.of(context);
     final appState = context.read<AppState>();
     final provider = context.read<MeetingProvider>();
     final meeting = provider.activeMeeting ?? widget.meeting;
@@ -311,15 +313,14 @@ class _MeetingHubScreenState extends State<MeetingHubScreen> {
       builder: (dialogContext) => AlertDialog(
         title: Text('Close Meeting #${meeting.number}?',
             style: const TextStyle(fontSize: 17)),
-        content: const Text(
-          'All records in this meeting will be locked permanently. '
-          'This cannot be undone.',
+        content: Text(
+          l10n.meetingHubAllRecordsInThisMeetingWill,
           style: TextStyle(fontSize: 13.5),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Keep Open'),
+            child: Text(l10n.meetingHubKeepOpen),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
@@ -329,7 +330,7 @@ class _MeetingHubScreenState extends State<MeetingHubScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
             ),
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Close & Lock'),
+            child: Text(l10n.meetingHubCloseLock),
           ),
         ],
       ),

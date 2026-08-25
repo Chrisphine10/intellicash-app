@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/remote/member_overview.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/connection_provider.dart';
 import '../../shared/widgets/common.dart';
 import 'member_pdf.dart';
@@ -71,10 +72,11 @@ class _MySavingsScreenState extends State<MySavingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final overview = _overview;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('My Savings')),
+      appBar: AppBar(title: Text(l10n.mySavingsMySavings)),
       body: RefreshIndicator(
         onRefresh: _load,
         child: _loading
@@ -93,13 +95,13 @@ class _MySavingsScreenState extends State<MySavingsScreen> {
                       ),
                     )
                   else if (overview == null || overview.groupCount == 0)
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.only(top: 40),
                       child: EmptyState(
                         icon: Icons.savings_outlined,
-                        title: 'No groups yet',
+                        title: l10n.agentReportNoGroupsYet,
                         message:
-                            'Once a group accepts you, your savings will show here.',
+                            l10n.mySavingsOnceAGroupAcceptsYou,
                       ),
                     )
                   else ...[
@@ -165,9 +167,7 @@ class _MySavingsScreenState extends State<MySavingsScreen> {
                             const SizedBox(width: 7),
                             Expanded(
                               child: Text(
-                                'What you owe is counted for each group on its '
-                                'own. Paying extra in one group does not reduce '
-                                'what you owe in another.',
+                                l10n.mySavingsWhatYouOweIsCountedFor,
                                 style: TextStyle(
                                     fontSize: 11.5,
                                     color: AppColors.textSecondary),
@@ -212,6 +212,7 @@ class _GroupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final book = position.passbook;
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
@@ -237,7 +238,7 @@ class _GroupCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      'Viewing',
+                      l10n.joinGroupViewing,
                       style: TextStyle(
                           fontSize: 10.5,
                           fontWeight: FontWeight.w700,

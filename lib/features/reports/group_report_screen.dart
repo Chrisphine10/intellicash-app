@@ -5,11 +5,12 @@ import '../../core/database/app_database.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/group.dart';
+import '../../data/models/remote/group_report.dart';
 import '../../data/repositories/dashboard_repository.dart';
 import '../../data/repositories/loan_repository.dart';
 import '../../data/repositories/meeting_repository.dart';
 import '../../data/repositories/member_repository.dart';
-import '../../data/models/remote/group_report.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/app_state.dart';
 import '../../providers/connection_provider.dart';
 import '../../shared/widgets/common.dart';
@@ -132,6 +133,7 @@ class _GroupReportScreenState extends State<GroupReportScreen> {
   }
 
   String _buildReportText(Group group) {
+    final l10n = L10n.of(context);
     final lines = <String>[
       'GROUP REPORT — ${group.name}',
       Formatters.fullDate(DateTime.now()),
@@ -166,8 +168,7 @@ class _GroupReportScreenState extends State<GroupReportScreen> {
       ..add('')
       ..add(_serverGeneratedAt != null
           ? 'Figures confirmed by the IntelliCash server.'
-          : 'Figures from this phone only - work saved on other phones may '
-              'not be included yet.')
+          : l10n.groupReportFiguresFromThisPhoneOnlyWork)
       ..add('Shared from IntelliCash');
     return lines.join('\n');
   }
@@ -205,15 +206,16 @@ class _GroupReportScreenState extends State<GroupReportScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final group = context.watch<AppState>().group;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Group Report')),
+      appBar: AppBar(title: Text(l10n.groupReport)),
       body: group == null
-          ? const EmptyState(
+          ? EmptyState(
               icon: Icons.groups_outlined,
-              title: 'No group yet',
-              message: 'Set up your group first, then come back for a report.',
+              title: l10n.groupReportNoGroupYet,
+              message: l10n.groupReportSetUpYourGroupFirst,
             )
           : _loading
               ? const Center(child: CircularProgressIndicator())
@@ -254,11 +256,11 @@ class _GroupReportScreenState extends State<GroupReportScreen> {
                       ),
                       SectionLabel('Members (${_members.length})'),
                       if (_members.isEmpty)
-                        const EmptyState(
+                        EmptyState(
                           icon: Icons.person_outline,
-                          title: 'No members yet',
+                          title: l10n.groupReportNoMembersYet,
                           message:
-                              'Members appear here once they join the group.',
+                              l10n.groupReportMembersAppearHereOnceThey,
                         )
                       else
                         Card(
@@ -295,7 +297,7 @@ class _GroupReportScreenState extends State<GroupReportScreen> {
                       child: OutlinedButton.icon(
                         onPressed: () => _share(group),
                         icon: const Icon(Icons.share, size: 18),
-                        label: const Text('Share Text'),
+                        label: Text(l10n.shareTextButton),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -369,6 +371,7 @@ class _FiguresSource extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final confirmed = generatedAt != null;
     return Padding(
       padding: const EdgeInsets.only(top: 8),
@@ -386,8 +389,7 @@ class _FiguresSource extends StatelessWidget {
               confirmed
                   ? 'Confirmed by the server on '
                       '${Formatters.shortDate(generatedAt!.toLocal())}'
-                  : 'From this phone only. Work saved on other phones may not '
-                      'be included yet.',
+                  : l10n.groupReportFromThisPhoneOnlyWorkSaved,
               style: TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
             ),
           ),

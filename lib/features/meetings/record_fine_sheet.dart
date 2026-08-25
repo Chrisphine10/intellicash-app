@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/domain_exception.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/app_state.dart';
 import '../../providers/meeting_provider.dart';
 import '../../providers/member_provider.dart';
@@ -46,6 +47,7 @@ class _RecordFineSheetState extends State<RecordFineSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final members = context.watch<MemberProvider>().members;
 
     return Padding(
@@ -60,12 +62,12 @@ class _RecordFineSheetState extends State<RecordFineSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Record Fine',
+            Text(l10n.meetingHubRecordFine,
                 style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               initialValue: _memberId,
-              decoration: const InputDecoration(labelText: 'Select Member'),
+              decoration: InputDecoration(labelText: l10n.disburseLoanSelectMember),
               dropdownColor: AppColors.surfaceRaised,
               validator: (v) => v == null ? 'Pick a member' : null,
               items: [
@@ -83,7 +85,7 @@ class _RecordFineSheetState extends State<RecordFineSheet> {
               controller: _amountCtrl,
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(labelText: 'Amount (KSh)'),
+              decoration: InputDecoration(labelText: l10n.welfareAmountKsh),
               validator: (v) => (double.tryParse(v ?? '') ?? 0) <= 0
                   ? 'Enter an amount above zero'
                   : null,
@@ -91,7 +93,7 @@ class _RecordFineSheetState extends State<RecordFineSheet> {
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               initialValue: _reason,
-              decoration: const InputDecoration(labelText: 'Reason'),
+              decoration: InputDecoration(labelText: l10n.recordFineReason),
               dropdownColor: AppColors.surfaceRaised,
               isExpanded: true,
               validator: (v) => v == null ? 'Pick a reason' : null,
@@ -109,7 +111,7 @@ class _RecordFineSheetState extends State<RecordFineSheet> {
               TextFormField(
                 controller: _reasonCtrl,
                 textCapitalization: TextCapitalization.sentences,
-                decoration: const InputDecoration(labelText: 'Specify reason'),
+                decoration: InputDecoration(labelText: l10n.recordFineSpecifyReason),
                 validator: (v) => (v == null || v.trim().isEmpty)
                     ? 'Describe the reason'
                     : null,
@@ -119,7 +121,7 @@ class _RecordFineSheetState extends State<RecordFineSheet> {
             FilledButton.icon(
               onPressed: _saving ? null : _record,
               icon: const Icon(Icons.check, size: 18),
-              label: const Text('Record Fine'),
+              label: Text(l10n.meetingHubRecordFine),
             ),
           ],
         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/network/api_client.dart';
+import '../../l10n/app_localizations.dart';
 
 /// The group's collective enterprise, recorded during a visit.
 ///
@@ -134,22 +135,22 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Group business')),
+      appBar: AppBar(title: Text(l10n.businessProfileGroupBusiness)),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
               children: [
                 Text(
-                  'What does the group run together?',
+                  l10n.businessProfileWhatDoesTheGroupRun,
                   style: theme.textTheme.titleMedium,
                 ),
                 Text(
-                  'The group\'s own enterprise, not a member\'s. Leave blank if '
-                  'they do not run one.',
+                  l10n.businessProfileTheGroupSOwnEnterpriseNot,
                   style: theme.textTheme.bodySmall,
                 ),
                 const SizedBox(height: 12),
@@ -182,48 +183,46 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
                 TextField(
                   controller: _enterprise,
                   maxLength: 200,
-                  decoration: const InputDecoration(
-                    labelText: 'Type of business',
-                    hintText: 'e.g. poultry, cereal buying',
+                  decoration: InputDecoration(
+                    labelText: l10n.businessProfileTypeOfBusiness,
+                    hintText: l10n.businessProfileEGPoultryCerealBuying,
                   ),
                 ),
                 TextField(
                   controller: _revenue,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Money in each month (KES)',
+                  decoration: InputDecoration(
+                    labelText: l10n.businessProfileMoneyInEachMonthKes,
                   ),
                 ),
                 TextField(
                   controller: _costs,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Costs each month (KES)',
+                  decoration: InputDecoration(
+                    labelText: l10n.businessProfileCostsEachMonthKes,
                   ),
                 ),
                 TextField(
                   controller: _employs,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'People it employs',
+                  decoration: InputDecoration(
+                    labelText: l10n.businessProfilePeopleItEmploys,
                   ),
                 ),
                 TextField(
                   controller: _challenge,
                   maxLines: 3,
                   maxLength: 2000,
-                  decoration: const InputDecoration(
-                    labelText: 'Biggest problem they face',
+                  decoration: InputDecoration(
+                    labelText: l10n.businessProfileBiggestProblemTheyFace,
                     alignLabelWithHint: true,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   widget.remoteVisitId == null
-                      ? 'This visit has not synced yet, so the figures are saved '
-                          'against the group but not against this visit.'
-                      : 'Saved against this visit, so next time you can see what '
-                          'changed.',
+                      ? l10n.businessProfileThisVisitHasNotSyncedYet
+                      : l10n.businessProfileSavedAgainstThisVisitSoNext,
                   style: theme.textTheme.bodySmall,
                 ),
               ],

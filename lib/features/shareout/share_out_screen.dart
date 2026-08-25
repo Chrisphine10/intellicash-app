@@ -5,6 +5,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../core/utils/share_out_calculator.dart';
 import '../../data/repositories/share_out_repository.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/app_state.dart';
 import '../../providers/share_out_provider.dart';
 import '../../shared/widgets/common.dart';
@@ -33,13 +34,14 @@ class _ShareOutScreenState extends State<ShareOutScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final appState = context.watch<AppState>();
     final provider = context.watch<ShareOutProvider>();
     final group = appState.group;
     final result = provider.preview;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Share-Out')),
+      appBar: AppBar(title: Text(l10n.shareOut)),
       body: group == null
           ? const SizedBox.shrink()
           : provider.loading && result == null
@@ -55,15 +57,13 @@ class _ShareOutScreenState extends State<ShareOutScreen> {
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     if (result == null || !provider.canDistribute)
-                      const Padding(
+                      Padding(
                         padding: EdgeInsets.only(top: 40),
                         child: EmptyState(
                           icon: Icons.savings_outlined,
-                          title: 'Nothing to share out yet',
+                          title: l10n.shareOutNothingToShareOutYet,
                           message:
-                              'Members haven\'t bought shares this cycle. Run '
-                              'meetings and collect shares first, then come '
-                              'back to distribute the fund.',
+                              l10n.shareOutMembersHavenTBoughtSharesThis,
                         ),
                       )
                     else ...[
@@ -95,9 +95,7 @@ class _ShareOutScreenState extends State<ShareOutScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'This records every payout, settles outstanding loans, '
-                        'and starts Cycle ${group.cycleNumber + 1}. It cannot be '
-                        'undone.',
+                        l10n.shareOutStartsNextCycle(group.cycleNumber + 1),
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
@@ -113,6 +111,7 @@ class _ShareOutScreenState extends State<ShareOutScreen> {
   }
 
   Future<void> _confirmDistribute(group, ShareOutResult result) async {
+    final l10n = L10n.of(context);
     final appState = context.read<AppState>();
     final provider = context.read<ShareOutProvider>();
     final confirmed = await showDialog<bool>(
@@ -131,11 +130,11 @@ class _ShareOutScreenState extends State<ShareOutScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Distribute'),
+            child: Text(l10n.shareOutDistribute),
           ),
         ],
       ),
@@ -163,6 +162,7 @@ class _PoolCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final growth = (result.growthRate * 100);
     return Card(
       child: Padding(
@@ -170,7 +170,7 @@ class _PoolCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Fund to distribute',
+            Text(l10n.shareOutFundToDistribute,
                 style: Theme.of(context).textTheme.labelSmall),
             const SizedBox(height: 6),
             Text(money(result.savingsPoolCents),
@@ -206,6 +206,7 @@ class _WelfareToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     if (result.welfarePoolCents <= 0) return const SizedBox.shrink();
     return Card(
       margin: const EdgeInsets.only(top: 10),
@@ -213,7 +214,7 @@ class _WelfareToggle extends StatelessWidget {
         contentPadding: const EdgeInsets.symmetric(horizontal: 14),
         value: result.distributeWelfare,
         onChanged: onChanged,
-        title: const Text('Split welfare fund equally',
+        title: Text(l10n.shareOutSplitWelfareFundEqually,
             style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600)),
         subtitle: Text(
           result.distributeWelfare

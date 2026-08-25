@@ -6,6 +6,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/remote/credit_rating.dart';
 import '../../data/models/remote/external_loan_models.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/connection_provider.dart';
 import '../../providers/external_loans_provider.dart';
 import '../../shared/widgets/common.dart';
@@ -59,6 +60,7 @@ class _ExternalLoanApplySheetState extends State<ExternalLoanApplySheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final product = widget.product;
     final connection = context.watch<ConnectionProvider>();
     final group = connection.selectedGroup;
@@ -76,7 +78,7 @@ class _ExternalLoanApplySheetState extends State<ExternalLoanApplySheet> {
           shrinkWrap: true,
           children: [
             const SizedBox(height: 8),
-            Text('Apply for a Loan',
+            Text(l10n.externalLoanApplyApplyForALoan,
                 style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 2),
             Text(
@@ -117,7 +119,7 @@ class _ExternalLoanApplySheetState extends State<ExternalLoanApplySheet> {
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
               decoration: InputDecoration(
-                labelText: 'Amount (KSh)',
+                labelText: l10n.welfareAmountKsh,
                 helperText: 'Between ${Formatters.moneyCompact(product.minAmount)} '
                     'and ${Formatters.moneyCompact(product.maxAmount)}',
               ),
@@ -128,9 +130,9 @@ class _ExternalLoanApplySheetState extends State<ExternalLoanApplySheet> {
               controller: _purposeCtrl,
               textCapitalization: TextCapitalization.sentences,
               maxLines: 2,
-              decoration: const InputDecoration(
-                labelText: 'What is the loan for?',
-                hintText: 'e.g. Buying maize seed for the season',
+              decoration: InputDecoration(
+                labelText: l10n.externalLoanApplyWhatIsTheLoanFor,
+                hintText: l10n.externalLoanApplyEGBuyingMaizeSeed,
               ),
               validator: (v) => (v == null || v.trim().length < 5)
                   ? 'Tell us what the loan is for (at least 5 characters)'
@@ -140,7 +142,7 @@ class _ExternalLoanApplySheetState extends State<ExternalLoanApplySheet> {
             FilledButton.icon(
               onPressed: _saving ? null : _submit,
               icon: const Icon(Icons.check, size: 18),
-              label: const Text('Submit Application'),
+              label: Text(l10n.externalLoanApplySubmitApplication),
             ),
           ],
         ),
@@ -205,6 +207,7 @@ class _LoanBandPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final minBand = minCreditBand;
     final bandShort = !loading &&
         minBand != null &&
@@ -235,8 +238,7 @@ class _LoanBandPanel extends StatelessWidget {
                             style: Theme.of(context).textTheme.bodySmall)
                       else if (rating == null)
                         Text(
-                          'Credit rating unavailable — the lender checks it '
-                          'when reviewing your application.',
+                          l10n.externalLoanApplyCreditRatingUnavailableTheLenderChecks,
                           style: Theme.of(context).textTheme.bodySmall,
                         )
                       else

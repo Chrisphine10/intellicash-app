@@ -8,6 +8,7 @@ import '../../core/utils/meeting_unlock.dart';
 import '../../data/models/member.dart';
 import '../../data/repositories/id_map_repository.dart';
 import '../../data/repositories/member_repository.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/connection_provider.dart';
 import '../../shared/widgets/common.dart';
 
@@ -71,6 +72,7 @@ class _ThreeKeyUnlockScreenState extends State<ThreeKeyUnlockScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final connection = context.watch<ConnectionProvider>();
     final online = connection.isConnected && _remoteGroupId != null;
     final status = MeetingUnlock.evaluate(
@@ -79,7 +81,7 @@ class _ThreeKeyUnlockScreenState extends State<ThreeKeyUnlockScreen> {
     );
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Unlock Meeting')),
+      appBar: AppBar(title: Text(l10n.threeKeyUnlockUnlockMeeting)),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
@@ -96,10 +98,9 @@ class _ThreeKeyUnlockScreenState extends State<ThreeKeyUnlockScreen> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            'The meeting opens when '
-                            '${MeetingUnlock.officialsRequired} officials — '
-                            'or ${status.memberQuorum} members — each turn '
-                            'their key.',
+                            l10n.unlockOpensWhen(
+                                MeetingUnlock.officialsRequired,
+                                status.memberQuorum),
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ),
@@ -164,7 +165,7 @@ class _ThreeKeyUnlockScreenState extends State<ThreeKeyUnlockScreen> {
                             fontSize: 11, color: AppColors.textSecondary),
                       ),
                       trailing: _verified.contains(member.id)
-                          ? Text('Verified',
+                          ? Text(l10n.threeKeyUnlockVerified,
                               style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
@@ -277,6 +278,7 @@ class _OtpSheetState extends State<_OtpSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     return Padding(
       padding: EdgeInsets.only(
         left: 20,
@@ -317,7 +319,7 @@ class _OtpSheetState extends State<_OtpSheet> {
               keyboardType: TextInputType.number,
               maxLength: 6,
               decoration: InputDecoration(
-                labelText: 'One-time code',
+                labelText: l10n.threeKeyUnlockOneTimeCode,
                 counterText: '',
                 errorText: _error,
               ),
@@ -329,7 +331,7 @@ class _OtpSheetState extends State<_OtpSheet> {
             ),
             TextButton(
               onPressed: _sending ? null : _sendCode,
-              child: const Text('Send a new code'),
+              child: Text(l10n.threeKeyUnlockSendANewCode),
             ),
           ],
           const SizedBox(height: 4),
@@ -337,7 +339,7 @@ class _OtpSheetState extends State<_OtpSheet> {
             child: TextButton(
               onPressed: () =>
                   Navigator.of(context).pop(_kUsePinFallback),
-              child: const Text('No SMS? Use my saved PIN instead'),
+              child: Text(l10n.threeKeyUnlockNoSmsUseMySaved),
             ),
           ),
         ],
@@ -423,6 +425,7 @@ class _PinSheetState extends State<_PinSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     return Padding(
       padding: EdgeInsets.only(
         left: 20,
@@ -473,8 +476,8 @@ class _PinSheetState extends State<_PinSheet> {
               obscureText: true,
               keyboardType: TextInputType.number,
               maxLength: MeetingUnlock.pinLength,
-              decoration: const InputDecoration(
-                labelText: 'Repeat PIN',
+              decoration: InputDecoration(
+                labelText: l10n.threeKeyUnlockRepeatPin,
                 counterText: '',
               ),
             ),

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/loan.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/loan_provider.dart';
 import '../../shared/widgets/common.dart';
 import '../../shared/widgets/status_chip.dart';
@@ -42,9 +43,10 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final loan = _loan;
     return Scaffold(
-      appBar: AppBar(title: const Text('Loans')),
+      appBar: AppBar(title: Text(l10n.navLoans)),
       body: loan == null
           ? const Center(child: CircularProgressIndicator())
           : ListView(
@@ -93,12 +95,11 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                 ),
                 const SectionLabel('Repayments'),
                 if (_repayments.isEmpty)
-                  const EmptyState(
+                  EmptyState(
                     icon: Icons.check_circle_outline,
-                    title: 'No repayments yet',
+                    title: l10n.loanDetailNoRepaymentsYet,
                     message:
-                        'Repayments are recorded inside meetings and '
-                        'appear here instantly.',
+                        l10n.loanDetailRepaymentsAreRecordedInsideMeetingsAnd,
                   ),
                 for (final repayment in _repayments)
                   Card(

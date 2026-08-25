@@ -7,6 +7,7 @@ import '../../core/utils/visit_assessment_scoring.dart';
 import '../../data/repositories/assessment_repository.dart';
 import '../../data/repositories/attachment_repository.dart';
 import '../../shared/widgets/common.dart';
+import '../../l10n/app_localizations.dart';
 
 /// The field scorecard: one section per page, scored as the agent taps.
 ///
@@ -75,9 +76,9 @@ class _VisitAssessmentScreenState extends State<VisitAssessmentScreen> {
       final cached = await _repository.currentSnapshot();
       if (cached == null) {
         setState(() {
+        final l10n = L10n.of(context);
           _loading = false;
-          _error = 'No assessment form has been downloaded yet. '
-              'Connect once to fetch it, then it works offline.';
+          _error = l10n.visitAssessmentNoAssessmentFormHasBeenDownloaded;
         });
         return;
       }
@@ -154,6 +155,7 @@ class _VisitAssessmentScreenState extends State<VisitAssessmentScreen> {
     AssessmentQuestionSnapshot question,
   ) async {
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = L10n.of(context);
     final photo = await _camera.capture();
     // Null covers a cancelled capture and a refused camera permission alike.
     // Both are ordinary things for a person to do, not error states.
@@ -175,8 +177,8 @@ class _VisitAssessmentScreenState extends State<VisitAssessmentScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(
-            'This visit already has '
-            '${AttachmentRepository.maxPerVisit} photos.',
+            l10n.visitAssessmentPhotoCapReached(
+                AttachmentRepository.maxPerVisit),
           ),
         ),
       );
@@ -213,9 +215,10 @@ class _VisitAssessmentScreenState extends State<VisitAssessmentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     if (_loading) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Assessment')),
+        appBar: AppBar(title: Text(l10n.visitAssessmentAssessment)),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -223,12 +226,12 @@ class _VisitAssessmentScreenState extends State<VisitAssessmentScreen> {
     final error = _error;
     if (error != null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Assessment')),
+        appBar: AppBar(title: Text(l10n.visitAssessmentAssessment)),
         body: Padding(
           padding: const EdgeInsets.all(24),
           child: EmptyState(
             icon: Icons.cloud_download_outlined,
-            title: 'Form not available',
+            title: l10n.visitAssessmentFormNotAvailable,
             message: error,
           ),
         ),
@@ -239,7 +242,7 @@ class _VisitAssessmentScreenState extends State<VisitAssessmentScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Assessment'),
+        title: Text(l10n.visitAssessmentAssessment),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(72),
           child: _ScoreHeader(score: _score, sectionCount: sections.length, page: _page),
@@ -272,7 +275,7 @@ class _VisitAssessmentScreenState extends State<VisitAssessmentScreen> {
                             duration: const Duration(milliseconds: 200),
                             curve: Curves.easeOut,
                           ),
-                  child: const Text('Back'),
+                  child: Text(l10n.back),
                 ),
               ),
               const SizedBox(width: 12),
@@ -515,6 +518,7 @@ class _PhotoThumb extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final file = photo.localPath.isEmpty ? null : File(photo.localPath);
 
     return Stack(
@@ -539,7 +543,7 @@ class _PhotoThumb extends StatelessWidget {
             top: -6,
             right: -6,
             child: IconButton(
-              tooltip: 'Remove',
+              tooltip: l10n.groupSetupWizardRemove,
               icon: const Icon(Icons.close, size: 16),
               onPressed: onDiscard,
             ),

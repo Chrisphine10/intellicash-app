@@ -6,6 +6,7 @@ import '../../core/utils/formatters.dart';
 import '../../data/models/remote/credit_rating.dart';
 import '../../data/models/remote/group_report.dart';
 import '../../data/models/remote/remote_models.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/connection_provider.dart';
 import '../../shared/widgets/common.dart';
 import '../visits/record_visit_screen.dart';
@@ -67,6 +68,7 @@ class _AgentGroupDetailScreenState extends State<AgentGroupDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final connection = context.watch<ConnectionProvider>();
     final members = connection.members;
     final meetings = connection.meetings;
@@ -99,7 +101,7 @@ class _AgentGroupDetailScreenState extends State<AgentGroupDetailScreen> {
               if (recorded == true && mounted) setState(() {});
             },
             icon: const Icon(Icons.assignment_turned_in_outlined, size: 18),
-            label: const Text('Record a visit'),
+            label: Text(l10n.agentGroupDetailRecordAVisit),
           ),
           const SectionLabel('Credit rating'),
           if (_loading)
@@ -168,7 +170,7 @@ class _AgentGroupDetailScreenState extends State<AgentGroupDetailScreen> {
 
           SectionLabel('Members (${members.length})'),
           if (members.isEmpty)
-            Text('No members loaded.',
+            Text(l10n.agentGroupDetailNoMembersLoaded,
                 style: Theme.of(context).textTheme.bodySmall),
           for (final m in members)
             Card(
@@ -189,7 +191,7 @@ class _AgentGroupDetailScreenState extends State<AgentGroupDetailScreen> {
 
           const SectionLabel('Recent meetings'),
           if (meetings.isEmpty)
-            Text('No meetings loaded.',
+            Text(l10n.agentGroupDetailNoMeetingsLoaded,
                 style: Theme.of(context).textTheme.bodySmall),
           for (final mt in meetings.take(8))
             Card(
@@ -228,6 +230,7 @@ class _CreditRatingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final c = creditBandColor(rating.band);
     return Card(
       child: Padding(
@@ -278,10 +281,10 @@ class _CreditRatingCard extends StatelessWidget {
             ),
             const SizedBox(height: 14),
             _PillarBar(
-                label: 'Governance', points: rating.governance, outOf: 40),
+                label: l10n.agentGroupDetailGovernance, points: rating.governance, outOf: 40),
             const SizedBox(height: 8),
             _PillarBar(
-                label: 'VSLA compliance',
+                label: l10n.agentGroupDetailVslaCompliance,
                 points: rating.compliance,
                 outOf: 60),
             if (rating.factors.isNotEmpty) ...[
@@ -321,7 +324,7 @@ class _CreditRatingCard extends StatelessWidget {
             ],
             if (rating.recommendations.isNotEmpty) ...[
               const Divider(height: 24),
-              Text('To improve',
+              Text(l10n.agentGroupDetailToImprove,
                   style: Theme.of(context).textTheme.labelSmall),
               const SizedBox(height: 6),
               for (final tip in rating.recommendations)

@@ -51,10 +51,11 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final connection = context.watch<ConnectionProvider>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Cloud Account')),
+      appBar: AppBar(title: Text(l10n.cloudAccount)),
       body: Form(
         key: _formKey,
         child: ListView(
@@ -68,14 +69,14 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen> {
                   MaterialPageRoute(builder: (_) => const SignInOptionsScreen()),
                 ),
                 icon: const Icon(Icons.login, size: 18),
-                label: const Text('Sign In'),
+                label: Text(l10n.signIn),
               ),
               const SizedBox(height: 10),
               if (_keyEntryAvailable) ...[
                 Row(
                   children: [
                     const Expanded(child: Divider(endIndent: 10)),
-                    Text('or use a group access key',
+                    Text(l10n.serverSettingsOrUseAGroupAccess,
                         style: Theme.of(context).textTheme.bodySmall),
                     const Expanded(child: Divider(indent: 10)),
                   ],
@@ -88,7 +89,7 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen> {
               autocorrect: false,
               obscureText: _obscureKey,
               decoration: InputDecoration(
-                labelText: 'Access key',
+                labelText: l10n.serverSettingsAccessKey,
                 hintText: 'ic_sk_…',
                 suffixIcon: IconButton(
                   icon: Icon(
@@ -113,9 +114,7 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'Ask your group administrator for an access key, then '
-                        'paste it here. It only lets this phone see and record '
-                        'your group\'s savings, loans and meetings.',
+                        l10n.serverSettingsAskYourGroupAdministratorForAn,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ),
@@ -148,7 +147,7 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen> {
                   );
                 },
                 icon: const Icon(Icons.cloud_outlined, size: 18),
-                label: const Text('View Online Records'),
+                label: Text(l10n.serverSettingsViewOnlineRecords),
               ),
               const SizedBox(height: 12),
               OutlinedButton.icon(
@@ -160,7 +159,7 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen> {
                   );
                 },
                 icon: const Icon(Icons.sync, size: 18),
-                label: const Text('Back Up This Group'),
+                label: Text(l10n.serverSettingsBackUpThisGroup),
               ),
               const SizedBox(height: 12),
               OutlinedButton.icon(

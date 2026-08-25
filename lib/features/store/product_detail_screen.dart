@@ -6,6 +6,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/remote/credit_rating.dart';
 import '../../data/models/remote/store_models.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/connection_provider.dart';
 import '../../providers/store_provider.dart';
 import '../../shared/widgets/common.dart';
@@ -20,9 +21,10 @@ class ProductDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final category = storeCategoryInfo(product.category, product.categoryLabel);
     return Scaffold(
-      appBar: AppBar(title: const Text('Intelli-Stores')),
+      appBar: AppBar(title: Text(l10n.intelliStores)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
         children: [
@@ -173,6 +175,7 @@ class _CreditRequestSheetState extends State<_CreditRequestSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final connection = context.watch<ConnectionProvider>();
     final group = connection.selectedGroup;
 
@@ -188,7 +191,7 @@ class _CreditRequestSheetState extends State<_CreditRequestSheet> {
           shrinkWrap: true,
           children: [
             const SizedBox(height: 8),
-            Text('Request on Credit',
+            Text(l10n.productDetailRequestOnCredit,
                 style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 2),
             Text(widget.product.name,
@@ -210,7 +213,7 @@ class _CreditRequestSheetState extends State<_CreditRequestSheet> {
               DropdownButtonFormField<String>(
                 initialValue: _programmeId,
                 isExpanded: true,
-                decoration: const InputDecoration(labelText: 'Programme'),
+                decoration: InputDecoration(labelText: l10n.productDetailProgramme),
                 dropdownColor: AppColors.surfaceRaised,
                 validator: (v) => v == null ? 'Pick a programme' : null,
                 items: [
@@ -227,7 +230,7 @@ class _CreditRequestSheetState extends State<_CreditRequestSheet> {
             TextFormField(
               controller: _nameCtrl,
               textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(labelText: 'Customer name'),
+              decoration: InputDecoration(labelText: l10n.productDetailCustomerName),
               validator: (v) =>
                   (v == null || v.trim().length < 2) ? 'Enter a name' : null,
             ),
@@ -235,7 +238,7 @@ class _CreditRequestSheetState extends State<_CreditRequestSheet> {
             TextFormField(
               controller: _emailCtrl,
               keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(labelText: 'Email'),
+              decoration: InputDecoration(labelText: l10n.productDetailEmail),
               validator: (v) =>
                   (v == null || !v.contains('@')) ? 'Enter a valid email' : null,
             ),
@@ -243,7 +246,7 @@ class _CreditRequestSheetState extends State<_CreditRequestSheet> {
             TextFormField(
               controller: _phoneCtrl,
               keyboardType: TextInputType.phone,
-              decoration: const InputDecoration(labelText: 'Phone number'),
+              decoration: InputDecoration(labelText: l10n.phoneNumber),
               validator: (v) =>
                   (v == null || v.trim().length < 7) ? 'Enter a phone' : null,
             ),
@@ -253,12 +256,12 @@ class _CreditRequestSheetState extends State<_CreditRequestSheet> {
                 controller: _groupCtrl,
                 textCapitalization: TextCapitalization.words,
                 decoration:
-                    const InputDecoration(labelText: 'Group name (optional)'),
+                    InputDecoration(labelText: l10n.productDetailGroupNameOptional),
               ),
             const SizedBox(height: 16),
             Row(
               children: [
-                const Expanded(child: Text('Quantity', style: TextStyle(fontSize: 14))),
+                Expanded(child: Text(l10n.productDetailQuantity, style: TextStyle(fontSize: 14))),
                 IconButton.outlined(
                   onPressed:
                       _quantity > 1 ? () => setState(() => _quantity--) : null,
@@ -283,7 +286,7 @@ class _CreditRequestSheetState extends State<_CreditRequestSheet> {
             FilledButton.icon(
               onPressed: _saving || _loadingProgrammes ? null : _submit,
               icon: const Icon(Icons.check, size: 18),
-              label: const Text('Submit Request'),
+              label: Text(l10n.productDetailSubmitRequest),
             ),
           ],
         ),
@@ -341,6 +344,7 @@ class _CreditPricingPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     return Card(
       color: AppColors.surfaceRaised,
       child: Padding(
@@ -364,7 +368,7 @@ class _CreditPricingPanel extends StatelessWidget {
                         style: Theme.of(context).textTheme.bodySmall)
                   else if (rating == null)
                     Text(
-                      'Priced at the standard deposit — rating unavailable.',
+                      l10n.productDetailPricedAtTheStandardDeposit,
                       style: Theme.of(context).textTheme.bodySmall,
                     )
                   else

@@ -5,6 +5,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/domain_exception.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/meeting.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/app_state.dart';
 import '../../providers/meeting_provider.dart';
 import '../../providers/member_provider.dart';
@@ -35,6 +36,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final meetingProvider = context.watch<MeetingProvider>();
     final members = context.watch<MemberProvider>().members;
     final attendance = meetingProvider.attendance;
@@ -43,14 +45,14 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     final readOnly = !(meetingProvider.activeMeeting?.isOpen ?? false);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Meetings')),
+      appBar: AppBar(title: Text(l10n.navMeetings)),
       body: Column(
         children: [
           Expanded(
             child: ListView(
               padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
               children: [
-                Text('Attendance',
+                Text(l10n.attendanceAttendance,
                     style: Theme.of(context).textTheme.headlineSmall),
                 const SizedBox(height: 2),
                 Text(
@@ -142,7 +144,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                     ),
                   );
                 },
-                child: const Text('Continue to Meeting'),
+                child: Text(l10n.attendanceContinueToMeeting),
               ),
             ),
           ),

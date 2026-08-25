@@ -208,9 +208,9 @@ class MoreScreen extends StatelessWidget {
           Card(
             child: ListTile(
               leading: const Icon(Icons.account_circle_outlined, size: 22),
-              title: const Text('Account', style: TextStyle(fontSize: 14)),
+              title: Text(l10n.accountAccount, style: TextStyle(fontSize: 14)),
               subtitle: Text(
-                'Who is signed in, language, appearance and app details',
+                l10n.moreWhoIsSignedInLanguage,
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               trailing: const Icon(Icons.chevron_right, size: 20),
@@ -231,17 +231,14 @@ class MoreScreen extends StatelessWidget {
                       Image.asset('assets/branding/logo_mark.png',
                           width: 22, height: 22),
                       const SizedBox(width: 8),
-                      const Text('Intelli-Cash',
+                      Text(l10n.moreIntelliCash,
                           style: TextStyle(
                               fontSize: 14, fontWeight: FontWeight.w700)),
                     ],
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Your group\'s savings and loans, right on your phone. '
-                    'Everything is saved on this phone first and backed up '
-                    'online when you have internet.\n\n'
-                    'Intelli-Wealth Limited · intelliwealth.org',
+                    l10n.moreYourGroupSSavingsAndLoans,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],
@@ -360,6 +357,7 @@ class MoreScreen extends StatelessWidget {
   }
 
   Widget _connectionTile(BuildContext context) {
+    final l10n = L10n.of(context);
     final connection = context.watch<ConnectionProvider>();
     final (String subtitle, Widget? trailing) = switch (connection.status) {
       ConnectionStatus.connected => (
@@ -382,7 +380,7 @@ class MoreScreen extends StatelessWidget {
     };
     return ListTile(
       leading: const Icon(Icons.cloud_outlined, size: 20),
-      title: const Text('Cloud Account', style: TextStyle(fontSize: 14)),
+      title: Text(l10n.cloudAccount, style: TextStyle(fontSize: 14)),
       subtitle: Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
       trailing: trailing ?? const Icon(Icons.chevron_right, size: 20),
       onTap: () {
@@ -395,9 +393,10 @@ class MoreScreen extends StatelessWidget {
 
   /// The sync / backup row (friendly wording; pushes queued changes).
   Widget _syncTile(BuildContext context, AppState appState) {
+    final l10n = L10n.of(context);
     return ListTile(
       leading: const Icon(Icons.cloud_upload_outlined, size: 20),
-      title: const Text('Sync & Backup', style: TextStyle(fontSize: 14)),
+      title: Text(l10n.syncBackup, style: TextStyle(fontSize: 14)),
       subtitle: Text(
         appState.pendingSync == 0
             ? 'Everything is backed up'
@@ -420,8 +419,7 @@ class MoreScreen extends StatelessWidget {
                   ? 'Backed up $synced record(s).'
                   : appState.pendingSync == 0
                       ? 'Everything is already backed up.'
-                      : 'No internet — your records are safe on this phone '
-                          'and will back up later.',
+                      : l10n.moreNoInternetYourRecordsAreSafe,
             ),
             backgroundColor: AppColors.surfaceRaised,
             behavior: SnackBarBehavior.floating,

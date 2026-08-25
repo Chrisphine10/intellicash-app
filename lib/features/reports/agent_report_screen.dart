@@ -6,6 +6,7 @@ import '../../core/utils/formatters.dart';
 import '../../data/models/remote/agent_report.dart';
 import '../../data/models/remote/credit_rating.dart';
 import '../../data/models/remote/remote_models.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/connection_provider.dart';
 import '../../shared/widgets/common.dart';
 import '../agent/credit_band_chip.dart';
@@ -133,6 +134,7 @@ class _AgentReportScreenState extends State<AgentReportScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final connection = context.watch<ConnectionProvider>();
     final user = connection.signedInUser;
     final groups = connection.groups;
@@ -147,13 +149,12 @@ class _AgentReportScreenState extends State<AgentReportScreen> {
         groups.where((g) => _needsSupportFor(g.id)).length;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Caseload Report')),
+      appBar: AppBar(title: Text(l10n.agentReportCaseloadReport)),
       body: groups.isEmpty
-          ? const EmptyState(
+          ? EmptyState(
               icon: Icons.groups_outlined,
-              title: 'No groups yet',
-              message: 'When groups are assigned to you, their report '
-                  'appears here.',
+              title: l10n.agentReportNoGroupsYet,
+              message: l10n.agentReportWhenGroupsAreAssignedToYou,
             )
           : RefreshIndicator(
               onRefresh: _loadRatings,
@@ -221,7 +222,7 @@ class _AgentReportScreenState extends State<AgentReportScreen> {
                     _buildReportText(agentName, groups),
                   ),
                   icon: const Icon(Icons.share, size: 18),
-                  label: const Text('Share Report'),
+                  label: Text(l10n.agentReportShareReport),
                 ),
               ),
             ),
@@ -244,6 +245,7 @@ class _ReportGroupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
@@ -262,7 +264,7 @@ class _ReportGroupCard extends StatelessWidget {
             ),
             if (needsSupport)
               Text(
-                'Needs support',
+                l10n.agentReportNeedsSupport,
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
@@ -274,7 +276,7 @@ class _ReportGroupCard extends StatelessWidget {
         trailing: band != null
             ? CreditBandChip.values(band: band!, score: score, rated: true)
             : Text(
-                'No rating',
+                l10n.agentReportNoRating,
                 style:
                     TextStyle(fontSize: 11, color: AppColors.textSecondary),
               ),

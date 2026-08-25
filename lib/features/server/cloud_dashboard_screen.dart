@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/connection_provider.dart';
 import '../../shared/widgets/common.dart';
 import '../dashboard/widgets/stat_card.dart';
@@ -28,19 +29,20 @@ class _CloudDashboardScreenState extends State<CloudDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final connection = context.watch<ConnectionProvider>();
     final group = connection.selectedGroup;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cloud Data'),
+        title: Text(l10n.cloudDashboardCloudData),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: connection.busy
                 ? null
                 : () => context.read<ConnectionProvider>().refreshAll(),
-            tooltip: 'Refresh',
+            tooltip: l10n.cloudDashboardRefresh,
           ),
         ],
       ),
@@ -77,22 +79,22 @@ class _CloudDashboardScreenState extends State<CloudDashboardScreen> {
                 children: [
                   StatCard(
                     value: Formatters.moneyCompact(group.savingsBalance),
-                    label: 'Savings Fund',
+                    label: l10n.cloudDashboardSavingsFund,
                     icon: Icons.savings_outlined,
                   ),
                   StatCard(
                     value: Formatters.moneyCompact(group.internalLoanBalance),
-                    label: 'Internal Loans',
+                    label: l10n.cloudDashboardInternalLoans,
                     icon: Icons.payments_outlined,
                   ),
                   StatCard(
                     value: Formatters.moneyCompact(group.socialFundBalance),
-                    label: 'Social Fund',
+                    label: l10n.meetingHubSocialFund,
                     icon: Icons.favorite_outline,
                   ),
                   StatCard(
                     value: '${group.memberCount ?? connection.members.length}',
-                    label: 'Members',
+                    label: l10n.navMembers,
                     icon: Icons.people_outline,
                   ),
                 ],
@@ -115,11 +117,12 @@ class _GroupSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: DropdownButtonFormField<String>(
         initialValue: connection.selectedGroup?.id,
-        decoration: const InputDecoration(labelText: 'Group'),
+        decoration: InputDecoration(labelText: l10n.sectionGroup),
         dropdownColor: AppColors.surfaceRaised,
         items: [
           for (final g in connection.groups)

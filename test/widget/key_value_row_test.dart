@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intellicash_mobile/shared/widgets/common.dart';
+import '../support/localized_app.dart';
 
 /// `KeyValueRow` renders nearly every figure in the app — the passbook, group
 /// and member reports, and the agent's view of a group. It is a Row with two
@@ -16,7 +17,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(
-      MaterialApp(home: Scaffold(body: Padding(
+      localizedApp(home: Scaffold(body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15),
         child: child,
       ))),

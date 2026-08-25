@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/database/app_database.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/domain_exception.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/enums.dart';
+import '../../data/repositories/id_map_repository.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/app_state.dart';
+import '../../providers/connection_provider.dart';
 import '../../providers/meeting_provider.dart';
 import '../../providers/member_provider.dart';
-import '../../core/database/app_database.dart';
-import '../../data/repositories/id_map_repository.dart';
-import '../../providers/connection_provider.dart';
 import '../../shared/widgets/common.dart';
 import 'gateway_payment_sheet.dart';
 
@@ -62,6 +63,7 @@ class _BuySharesSheetState extends State<BuySharesSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final group = context.watch<AppState>().group!;
     final members = context.watch<MemberProvider>().members;
     final total = _shares * group.shareValue;
@@ -76,11 +78,11 @@ class _BuySharesSheetState extends State<BuySharesSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Buy Shares', style: Theme.of(context).textTheme.headlineSmall),
+          Text(l10n.meetingHubBuyShares, style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 16),
           DropdownButtonFormField<String>(
             initialValue: _memberId,
-            decoration: const InputDecoration(labelText: 'Select Member'),
+            decoration: InputDecoration(labelText: l10n.disburseLoanSelectMember),
             dropdownColor: AppColors.surfaceRaised,
             items: [
               for (final financials in members)
@@ -235,13 +237,13 @@ class _BuySharesSheetState extends State<BuySharesSheet> {
             OutlinedButton.icon(
               onPressed: _memberId == null || _saving ? null : _record,
               icon: const Icon(Icons.edit_note, size: 18),
-              label: const Text('Enter Code by Hand'),
+              label: Text(l10n.buySharesEnterCodeByHand),
             ),
           ] else
             FilledButton.icon(
               onPressed: _memberId == null || _saving ? null : _record,
               icon: const Icon(Icons.check, size: 18),
-              label: const Text('Record Purchase'),
+              label: Text(l10n.buySharesRecordPurchase),
             ),
         ],
       ),

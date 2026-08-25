@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/enums.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/app_state.dart';
 import '../../providers/loan_provider.dart';
 import '../../shared/widgets/common.dart';
@@ -37,6 +38,7 @@ class _LoansScreenState extends State<LoansScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final provider = context.watch<LoanProvider>();
     final loans = provider.loans.where((loan) {
       if (!_showAll && loan.status == LoanStatus.repaid) return false;
@@ -48,20 +50,20 @@ class _LoansScreenState extends State<LoansScreen> {
     }).toList();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Loans')),
+      appBar: AppBar(title: Text(l10n.navLoans)),
       body: RefreshIndicator(
         onRefresh: _load,
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.fromLTRB(20, 4, 20, 90),
           children: [
-            Text('Loan Portfolio',
+            Text(l10n.loansLoanPortfolio,
                 style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 14),
             SegmentedButton<bool>(
-              segments: const [
-                ButtonSegment(value: false, label: Text('Active')),
-                ButtonSegment(value: true, label: Text('All')),
+              segments: [
+                ButtonSegment(value: false, label: Text(l10n.loansActive)),
+                ButtonSegment(value: true, label: Text(l10n.storeAll)),
               ],
               selected: {_showAll},
               onSelectionChanged: (selection) =>
@@ -80,18 +82,17 @@ class _LoansScreenState extends State<LoansScreen> {
             TextField(
               onChanged: (v) => setState(() => _query = v),
               decoration: InputDecoration(
-                hintText: 'Search by member name',
+                hintText: l10n.loansSearchByMemberName,
                 prefixIcon: Icon(Icons.search,
                     size: 20, color: AppColors.textSecondary),
               ),
             ),
             const SizedBox(height: 12),
             if (loans.isEmpty && !provider.loading)
-              const EmptyState(
+              EmptyState(
                 icon: Icons.payments_outlined,
-                title: 'No loans here',
-                message: 'Loans are disbursed inside a meeting — open a '
-                    'meeting and use Disburse Loan.',
+                title: l10n.loansNoLoansHere,
+                message: l10n.loansLoansAreDisbursedInsideAMeeting,
               ),
             for (final loan in loans)
               Card(

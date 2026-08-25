@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/remote/external_loan_models.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/connection_provider.dart';
 import '../../providers/external_loans_provider.dart';
 import '../../shared/widgets/common.dart';
@@ -60,11 +61,12 @@ class _ExternalLoansScreenState extends State<ExternalLoansScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final connection = context.watch<ConnectionProvider>();
     final loans = context.watch<ExternalLoansProvider>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('External Loans')),
+      appBar: AppBar(title: Text(l10n.meetingHubExternalLoans)),
       body: !connection.isConnected
           ? _NeedsConnection()
           : RefreshIndicator(
@@ -75,11 +77,11 @@ class _ExternalLoansScreenState extends State<ExternalLoansScreen> {
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
                 children: [
-                  Text('Credit ventures',
+                  Text(l10n.externalLoansCreditVentures,
                       style: Theme.of(context).textTheme.headlineSmall),
                   const SizedBox(height: 2),
                   Text(
-                    'Loan offers from lending partners — apply as a group.',
+                    l10n.storeLoanOffersFromLendingPartners,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   const SizedBox(height: 14),
@@ -91,17 +93,16 @@ class _ExternalLoansScreenState extends State<ExternalLoansScreen> {
                   if (loans.error != null && loans.products.isEmpty)
                     EmptyState(
                       icon: Icons.account_balance_outlined,
-                      title: 'Could not load loan offers',
+                      title: l10n.externalLoansCouldNotLoadLoanOffers,
                       message: loans.error!,
                     ),
                   if (!loans.loading &&
                       loans.error == null &&
                       loans.products.isEmpty)
-                    const EmptyState(
+                    EmptyState(
                       icon: Icons.account_balance_outlined,
-                      title: 'No loan offers right now',
-                      message: 'Check back later — partners add new loan '
-                          'offers from time to time.',
+                      title: l10n.externalLoansNoLoanOffersRightNow,
+                      message: l10n.externalLoansCheckBackLaterPartnersAddNew,
                     ),
                   for (final product in loans.products)
                     _LoanProductCard(product: product),
@@ -287,6 +288,7 @@ class _ApplicationStatusPill extends StatelessWidget {
 class _NeedsConnection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -296,12 +298,11 @@ class _NeedsConnection extends StatelessWidget {
             Icon(Icons.account_balance_outlined,
                 size: 44, color: AppColors.textSecondary),
             const SizedBox(height: 14),
-            Text('Connect to see loan offers',
+            Text(l10n.externalLoansConnectToSeeLoanOffers,
                 style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 6),
             Text(
-              'External loans load from the Intelli-Cash backend. Connect or '
-              'sign in first.',
+              l10n.externalLoansExternalLoansLoadFromTheIntelli,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodySmall,
             ),
@@ -311,7 +312,7 @@ class _NeedsConnection extends StatelessWidget {
                 MaterialPageRoute(
                     builder: (_) => const ServerSettingsScreen()),
               ),
-              child: const Text('Open Cloud Account'),
+              child: Text(l10n.storeOpenCloudAccount),
             ),
           ],
         ),

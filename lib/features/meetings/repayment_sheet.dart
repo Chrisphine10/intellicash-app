@@ -5,6 +5,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/domain_exception.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/loan.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/app_state.dart';
 import '../../providers/loan_provider.dart';
 import '../../providers/meeting_provider.dart';
@@ -43,6 +44,7 @@ class _RepaymentSheetState extends State<RepaymentSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final outstandingLoans = context
         .watch<LoanProvider>()
         .loans
@@ -61,14 +63,14 @@ class _RepaymentSheetState extends State<RepaymentSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Record Repayment',
+            Text(l10n.repaymentRecordRepayment,
                 style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 16),
             if (outstandingLoans.isEmpty)
               Padding(
                 padding: const EdgeInsets.only(bottom: 16),
                 child: Text(
-                  'No outstanding loans — nothing to repay. 🎉',
+                  l10n.repaymentNoOutstandingLoansNothingTo,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               )
@@ -76,7 +78,7 @@ class _RepaymentSheetState extends State<RepaymentSheet> {
               DropdownButtonFormField<Loan>(
                 initialValue: _loan,
                 isExpanded: true,
-                decoration: const InputDecoration(labelText: 'Select Loan'),
+                decoration: InputDecoration(labelText: l10n.repaymentSelectLoan),
                 dropdownColor: AppColors.surfaceRaised,
                 validator: (v) => v == null ? 'Pick a loan' : null,
                 items: [
@@ -119,7 +121,7 @@ class _RepaymentSheetState extends State<RepaymentSheet> {
                 controller: _amountCtrl,
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(labelText: 'Amount (KSh)'),
+                decoration: InputDecoration(labelText: l10n.welfareAmountKsh),
                 validator: (v) {
                   final amount = double.tryParse(v ?? '') ?? 0;
                   if (amount <= 0) return 'Enter an amount above zero';
@@ -134,7 +136,7 @@ class _RepaymentSheetState extends State<RepaymentSheet> {
               FilledButton.icon(
                 onPressed: _saving ? null : _record,
                 icon: const Icon(Icons.check, size: 18),
-                label: const Text('Record Repayment'),
+                label: Text(l10n.repaymentRecordRepayment),
               ),
             ],
           ],

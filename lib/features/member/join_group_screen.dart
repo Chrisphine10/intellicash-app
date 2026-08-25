@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/network/api_exception.dart';
 import '../../core/theme/app_colors.dart';
 import '../../data/models/remote/membership.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/connection_provider.dart';
 
 /// Where a member asks a group to add them, using the code on the group's
@@ -60,9 +61,10 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final sentTo = _sentTo;
     return Scaffold(
-      appBar: AppBar(title: const Text('Join a group')),
+      appBar: AppBar(title: Text(l10n.memberPassbookJoinAGroup)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
         children: [
@@ -79,9 +81,9 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
                         Icon(Icons.check_circle_outline,
                             size: 20, color: AppColors.primary),
                         const SizedBox(width: 8),
-                        const Expanded(
+                        Expanded(
                           child: Text(
-                            'Request sent',
+                            l10n.joinGroupRequestSent,
                             style: TextStyle(
                                 fontSize: 15, fontWeight: FontWeight.w700),
                           ),
@@ -102,18 +104,16 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
             const SizedBox(height: 16),
             FilledButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Done'),
+              child: Text(l10n.joinGroupDone),
             ),
           ] else ...[
-            const Text(
-              'Ask your group to add you',
+            Text(
+              l10n.joinGroupAskYourGroupToAdd,
               style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 8),
             Text(
-              'Your group has a code on its records — ask the secretary if '
-              'you do not know it. Sending a request does not open the '
-              'group\'s books to you; an official has to accept you first.',
+              l10n.joinGroupYourGroupHasACodeOn,
               style: TextStyle(
                   fontSize: 13.5, height: 1.4, color: AppColors.textSecondary),
             ),
@@ -122,8 +122,8 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
               controller: _codeController,
               autocorrect: false,
               textCapitalization: TextCapitalization.characters,
-              decoration: const InputDecoration(
-                labelText: 'Group code',
+              decoration: InputDecoration(
+                labelText: l10n.joinGroupGroupCode,
                 hintText: 'IWL-KBU-0001',
               ),
               onSubmitted: (_) => _submit(),
@@ -144,7 +144,7 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
                       width: 16,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Send request'),
+                  : Text(l10n.joinGroupSendRequest),
             ),
           ],
         ],
@@ -169,6 +169,7 @@ class GroupSwitcher extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     if (memberships.length < 2) return const SizedBox.shrink();
     final active = memberships.firstWhere(
       (m) => m.isActive,
@@ -216,7 +217,7 @@ class GroupSwitcher extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Viewing',
+                        l10n.joinGroupViewing,
                         style: TextStyle(
                             fontSize: 11, color: AppColors.textSecondary),
                       ),

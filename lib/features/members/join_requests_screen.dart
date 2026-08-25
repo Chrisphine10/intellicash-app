@@ -5,6 +5,7 @@ import '../../core/network/api_exception.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/remote/membership.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/connection_provider.dart';
 import '../../shared/widgets/common.dart';
 
@@ -53,6 +54,7 @@ class _JoinRequestsScreenState extends State<JoinRequestsScreen> {
   }
 
   Future<void> _approve(JoinRequest request) async {
+    final l10n = L10n.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -77,7 +79,7 @@ class _JoinRequestsScreenState extends State<JoinRequestsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             style: request.takesOverExistingRecords
@@ -102,6 +104,7 @@ class _JoinRequestsScreenState extends State<JoinRequestsScreen> {
   }
 
   Future<void> _decline(JoinRequest request) async {
+    final l10n = L10n.of(context);
     final reason = TextEditingController();
     final confirmed = await showDialog<bool>(
       context: context,
@@ -113,8 +116,7 @@ class _JoinRequestsScreenState extends State<JoinRequestsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'They will not be added to the group. You can say why if you '
-              'want to — it is not required.',
+              l10n.joinRequestsTheyWillNotBeAddedTo,
               style: const TextStyle(fontSize: 13.5),
             ),
             const SizedBox(height: 14),
@@ -122,8 +124,8 @@ class _JoinRequestsScreenState extends State<JoinRequestsScreen> {
               controller: reason,
               maxLines: 2,
               textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                hintText: 'Reason (optional)',
+              decoration: InputDecoration(
+                hintText: l10n.joinRequestsReasonOptional,
               ),
             ),
           ],
@@ -131,7 +133,7 @@ class _JoinRequestsScreenState extends State<JoinRequestsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
@@ -140,7 +142,7 @@ class _JoinRequestsScreenState extends State<JoinRequestsScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
             ),
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Decline'),
+            child: Text(l10n.joinRequestsDecline),
           ),
         ],
       ),
@@ -189,11 +191,11 @@ class _JoinRequestsScreenState extends State<JoinRequestsScreen> {
       // A 409 means three quite different things here, and telling an official
       // "someone else answered" when the real problem is a name clash would
       // send them looking in the wrong place.
+      final l10n = L10n.of(context);
       final message = switch (e.code) {
         'ALREADY_DECIDED' => 'Another official already answered this request.',
         // The list this screen is showing is out of date.
-        'CONFIRM_EXISTING_MEMBER' => 'This list is out of date. Pull down to '
-            'refresh, then check the answer again.',
+        'CONFIRM_EXISTING_MEMBER' => l10n.joinRequestsThisListIsOutOfDate,
         'MEMBER_ALREADY_LINKED' => e.message,
         _ => 'Could not send your answer. Try again.',
       };
@@ -217,12 +219,13 @@ class _JoinRequestsScreenState extends State<JoinRequestsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final connection = context.watch<ConnectionProvider>();
     final group = connection.selectedGroup;
     final pending = _requests.where((r) => r.isPending).length;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Join Requests')),
+      appBar: AppBar(title: Text(l10n.joinRequestsJoinRequests)),
       body: RefreshIndicator(
         onRefresh: _load,
         child: ListView(
@@ -242,7 +245,7 @@ class _JoinRequestsScreenState extends State<JoinRequestsScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('People asking to join',
+                          Text(l10n.joinRequestsPeopleAskingToJoin,
                               style: TextStyle(
                                   fontSize: 15, fontWeight: FontWeight.w700)),
                           Text(
@@ -273,13 +276,12 @@ class _JoinRequestsScreenState extends State<JoinRequestsScreen> {
                 ),
               )
             else if (_requests.isEmpty)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(top: 40),
                 child: EmptyState(
                   icon: Icons.how_to_reg_outlined,
-                  title: 'No one is waiting',
-                  message: 'When someone asks to join your group, their '
-                      'request will show up here for you to answer.',
+                  title: l10n.joinRequestsNoOneIsWaiting,
+                  message: l10n.joinRequestsWhenSomeoneAsksToJoinYour,
                 ),
               )
             else ...[
@@ -331,6 +333,7 @@ class _RequestCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: Column(
@@ -363,7 +366,7 @@ class _RequestCard extends StatelessWidget {
                         minimumSize: const Size(0, 38),
                       ),
                       onPressed: busy ? null : onDecline,
-                      child: const Text('Decline'),
+                      child: Text(l10n.joinRequestsDecline),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -381,7 +384,7 @@ class _RequestCard extends StatelessWidget {
                                 color: AppColors.onPrimary,
                               ),
                             )
-                          : const Text('Approve'),
+                          : Text(l10n.joinRequestsApprove),
                     ),
                   ),
                 ],

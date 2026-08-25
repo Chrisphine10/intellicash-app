@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/remote/poll_models.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/connection_provider.dart';
 import '../../providers/poll_provider.dart';
 import '../../shared/widgets/common.dart';
@@ -50,16 +51,17 @@ class _PollsScreenState extends State<PollsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final connected = context.watch<ConnectionProvider>().isConnected;
     final provider = context.watch<PollProvider>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Voting')),
+      appBar: AppBar(title: Text(l10n.meetingHubVoting)),
       floatingActionButton: connected
           ? FloatingActionButton.extended(
               onPressed: _newVote,
               icon: const Icon(Icons.how_to_vote_outlined),
-              label: const Text('New Vote'),
+              label: Text(l10n.pollsNewVote),
             )
           : null,
       body: !connected
@@ -70,12 +72,11 @@ class _PollsScreenState extends State<PollsScreen> {
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.fromLTRB(20, 4, 20, 90),
                 children: [
-                  Text('Group votes',
+                  Text(l10n.pollsGroupVotes,
                       style: Theme.of(context).textTheme.headlineSmall),
                   const SizedBox(height: 2),
                   Text(
-                    'Elect your leaders and decide together. One member, '
-                    'one vote.',
+                    l10n.pollsElectYourLeadersAndDecideTogether,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   const SizedBox(height: 14),
@@ -87,17 +88,16 @@ class _PollsScreenState extends State<PollsScreen> {
                   if (provider.error != null && provider.polls.isEmpty)
                     EmptyState(
                       icon: Icons.how_to_vote_outlined,
-                      title: 'Could not load the votes',
+                      title: l10n.pollsCouldNotLoadTheVotes,
                       message: provider.error!,
                     ),
                   if (!provider.loading &&
                       provider.error == null &&
                       provider.polls.isEmpty)
-                    const EmptyState(
+                    EmptyState(
                       icon: Icons.how_to_vote_outlined,
-                      title: 'No votes yet',
-                      message: 'Tap New Vote to elect a leader or put a '
-                          'question to the group.',
+                      title: l10n.pollsNoVotesYet,
+                      message: l10n.pollsTapNewVoteToElectA,
                     ),
                   for (final poll in provider.polls) _PollCard(poll: poll),
                 ],
@@ -114,6 +114,7 @@ class _PollCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
       child: InkWell(
@@ -162,7 +163,7 @@ class _PollCard extends StatelessWidget {
                     Icon(Icons.visibility_off_outlined,
                         size: 13, color: AppColors.textSecondary),
                     const SizedBox(width: 3),
-                    Text('Secret',
+                    Text(l10n.pollsSecret,
                         style: TextStyle(
                             fontSize: 11.5, color: AppColors.textSecondary)),
                   ],
@@ -175,7 +176,7 @@ class _PollCard extends StatelessWidget {
                     Icon(Icons.check_circle_outline,
                         size: 13, color: AppColors.primary),
                     const SizedBox(width: 4),
-                    Text('You have voted',
+                    Text(l10n.pollsYouHaveVoted,
                         style: TextStyle(
                             fontSize: 11.5,
                             fontWeight: FontWeight.w600,
@@ -281,6 +282,7 @@ class PollStatusPill extends StatelessWidget {
 class _NeedsConnection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -290,12 +292,11 @@ class _NeedsConnection extends StatelessWidget {
             Icon(Icons.how_to_vote_outlined,
                 size: 44, color: AppColors.textSecondary),
             const SizedBox(height: 14),
-            Text('Connect to vote',
+            Text(l10n.pollsConnectToVote,
                 style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 6),
             Text(
-              'Voting is kept on the Intelli-Cash backend so every member '
-              'sees the same tally. Connect or sign in first.',
+              l10n.pollsVotingIsKeptOnTheIntelli,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodySmall,
             ),
@@ -305,7 +306,7 @@ class _NeedsConnection extends StatelessWidget {
                 MaterialPageRoute(
                     builder: (_) => const ServerSettingsScreen()),
               ),
-              child: const Text('Open Cloud Account'),
+              child: Text(l10n.storeOpenCloudAccount),
             ),
           ],
         ),

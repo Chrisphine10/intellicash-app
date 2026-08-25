@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../shared/widgets/common.dart';
 
 /// What the signed-in person needs to know about their own account, in one
@@ -79,10 +80,11 @@ class AccountScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Account')),
+      appBar: AppBar(title: Text(l10n.accountAccount)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
         children: [
@@ -102,9 +104,9 @@ class AccountScreen extends StatelessWidget {
                      * row here overflowed a 320px screen by 129 pixels.
                      */
                     if (summary.phone?.isNotEmpty ?? false)
-                      _ContactRow(label: 'Phone', value: summary.phone!),
+                      _ContactRow(label: l10n.accountPhone, value: summary.phone!),
                     if (summary.email?.isNotEmpty ?? false)
-                      _ContactRow(label: 'Email', value: summary.email!),
+                      _ContactRow(label: l10n.productDetailEmail, value: summary.email!),
                   ],
                 ),
               ),
@@ -115,11 +117,11 @@ class AccountScreen extends StatelessWidget {
           // screen feel unfinished.
           if (_hasPreferences) ...[
             const SectionLabel('Preferences'),
-            Card(child: Column(children: _preferenceRows(theme))),
+            Card(child: Column(children: _preferenceRows(theme, l10n))),
           ],
           if (_hasPhoneInfo) ...[
             const SectionLabel('This phone'),
-            Card(child: Column(children: _phoneRows(theme))),
+            Card(child: Column(children: _phoneRows(theme, l10n))),
           ],
           const SizedBox(height: 20),
           /*
@@ -131,7 +133,7 @@ class AccountScreen extends StatelessWidget {
           OutlinedButton.icon(
             onPressed: onSignOut,
             icon: const Icon(Icons.logout, size: 18),
-            label: const Text('Sign out'),
+            label: Text(l10n.signOut),
             style: OutlinedButton.styleFrom(
               foregroundColor: theme.colorScheme.error,
               side: BorderSide(
@@ -192,12 +194,12 @@ class AccountScreen extends StatelessWidget {
     );
   }
 
-  List<Widget> _preferenceRows(ThemeData theme) {
+  List<Widget> _preferenceRows(ThemeData theme, L10n l10n) {
     final rows = <Widget>[];
     if (onLanguage != null) {
       rows.add(ListTile(
         leading: const Icon(Icons.translate, size: 20),
-        title: const Text('Language', style: TextStyle(fontSize: 14)),
+        title: Text(l10n.sectionLanguage, style: TextStyle(fontSize: 14)),
         subtitle: summary.languageLabel == null
             ? null
             : Text(summary.languageLabel!, style: theme.textTheme.bodySmall),
@@ -211,7 +213,7 @@ class AccountScreen extends StatelessWidget {
     if (onTheme != null) {
       rows.add(ListTile(
         leading: const Icon(Icons.brightness_6_outlined, size: 20),
-        title: const Text('Appearance', style: TextStyle(fontSize: 14)),
+        title: Text(l10n.sectionAppearance, style: TextStyle(fontSize: 14)),
         subtitle: summary.themeLabel == null
             ? null
             : Text(summary.themeLabel!, style: theme.textTheme.bodySmall),
@@ -222,12 +224,12 @@ class AccountScreen extends StatelessWidget {
     return rows;
   }
 
-  List<Widget> _phoneRows(ThemeData theme) {
+  List<Widget> _phoneRows(ThemeData theme, L10n l10n) {
     final rows = <Widget>[];
     if (summary.serverLabel != null) {
       rows.add(ListTile(
         leading: const Icon(Icons.cloud_outlined, size: 20),
-        title: const Text('Server', style: TextStyle(fontSize: 14)),
+        title: Text(l10n.accountServer, style: TextStyle(fontSize: 14)),
         subtitle: Text(summary.serverLabel!, style: theme.textTheme.bodySmall),
         trailing:
             onServer == null ? null : const Icon(Icons.chevron_right, size: 20),
@@ -240,7 +242,7 @@ class AccountScreen extends StatelessWidget {
     if (summary.appVersion != null) {
       rows.add(ListTile(
         leading: const Icon(Icons.info_outline, size: 20),
-        title: const Text('App version', style: TextStyle(fontSize: 14)),
+        title: Text(l10n.accountAppVersion, style: TextStyle(fontSize: 14)),
         subtitle: Text(summary.appVersion!, style: theme.textTheme.bodySmall),
       ));
     }

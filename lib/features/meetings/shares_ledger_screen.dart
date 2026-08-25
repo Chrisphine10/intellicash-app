@@ -5,6 +5,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/meeting.dart';
 import '../../data/models/transactions.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/meeting_provider.dart';
 import '../../shared/widgets/common.dart';
 
@@ -17,19 +18,21 @@ class SharesLedgerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final provider = context.watch<MeetingProvider>();
     final totals = provider.totals;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Meetings')),
+      appBar: AppBar(title: Text(l10n.navMeetings)),
       body: FutureBuilder<List<LedgerEntry>>(
         future: context.read<MeetingProvider>().ledger(),
         builder: (context, snapshot) {
+      final l10n = L10n.of(context);
           final entries = snapshot.data ?? const <LedgerEntry>[];
           return ListView(
             padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
             children: [
-              Text('Share Records',
+              Text(l10n.meetingHubShareRecords,
                   style: Theme.of(context).textTheme.headlineSmall),
               const SizedBox(height: 2),
               Text(
@@ -71,11 +74,10 @@ class SharesLedgerScreen extends StatelessWidget {
               const SizedBox(height: 12),
               if (snapshot.connectionState == ConnectionState.done &&
                   entries.isEmpty)
-                const EmptyState(
+                EmptyState(
                   icon: Icons.receipt_long_outlined,
-                  title: 'No purchases yet',
-                  message: 'Share purchases land here the moment '
-                      'they are recorded.',
+                  title: l10n.sharesLedgerNoPurchasesYet,
+                  message: l10n.sharesLedgerSharePurchasesLandHereTheMoment,
                 ),
               for (final entry in entries)
                 Card(

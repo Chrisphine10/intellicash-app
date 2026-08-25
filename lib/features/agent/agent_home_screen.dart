@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../data/models/remote/credit_rating.dart';
 import '../../data/models/remote/remote_models.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/connection_provider.dart';
 import '../../shared/widgets/common.dart';
 import '../account/account_route.dart';
@@ -46,13 +47,14 @@ class _AgentHomeScreenState extends State<AgentHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final connection = context.watch<ConnectionProvider>();
     final user = connection.signedInUser;
     final groups = connection.groups;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Groups'),
+        title: Text(l10n.agentHomeMyGroups),
         /*
          * Two icons, not four. Language and sign out moved to Account, where
          * they are labelled. Three unlabelled icons in a row put a destructive
@@ -61,7 +63,7 @@ class _AgentHomeScreenState extends State<AgentHomeScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.description_outlined, size: 20),
-            tooltip: 'Caseload report',
+            tooltip: l10n.agentHomeCaseloadReport,
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
@@ -74,7 +76,7 @@ class _AgentHomeScreenState extends State<AgentHomeScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.account_circle_outlined, size: 22),
-            tooltip: 'Account',
+            tooltip: l10n.accountAccount,
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const AccountRoute()),
             ),
@@ -127,12 +129,11 @@ class _AgentHomeScreenState extends State<AgentHomeScreen> {
             _CaseloadSummary(ratings: _ratings, total: groups.length),
             const SectionLabel('Caseload'),
             if (groups.isEmpty)
-              const EmptyState(
+              EmptyState(
                 icon: Icons.groups_outlined,
-                title: 'No groups assigned',
+                title: l10n.agentHomeNoGroupsAssigned,
                 message:
-                    'When groups are assigned to you, they appear here with '
-                    'their credit rating.',
+                    l10n.agentHomeWhenGroupsAreAssignedToYou,
               ),
             for (final g in groups)
               _GroupCard(
@@ -164,6 +165,7 @@ class _CaseloadSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final rated = ratings.values.whereType<RemoteCreditRating>().toList();
     final needAttention =
         rated.where((r) => r.band == 'C' || r.band == 'D' || !r.rated).length;
@@ -173,7 +175,7 @@ class _CaseloadSummary extends StatelessWidget {
         children: [
           Expanded(
             child: _MiniStat(
-              label: 'Groups',
+              label: l10n.agentHomeGroups,
               value: '$total',
               color: AppColors.primary,
             ),
@@ -181,7 +183,7 @@ class _CaseloadSummary extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: _MiniStat(
-              label: 'Need support',
+              label: l10n.agentHomeNeedSupport,
               value: '$needAttention',
               color: needAttention > 0 ? AppColors.pending : AppColors.primary,
             ),

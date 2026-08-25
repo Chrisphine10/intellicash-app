@@ -7,10 +7,11 @@ import '../../core/utils/formatters.dart';
 import '../../data/models/group.dart';
 import '../../data/models/loan.dart';
 import '../../data/models/member.dart';
+import '../../data/models/remote/member_passbook.dart';
 import '../../data/repositories/loan_repository.dart';
 import '../../data/repositories/member_repository.dart';
-import '../../data/models/remote/member_passbook.dart';
 import '../../data/services/member_matching.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/app_state.dart';
 import '../../providers/connection_provider.dart';
 import '../../shared/widgets/common.dart';
@@ -105,6 +106,7 @@ class _MemberReportLocalScreenState extends State<MemberReportLocalScreen> {
   bool get _fromServer => _passbook != null;
 
   String _buildReportText(Group group, MemberFinancials f) {
+    final l10n = L10n.of(context);
     final lines = <String>[
       'MEMBER REPORT — ${f.member.name}',
       '${group.name} · ${Formatters.fullDate(DateTime.now())}',
@@ -139,8 +141,7 @@ class _MemberReportLocalScreenState extends State<MemberReportLocalScreen> {
       ..add('')
       ..add(_fromServer
           ? 'Figures confirmed by the IntelliCash server.'
-          : 'Figures from this phone only - records saved elsewhere may not be '
-              'included yet.')
+          : l10n.memberReportLocalFiguresFromThisPhoneOnlyRecords)
       ..add('Shared from IntelliCash');
     return lines.join('\n');
   }
@@ -176,18 +177,19 @@ class _MemberReportLocalScreenState extends State<MemberReportLocalScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final group = context.watch<AppState>().group;
     final f = _financials;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Member Report')),
+      appBar: AppBar(title: Text(l10n.memberReportLocalMemberReport)),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : (group == null || f == null)
-              ? const EmptyState(
+              ? EmptyState(
                   icon: Icons.person_outline,
-                  title: 'Member not found',
-                  message: 'This member is no longer in the group.',
+                  title: l10n.memberReportLocalMemberNotFound,
+                  message: l10n.memberReportLocalThisMemberIsNoLonger,
                 )
               : ListView(
                   padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
@@ -238,10 +240,10 @@ class _MemberReportLocalScreenState extends State<MemberReportLocalScreen> {
                     ),
                     SectionLabel('Loans (${_loans.length})'),
                     if (_loans.isEmpty)
-                      const EmptyState(
+                      EmptyState(
                         icon: Icons.payments_outlined,
-                        title: 'No loans taken',
-                        message: 'Loans this member takes will appear here.',
+                        title: l10n.memberDetailNoLoansTaken,
+                        message: l10n.memberReportLocalLoansThisMemberTakesWill,
                       )
                     else
                       Card(
@@ -313,7 +315,7 @@ class _MemberReportLocalScreenState extends State<MemberReportLocalScreen> {
                       child: OutlinedButton.icon(
                         onPressed: () => _shareText(group, f),
                         icon: const Icon(Icons.share, size: 18),
-                        label: const Text('Share Text'),
+                        label: Text(l10n.shareTextButton),
                       ),
                     ),
                     const SizedBox(width: 10),

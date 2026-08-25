@@ -13,6 +13,7 @@ import 'package:intellicash_mobile/data/services/remote_api.dart';
 import 'package:intellicash_mobile/features/agent/agent_group_detail_screen.dart';
 import 'package:intellicash_mobile/features/reports/member_report_screen.dart';
 import 'package:intellicash_mobile/providers/connection_provider.dart';
+import '../support/localized_app.dart';
 
 /// Renders the two screens the earlier pass could not reach: the agent's
 /// financial panel and the member report with its download button.
@@ -150,7 +151,7 @@ Future<void> _pump(
   await tester.pumpWidget(
     ChangeNotifierProvider<ConnectionProvider>.value(
       value: connection,
-      child: MaterialApp(
+      child: localizedApp(
         theme: ThemeData(brightness: brightness),
         home: screen,
       ),

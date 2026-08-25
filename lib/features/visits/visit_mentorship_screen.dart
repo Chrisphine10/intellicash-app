@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/utils/action_item_state.dart';
 import '../../data/repositories/mentorship_repository.dart';
 import '../../data/services/mentorship_catalogue.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Recording the coaching given, then handing the phone over to be scored.
 ///
@@ -105,9 +106,10 @@ class _VisitMentorshipScreenState extends State<VisitMentorshipScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     if (_loading) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Mentorship')),
+        appBar: AppBar(title: Text(l10n.visitMentorshipMentorship)),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -116,13 +118,13 @@ class _VisitMentorshipScreenState extends State<VisitMentorshipScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Mentorship')),
+      appBar: AppBar(title: Text(l10n.visitMentorshipMentorship)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
         children: [
-          Text('What did you coach on?', style: theme.textTheme.titleMedium),
+          Text(l10n.visitMentorshipWhatDidYouCoachOn, style: theme.textTheme.titleMedium),
           Text(
-            'Tap a topic to record it, then add what you advised.',
+            l10n.visitMentorshipTapATopicToRecord,
             style: theme.textTheme.bodySmall,
           ),
           const SizedBox(height: 12),
@@ -151,7 +153,7 @@ class _VisitMentorshipScreenState extends State<VisitMentorshipScreen> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'Now hand the phone to the group',
+                          l10n.visitMentorshipNowHandThePhoneTo,
                           style: theme.textTheme.titleSmall?.copyWith(
                             color: theme.colorScheme.onSecondaryContainer,
                           ),
@@ -185,8 +187,7 @@ class _VisitMentorshipScreenState extends State<VisitMentorshipScreen> {
           const SizedBox(height: 16),
           Text(
             _scores.isEmpty
-                ? 'Not scored yet. A visit can be recorded without it, but the '
-                    'group\'s view is the only useful measure of the coaching.'
+                ? l10n.visitMentorshipNotScoredYetAVisitCan
                 : 'Scored on ${_scores.length} of ${lists.dimensions.length}.',
             style: theme.textTheme.bodySmall,
           ),
@@ -199,7 +200,7 @@ class _VisitMentorshipScreenState extends State<VisitMentorshipScreen> {
             // Nothing is submitted here — it is already on disk. The visit's own
             // Finish step is what queues the whole document.
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Done'),
+            child: Text(l10n.joinGroupDone),
           ),
         ),
       ),
@@ -236,6 +237,7 @@ class _TopicTileState extends State<_TopicTile> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final selected = widget.session != null;
 
     return Card(
@@ -260,8 +262,8 @@ class _TopicTileState extends State<_TopicTile> {
                 controller: _notes,
                 maxLines: 3,
                 maxLength: 4000,
-                decoration: const InputDecoration(
-                  labelText: 'What you advised',
+                decoration: InputDecoration(
+                  labelText: l10n.visitMentorshipWhatYouAdvised,
                   alignLabelWithHint: true,
                 ),
                 // Saved when the field loses focus rather than on every

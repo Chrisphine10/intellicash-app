@@ -193,7 +193,7 @@ class WelcomeScreen extends StatelessWidget {
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                'Use the web console for this account',
+                                l10n.welcomeUseTheWebConsoleFor,
                                 style: Theme.of(context).textTheme.titleSmall,
                               ),
                             ),
@@ -201,10 +201,7 @@ class WelcomeScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'The phone app is for groups, members and field '
-                          'agents. Your account does not need to create a '
-                          'group here — sign in on the web console instead, '
-                          'or sign out to use a different account.',
+                          l10n.welcomeThePhoneAppIsForGroups,
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ],
@@ -350,6 +347,7 @@ class _RestoreGroupCardState extends State<_RestoreGroupCard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     return Card(
       color: AppColors.primaryTint,
       child: Padding(
@@ -364,7 +362,7 @@ class _RestoreGroupCardState extends State<_RestoreGroupCard> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Load your group onto this phone',
+                    l10n.welcomeLoadYourGroupOntoThis,
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                 ),
@@ -372,9 +370,7 @@ class _RestoreGroupCardState extends State<_RestoreGroupCard> {
             ),
             const SizedBox(height: 6),
             Text(
-              'Your group is already on the server. Load it here instead of '
-              'creating a new one, so your savings history stays in one '
-              'record.',
+              l10n.welcomeYourGroupIsAlreadyOnThe,
               style: Theme.of(context).textTheme.bodySmall,
             ),
             if (_error != null) ...[

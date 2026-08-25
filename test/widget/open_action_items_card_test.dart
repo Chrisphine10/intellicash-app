@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intellicash_mobile/data/repositories/mentorship_repository.dart';
 import 'package:intellicash_mobile/data/services/mentorship_sync_service.dart';
 import 'package:intellicash_mobile/features/visits/open_action_items_card.dart';
+import '../support/localized_app.dart';
 
 /// What the agent sees before they start a visit.
 ///
@@ -23,8 +24,7 @@ void main() {
 
   Future<void> pump(WidgetTester tester) async {
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
+      localizedApp(home: Scaffold(
           body: OpenActionItemsCard(
             remoteGroupId: 'remote-g1',
             visitId: 'v1',

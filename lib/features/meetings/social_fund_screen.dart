@@ -5,6 +5,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/domain_exception.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/meeting.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/app_state.dart';
 import '../../providers/meeting_provider.dart';
 import '../../providers/member_provider.dart';
@@ -83,6 +84,7 @@ class _SocialFundScreenState extends State<SocialFundScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final appState = context.watch<AppState>();
     final group = appState.group;
     final members = context.watch<MemberProvider>().members;
@@ -96,7 +98,7 @@ class _SocialFundScreenState extends State<SocialFundScreen> {
     final collected = paidCount * amount;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Social Fund')),
+      appBar: AppBar(title: Text(l10n.meetingHubSocialFund)),
       body: !_loaded
           ? const Center(child: CircularProgressIndicator())
           : ListView(
@@ -125,16 +127,16 @@ class _SocialFundScreenState extends State<SocialFundScreen> {
                 if (!isOpen) ...[
                   const SizedBox(height: 10),
                   Text(
-                    'This meeting is closed — the record is read-only.',
+                    l10n.socialFundThisMeetingIsClosedThe,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],
                 const SectionLabel('Members'),
                 if (members.isEmpty)
-                  const EmptyState(
+                  EmptyState(
                     icon: Icons.group_off_outlined,
-                    title: 'No members',
-                    message: 'Add members to the group first.',
+                    title: l10n.socialFundNoMembers,
+                    message: l10n.socialFundAddMembersToTheGroup,
                   ),
                 for (final f in members)
                   Card(

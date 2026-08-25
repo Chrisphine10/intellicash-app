@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:intellicash_mobile/data/models/remote/membership.dart';
 import 'package:intellicash_mobile/features/member/join_group_screen.dart';
+import '../support/localized_app.dart';
 
 Membership _membership(String name, {bool active = false}) => Membership(
       membershipId: 'link-$name',
@@ -16,8 +17,7 @@ Membership _membership(String name, {bool active = false}) => Membership(
 Future<void> _pump(WidgetTester tester, List<Membership> memberships,
     {ValueChanged<Membership>? onSwitch}) {
   return tester.pumpWidget(
-    MaterialApp(
-      home: Scaffold(
+    localizedApp(home: Scaffold(
         body: GroupSwitcher(
           memberships: memberships,
           onSwitch: onSwitch ?? (_) {},

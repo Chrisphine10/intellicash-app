@@ -16,6 +16,7 @@ import 'business_profile_screen.dart';
 import 'open_action_items_card.dart';
 import 'visit_assessment_screen.dart';
 import 'visit_mentorship_screen.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Recording a field visit.
 ///
@@ -275,6 +276,7 @@ class _RecordVisitScreenState extends State<RecordVisitScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     if (_loading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
@@ -338,8 +340,7 @@ class _RecordVisitScreenState extends State<RecordVisitScreen> {
                   // Said plainly, because an agent who thinks a missing fix
                   // will lose their work will start faking one.
                   Text(
-                    'A visit can still be recorded without a location. Whether '
-                    'it matches this group is decided by the office, not here.',
+                    l10n.recordVisitAVisitCanStillBeRecorded,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   const SizedBox(height: 10),
@@ -363,7 +364,7 @@ class _RecordVisitScreenState extends State<RecordVisitScreen> {
                         Expanded(
                           child: OutlinedButton(
                             onPressed: () => const LocationService().openSettings(),
-                            child: const Text('Settings'),
+                            child: Text(l10n.recordVisitSettings),
                           ),
                         ),
                       ],
@@ -378,8 +379,8 @@ class _RecordVisitScreenState extends State<RecordVisitScreen> {
             TextField(
               controller: _locationNoteController,
               maxLength: 200,
-              decoration: const InputDecoration(
-                labelText: 'Why not? (optional)',
+              decoration: InputDecoration(
+                labelText: l10n.recordVisitWhyNotOptional,
                 hintText: 'e.g. the group met at the chief\'s camp',
               ),
             ),
@@ -396,7 +397,7 @@ class _RecordVisitScreenState extends State<RecordVisitScreen> {
           Card(
             child: ListTile(
               leading: const Icon(Icons.fact_check_outlined),
-              title: const Text('Score the group'),
+              title: Text(l10n.recordVisitScoreTheGroup),
               subtitle: Text(
                 _assessmentSummary ?? 'Work through the scorecard with the officials.',
               ),
@@ -410,8 +411,7 @@ class _RecordVisitScreenState extends State<RecordVisitScreen> {
               leading: const Icon(Icons.school_outlined),
               title: const Text("Coaching and the group's rating"),
               subtitle: Text(
-                _mentorshipSummary ?? 'Record what you coached on, then let the '
-                    'group score it.',
+                _mentorshipSummary ?? l10n.recordVisitRecordWhatYouCoachedOnThen,
               ),
               trailing: const Icon(Icons.chevron_right),
               onTap: _visit == null ? null : _openMentorship,
@@ -421,9 +421,9 @@ class _RecordVisitScreenState extends State<RecordVisitScreen> {
           Card(
             child: ListTile(
               leading: const Icon(Icons.storefront_outlined),
-              title: const Text('The group’s enterprise'),
-              subtitle: const Text(
-                'What they run together, and how it is doing.',
+              title: Text(l10n.recordVisitTheGroupSEnterprise),
+              subtitle: Text(
+                l10n.recordVisitWhatTheyRunTogetherAnd,
               ),
               trailing: const Icon(Icons.chevron_right),
               onTap: _visit == null ? null : _openBusinessProfile,
@@ -434,8 +434,8 @@ class _RecordVisitScreenState extends State<RecordVisitScreen> {
             controller: _notesController,
             maxLines: 6,
             maxLength: 2000,
-            decoration: const InputDecoration(
-              labelText: 'What you found',
+            decoration: InputDecoration(
+              labelText: l10n.recordVisitWhatYouFound,
               alignLabelWithHint: true,
             ),
           ),
@@ -447,7 +447,7 @@ class _RecordVisitScreenState extends State<RecordVisitScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Saved on this phone first, then sent when you have signal.',
+            l10n.recordVisitSavedOnThisPhoneFirst,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodySmall,
           ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intellicash_mobile/features/account/account_screen.dart';
+import '../support/localized_app.dart';
 
 /// The account screen is a pure widget over a value object, so it can be
 /// rendered and inspected without a device — which is the whole reason it was
@@ -21,8 +22,7 @@ void main() {
     themeLabel: 'Follow the phone',
   );
 
-  Widget host(AccountSummary summary, {VoidCallback? onSignOut}) => MaterialApp(
-        home: AccountScreen(
+  Widget host(AccountSummary summary, {VoidCallback? onSignOut}) => localizedApp(home: AccountScreen(
           summary: summary,
           onSignOut: onSignOut ?? () {},
           onLanguage: () {},
@@ -70,8 +70,7 @@ void main() {
     // A member account with no email, no server override and no version should
     // not render empty cards where those rows would have been.
     await tester.pumpWidget(
-      MaterialApp(
-        home: AccountScreen(
+      localizedApp(home: AccountScreen(
           summary: const AccountSummary(name: 'Mary Njeri', roleLabel: 'Member'),
           onSignOut: () {},
         ),
@@ -87,8 +86,7 @@ void main() {
 
   testWidgets('falls back to a dash rather than an empty avatar', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
-        home: AccountScreen(
+      localizedApp(home: AccountScreen(
           summary: const AccountSummary(name: '   ', roleLabel: 'Member'),
           onSignOut: () {},
         ),

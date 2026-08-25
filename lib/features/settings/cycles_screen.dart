@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../data/services/remote_governance_api.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/connection_provider.dart';
 import '../../shared/widgets/common.dart';
 
@@ -62,6 +63,7 @@ class _CyclesScreenState extends State<CyclesScreen> {
   }
 
   Future<void> _close() async {
+    final l10n = L10n.of(context);
     // Captured BEFORE the confirm dialog: the dialog is itself an async gap,
     // and reading context after it is how a popped screen throws on return.
     final api = context.read<RemoteGovernanceApi>();
@@ -82,11 +84,11 @@ class _CyclesScreenState extends State<CyclesScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Close cycle'),
+            child: Text(l10n.cyclesCloseCycle),
           ),
         ],
       ),
@@ -109,13 +111,15 @@ class _CyclesScreenState extends State<CyclesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Saving Cycles')),
+      appBar: AppBar(title: Text(l10n.cyclesSavingCycles)),
       body: RefreshIndicator(onRefresh: _load, child: _body()),
     );
   }
 
   Widget _body() {
+    final l10n = L10n.of(context);
     if (_loading) return const Center(child: CircularProgressIndicator());
     if (_error != null) {
       return ListView(
@@ -135,12 +139,11 @@ class _CyclesScreenState extends State<CyclesScreen> {
               style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: 6),
           Text(
-            'Pull down to try again. If it keeps happening, check the group is '
-            'still selected under Cloud Account.',
+            l10n.cyclesPullDownToTryAgainIf,
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 14),
-          FilledButton(onPressed: _load, child: const Text('Try again')),
+          FilledButton(onPressed: _load, child: Text(l10n.welfareTryAgain)),
         ],
       );
     }
@@ -155,8 +158,7 @@ class _CyclesScreenState extends State<CyclesScreen> {
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Text(
-              'Closing a cycle makes its records read-only. Nothing is deleted — '
-              'past meetings and money stay in history and reports.',
+              l10n.cyclesClosingACycleMakesItsRecords,
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),
@@ -166,12 +168,11 @@ class _CyclesScreenState extends State<CyclesScreen> {
           FilledButton.icon(
             onPressed: _busy ? null : _close,
             icon: const Icon(Icons.event_available_outlined, size: 18),
-            label: const Text('Close cycle and start the next'),
+            label: Text(l10n.cyclesCloseCycleAndStartThe),
           )
         else
           Text(
-            'You can see the cycles but not close one. Only the group account or '
-            'a platform admin can.',
+            l10n.cyclesYouCanSeeTheCyclesBut,
             style: Theme.of(context).textTheme.bodySmall,
           ),
         const SizedBox(height: 16),
@@ -181,6 +182,7 @@ class _CyclesScreenState extends State<CyclesScreen> {
   }
 
   Widget _cycleCard(RemoteCycle cycle) {
+    final l10n = L10n.of(context);
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
       child: Padding(
@@ -212,7 +214,7 @@ class _CyclesScreenState extends State<CyclesScreen> {
               Padding(
                 padding: const EdgeInsets.only(top: 4),
                 child: Text(
-                  'Read-only — still visible in reports',
+                  l10n.cyclesReadOnlyStillVisibleIn,
                   style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
                 ),
               ),

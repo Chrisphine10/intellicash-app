@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/network/api_exception.dart';
 import '../../core/theme/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/connection_provider.dart';
 import '../../providers/poll_provider.dart';
 import '../../shared/widgets/common.dart';
@@ -73,6 +74,7 @@ class _CreatePollSheetState extends State<CreatePollSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     // Candidates come from the connected group's members — the server needs
     // the backend's own member ids to record a candidacy.
     final members = context
@@ -95,25 +97,25 @@ class _CreatePollSheetState extends State<CreatePollSheet> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 16),
-              Text('Start a Vote',
+              Text(l10n.createPollStartAVote,
                   style: Theme.of(context).textTheme.headlineSmall),
               const SizedBox(height: 2),
               Text(
-                'Everyone present votes once. Nobody can vote twice.',
+                l10n.createPollEveryonePresentVotesOnceNobody,
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: 16),
               SegmentedButton<bool>(
-                segments: const [
+                segments: [
                   ButtonSegment(
                     value: true,
                     icon: Icon(Icons.emoji_events_outlined, size: 16),
-                    label: Text('Choose a leader'),
+                    label: Text(l10n.createPollChooseALeader),
                   ),
                   ButtonSegment(
                     value: false,
                     icon: Icon(Icons.gavel_outlined, size: 16),
-                    label: Text('Decide something'),
+                    label: Text(l10n.createPollDecideSomething),
                   ),
                 ],
                 selected: {_isElection},
@@ -124,8 +126,8 @@ class _CreatePollSheetState extends State<CreatePollSheet> {
               if (_isElection) ...[
                 DropdownButtonFormField<String>(
                   initialValue: _role,
-                  decoration: const InputDecoration(
-                      labelText: 'Which position?'),
+                  decoration: InputDecoration(
+                      labelText: l10n.createPollWhichPosition),
                   dropdownColor: AppColors.surfaceRaised,
                   items: [
                     for (final entry in kElectableRoles.entries)
@@ -144,8 +146,7 @@ class _CreatePollSheetState extends State<CreatePollSheet> {
                 const SectionLabel('Who is standing?'),
                 if (members.isEmpty)
                   Text(
-                    'No members loaded for this group yet. Connect and open '
-                    'the group first.',
+                    l10n.createPollNoMembersLoadedForThisGroup,
                     style: Theme.of(context).textTheme.bodySmall,
                   )
                 else
@@ -180,16 +181,16 @@ class _CreatePollSheetState extends State<CreatePollSheet> {
                   ),
                 const SizedBox(height: 4),
                 Text(
-                  'Tick at least two people.',
+                  l10n.createPollTickAtLeastTwoPeople,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ] else ...[
                 TextFormField(
                   controller: _titleCtrl,
                   textCapitalization: TextCapitalization.sentences,
-                  decoration: const InputDecoration(
-                    labelText: 'What is the question?',
-                    hintText: 'Should we buy a group water tank?',
+                  decoration: InputDecoration(
+                    labelText: l10n.createPollWhatIsTheQuestion,
+                    hintText: l10n.createPollShouldWeBuyAGroup,
                   ),
                   validator: (v) => (v == null || v.trim().length < 3)
                       ? 'Write the question'
@@ -214,7 +215,7 @@ class _CreatePollSheetState extends State<CreatePollSheet> {
                         ),
                         if (_answerCtrls.length > 2)
                           IconButton(
-                            tooltip: 'Remove',
+                            tooltip: l10n.groupSetupWizardRemove,
                             icon: Icon(Icons.close,
                                 size: 18, color: AppColors.textSecondary),
                             onPressed: () => setState(() {
@@ -232,7 +233,7 @@ class _CreatePollSheetState extends State<CreatePollSheet> {
                         : () => setState(
                             () => _answerCtrls.add(TextEditingController())),
                     icon: const Icon(Icons.add, size: 18),
-                    label: const Text('Add another answer'),
+                    label: Text(l10n.createPollAddAnotherAnswer),
                   ),
                 ),
               ],
@@ -241,12 +242,11 @@ class _CreatePollSheetState extends State<CreatePollSheet> {
                 dense: true,
                 contentPadding: EdgeInsets.zero,
                 value: _secretBallot,
-                title: const Text('Secret vote',
+                title: Text(l10n.createPollSecretVote,
                     style: TextStyle(
                         fontSize: 13.5, fontWeight: FontWeight.w600)),
                 subtitle: Text(
-                  'Nobody sees who voted for what. The counts are still '
-                  'shown to everyone.',
+                  l10n.createPollNobodySeesWhoVotedForWhat,
                   style: TextStyle(
                       fontSize: 11, color: AppColors.textSecondary),
                 ),
@@ -256,7 +256,7 @@ class _CreatePollSheetState extends State<CreatePollSheet> {
               FilledButton.icon(
                 onPressed: _saving ? null : _create,
                 icon: const Icon(Icons.how_to_vote_outlined, size: 18),
-                label: const Text('Open the Vote'),
+                label: Text(l10n.createPollOpenTheVote),
               ),
               const SizedBox(height: 4),
             ],

@@ -12,6 +12,7 @@ import 'package:intellicash_mobile/features/member/join_group_screen.dart';
 import 'package:intellicash_mobile/features/members/join_requests_screen.dart';
 import 'package:intellicash_mobile/features/reports/my_savings_screen.dart';
 import 'package:intellicash_mobile/providers/connection_provider.dart';
+import '../support/localized_app.dart';
 
 /// These screens had never been rendered — only their models and pure
 /// functions were covered. Pumping them catches what unit tests cannot: a null
@@ -61,7 +62,7 @@ Future<void> _pump(WidgetTester tester, RemoteApi api, Widget screen) async {
   await tester.pumpWidget(
     ChangeNotifierProvider<ConnectionProvider>.value(
       value: _connection(api),
-      child: MaterialApp(home: screen),
+      child: localizedApp(home: screen),
     ),
   );
   await tester.pumpAndSettle();
@@ -196,7 +197,7 @@ void main() {
       await tester.pumpWidget(
         ChangeNotifierProvider<ConnectionProvider>.value(
           value: _connection(_FakeApi(overview: _overviewWith(3))),
-          child: MaterialApp(
+          child: localizedApp(
             theme: ThemeData(brightness: brightness),
             home: screen,
           ),

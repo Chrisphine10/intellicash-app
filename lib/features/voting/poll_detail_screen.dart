@@ -6,6 +6,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/remote/poll_models.dart';
 import '../../data/models/remote/remote_models.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/connection_provider.dart';
 import '../../providers/poll_provider.dart';
 import '../../shared/widgets/common.dart';
@@ -73,19 +74,19 @@ class _PollDetailScreenState extends State<PollDetailScreen> {
   }
 
   Future<void> _confirmClose(RemotePoll poll) async {
+    final l10n = L10n.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Close this vote?', style: TextStyle(fontSize: 17)),
-        content: const Text(
-          'No more votes can be cast after this, and the result is written '
-          'into the group records. This cannot be undone.',
+        title: Text(l10n.pollDetailCloseThisVote, style: TextStyle(fontSize: 17)),
+        content: Text(
+          l10n.pollDetailNoMoreVotesCanBeCast,
           style: TextStyle(fontSize: 13.5),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Keep Open'),
+            child: Text(l10n.meetingHubKeepOpen),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
@@ -95,7 +96,7 @@ class _PollDetailScreenState extends State<PollDetailScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
             ),
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Close Vote'),
+            child: Text(l10n.pollDetailCloseVote),
           ),
         ],
       ),
@@ -116,12 +117,13 @@ class _PollDetailScreenState extends State<PollDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final connection = context.watch<ConnectionProvider>();
     final poll = _poll;
 
     if (poll == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Vote')),
+        appBar: AppBar(title: Text(l10n.pollDetailVote)),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -135,7 +137,7 @@ class _PollDetailScreenState extends State<PollDetailScreen> {
     final alreadyVoted = poll.hasVoted && !isGroupAccount;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Vote')),
+      appBar: AppBar(title: Text(l10n.pollDetailVote)),
       body: RefreshIndicator(
         onRefresh: () async {
           await context.read<PollProvider>().refreshPoll(poll.id);
@@ -214,12 +216,11 @@ class _PollDetailScreenState extends State<PollDetailScreen> {
                   ),
                   onPressed: _busy ? null : () => _confirmClose(poll),
                   icon: const Icon(Icons.lock_outline, size: 18),
-                  label: const Text('Close Vote'),
+                  label: Text(l10n.pollDetailCloseVote),
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Closing counts the votes and writes the result into the '
-                  'group records.',
+                  l10n.pollDetailClosingCountsTheVotesAndWrites,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
@@ -297,6 +298,7 @@ class _OptionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final winning = poll.isClosed && poll.isWinning(option);
     final highlight = selected || myChoice || winning;
     return Card(
@@ -347,7 +349,7 @@ class _OptionRow extends StatelessWidget {
                         ),
                         if (myChoice) ...[
                           const SizedBox(height: 1),
-                          Text('Your choice',
+                          Text(l10n.pollDetailYourChoice,
                               style: TextStyle(
                                   fontSize: 10.5,
                                   fontWeight: FontWeight.w600,
@@ -405,6 +407,7 @@ class _VotedNote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(14),
@@ -416,8 +419,7 @@ class _VotedNote extends StatelessWidget {
             Expanded(
               child: Text(
                 secret
-                    ? 'You have voted. This is a secret ballot, so your '
-                        'choice is not shown to anyone.'
+                    ? l10n.pollDetailYouHaveVotedThisIsA
                     : 'You have voted. Each member votes once.',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
@@ -444,17 +446,18 @@ class _MemberPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     if (members.isEmpty) {
       return Text(
-        'No members loaded for this group yet.',
+        l10n.pollDetailNoMembersLoadedForThis,
         style: Theme.of(context).textTheme.bodySmall,
       );
     }
     return DropdownButtonFormField<String>(
       initialValue: value,
       isExpanded: true,
-      decoration: const InputDecoration(
-        labelText: 'Member casting this vote',
+      decoration: InputDecoration(
+        labelText: l10n.pollDetailMemberCastingThisVote,
         border: OutlineInputBorder(),
       ),
       items: [

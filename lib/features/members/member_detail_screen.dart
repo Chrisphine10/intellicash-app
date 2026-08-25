@@ -8,6 +8,7 @@ import '../../core/utils/app_settings.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/loan.dart';
 import '../../data/repositories/id_map_repository.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/connection_provider.dart';
 import '../../providers/loan_provider.dart';
 import '../../providers/member_provider.dart';
@@ -109,6 +110,7 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final financials = context
         .watch<MemberProvider>()
         .members
@@ -118,11 +120,11 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Members'),
+        title: Text(l10n.navMembers),
         actions: [
           if (member != null)
             IconButton(
-              tooltip: 'Edit details',
+              tooltip: l10n.memberDetailEditDetails,
               icon: const Icon(Icons.edit_outlined, size: 22),
               onPressed: () async {
                 final saved = await EditMemberSheet.show(context, member);
@@ -131,7 +133,7 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
             ),
           if (member != null)
             IconButton(
-              tooltip: 'Member report',
+              tooltip: l10n.memberDetailMemberReport,
               icon: const Icon(Icons.description_outlined, size: 22),
               onPressed: () {
                 Navigator.of(context).push(
@@ -209,9 +211,7 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
                                 ? 'Give ${member.name} their own sign-in so '
                                     'they can see their savings and loans on '
                                     'their own phone.'
-                                : 'To create a sign-in account, first back '
-                                    'this group up to the cloud (More → Sync '
-                                    '& Backup) while online.',
+                                : l10n.memberDetailToCreateASignInAccount,
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                           const SizedBox(height: 10),
@@ -231,12 +231,11 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
                 ],
                 const SectionLabel('Loan history'),
                 if (_loans.isEmpty)
-                  const EmptyState(
+                  EmptyState(
                     icon: Icons.payments_outlined,
-                    title: 'No loans taken',
+                    title: l10n.memberDetailNoLoansTaken,
                     message:
-                        'Loans this member takes will be listed here with '
-                        'their live status.',
+                        l10n.memberDetailLoansThisMemberTakesWillBe,
                   ),
                 for (final loan in _loans)
                   Card(
@@ -302,6 +301,7 @@ class _AccountPasswordSheetState extends State<_AccountPasswordSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     return Padding(
       padding: EdgeInsets.only(
         left: 20,
@@ -328,8 +328,8 @@ class _AccountPasswordSheetState extends State<_AccountPasswordSheet> {
             autofocus: true,
             obscureText: true,
             decoration: InputDecoration(
-              labelText: 'Starting password',
-              helperText: 'At least 6 characters.',
+              labelText: l10n.memberDetailStartingPassword,
+              helperText: l10n.memberDetailAtLeast6Characters,
               errorText: _error,
             ),
           ),
@@ -337,7 +337,7 @@ class _AccountPasswordSheetState extends State<_AccountPasswordSheet> {
           TextField(
             controller: _repeatCtrl,
             obscureText: true,
-            decoration: const InputDecoration(labelText: 'Repeat password'),
+            decoration: InputDecoration(labelText: l10n.repeatPassword),
           ),
           const SizedBox(height: 16),
           FilledButton(
@@ -353,7 +353,7 @@ class _AccountPasswordSheetState extends State<_AccountPasswordSheet> {
               }
               Navigator.of(context).pop(password);
             },
-            child: const Text('Create Account'),
+            child: Text(l10n.createAccount),
           ),
         ],
       ),

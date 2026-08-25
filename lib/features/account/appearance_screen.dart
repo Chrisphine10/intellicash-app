@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/theme_controller.dart';
 
 /// How the app looks on this phone.
@@ -14,15 +15,16 @@ class AppearanceScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final controller = context.watch<ThemeController>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Appearance')),
+      appBar: AppBar(title: Text(l10n.sectionAppearance)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
         children: [
           Text(
-            'Choose how Intelli-Cash looks on this phone.',
+            l10n.appearanceChooseHowIntelliCashLooks,
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 16),

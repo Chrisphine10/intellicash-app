@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/app_state.dart';
 import '../../providers/member_provider.dart';
 import '../../shared/widgets/common.dart';
@@ -31,21 +32,22 @@ class _MemberReportsScreenState extends State<MemberReportsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final members = context.watch<MemberProvider>().members;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Member Reports')),
+      appBar: AppBar(title: Text(l10n.memberReports)),
       body: members.isEmpty
-          ? const EmptyState(
+          ? EmptyState(
               icon: Icons.person_outline,
-              title: 'No members yet',
-              message: 'Members appear here once they join the group.',
+              title: l10n.groupReportNoMembersYet,
+              message: l10n.groupReportMembersAppearHereOnceThey,
             )
           : ListView(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
               children: [
                 Text(
-                  'Tap a member to see and share their report.',
+                  l10n.memberReportsTapAMemberToSee,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 const SizedBox(height: 10),

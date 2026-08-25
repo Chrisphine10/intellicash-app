@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 
 /// A 0–9 keypad for entering a PIN.
 ///
@@ -47,6 +48,7 @@ class NumericKeypad extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -75,7 +77,7 @@ class NumericKeypad extends StatelessWidget {
             _Key(label: '0', onTap: enabled ? () => _press('0') : null),
             _Key(
               icon: Icons.backspace_outlined,
-              semanticLabel: 'Delete',
+              semanticLabel: l10n.numericKeypadDelete,
               onTap: enabled && value.isNotEmpty ? _backspace : null,
             ),
           ],

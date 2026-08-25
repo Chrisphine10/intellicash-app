@@ -30,6 +30,10 @@ class IntelliCashApp extends StatelessWidget {
     final locale = context.watch<LocaleController>().locale;
     return MaterialApp(
       key: ValueKey('appearance-$mode'),
+      // A literal, not a lookup. This widget builds the MaterialApp that
+      // *installs* the localisation delegates, so `L10n.of(context)` here
+      // reads a scope that does not exist yet and throws on the first frame.
+      // The window title is also the one string a user never reads in-app.
       title: 'Intelli-Cash',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.themed(),
@@ -155,6 +159,7 @@ class _SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     return Scaffold(
       body: Center(
         child: Column(
@@ -162,13 +167,13 @@ class _SplashScreen extends StatelessWidget {
           children: [
             Image.asset('assets/branding/logo_mark.png', width: 96, height: 96),
             const SizedBox(height: 16),
-            const Text(
-              'Intelli-Cash',
+            Text(
+              l10n.moreIntelliCash,
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 6),
-            const Text(
-              'Your VSLA in your pocket',
+            Text(
+              l10n.appTagline,
               style: TextStyle(fontSize: 13, color: Color(0xFF8C99A2)),
             ),
           ],

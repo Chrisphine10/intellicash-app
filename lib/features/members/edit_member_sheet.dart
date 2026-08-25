@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../data/models/member.dart';
 import '../../data/services/member_matching.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/member_provider.dart';
 import '../../shared/widgets/common.dart';
 
@@ -104,6 +105,7 @@ class _EditMemberSheetState extends State<EditMemberSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
@@ -111,25 +113,24 @@ class _EditMemberSheetState extends State<EditMemberSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Edit member', style: Theme.of(context).textTheme.titleMedium),
+            Text(l10n.editMemberEditMember, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 4),
             Text(
-              'Correcting a spelling or a mistyped number. Their savings, loans '
-              'and attendance stay exactly as they are.',
+              l10n.editMemberCorrectingASpellingOrAMistyped,
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 16),
             TextField(
               controller: _name,
-              decoration: const InputDecoration(labelText: 'Full name'),
+              decoration: InputDecoration(labelText: l10n.editMemberFullName),
               enabled: !_saving,
               textCapitalization: TextCapitalization.words,
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _phone,
-              decoration: const InputDecoration(
-                labelText: 'Phone number',
+              decoration: InputDecoration(
+                labelText: l10n.phoneNumber,
                 helperText: '07XX XXX XXX or +254…',
               ),
               enabled: !_saving,
@@ -145,7 +146,7 @@ class _EditMemberSheetState extends State<EditMemberSheet> {
                 Expanded(
                   child: OutlinedButton(
                     onPressed: _saving ? null : () => Navigator.of(context).pop(false),
-                    child: const Text('Cancel'),
+                    child: Text(l10n.cancel),
                   ),
                 ),
                 const SizedBox(width: 12),

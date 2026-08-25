@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/utils/action_item_state.dart';
 import '../../data/repositories/mentorship_repository.dart';
 import '../../data/services/mentorship_sync_service.dart';
+import '../../l10n/app_localizations.dart';
 
 /// What the group still owes from last time, shown at the START of a visit.
 ///
@@ -91,6 +92,7 @@ class _OpenActionItemsCardState extends State<OpenActionItemsCard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     if (_loading) return const SizedBox.shrink();
 
     final theme = Theme.of(context);
@@ -101,9 +103,9 @@ class _OpenActionItemsCardState extends State<OpenActionItemsCard> {
       return Card(
         child: ListTile(
           leading: const Icon(Icons.check_circle_outline),
-          title: const Text('Nothing outstanding'),
+          title: Text(l10n.openActionItemsNothingOutstanding),
           subtitle: Text(
-            'This group has no open actions from previous visits.',
+            l10n.openActionItemsThisGroupHasNoOpen,
             style: theme.textTheme.bodySmall,
           ),
         ),
@@ -124,7 +126,7 @@ class _OpenActionItemsCardState extends State<OpenActionItemsCard> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'From the last visit',
+                    l10n.openActionItemsFromTheLastVisit,
                     style: theme.textTheme.titleSmall,
                   ),
                 ),
@@ -154,6 +156,7 @@ class _ActionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final theme = Theme.of(context);
     final state = item.state;
     final late = state.state == ActionItemState.overdue;
@@ -185,7 +188,7 @@ class _ActionRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          TextButton(onPressed: onDone, child: const Text('Done')),
+          TextButton(onPressed: onDone, child: Text(l10n.joinGroupDone)),
         ],
       ),
     );

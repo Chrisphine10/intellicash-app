@@ -5,6 +5,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/remote/external_loan_models.dart';
 import '../../data/models/remote/store_models.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/connection_provider.dart';
 import '../../providers/external_loans_provider.dart';
 import '../../providers/store_provider.dart';
@@ -43,6 +44,7 @@ class _StoreScreenState extends State<StoreScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     final connected = context.watch<ConnectionProvider>().isConnected;
     final store = context.watch<StoreProvider>();
     final externalLoans = context.watch<ExternalLoansProvider>();
@@ -53,7 +55,7 @@ class _StoreScreenState extends State<StoreScreen> {
         : store.products.where((p) => p.category == _categoryFilter).toList();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Intelli-Stores')),
+      appBar: AppBar(title: Text(l10n.intelliStores)),
       body: !connected
           ? _NeedsConnection()
           : RefreshIndicator(
@@ -67,12 +69,11 @@ class _StoreScreenState extends State<StoreScreen> {
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
                 children: [
-                  Text('Shop on credit',
+                  Text(l10n.storeShopOnCredit,
                       style: Theme.of(context).textTheme.headlineSmall),
                   const SizedBox(height: 2),
                   Text(
-                    'Farm, solar, household and business products — priced '
-                    'by your group\'s credit rating.',
+                    l10n.storeFarmSolarHouseholdAndBusinessProducts,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   const SizedBox(height: 14),
@@ -83,7 +84,7 @@ class _StoreScreenState extends State<StoreScreen> {
                         scrollDirection: Axis.horizontal,
                         children: [
                           _CategoryChip(
-                            label: 'All',
+                            label: l10n.storeAll,
                             icon: Icons.apps,
                             selected: _categoryFilter == null,
                             onTap: () => setState(() => _categoryFilter = null),
@@ -109,21 +110,21 @@ class _StoreScreenState extends State<StoreScreen> {
                   if (store.error != null && store.products.isEmpty)
                     EmptyState(
                       icon: Icons.storefront_outlined,
-                      title: 'Could not load the store',
+                      title: l10n.storeCouldNotLoadTheStore,
                       message: store.error!,
                     ),
                   if (!store.loading && store.error == null && visible.isEmpty)
-                    const EmptyState(
+                    EmptyState(
                       icon: Icons.shopping_bag_outlined,
-                      title: 'No products in this category',
-                      message: 'Try a different category or check back later.',
+                      title: l10n.storeNoProductsInThisCategory,
+                      message: l10n.storeTryADifferentCategoryOr,
                     ),
                   for (final product in visible)
                     _ProductCard(product: product),
                   if (externalLoans.products.isNotEmpty) ...[
                     const SectionLabel('Credit ventures'),
                     Text(
-                      'Loan offers from lending partners — apply as a group.',
+                      l10n.storeLoanOffersFromLendingPartners,
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(height: 8),
@@ -136,7 +137,7 @@ class _StoreScreenState extends State<StoreScreen> {
                           MaterialPageRoute(
                               builder: (_) => const ExternalLoansScreen()),
                         ),
-                        child: const Text('See all external loans'),
+                        child: Text(l10n.storeSeeAllExternalLoans),
                       ),
                     ),
                   ],
@@ -399,6 +400,7 @@ class _ExternalLoanMiniCard extends StatelessWidget {
 class _NeedsConnection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -408,12 +410,11 @@ class _NeedsConnection extends StatelessWidget {
             Icon(Icons.storefront_outlined,
                 size: 44, color: AppColors.textSecondary),
             const SizedBox(height: 14),
-            Text('Connect to browse the store',
+            Text(l10n.storeConnectToBrowseTheStore,
                 style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 6),
             Text(
-              'Intelli-Stores loads from the Intelli-Cash backend. Connect or '
-              'sign in first.',
+              l10n.storeIntelliStoresLoadsFromTheIntelli,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodySmall,
             ),
@@ -423,7 +424,7 @@ class _NeedsConnection extends StatelessWidget {
                 MaterialPageRoute(
                     builder: (_) => const ServerSettingsScreen()),
               ),
-              child: const Text('Open Cloud Account'),
+              child: Text(l10n.storeOpenCloudAccount),
             ),
           ],
         ),

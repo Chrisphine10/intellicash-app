@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/services/remote_governance_api.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/connection_provider.dart';
 import '../../shared/widgets/common.dart';
 
@@ -102,6 +103,7 @@ class _WelfareScreenState extends State<WelfareScreen> {
   }
 
   Future<void> _record() async {
+    final l10n = L10n.of(context);
     // Captured before the dialog: it is an async gap, and reading context
     // after the screen may have popped is how this throws on return.
     final api = context.read<RemoteGovernanceApi>();
@@ -133,7 +135,7 @@ class _WelfareScreenState extends State<WelfareScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Record this payment?'),
+        title: Text(l10n.welfareRecordThisPayment),
         content: Text(
           '${Formatters.money(amountCents / 100)} to ${_payee.text.trim()}.\n\n'
           'This is taken out of the welfare fund now, so it is money the group '
@@ -142,11 +144,11 @@ class _WelfareScreenState extends State<WelfareScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Record payment'),
+            child: Text(l10n.welfareRecordPayment),
           ),
         ],
       ),
@@ -182,13 +184,15 @@ class _WelfareScreenState extends State<WelfareScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Welfare Fund')),
+      appBar: AppBar(title: Text(l10n.welfareWelfareFund)),
       body: RefreshIndicator(onRefresh: _load, child: _body()),
     );
   }
 
   Widget _body() {
+    final l10n = L10n.of(context);
     if (_loading) return const Center(child: CircularProgressIndicator());
     if (_error != null) {
       return ListView(
@@ -204,16 +208,15 @@ class _WelfareScreenState extends State<WelfareScreen> {
       return ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text('Could not load the welfare fund.',
+          Text(l10n.welfareCouldNotLoadTheWelfare,
               style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: 6),
           Text(
-            'Pull down to try again. If it keeps happening, check the group is '
-            'still selected under Cloud Account.',
+            l10n.cyclesPullDownToTryAgainIf,
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 14),
-          FilledButton(onPressed: _load, child: const Text('Try again')),
+          FilledButton(onPressed: _load, child: Text(l10n.welfareTryAgain)),
         ],
       );
     }
@@ -229,7 +232,7 @@ class _WelfareScreenState extends State<WelfareScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Left in the welfare fund',
+                Text(l10n.welfareLeftInTheWelfareFund,
                     style: Theme.of(context).textTheme.bodySmall),
                 const SizedBox(height: 4),
                 Text(
@@ -238,9 +241,8 @@ class _WelfareScreenState extends State<WelfareScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'This is what gets shared out at the end of the cycle — not the '
-                  'total contributed. ${Formatters.money(data.spentCents / 100)} '
-                  'has been paid out so far.',
+                  l10n.welfareSharedOutExplainer(
+                      Formatters.money(data.spentCents / 100)),
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
@@ -249,7 +251,7 @@ class _WelfareScreenState extends State<WelfareScreen> {
         ),
         const SizedBox(height: 16),
 
-        Text('Record a welfare payment',
+        Text(l10n.welfareRecordAWelfarePayment,
             style: Theme.of(context).textTheme.titleSmall),
         const SizedBox(height: 8),
         if (!online)
@@ -257,9 +259,7 @@ class _WelfareScreenState extends State<WelfareScreen> {
             child: Padding(
               padding: const EdgeInsets.all(12),
               child: Text(
-                'You are offline. Welfare payments are recorded on the server so '
-                'the fund cannot be overspent by two phones at once — reconnect '
-                'to record one.',
+                l10n.welfareYouAreOfflineWelfarePaymentsAre,
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ),
@@ -269,15 +269,14 @@ class _WelfareScreenState extends State<WelfareScreen> {
             child: Padding(
               padding: const EdgeInsets.all(12),
               child: Text(
-                'No meeting is open. Welfare is paid out during a meeting, in '
-                'front of the members — open one first, then record it there.',
+                l10n.welfareNoMeetingIsOpenWelfareIs,
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ),
           )
         else ...[
           DropdownButtonFormField<String>(
-            decoration: const InputDecoration(labelText: 'Recorded in meeting'),
+            decoration: InputDecoration(labelText: l10n.welfareRecordedInMeeting),
             initialValue: _meetingId,
             items: [
               for (final meeting in _openMeetings)
@@ -288,8 +287,8 @@ class _WelfareScreenState extends State<WelfareScreen> {
           const SizedBox(height: 10),
           TextField(
             controller: _amount,
-            decoration: const InputDecoration(
-              labelText: 'Amount (KSh)',
+            decoration: InputDecoration(
+              labelText: l10n.welfareAmountKsh,
               prefixText: 'KSh ',
             ),
             enabled: !_saving,
@@ -297,7 +296,7 @@ class _WelfareScreenState extends State<WelfareScreen> {
           ),
           const SizedBox(height: 10),
           DropdownButtonFormField<String>(
-            decoration: const InputDecoration(labelText: 'What for'),
+            decoration: InputDecoration(labelText: l10n.welfareWhatFor),
             initialValue: _category,
             items: [
               for (final entry in _categories.entries)
@@ -308,16 +307,16 @@ class _WelfareScreenState extends State<WelfareScreen> {
           const SizedBox(height: 10),
           TextField(
             controller: _payee,
-            decoration: const InputDecoration(
-              labelText: 'Paid to',
-              helperText: 'A member, a family, or a hospital — whoever received it',
+            decoration: InputDecoration(
+              labelText: l10n.welfarePaidTo,
+              helperText: l10n.welfareAMemberAFamilyOr,
             ),
             enabled: !_saving,
           ),
           const SizedBox(height: 10),
           TextField(
             controller: _note,
-            decoration: const InputDecoration(labelText: 'Note (optional)'),
+            decoration: InputDecoration(labelText: l10n.welfareNoteOptional),
             enabled: !_saving,
             maxLength: 500,
           ),
@@ -329,11 +328,11 @@ class _WelfareScreenState extends State<WelfareScreen> {
         ],
 
         const SizedBox(height: 20),
-        Text('Paid out this cycle', style: Theme.of(context).textTheme.titleSmall),
+        Text(l10n.welfarePaidOutThisCycle, style: Theme.of(context).textTheme.titleSmall),
         const SizedBox(height: 8),
         if (data.expenses.isEmpty)
           Text(
-            'Nothing paid out yet — the whole welfare fund will be shared.',
+            l10n.welfareNothingPaidOutYetThe,
             style: Theme.of(context).textTheme.bodySmall,
           )
         else
