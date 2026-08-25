@@ -1422,4 +1422,135 @@ class L10nKi extends L10n {
 
   @override
   String get languageDraftBadge => 'rasimu';
+
+  @override
+  String get enterpriseNothingRecordedYet =>
+      'Nothing recorded yet. Add the first business this group runs together.';
+
+  @override
+  String get enterpriseAddAnotherBusiness => 'Add another business';
+
+  @override
+  String get enterpriseWhatTheyNeed => 'What they need';
+
+  @override
+  String get enterpriseAddSomethingTheyNeed => 'Add something they need';
+
+  @override
+  String get enterpriseEdit => 'Edit';
+
+  @override
+  String get enterpriseMoneyInEachMonth => 'Money in each month';
+
+  @override
+  String get enterpriseCostsEachMonth => 'Costs each month';
+
+  @override
+  String get enterpriseWhatIsLeft => 'What is left';
+
+  @override
+  String get enterpriseHowFarItSells => 'How far it sells';
+
+  @override
+  String get enterpriseBuyersLastMonth => 'Buyers last month';
+
+  @override
+  String get enterpriseWrittenAgreementWithBuyer =>
+      'Written agreement with a buyer';
+
+  @override
+  String get enterpriseNotAsked => 'Not asked';
+
+  @override
+  String get enterpriseNotRecorded => 'Not recorded';
+
+  @override
+  String get enterpriseYes => 'Yes';
+
+  @override
+  String get enterpriseNoInformal => 'No, informal';
+
+  @override
+  String get enterpriseYesInWriting => 'Yes, in writing';
+
+  @override
+  String get enterpriseUrgent => 'urgent';
+
+  @override
+  String get enterpriseNewBusiness => 'New business';
+
+  @override
+  String get enterpriseEditBusiness => 'Edit business';
+
+  @override
+  String get enterpriseWhatIsItCalled => 'What is it called';
+
+  @override
+  String get enterpriseNameHint => 'Poultry unit';
+
+  @override
+  String get enterpriseWhereTheySell => 'Where they sell';
+
+  @override
+  String get enterpriseWhereTheySellHint =>
+      'How far what they make actually travels, and how many people buy it.';
+
+  @override
+  String get enterpriseHowFarItReaches => 'How far it reaches';
+
+  @override
+  String get enterpriseHowManyBuyersLastMonth => 'How many buyers last month';
+
+  @override
+  String get enterpriseHowTheySell => 'How they sell';
+
+  @override
+  String get enterpriseIsThereWrittenAgreement =>
+      'Is there a written agreement with a buyer';
+
+  @override
+  String get enterpriseMonthsTheySellIn => 'Months they sell in';
+
+  @override
+  String get enterpriseLeaveBlankIfAllYear =>
+      'Leave blank if they sell all year.';
+
+  @override
+  String get enterpriseWhatDoesThisBusinessNeed =>
+      'What does this business need?';
+
+  @override
+  String get enterpriseHowUrgentIsIt => 'How urgent is it?';
+
+  @override
+  String get enterpriseAskGroupToRank =>
+      'Ask the group how they would rank it.';
+
+  @override
+  String get enterpriseAdd => 'Add';
+
+  @override
+  String get enterpriseSave => 'Save';
+
+  @override
+  String get enterpriseSaving => 'Saving…';
+
+  @override
+  String get enterpriseSaved => 'Saved.';
+
+  @override
+  String get enterpriseCouldNotLoad =>
+      'Could not load. You need a connection for this one.';
+
+  @override
+  String get enterpriseCouldNotSave =>
+      'Could not save. Check your connection and try again.';
+
+  @override
+  String get enterpriseCouldNotSaveNeed =>
+      'Could not save that need. Check your connection.';
+
+  @override
+  String get enterpriseNameRequired =>
+      'Give this business a name so it can be told apart.';
 }

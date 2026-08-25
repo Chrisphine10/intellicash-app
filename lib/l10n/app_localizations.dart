@@ -2628,6 +2628,246 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'draft'**
   String get languageDraftBadge;
+
+  /// No description provided for @enterpriseNothingRecordedYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing recorded yet. Add the first business this group runs together.'**
+  String get enterpriseNothingRecordedYet;
+
+  /// No description provided for @enterpriseAddAnotherBusiness.
+  ///
+  /// In en, this message translates to:
+  /// **'Add another business'**
+  String get enterpriseAddAnotherBusiness;
+
+  /// No description provided for @enterpriseWhatTheyNeed.
+  ///
+  /// In en, this message translates to:
+  /// **'What they need'**
+  String get enterpriseWhatTheyNeed;
+
+  /// No description provided for @enterpriseAddSomethingTheyNeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Add something they need'**
+  String get enterpriseAddSomethingTheyNeed;
+
+  /// No description provided for @enterpriseEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get enterpriseEdit;
+
+  /// No description provided for @enterpriseMoneyInEachMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Money in each month'**
+  String get enterpriseMoneyInEachMonth;
+
+  /// No description provided for @enterpriseCostsEachMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Costs each month'**
+  String get enterpriseCostsEachMonth;
+
+  /// No description provided for @enterpriseWhatIsLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'What is left'**
+  String get enterpriseWhatIsLeft;
+
+  /// No description provided for @enterpriseHowFarItSells.
+  ///
+  /// In en, this message translates to:
+  /// **'How far it sells'**
+  String get enterpriseHowFarItSells;
+
+  /// No description provided for @enterpriseBuyersLastMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Buyers last month'**
+  String get enterpriseBuyersLastMonth;
+
+  /// No description provided for @enterpriseWrittenAgreementWithBuyer.
+  ///
+  /// In en, this message translates to:
+  /// **'Written agreement with a buyer'**
+  String get enterpriseWrittenAgreementWithBuyer;
+
+  /// No description provided for @enterpriseNotAsked.
+  ///
+  /// In en, this message translates to:
+  /// **'Not asked'**
+  String get enterpriseNotAsked;
+
+  /// No description provided for @enterpriseNotRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'Not recorded'**
+  String get enterpriseNotRecorded;
+
+  /// No description provided for @enterpriseYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get enterpriseYes;
+
+  /// No description provided for @enterpriseNoInformal.
+  ///
+  /// In en, this message translates to:
+  /// **'No, informal'**
+  String get enterpriseNoInformal;
+
+  /// No description provided for @enterpriseYesInWriting.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, in writing'**
+  String get enterpriseYesInWriting;
+
+  /// No description provided for @enterpriseUrgent.
+  ///
+  /// In en, this message translates to:
+  /// **'urgent'**
+  String get enterpriseUrgent;
+
+  /// No description provided for @enterpriseNewBusiness.
+  ///
+  /// In en, this message translates to:
+  /// **'New business'**
+  String get enterpriseNewBusiness;
+
+  /// No description provided for @enterpriseEditBusiness.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit business'**
+  String get enterpriseEditBusiness;
+
+  /// No description provided for @enterpriseWhatIsItCalled.
+  ///
+  /// In en, this message translates to:
+  /// **'What is it called'**
+  String get enterpriseWhatIsItCalled;
+
+  /// No description provided for @enterpriseNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Poultry unit'**
+  String get enterpriseNameHint;
+
+  /// No description provided for @enterpriseWhereTheySell.
+  ///
+  /// In en, this message translates to:
+  /// **'Where they sell'**
+  String get enterpriseWhereTheySell;
+
+  /// No description provided for @enterpriseWhereTheySellHint.
+  ///
+  /// In en, this message translates to:
+  /// **'How far what they make actually travels, and how many people buy it.'**
+  String get enterpriseWhereTheySellHint;
+
+  /// No description provided for @enterpriseHowFarItReaches.
+  ///
+  /// In en, this message translates to:
+  /// **'How far it reaches'**
+  String get enterpriseHowFarItReaches;
+
+  /// No description provided for @enterpriseHowManyBuyersLastMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'How many buyers last month'**
+  String get enterpriseHowManyBuyersLastMonth;
+
+  /// No description provided for @enterpriseHowTheySell.
+  ///
+  /// In en, this message translates to:
+  /// **'How they sell'**
+  String get enterpriseHowTheySell;
+
+  /// No description provided for @enterpriseIsThereWrittenAgreement.
+  ///
+  /// In en, this message translates to:
+  /// **'Is there a written agreement with a buyer'**
+  String get enterpriseIsThereWrittenAgreement;
+
+  /// No description provided for @enterpriseMonthsTheySellIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Months they sell in'**
+  String get enterpriseMonthsTheySellIn;
+
+  /// No description provided for @enterpriseLeaveBlankIfAllYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave blank if they sell all year.'**
+  String get enterpriseLeaveBlankIfAllYear;
+
+  /// No description provided for @enterpriseWhatDoesThisBusinessNeed.
+  ///
+  /// In en, this message translates to:
+  /// **'What does this business need?'**
+  String get enterpriseWhatDoesThisBusinessNeed;
+
+  /// No description provided for @enterpriseHowUrgentIsIt.
+  ///
+  /// In en, this message translates to:
+  /// **'How urgent is it?'**
+  String get enterpriseHowUrgentIsIt;
+
+  /// No description provided for @enterpriseAskGroupToRank.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask the group how they would rank it.'**
+  String get enterpriseAskGroupToRank;
+
+  /// No description provided for @enterpriseAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get enterpriseAdd;
+
+  /// No description provided for @enterpriseSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get enterpriseSave;
+
+  /// No description provided for @enterpriseSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving…'**
+  String get enterpriseSaving;
+
+  /// No description provided for @enterpriseSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved.'**
+  String get enterpriseSaved;
+
+  /// No description provided for @enterpriseCouldNotLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load. You need a connection for this one.'**
+  String get enterpriseCouldNotLoad;
+
+  /// No description provided for @enterpriseCouldNotSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save. Check your connection and try again.'**
+  String get enterpriseCouldNotSave;
+
+  /// No description provided for @enterpriseCouldNotSaveNeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save that need. Check your connection.'**
+  String get enterpriseCouldNotSaveNeed;
+
+  /// No description provided for @enterpriseNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Give this business a name so it can be told apart.'**
+  String get enterpriseNameRequired;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

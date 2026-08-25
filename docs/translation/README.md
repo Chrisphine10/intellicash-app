@@ -1,15 +1,29 @@
 # Reviewing the translations
 
-All five languages are now at **421 of 421 strings**. Nothing falls back to
-English any more.
+All five languages carry every key: **461 of 461**. Nothing falls back to
+English at runtime.
 
 | Language | Strings | Reviewed by a speaker? |
 |---|---|---|
-| English | 421 | source |
-| Kiswahili | 421 | yes |
-| Gĩkũyũ | 421 | **no** |
-| Dholuo | 421 | **no** |
-| Kĩembu | 421 | **no**, and mostly derived — see below |
+| English | 461 | source |
+| Kiswahili | 461 | yes |
+| Gĩkũyũ | 461 | **no** — 40 still in English, see below |
+| Dholuo | 461 | **no** — 40 still in English, see below |
+| Kĩembu | 461 | **no**, mostly derived — 40 still in English, see below |
+
+## The 40 enterprise strings (25 Aug 2026)
+
+The enterprise-capture screen added 40 strings. English and Kiswahili are
+translated. Gĩkũyũ, Dholuo and Kĩembu carry the **English text as a
+placeholder**, and their rows sit in the CSVs with an empty draft column.
+
+That is deliberate rather than lazy. Several are market vocabulary — cold
+chain, offtake agreement, aggregation — where a guess reads as confidently as
+a correct word and is wrong in a way no reviewer downstream can see. An empty
+cell asks a speaker for a translation; a guessed one invites a tick in
+`ok_as_is`.
+
+Search the CSVs for rows whose draft column is blank to find them.
 
 ## Why "complete" is not the same as "finished"
 

@@ -1418,4 +1418,135 @@ class L10nSw extends L10n {
 
   @override
   String get languageDraftBadge => 'rasimu';
+
+  @override
+  String get enterpriseNothingRecordedYet =>
+      'Hakuna kilichoandikwa bado. Ongeza biashara ya kwanza ambayo kikundi hiki kinaendesha pamoja.';
+
+  @override
+  String get enterpriseAddAnotherBusiness => 'Ongeza biashara nyingine';
+
+  @override
+  String get enterpriseWhatTheyNeed => 'Wanachohitaji';
+
+  @override
+  String get enterpriseAddSomethingTheyNeed => 'Ongeza kitu wanachohitaji';
+
+  @override
+  String get enterpriseEdit => 'Hariri';
+
+  @override
+  String get enterpriseMoneyInEachMonth => 'Pesa inayoingia kila mwezi';
+
+  @override
+  String get enterpriseCostsEachMonth => 'Gharama kila mwezi';
+
+  @override
+  String get enterpriseWhatIsLeft => 'Kinachobaki';
+
+  @override
+  String get enterpriseHowFarItSells => 'Inauzwa umbali gani';
+
+  @override
+  String get enterpriseBuyersLastMonth => 'Wanunuzi mwezi uliopita';
+
+  @override
+  String get enterpriseWrittenAgreementWithBuyer =>
+      'Mkataba wa maandishi na mnunuzi';
+
+  @override
+  String get enterpriseNotAsked => 'Hawajaulizwa';
+
+  @override
+  String get enterpriseNotRecorded => 'Haijaandikwa';
+
+  @override
+  String get enterpriseYes => 'Ndiyo';
+
+  @override
+  String get enterpriseNoInformal => 'Hapana, si rasmi';
+
+  @override
+  String get enterpriseYesInWriting => 'Ndiyo, kwa maandishi';
+
+  @override
+  String get enterpriseUrgent => 'haraka';
+
+  @override
+  String get enterpriseNewBusiness => 'Biashara mpya';
+
+  @override
+  String get enterpriseEditBusiness => 'Hariri biashara';
+
+  @override
+  String get enterpriseWhatIsItCalled => 'Inaitwaje';
+
+  @override
+  String get enterpriseNameHint => 'Kitengo cha kuku';
+
+  @override
+  String get enterpriseWhereTheySell => 'Wanapouza';
+
+  @override
+  String get enterpriseWhereTheySellHint =>
+      'Umbali ambao bidhaa zao zinafika, na watu wangapi wanazinunua.';
+
+  @override
+  String get enterpriseHowFarItReaches => 'Inafika umbali gani';
+
+  @override
+  String get enterpriseHowManyBuyersLastMonth =>
+      'Wanunuzi wangapi mwezi uliopita';
+
+  @override
+  String get enterpriseHowTheySell => 'Jinsi wanavyouza';
+
+  @override
+  String get enterpriseIsThereWrittenAgreement =>
+      'Je, kuna mkataba wa maandishi na mnunuzi';
+
+  @override
+  String get enterpriseMonthsTheySellIn => 'Miezi wanayouza';
+
+  @override
+  String get enterpriseLeaveBlankIfAllYear =>
+      'Acha wazi kama wanauza mwaka mzima.';
+
+  @override
+  String get enterpriseWhatDoesThisBusinessNeed =>
+      'Biashara hii inahitaji nini?';
+
+  @override
+  String get enterpriseHowUrgentIsIt => 'Ni ya haraka kiasi gani?';
+
+  @override
+  String get enterpriseAskGroupToRank => 'Uliza kikundi wangeipanga vipi.';
+
+  @override
+  String get enterpriseAdd => 'Ongeza';
+
+  @override
+  String get enterpriseSave => 'Hifadhi';
+
+  @override
+  String get enterpriseSaving => 'Inahifadhi…';
+
+  @override
+  String get enterpriseSaved => 'Imehifadhiwa.';
+
+  @override
+  String get enterpriseCouldNotLoad =>
+      'Haikuweza kupakia. Unahitaji mtandao kwa hii.';
+
+  @override
+  String get enterpriseCouldNotSave =>
+      'Haikuweza kuhifadhi. Angalia mtandao wako na ujaribu tena.';
+
+  @override
+  String get enterpriseCouldNotSaveNeed =>
+      'Haikuweza kuhifadhi hitaji hilo. Angalia mtandao wako.';
+
+  @override
+  String get enterpriseNameRequired =>
+      'Ipe biashara hii jina ili itofautishwe.';
 }
