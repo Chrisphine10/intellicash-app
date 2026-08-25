@@ -91,6 +91,29 @@ void main() {
     }
   });
 
+  test('no string carries a Dart escape into what a user reads', () {
+    // The extraction pass lifted Dart SOURCE text. In a single-quoted literal
+    // an apostrophe has to be escaped, so that backslash travelled into the
+    // ARB — where JSON needs no such escape — and reached the screen as a
+    // visible backslash, in fourteen places.
+    //
+    // Nothing else catches this. The string is present, non-empty, correctly
+    // keyed and fully translated. It is simply wrong by one character, and it
+    // was found by looking at a phone.
+    final offenders = <String>[];
+    for (final code in AppLanguage.values.map((language) => language.code)) {
+      _keysOf(code).forEach((key, value) {
+        if (value.contains(r"\'") || value.contains(r'\"')) {
+          offenders.add('$code/$key: $value');
+        }
+      });
+    }
+
+    expect(offenders, isEmpty,
+        reason: 'a backslash before a quote reaches the screen as a backslash:'
+            '\n${offenders.join('\n')}');
+  });
+
   test('screens do not go back to hard-coded English', () {
     // The literal forms the extraction pass removed. If one reappears, the
     // string is invisible to every language at once — which is exactly how

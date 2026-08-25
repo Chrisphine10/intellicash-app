@@ -2236,7 +2236,7 @@ abstract class L10n {
   /// No description provided for @meetingsClosedMeetingsAreLockedTheirRecords.
   ///
   /// In en, this message translates to:
-  /// **'Closed meetings are locked — their records form the group\\\'s permanent audit trail.'**
+  /// **'Closed meetings are locked — their records form the group\'s permanent audit trail.'**
   String get meetingsClosedMeetingsAreLockedTheirRecords;
 
   /// No description provided for @sharesLedgerSharePurchasesLandHereTheMoment.
@@ -2248,7 +2248,7 @@ abstract class L10n {
   /// No description provided for @joinGroupYourGroupHasACodeOn.
   ///
   /// In en, this message translates to:
-  /// **'Your group has a code on its records — ask the secretary if you do not know it. Sending a request does not open the group\\\'s books to you; an official has to accept you first.'**
+  /// **'Your group has a code on its records — ask the secretary if you do not know it. Sending a request does not open the group\'s books to you; an official has to accept you first.'**
   String get joinGroupYourGroupHasACodeOn;
 
   /// No description provided for @memberPassbookAskYourGroupToAddYou.
@@ -2302,7 +2302,7 @@ abstract class L10n {
   /// No description provided for @meetingSecurityAssignAChairpersonSecretaryAndTreasurer.
   ///
   /// In en, this message translates to:
-  /// **'Assign a chairperson, secretary and treasurer below so three officials can unlock meetings. Until then, most members\\\' PINs are needed instead.'**
+  /// **'Assign a chairperson, secretary and treasurer below so three officials can unlock meetings. Until then, most members\' PINs are needed instead.'**
   String get meetingSecurityAssignAChairpersonSecretaryAndTreasurer;
 
   /// No description provided for @meetingSecurityTheOldPinStopsWorkingThe.
@@ -2314,7 +2314,7 @@ abstract class L10n {
   /// No description provided for @moreYourGroupSSavingsAndLoans.
   ///
   /// In en, this message translates to:
-  /// **'Your group\\\'s savings and loans, right on your phone. Everything is saved on this phone first and backed up online when you have internet.\\n\\nIntelli-Wealth Limited · intelliwealth.org'**
+  /// **'Your group\'s savings and loans, right on your phone. Everything is saved on this phone first and backed up online when you have internet.\\n\\nIntelli-Wealth Limited · intelliwealth.org'**
   String get moreYourGroupSSavingsAndLoans;
 
   /// No description provided for @moreNoInternetYourRecordsAreSafe.
@@ -2398,7 +2398,7 @@ abstract class L10n {
   /// No description provided for @serverSettingsAskYourGroupAdministratorForAn.
   ///
   /// In en, this message translates to:
-  /// **'Ask your group administrator for an access key, then paste it here. It only lets this phone see and record your group\\\'s savings, loans and meetings.'**
+  /// **'Ask your group administrator for an access key, then paste it here. It only lets this phone see and record your group\'s savings, loans and meetings.'**
   String get serverSettingsAskYourGroupAdministratorForAn;
 
   /// No description provided for @cyclesPullDownToTryAgainIf.
@@ -2440,7 +2440,7 @@ abstract class L10n {
   /// No description provided for @groupPolicyUnpaidFinesAndWelfareAreTaken.
   ///
   /// In en, this message translates to:
-  /// **'Unpaid fines and welfare are taken off a member\\\'s share-out payout — they never stop a member from sharing out.\\n\\nOutstanding loans are taken off at share-out and are never carried into the next cycle.'**
+  /// **'Unpaid fines and welfare are taken off a member\'s share-out payout — they never stop a member from sharing out.\\n\\nOutstanding loans are taken off at share-out and are never carried into the next cycle.'**
   String get groupPolicyUnpaidFinesAndWelfareAreTaken;
 
   /// No description provided for @paymentProvidersMPesaClassicNeedsNothingHere.
@@ -2470,7 +2470,7 @@ abstract class L10n {
   /// No description provided for @shareOutMembersHavenTBoughtSharesThis.
   ///
   /// In en, this message translates to:
-  /// **'Members haven\\\'t bought shares this cycle. Run meetings and collect shares first, then come back to distribute the fund.'**
+  /// **'Members haven\'t bought shares this cycle. Run meetings and collect shares first, then come back to distribute the fund.'**
   String get shareOutMembersHavenTBoughtSharesThis;
 
   /// No description provided for @externalLoanApplyCreditRatingUnavailableTheLenderChecks.
@@ -2494,7 +2494,7 @@ abstract class L10n {
   /// No description provided for @storeFarmSolarHouseholdAndBusinessProducts.
   ///
   /// In en, this message translates to:
-  /// **'Farm, solar, household and business products — priced by your group\\\'s credit rating.'**
+  /// **'Farm, solar, household and business products — priced by your group\'s credit rating.'**
   String get storeFarmSolarHouseholdAndBusinessProducts;
 
   /// No description provided for @storeIntelliStoresLoadsFromTheIntelli.
@@ -2506,7 +2506,7 @@ abstract class L10n {
   /// No description provided for @businessProfileTheGroupSOwnEnterpriseNot.
   ///
   /// In en, this message translates to:
-  /// **'The group\\\'s own enterprise, not a member\\\'s. Leave blank if they do not run one.'**
+  /// **'The group\'s own enterprise, not a member\'s. Leave blank if they do not run one.'**
   String get businessProfileTheGroupSOwnEnterpriseNot;
 
   /// No description provided for @businessProfileThisVisitHasNotSyncedYet.
@@ -2542,7 +2542,7 @@ abstract class L10n {
   /// No description provided for @visitMentorshipNotScoredYetAVisitCan.
   ///
   /// In en, this message translates to:
-  /// **'Not scored yet. A visit can be recorded without it, but the group\\\'s view is the only useful measure of the coaching.'**
+  /// **'Not scored yet. A visit can be recorded without it, but the group\'s view is the only useful measure of the coaching.'**
   String get visitMentorshipNotScoredYetAVisitCan;
 
   /// No description provided for @createPollNoMembersLoadedForThisGroup.

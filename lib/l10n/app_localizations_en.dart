@@ -1155,7 +1155,7 @@ class L10nEn extends L10n {
 
   @override
   String get meetingsClosedMeetingsAreLockedTheirRecords =>
-      'Closed meetings are locked — their records form the group\\\'s permanent audit trail.';
+      'Closed meetings are locked — their records form the group\'s permanent audit trail.';
 
   @override
   String get sharesLedgerSharePurchasesLandHereTheMoment =>
@@ -1163,7 +1163,7 @@ class L10nEn extends L10n {
 
   @override
   String get joinGroupYourGroupHasACodeOn =>
-      'Your group has a code on its records — ask the secretary if you do not know it. Sending a request does not open the group\\\'s books to you; an official has to accept you first.';
+      'Your group has a code on its records — ask the secretary if you do not know it. Sending a request does not open the group\'s books to you; an official has to accept you first.';
 
   @override
   String get memberPassbookAskYourGroupToAddYou =>
@@ -1199,7 +1199,7 @@ class L10nEn extends L10n {
 
   @override
   String get meetingSecurityAssignAChairpersonSecretaryAndTreasurer =>
-      'Assign a chairperson, secretary and treasurer below so three officials can unlock meetings. Until then, most members\\\' PINs are needed instead.';
+      'Assign a chairperson, secretary and treasurer below so three officials can unlock meetings. Until then, most members\' PINs are needed instead.';
 
   @override
   String get meetingSecurityTheOldPinStopsWorkingThe =>
@@ -1207,7 +1207,7 @@ class L10nEn extends L10n {
 
   @override
   String get moreYourGroupSSavingsAndLoans =>
-      'Your group\\\'s savings and loans, right on your phone. Everything is saved on this phone first and backed up online when you have internet.\\n\\nIntelli-Wealth Limited · intelliwealth.org';
+      'Your group\'s savings and loans, right on your phone. Everything is saved on this phone first and backed up online when you have internet.\\n\\nIntelli-Wealth Limited · intelliwealth.org';
 
   @override
   String get moreNoInternetYourRecordsAreSafe =>
@@ -1263,7 +1263,7 @@ class L10nEn extends L10n {
 
   @override
   String get serverSettingsAskYourGroupAdministratorForAn =>
-      'Ask your group administrator for an access key, then paste it here. It only lets this phone see and record your group\\\'s savings, loans and meetings.';
+      'Ask your group administrator for an access key, then paste it here. It only lets this phone see and record your group\'s savings, loans and meetings.';
 
   @override
   String get cyclesPullDownToTryAgainIf =>
@@ -1291,7 +1291,7 @@ class L10nEn extends L10n {
 
   @override
   String get groupPolicyUnpaidFinesAndWelfareAreTaken =>
-      'Unpaid fines and welfare are taken off a member\\\'s share-out payout — they never stop a member from sharing out.\\n\\nOutstanding loans are taken off at share-out and are never carried into the next cycle.';
+      'Unpaid fines and welfare are taken off a member\'s share-out payout — they never stop a member from sharing out.\\n\\nOutstanding loans are taken off at share-out and are never carried into the next cycle.';
 
   @override
   String get paymentProvidersMPesaClassicNeedsNothingHere =>
@@ -1311,7 +1311,7 @@ class L10nEn extends L10n {
 
   @override
   String get shareOutMembersHavenTBoughtSharesThis =>
-      'Members haven\\\'t bought shares this cycle. Run meetings and collect shares first, then come back to distribute the fund.';
+      'Members haven\'t bought shares this cycle. Run meetings and collect shares first, then come back to distribute the fund.';
 
   @override
   String get externalLoanApplyCreditRatingUnavailableTheLenderChecks =>
@@ -1327,7 +1327,7 @@ class L10nEn extends L10n {
 
   @override
   String get storeFarmSolarHouseholdAndBusinessProducts =>
-      'Farm, solar, household and business products — priced by your group\\\'s credit rating.';
+      'Farm, solar, household and business products — priced by your group\'s credit rating.';
 
   @override
   String get storeIntelliStoresLoadsFromTheIntelli =>
@@ -1335,7 +1335,7 @@ class L10nEn extends L10n {
 
   @override
   String get businessProfileTheGroupSOwnEnterpriseNot =>
-      'The group\\\'s own enterprise, not a member\\\'s. Leave blank if they do not run one.';
+      'The group\'s own enterprise, not a member\'s. Leave blank if they do not run one.';
 
   @override
   String get businessProfileThisVisitHasNotSyncedYet =>
@@ -1359,7 +1359,7 @@ class L10nEn extends L10n {
 
   @override
   String get visitMentorshipNotScoredYetAVisitCan =>
-      'Not scored yet. A visit can be recorded without it, but the group\\\'s view is the only useful measure of the coaching.';
+      'Not scored yet. A visit can be recorded without it, but the group\'s view is the only useful measure of the coaching.';
 
   @override
   String get createPollNoMembersLoadedForThisGroup =>
