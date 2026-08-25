@@ -59,15 +59,13 @@ void main() {
     expect(find.text('VSLA yako mfukoni mwako'), findsOneWidget);
   });
 
-  testWidgets('a partly translated language falls back to English',
-      (tester) async {
+  testWidgets('Dholuo no longer falls back to English', (tester) async {
+    // It used to: 12 of 420 strings were translated and the rest showed in
+    // English. Both of these are now Dholuo, which is the whole point.
     await tester.pumpWidget(_appIn(const Locale('luo'), child: _probe));
     await tester.pumpAndSettle();
-    // Translated key uses Dholuo…
     expect(find.text('Chokruoge'), findsOneWidget);
-    // …while an untranslated one falls back to the English template rather
-    // than rendering blank.
-    expect(find.text('Your VSLA in your pocket'), findsOneWidget);
+    expect(find.text('Your VSLA in your pocket'), findsNothing);
   });
 
   testWidgets('a real screen renders in Kiswahili, not just the nav labels',
@@ -129,9 +127,10 @@ void main() {
     // Unknown values degrade to English rather than throwing.
     expect(AppLanguage.fromBackendValue('KLINGON'), AppLanguage.english);
     expect(AppLanguage.fromCode(null), AppLanguage.english);
-    // Only the two complete translations claim completeness.
+    // Every language is fully translated; only two have been read by someone
+    // who speaks them, and only those two may claim it.
     expect(
-      AppLanguage.values.where((l) => l.complete).toSet(),
+      AppLanguage.values.where((l) => l.isReviewed).toSet(),
       {AppLanguage.english, AppLanguage.kiswahili},
     );
   });

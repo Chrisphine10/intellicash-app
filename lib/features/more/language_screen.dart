@@ -45,16 +45,16 @@ class LanguageScreen extends StatelessWidget {
                     style: const TextStyle(
                         fontSize: 14.5, fontWeight: FontWeight.w600)),
                 subtitle: Text(
-                  language.complete
+                  language.isReviewed
                       ? language.englishName
-                      : '${language.englishName} · partly translated',
+                      : '${language.englishName} · ${l10n.languageDraftBadge}',
                   style: TextStyle(
                       fontSize: 11.5, color: AppColors.textSecondary),
                 ),
                 onTap: () => controller.setLanguage(language),
               ),
             ),
-          if (!controller.language.complete) ...[
+          if (!controller.language.isReviewed) ...[
             const SizedBox(height: 6),
             Card(
               color: AppColors.pendingTint,

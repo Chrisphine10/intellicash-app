@@ -221,7 +221,7 @@ class L10nSw extends L10n {
 
   @override
   String get languageNeedsReview =>
-      'Tafsiri hii bado inakaguliwa na wazungumzaji wa lugha hii. Maneno ambayo hayajatafsiriwa yataonekana kwa Kiingereza.';
+      'Kila skrini imetafsiriwa, lakini mzungumzaji wa lugha hii bado hajakagua maneno. Kama kitu hakisomeki vizuri, tuambie — unaweza kurudi kwa Kiingereza au Kiswahili wakati wowote.';
 
   @override
   String get shareTextButton => 'Tuma Maandishi';
@@ -1415,4 +1415,7 @@ class L10nSw extends L10n {
   String visitAssessmentPhotoCapReached(int max) {
     return 'Ziara hii tayari ina picha $max.';
   }
+
+  @override
+  String get languageDraftBadge => 'rasimu';
 }

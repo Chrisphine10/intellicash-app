@@ -66,7 +66,7 @@
   "intelliStores": "Intelli-Stores",
   "language": "Lugha",
   "languageSubtitle": "Chagua lugha ya simu hii",
-  "languageNeedsReview": "Tafsiri hii bado inakaguliwa na wazungumzaji wa lugha hii. Maneno ambayo hayajatafsiriwa yataonekana kwa Kiingereza.",
+  "languageNeedsReview": "Kila skrini imetafsiriwa, lakini mzungumzaji wa lugha hii bado hajakagua maneno. Kama kitu hakisomeki vizuri, tuambie — unaweza kurudi kwa Kiingereza au Kiswahili wakati wowote.",
   "shareTextButton": "Tuma Maandishi",
   "back": "Rudi",
   "cancel": "Ghairi",
@@ -419,5 +419,6 @@
   "paymentProvidersStillNeeded": "Haijakamilika — bado inahitajika: {fields}. Hadi hapo fedha bado huenda kwenye akaunti ya jukwaa.",
   "welfareSharedOutExplainer": "Hiki ndicho kitakachogawanywa mwisho wa mzunguko — si jumla iliyochangwa. {paidOut} imelipwa hadi sasa.",
   "shareOutStartsNextCycle": "Hii hurekodi kila malipo, humaliza mikopo iliyobaki, na huanzisha Mzunguko {cycle}. Haiwezi kutenguliwa.",
-  "visitAssessmentPhotoCapReached": "Ziara hii tayari ina picha {max}."
+  "visitAssessmentPhotoCapReached": "Ziara hii tayari ina picha {max}.",
+  "languageDraftBadge": "rasimu"
 }

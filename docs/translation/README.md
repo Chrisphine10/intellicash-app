@@ -1,72 +1,95 @@
-# Finishing the translations
+# Reviewing the translations
 
-The app now has **420 translatable strings**. English and Kiswahili are
-complete. Gĩkũyũ, Dholuo and Kĩembu are partial, and this folder is what a
-native speaker needs to finish them.
+All five languages are now at **421 of 421 strings**. Nothing falls back to
+English any more.
 
-## Why they are partial
+| Language | Strings | Reviewed by a speaker? |
+|---|---|---|
+| English | 421 | source |
+| Kiswahili | 421 | yes |
+| Gĩkũyũ | 421 | **no** |
+| Dholuo | 421 | **no** |
+| Kĩembu | 421 | **no**, and mostly derived — see below |
 
-Nobody on this side speaks them well enough to write a savings ledger in them.
-Guessing was the wrong call: a group reads "mkopo" and "akiba" to decide who
-owes what, and a plausible-but-wrong word in that context costs somebody money.
-Everything not translated falls back to English, the picker says "partly
-translated", and each `.arb` carries a `_comment` saying the same. That is
-honest; a confident guess would not be.
+## Why "complete" is not the same as "finished"
 
-## What to do
+While a language was half-translated, a word nobody was sure about simply
+showed in English. That was ugly but safe: the gap announced itself.
 
-1. Open the CSV for your language. Each row is one string:
+Now there are no gaps. Every screen is full of Gĩkũyũ, Dholuo or Kĩembu — and
+a word that is grammatical but *wrong* looks exactly as confident as a word
+that is right. In a savings ledger that matters: if "mkopo" and "akiba" get
+swapped, a group can disagree about who owes what and the app will look sure
+of itself the whole time.
 
-   | column | meaning |
-   |---|---|
-   | `key` | leave alone — it is how the app finds the string |
-   | `english` | the original |
-   | `kiswahili_for_reference` | how it was rendered in Kiswahili, as a guide |
-   | `<language>_translation` | **fill this in** |
+So these three ship as **drafts**. The picker says so, each `.arb` says so in
+its `_comment`, and a test fails the build if that stops being said.
 
-2. Leave a row blank if you are not sure. Blank falls back to English, which is
-   far better than a wrong word.
+**Kĩembu especially.** Most of its entries were derived from the Gĩkũyũ file
+by dropping the ĩ/ũ diacritics — the register the original Kĩembu entries in
+that file already used. The two languages are close, but they are not the same
+language, and nobody who speaks Kĩembu has read this.
 
-3. Things to keep exactly as they are:
-   - `{officials}`, `{members}`, `{paidOut}`, `{cycle}`, `{max}`, `{fields}` —
-     the app puts a number or a name there. Move them within the sentence to
-     wherever your language wants them, but do not rename or delete them.
-   - `KSh`, `M-Pesa`, `Intelli-Cash`, `Intelli-Store`, `PIN`, `SMS`.
-   - Line breaks written as `\n`.
+## How to review
 
-4. Keep it short. These are phone screens; a label that runs to three lines
-   pushes the buttons off the bottom on a small handset.
+Open the CSV for your language. One row per string:
 
-## Loading a finished file back in
+| column | meaning |
+|---|---|
+| `key` | leave alone — it is how the app finds the string |
+| `english` | the original |
+| `kiswahili_for_reference` | a second reading, in case the English is unclear |
+| `<language>_draft` | **what the app says today** |
+| `<language>_corrected` | fill in only if the draft is wrong |
+| `ok_as_is` | put `y` if the draft is fine |
+
+Leave both last columns blank for anything you are unsure about and we will
+come back to it. A row you correct replaces the draft; a row you mark `y` is
+recorded as checked.
+
+Things to keep exactly as they are:
+
+- `{officials}`, `{members}`, `{paidOut}`, `{cycle}`, `{max}`, `{fields}` — the
+  app puts a number or a name there. Move them within the sentence to wherever
+  your language wants them, but do not rename or delete them.
+- `KSh`, `M-Pesa`, `Intelli-Cash`, `Intelli-Store`, `PIN`, `SMS`, `VSLA`.
+- Line breaks written as `\n`.
+
+Keep it short. These are phone screens; a label that runs to three lines pushes
+the buttons off the bottom on a small handset.
+
+## Loading a reviewed file back in
 
 ```bash
-python tool/import_translations.py docs/translation/luo-to-translate.csv
+python tool/import_translations.py docs/translation/luo-to-review.csv
 flutter gen-l10n
 flutter test test/core/translation_coverage_test.dart
 ```
 
-When a language reaches 100%, flip `complete: true` for it in
-`lib/providers/locale_controller.dart`. The test suite enforces that: a
-language claiming completeness while missing strings fails the build, so the
-picker can never promise more than the app delivers.
+Once a speaker has been through a language, change its `state` to
+`TranslationState.ready` in `lib/providers/locale_controller.dart`. That is the
+only thing that removes the "draft" badge, and the test suite checks that only
+reviewed languages claim it.
 
-## The vocabulary already agreed
+## Words to keep consistent
 
-These recur throughout and should be translated the same way every time.
+| English | Kiswahili | Gĩkũyũ | Dholuo |
+|---|---|---|---|
+| savings | akiba | ũigi | pesa mokan |
+| shares | hisa | hisa | hisa |
+| loan | mkopo | mũkopo | hola |
+| repayment | marejesho | irĩhi | chulo |
+| member | mwanachama | mũmemba | jamembe |
+| group | kikundi | gĩkundi | riwruok |
+| meeting | mkutano | mũcemanio | chokruok |
+| welfare fund | mfuko wa jamii | mũthithũ wa ũteithio | sanduk mar kony |
+| fine | faini | faini | chudo |
+| cycle | mzunguko | mũthiũrũrũko | ndalo |
+| share-out | mgao | kũgayana | pogruok |
+| attendance | mahudhurio | ũkinyu | bedo e chokruok |
+| vote | kura | itua | yiero |
+| report | ripoti | ripoti | ripot |
 
-| English | Kiswahili |
-|---|---|
-| savings | akiba |
-| shares | hisa |
-| loan | mkopo |
-| repayment | marejesho |
-| member | mwanachama |
-| group | kikundi |
-| meeting | mkutano |
-| social / welfare fund | mfuko wa jamii |
-| fine | faini |
-| cycle | mzunguko |
-| share-out | mgao |
-| attendance | mahudhurio |
-| vote | kura |
-| report | ripoti |
+If a reviewer prefers a different word for any of these, change it everywhere
+rather than in one screen — the same English word appearing as two different
+words across the app is how a group loses trust in the book.

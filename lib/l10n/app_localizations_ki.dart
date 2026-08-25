@@ -9,10 +9,10 @@ class L10nKi extends L10n {
   L10nKi([String locale = 'ki']) : super(locale);
 
   @override
-  String get appTagline => 'Your VSLA in your pocket';
+  String get appTagline => 'VSLA yaku mũthithũ-inĩ waku';
 
   @override
-  String get navDashboard => 'Dashboard';
+  String get navDashboard => 'Mũhũthũ';
 
   @override
   String get navMeetings => 'Mĩcemanio';
@@ -31,119 +31,118 @@ class L10nKi extends L10n {
 
   @override
   String get welcomeCreateAccountPrompt =>
-      'Create your account to get started.';
+      'Ambĩrĩria na gũthondeka akaũnti yaku.';
 
   @override
-  String get welcomeAccountReady => 'Your account is ready.';
+  String get welcomeAccountReady => 'Akaũnti yaku nĩ yehaarĩirie.';
 
   @override
-  String get createAccount => 'Create Account';
+  String get createAccount => 'Thondeka Akaũnti';
 
   @override
   String get createAccountSubtitle =>
-      'New here? Set up an account for your group, yourself, or your work as an agent.';
+      'Nĩ mbere yaku? Thondeka akaũnti ya gĩkundi kĩanyu, yaku we mwene, kana ya wĩra waku ta mũrũgamĩrĩri.';
 
   @override
   String get signIn => 'Toonya';
 
   @override
-  String get signInSubtitle => 'I already have an Intelli-Cash account.';
+  String get signInSubtitle => 'Ndĩ na akaũnti ya Intelli-Cash.';
 
   @override
   String get signOut => 'Uma';
 
   @override
   String signedInAs(String name) {
-    return 'Signed in as $name.';
+    return 'Wĩtoonyetie ta $name.';
   }
 
   @override
-  String get setUpGroup => 'Set up my group on this phone';
+  String get setUpGroup => 'Thondeka gĩkundi gĩakwa thimũ-inĩ ĩno';
 
   @override
   String get setUpGroupSubtitle =>
-      'Keep your group\'s savings, loans and meetings — works without internet once set up.';
+      'Iga ũigi, mĩkopo na mĩcemanio ya gĩkundi kĩanyu — nĩ ĩrutaga wĩra o na hatarĩ ĩntaneti.';
 
   @override
-  String get whoIsThisAccountFor => 'Who is this account for?';
+  String get whoIsThisAccountFor => 'Akaũnti ĩno nĩ ya ũ?';
 
   @override
-  String get pickOneLater =>
-      'Pick one — you can always add more accounts later.';
+  String get pickOneLater => 'Thuura ĩmwe — no wongerere ingĩ thutha-inĩ.';
 
   @override
-  String get accountTypeGroup => 'Our Group';
+  String get accountTypeGroup => 'Gĩkundi Gĩitũ';
 
   @override
   String get accountTypeGroupSubtitle =>
-      'This phone will keep our group\'s savings, loans and meetings.';
+      'Thimũ ĩno nĩyo ĩkũiga ũigi, mĩkopo na mĩcemanio ya gĩkundi gĩitũ.';
 
   @override
-  String get accountTypeMember => 'Just Me';
+  String get accountTypeMember => 'Niĩ Nyiki';
 
   @override
   String get accountTypeMemberSubtitle =>
-      'I want to see my own savings, shares and loans.';
+      'Nĩngwenda kuona ũigi, hisa na mĩkopo yakwa.';
 
   @override
-  String get accountTypeAgent => 'Field Agent';
+  String get accountTypeAgent => 'Mũrũgamĩrĩri wa Mũgũnda';
 
   @override
   String get accountTypeAgentSubtitle =>
-      'Village Agent or CBT — I support and monitor several groups.';
+      'Mũrũgamĩrĩri wa Itũũra kana CBT — nĩndeithagia na ngarora ikundi nyingĩ.';
 
   @override
-  String get change => 'Change';
+  String get change => 'Garũra';
 
   @override
   String get groupNameLabel => 'Rĩĩtwa rĩa gĩkundi';
 
   @override
-  String get yourFullName => 'Your full name';
+  String get yourFullName => 'Rĩĩtwa rĩaku rĩothe';
 
   @override
   String get phoneNumber => 'Namba ya thimũ';
 
   @override
-  String get password => 'Password';
+  String get password => 'Kĩhithe';
 
   @override
-  String get passwordHint => 'At least 6 characters — keep it secret.';
+  String get passwordHint => 'Ndemwa 6 kana nyingĩ — kĩige kĩrĩ kĩhithe.';
 
   @override
-  String get repeatPassword => 'Repeat password';
+  String get repeatPassword => 'Cookera kĩhithe';
 
   @override
-  String get emailOptional => 'Email (optional)';
+  String get emailOptional => 'Barũa ya ĩntaneti (ti bata)';
 
   @override
-  String get countyOptional => 'County (optional)';
+  String get countyOptional => 'Kaũnti (ti bata)';
 
   @override
-  String get createMyAccount => 'Create My Account';
+  String get createMyAccount => 'Thondeka Akaũnti Yakwa';
 
   @override
-  String get creatingAccount => 'Creating account…';
+  String get creatingAccount => 'Nĩgũthondekwo akaũnti…';
 
   @override
   String get registerNeedsInternet =>
-      'Creating an account needs an internet connection. Your phone number is your sign-in.';
+      'Gũthondeka akaũnti nĩkũbataraga ĩntaneti. Namba yaku ya thimũ nĩyo ũkũhũthĩra gũtoonya.';
 
   @override
-  String get welcomeBack => 'Welcome back';
+  String get welcomeBack => 'Wamũkĩro rĩngĩ';
 
   @override
-  String get signInWithPhone => 'Sign in with your phone number and password.';
+  String get signInWithPhone => 'Toonya na namba yaku ya thimũ na kĩhithe.';
 
   @override
-  String get phoneOrEmail => 'Phone number or email';
+  String get phoneOrEmail => 'Namba ya thimũ kana barũa ya ĩntaneti';
 
   @override
-  String get signingIn => 'Signing in…';
+  String get signingIn => 'Nĩgũtoonywo…';
 
   @override
   String get sessionNote =>
-      'Your session lasts 8 hours. The group\'s record book keeps working offline once you are signed in.';
+      'Mahinda maku nĩ mathaa 8. Ibuku rĩa gĩkundi rĩthiaga na mbere kũruta wĩra o na hatarĩ ĩntaneti waarĩkia gũtoonya.';
 
   @override
   String get sectionGroup => 'Gĩkundi';
@@ -152,64 +151,64 @@ class L10nKi extends L10n {
   String get sectionReports => 'Ripoti';
 
   @override
-  String get sectionEndOfCycle => 'End of cycle';
+  String get sectionEndOfCycle => 'Mũthia wa mũthiũrũrũko';
 
   @override
-  String get sectionCloudBackup => 'Cloud & backup';
+  String get sectionCloudBackup => 'Matu na kũiga';
 
   @override
-  String get sectionAppearance => 'Appearance';
+  String get sectionAppearance => 'Mũonekere';
 
   @override
   String get sectionLanguage => 'Rũthiomi';
 
   @override
-  String get sectionAbout => 'About';
+  String get sectionAbout => 'Ũhoro';
 
   @override
-  String get groupSettings => 'Group Settings';
+  String get groupSettings => 'Mĩbango ya Gĩkundi';
 
   @override
-  String get groupSettingsSubtitle => 'Savings, loans and meeting days';
+  String get groupSettingsSubtitle => 'Ũigi, mĩkopo na mĩthenya ya mĩcemanio';
 
   @override
-  String get meetingSecurity => 'Meeting Security';
+  String get meetingSecurity => 'Ũgitĩri wa Mũcemanio';
 
   @override
-  String get memberAccounts => 'Member Accounts';
+  String get memberAccounts => 'Akaũnti cia Amemba';
 
   @override
   String get memberAccountsSubtitle =>
-      'Let members get their own sign-in to see their savings';
+      'Rekereria amemba magĩe na akaũnti ciao mone ũigi wao';
 
   @override
-  String get groupRules => 'Group Rules';
+  String get groupRules => 'Mawatho ma Gĩkundi';
 
   @override
-  String get groupReport => 'Group Report';
+  String get groupReport => 'Ripoti ya Gĩkundi';
 
   @override
   String get groupReportSubtitle =>
-      'Money, members and meetings — share text or PDF';
+      'Mbeca, amemba na mĩcemanio — tũma maandĩko kana PDF';
 
   @override
-  String get memberReports => 'Member Reports';
+  String get memberReports => 'Ripoti cia Amemba';
 
   @override
   String get memberReportsSubtitle =>
-      'A statement for each member — share text or PDF';
+      'Ũhoro wa o mũmemba — tũma maandĩko kana PDF';
 
   @override
-  String get shareOut => 'Share-Out';
+  String get shareOut => 'Kũgayana';
 
   @override
-  String get shareOutSubtitle => 'Share the group fund back to members';
+  String get shareOutSubtitle => 'Gaĩra amemba mbeca cia gĩkundi';
 
   @override
-  String get cloudAccount => 'Cloud Account';
+  String get cloudAccount => 'Akaũnti ya Matu';
 
   @override
-  String get syncBackup => 'Sync & Backup';
+  String get syncBackup => 'Kũiganania na Kũiga';
 
   @override
   String get intelliStores => 'Intelli-Stores';
@@ -218,14 +217,14 @@ class L10nKi extends L10n {
   String get language => 'Rũthiomi';
 
   @override
-  String get languageSubtitle => 'Choose the language for this phone';
+  String get languageSubtitle => 'Thuura rũthiomi rwa thimũ ĩno';
 
   @override
   String get languageNeedsReview =>
-      'This translation is still being checked by native speakers. Anything not yet translated shows in English.';
+      'Ithangũ o rĩothe nĩrĩataũrwo, no mũndũ ũaragia rũthiomi rũrũ ndarĩ arorire ciugo. Kũngĩkorũo harĩ ũndũ ũtathomeka wega, tũmenyithie — no ũcooke Gĩthungũ kana Gĩthwahili hĩndĩ o yothe.';
 
   @override
-  String get shareTextButton => 'Share Text';
+  String get shareTextButton => 'Tũma Maandĩko';
 
   @override
   String get back => 'Cooka';
@@ -234,90 +233,91 @@ class L10nKi extends L10n {
   String get cancel => 'Tiga';
 
   @override
-  String get signedOut => 'Signed out.';
+  String get signedOut => 'Nĩwoima.';
 
   @override
   String get signOutKeepsRecords =>
-      'Your group\'s savings, loans and meetings stay saved on this phone, but nobody can open them until you sign in again. Your phone number will be remembered.';
+      'Ũigi, mĩkopo na mĩcemanio ya gĩkundi kĩanyu ĩgũtigwo ĩigĩtwo thimũ-inĩ ĩno, no gũtirĩ mũndũ ũngĩmĩhingũra ũtatoonyete rĩngĩ. Namba yaku ya thimũ nĩĩkũririkanwo.';
 
   @override
   String get signOutMemberNote =>
-      'You will need to sign in again to see your savings. Your phone number will be remembered.';
+      'Nĩũkabatara gũtoonya rĩngĩ nĩguo wone ũigi waku. Namba yaku ya thimũ nĩĩkũririkanwo.';
 
   @override
   String get signOutAgentNote =>
-      'You will need to sign in again to see your groups. Your phone number will be remembered.';
+      'Nĩũkabatara gũtoonya rĩngĩ nĩguo wone ikundi ciaku. Namba yaku ya thimũ nĩĩkũririkanwo.';
 
   @override
-  String get whoIsSigningIn => 'Who is signing in?';
+  String get whoIsSigningIn => 'Nũũ ũratoonya?';
 
   @override
   String get whoIsSigningInSubtitle =>
-      'Choose the kind of account you use, then enter your phone number and password.';
+      'Thuura mũthemba wa akaũnti ũrahũthĩra, ũcooke wĩkĩre namba yaku ya thimũ na kĩhithe.';
 
   @override
-  String get welfareRecordThisPayment => 'Record this payment?';
+  String get welfareRecordThisPayment => 'Andĩka irĩhi rĩrĩ?';
 
   @override
-  String get welfareRecordPayment => 'Record payment';
+  String get welfareRecordPayment => 'Andĩka irĩhi';
 
   @override
   String get welfareWelfareFund => 'Mũthithũ wa Ũteithio';
 
   @override
   String get welfareCouldNotLoadTheWelfare =>
-      'Could not load the welfare fund.';
+      'Mũthithũ wa ũteithio ndũnahota kũrutwo.';
 
   @override
   String get welfareTryAgain => 'Geria rĩngĩ';
 
   @override
-  String get welfareLeftInTheWelfareFund => 'Left in the welfare fund';
+  String get welfareLeftInTheWelfareFund =>
+      'Kĩrĩa gĩtigarĩte mũthithũ-inĩ wa ũteithio';
 
   @override
-  String get welfareRecordAWelfarePayment => 'Record a welfare payment';
+  String get welfareRecordAWelfarePayment => 'Andĩka irĩhi rĩa ũteithio';
 
   @override
-  String get welfarePaidOutThisCycle => 'Paid out this cycle';
+  String get welfarePaidOutThisCycle => 'Kĩrĩa kĩrĩhĩtwo mũthiũrũrũko-inĩ ũyũ';
 
   @override
   String get welfareNothingPaidOutYetThe =>
-      'Nothing paid out yet — the whole welfare fund will be shared.';
+      'Gũtirĩ kĩrĩhĩtwo — mũthithũ wothe wa ũteithio nĩũkũgayanwo.';
 
   @override
-  String get welfareRecordedInMeeting => 'Recorded in meeting';
+  String get welfareRecordedInMeeting => 'Kwandĩkĩirwo mũcemanio-inĩ';
 
   @override
   String get welfareAmountKsh => 'Mũigana (KSh)';
 
   @override
-  String get welfareWhatFor => 'What for';
+  String get welfareWhatFor => 'Nĩ kwa ũndũ ũrĩkũ';
 
   @override
-  String get welfarePaidTo => 'Paid to';
+  String get welfarePaidTo => 'Aarĩhirwo';
 
   @override
   String get welfareAMemberAFamilyOr =>
-      'A member, a family, or a hospital — whoever received it';
+      'Mũmemba, mũciĩ, kana thibitarĩ — mũndũ o wothe ũrĩa waamũkĩrire';
 
   @override
-  String get welfareNoteOptional => 'Note (optional)';
+  String get welfareNoteOptional => 'Ũhoro (ti bata)';
 
   @override
-  String get meetingHubEditAttendance => 'Edit attendance';
+  String get meetingHubEditAttendance => 'Garũra ũkinyu';
 
   @override
-  String get meetingHubCloseLockMeeting => 'Close & Lock Meeting';
+  String get meetingHubCloseLockMeeting => 'Hinga na Ũhingĩre Mũcemanio';
 
   @override
   String get meetingHubClosingLocksAllRecordsPermanently =>
-      'Closing locks all records permanently.';
+      'Kũhinga kũhingaga maandĩko mothe nginya tene.';
 
   @override
-  String get meetingHubKeepOpen => 'Keep Open';
+  String get meetingHubKeepOpen => 'Tiga Ũhingũkĩte';
 
   @override
-  String get meetingHubCloseLock => 'Close & Lock';
+  String get meetingHubCloseLock => 'Hinga na Ũhingĩre';
 
   @override
   String get meetingHubSocialFund => 'Mũthithũ wa Ũteithio';
@@ -335,7 +335,7 @@ class L10nKi extends L10n {
   String get meetingHubRepayment => 'Kũrĩha';
 
   @override
-  String get meetingHubShareRecords => 'Share Records';
+  String get meetingHubShareRecords => 'Maandĩko ma Hisa';
 
   @override
   String get meetingHubVoting => 'Gũtua';
@@ -351,25 +351,25 @@ class L10nKi extends L10n {
 
   @override
   String get groupSetupWizardAddTheMembersJoiningThis =>
-      'Add the members joining this cycle. You can always add more later.';
+      'Ongerera amemba arĩa marenyita mũthiũrũrũko ũyũ. No wongerere angĩ hĩndĩ ĩngĩ.';
 
   @override
   String get groupSetupWizardEveryoneBuysSharesAtOne =>
-      'Everyone buys shares at one fixed price';
+      'Mũndũ o wothe agũraga hisa na thogora ũmwe ũtagarũrũkaga';
 
   @override
   String get groupSetupWizardMembersSaveWhatTheyCan =>
-      'Members save what they can each meeting';
+      'Amemba maigaga kĩrĩa mangĩhota o mũcemanio';
 
   @override
   String get groupSetupWizardGroupName => 'Rĩĩtwa rĩa gĩkundi';
 
   @override
-  String get groupSetupWizardCycleNumber => 'Cycle Number';
+  String get groupSetupWizardCycleNumber => 'Namba ya Mũthiũrũrũko';
 
   @override
   String get groupSetupWizardWhichSavingsCycleIsThis =>
-      'Which savings cycle is this group on?';
+      'Gĩkundi gĩkĩ kĩrĩ mũthiũrũrũko ũrĩkũ wa ũigi?';
 
   @override
   String get groupSetupWizardMemberName => 'Rĩĩtwa rĩa mũmemba';
@@ -381,162 +381,162 @@ class L10nKi extends L10n {
   String get groupSetupWizardRemove => 'Eheria';
 
   @override
-  String get groupSetupWizardShareValueKsh => 'Share Value (KSh)';
+  String get groupSetupWizardShareValueKsh => 'Thogora wa Hisa (KSh)';
 
   @override
-  String get groupSetupWizardMaxSharesPerMeeting => 'Max Shares per Meeting';
+  String get groupSetupWizardMaxSharesPerMeeting =>
+      'Hisa Iria Nyingĩ o Mũcemanio';
 
   @override
   String get groupSetupWizardSocialFundPerMeetingKsh =>
-      'Social Fund per Meeting (KSh)';
+      'Mũthithũ wa Ũteithio o Mũcemanio (KSh)';
 
   @override
   String get groupSetupWizardTrackedSeparatelyFromSavings =>
-      'Tracked separately from savings';
+      'Ũrũmagĩrĩrwo mwanya na ũigi';
 
   @override
-  String get groupSetupWizardInterestRatePerMonth =>
-      'Interest Rate (% per month)';
+  String get groupSetupWizardInterestRatePerMonth => 'Ũcuuthi (% o mweri)';
 
   @override
   String get groupSetupWizardMaxLoanMultiplierSavings =>
-      'Max Loan Multiplier (× savings)';
+      'Mũigana wa Mũkopo (× ũigi)';
 
   @override
   String get groupSetupWizardDefaultLoanTermMonths =>
-      'Default Loan Term (months)';
+      'Ihinda rĩa Mũkopo (mĩeri)';
 
   @override
-  String get groupSyncBackUpToCloud => 'Back Up to Cloud';
+  String get groupSyncBackUpToCloud => 'Iga Matu-inĩ';
 
   @override
-  String get groupSyncUnlinkGroup => 'Unlink group?';
+  String get groupSyncUnlinkGroup => 'Eheria kĩohanio kĩa gĩkundi?';
 
   @override
-  String get groupSyncUnlink => 'Unlink';
+  String get groupSyncUnlink => 'Eheria kĩohanio';
 
   @override
-  String get groupSyncNotConnected => 'Not connected';
+  String get groupSyncNotConnected => 'Ĩtiohanĩtio';
 
   @override
-  String get groupSyncOpenServerConnection => 'Open Server Connection';
+  String get groupSyncOpenServerConnection => 'Hingũra Kĩohanio kĩa Cheba';
 
   @override
-  String get groupSyncLink => 'Link';
+  String get groupSyncLink => 'Ohania';
 
   @override
-  String get groupSyncUnlinkGroup2 => 'Unlink Group';
+  String get groupSyncUnlinkGroup2 => 'Eheria Kĩohanio kĩa Gĩkundi';
 
   @override
-  String get groupSyncNoBackendGroups => 'No backend groups';
+  String get groupSyncNoBackendGroups => 'Gũtirĩ ikundi cheba-inĩ';
 
   @override
   String get groupSyncThisApiKeyCannotSee =>
-      'This API key cannot see any groups to link to.';
+      'Kĩhingũro gĩkĩ gĩtingĩona gĩkundi o na kĩmwe gĩa kuohania.';
 
   @override
-  String get groupSyncBackendGroup => 'Backend group';
+  String get groupSyncBackendGroup => 'Gĩkundi kĩrĩa kĩrĩ cheba-inĩ';
 
   @override
-  String get createPollStartAVote => 'Start a Vote';
+  String get createPollStartAVote => 'Ambĩrĩria Itua';
 
   @override
   String get createPollEveryonePresentVotesOnceNobody =>
-      'Everyone present votes once. Nobody can vote twice.';
+      'O mũndũ ũrĩ ho atuaga riita rĩmwe. Gũtirĩ ũngĩtua maita meerĩ.';
 
   @override
-  String get createPollChooseALeader => 'Choose a leader';
+  String get createPollChooseALeader => 'Thuura mũtongoria';
 
   @override
-  String get createPollDecideSomething => 'Decide something';
+  String get createPollDecideSomething => 'Tua ũndũ';
 
   @override
-  String get createPollTickAtLeastTwoPeople => 'Tick at least two people.';
+  String get createPollTickAtLeastTwoPeople => 'Thuura andũ eerĩ kana makĩria.';
 
   @override
-  String get createPollAddAnotherAnswer => 'Add another answer';
+  String get createPollAddAnotherAnswer => 'Ongerera macookio mangĩ';
 
   @override
-  String get createPollSecretVote => 'Secret vote';
+  String get createPollSecretVote => 'Itua rĩa hitho';
 
   @override
-  String get createPollOpenTheVote => 'Open the Vote';
+  String get createPollOpenTheVote => 'Hingũra Itua';
 
   @override
-  String get createPollWhichPosition => 'Which position?';
+  String get createPollWhichPosition => 'Nĩ nafathi ĩrĩkũ?';
 
   @override
-  String get createPollWhatIsTheQuestion => 'What is the question?';
+  String get createPollWhatIsTheQuestion => 'Kĩũria nĩ kĩrĩkũ?';
 
   @override
-  String get createPollShouldWeBuyAGroup => 'Should we buy a group water tank?';
+  String get createPollShouldWeBuyAGroup => 'Nĩtũgũre tanki ya maĩ ya gĩkundi?';
 
   @override
   String get paymentProvidersLeaveABoxEmptyTo =>
-      'Leave a box empty to keep what is already saved.';
+      'Tiga gĩkabũ gĩtarĩ kĩndũ nĩguo ũtige kĩrĩa kĩigĩtwo.';
 
   @override
   String get paymentProvidersSave => 'Iga';
 
   @override
   String get paymentProvidersUseThePlatformAccount =>
-      'Use the platform account?';
+      'Hũthĩra akaũnti ya kĩoneki?';
 
   @override
-  String get paymentProvidersPaymentProviders => 'Payment Providers';
+  String get paymentProvidersPaymentProviders => 'Aheani a Marĩhi';
 
   @override
-  String get paymentProvidersUsePlatform => 'Use platform';
+  String get paymentProvidersUsePlatform => 'Hũthĩra kĩoneki';
 
   @override
-  String get storeShopOnCredit => 'Shop on credit';
+  String get storeShopOnCredit => 'Gũra na mũkopo';
 
   @override
   String get storeLoanOffersFromLendingPartners =>
-      'Loan offers from lending partners — apply as a group.';
+      'Mĩkopo kuuma kũrĩ athiritũ akombithania — hooya ta gĩkundi.';
 
   @override
-  String get storeSeeAllExternalLoans => 'See all external loans';
+  String get storeSeeAllExternalLoans => 'Ona mĩkopo yothe ya nja';
 
   @override
-  String get storeConnectToBrowseTheStore => 'Connect to browse the store';
+  String get storeConnectToBrowseTheStore => 'Ohania nĩguo wone thoko';
 
   @override
-  String get storeOpenCloudAccount => 'Open Cloud Account';
+  String get storeOpenCloudAccount => 'Hingũra Akaũnti ya Matu';
 
   @override
   String get storeAll => 'Ciothe';
 
   @override
-  String get storeCouldNotLoadTheStore => 'Could not load the store';
+  String get storeCouldNotLoadTheStore => 'Thoko ndĩnahota kũrutwo';
 
   @override
-  String get storeNoProductsInThisCategory => 'No products in this category';
+  String get storeNoProductsInThisCategory => 'Gũtirĩ indo mũthemba-inĩ ũyũ';
 
   @override
   String get storeTryADifferentCategoryOr =>
-      'Try a different category or check back later.';
+      'Geria mũthemba ũngĩ kana ũcooke thutha-inĩ.';
 
   @override
-  String get pollsNewVote => 'Gũtua Kwerũ';
+  String get pollsNewVote => 'Itua Rĩerũ';
 
   @override
-  String get pollsGroupVotes => 'Group votes';
+  String get pollsGroupVotes => 'Itua cia gĩkundi';
 
   @override
-  String get pollsSecret => 'Secret';
+  String get pollsSecret => 'Hitho';
 
   @override
-  String get pollsYouHaveVoted => 'You have voted';
+  String get pollsYouHaveVoted => 'Nĩwatua';
 
   @override
-  String get pollsConnectToVote => 'Connect to vote';
+  String get pollsConnectToVote => 'Ohania nĩguo ũtue';
 
   @override
-  String get pollsCouldNotLoadTheVotes => 'Could not load the votes';
+  String get pollsCouldNotLoadTheVotes => 'Itua itinahota kũrutwo';
 
   @override
-  String get pollsNoVotesYet => 'No votes yet';
+  String get pollsNoVotesYet => 'Gũtirĩ itua';
 
   @override
   String get memberPassbookMyPassbook => 'Ibuku Rĩakwa';
@@ -545,290 +545,292 @@ class L10nKi extends L10n {
   String get memberPassbookJoinAGroup => 'Ĩtĩkĩra gĩkundi';
 
   @override
-  String get memberPassbookMyReport => 'My report';
+  String get memberPassbookMyReport => 'Ripoti yakwa';
 
   @override
   String get memberPassbookMySavingsAcrossAllGroups =>
-      'My savings across all groups';
+      'Ũigi wakwa ikundi-inĩ ciothe';
 
   @override
-  String get memberPassbookJoinAnotherGroup => 'Join another group';
+  String get memberPassbookJoinAnotherGroup => 'Ĩtĩkĩra gĩkundi kĩngĩ';
 
   @override
-  String get memberPassbookYouAreNotInA => 'You are not in a group yet';
+  String get memberPassbookYouAreNotInA => 'Ndũrĩ gĩkundi-inĩ o na rĩmwe';
 
   @override
-  String get memberPassbookNoTransactionsYet => 'No transactions yet';
+  String get memberPassbookNoTransactionsYet => 'Gũtirĩ maũndũ mekĩtwo';
 
   @override
   String get memberPassbookYourSavingsAndLoanRecords =>
-      'Your savings and loan records will appear here.';
+      'Maandĩko ma ũigi na mĩkopo yaku nĩmakonekaga haha.';
 
   @override
   String get joinRequestsDecline => 'Rega';
 
   @override
-  String get joinRequestsJoinRequests => 'Join Requests';
+  String get joinRequestsJoinRequests => 'Mahooya ma Kwĩyũnganĩria';
 
   @override
-  String get joinRequestsPeopleAskingToJoin => 'People asking to join';
+  String get joinRequestsPeopleAskingToJoin =>
+      'Andũ arĩa marahooya kwĩyũnganĩria';
 
   @override
   String get joinRequestsApprove => 'Ĩtĩkĩra';
 
   @override
-  String get joinRequestsReasonOptional => 'Reason (optional)';
+  String get joinRequestsReasonOptional => 'Gĩtũmi (ti bata)';
 
   @override
-  String get joinRequestsNoOneIsWaiting => 'No one is waiting';
+  String get joinRequestsNoOneIsWaiting => 'Gũtirĩ mũndũ ũreteterera';
 
   @override
-  String get pollDetailCloseThisVote => 'Close this vote?';
+  String get pollDetailCloseThisVote => 'Hinga itua rĩrĩ?';
 
   @override
-  String get pollDetailCloseVote => 'Close Vote';
+  String get pollDetailCloseVote => 'Hinga Itua';
 
   @override
   String get pollDetailVote => 'Tua';
 
   @override
-  String get pollDetailYourChoice => 'Your choice';
+  String get pollDetailYourChoice => 'Ũthuuri waku';
 
   @override
   String get pollDetailNoMembersLoadedForThis =>
-      'No members loaded for this group yet.';
+      'Gũtirĩ amemba marutĩtwo gĩkundi gĩkĩ.';
 
   @override
-  String get pollDetailMemberCastingThisVote => 'Member casting this vote';
+  String get pollDetailMemberCastingThisVote => 'Mũmemba ũratua itua rĩrĩ';
 
   @override
-  String get groupPolicyHowLongALoanRuns => 'How long a loan runs';
+  String get groupPolicyHowLongALoanRuns =>
+      'Mũkopo ũikaraga ihinda rĩigana atĩa';
 
   @override
-  String get groupPolicyInterestCharged => 'Interest charged';
+  String get groupPolicyInterestCharged => 'Ũcuuthi ũrĩa ũtozagwo';
 
   @override
-  String get groupPolicyExpensesArePaidFrom => 'Expenses are paid from';
+  String get groupPolicyExpensesArePaidFrom => 'Thogora ũrĩhagwo kuuma';
 
   @override
-  String get groupPolicyRulesThatAreFixed => 'Rules that are fixed';
+  String get groupPolicyRulesThatAreFixed => 'Mawatho matagarũrũkaga';
 
   @override
-  String get productDetailRequestOnCredit => 'Request on Credit';
+  String get productDetailRequestOnCredit => 'Hooya na Mũkopo';
 
   @override
   String get productDetailQuantity => 'Mũigana';
 
   @override
-  String get productDetailSubmitRequest => 'Submit Request';
+  String get productDetailSubmitRequest => 'Tũma Ihooya';
 
   @override
   String get productDetailPricedAtTheStandardDeposit =>
-      'Priced at the standard deposit — rating unavailable.';
+      'Thogora wa mũthiĩ wa kawaida — gĩthimi gĩtirĩ ho.';
 
   @override
-  String get productDetailProgramme => 'Programme';
+  String get productDetailProgramme => 'Mũbango';
 
   @override
-  String get productDetailCustomerName => 'Customer name';
+  String get productDetailCustomerName => 'Rĩĩtwa rĩa mũgũri';
 
   @override
-  String get productDetailEmail => 'Email';
+  String get productDetailEmail => 'Barũa ya ĩntaneti';
 
   @override
-  String get productDetailGroupNameOptional => 'Group name (optional)';
+  String get productDetailGroupNameOptional => 'Rĩĩtwa rĩa gĩkundi (ti bata)';
 
   @override
-  String get dashboardHello => 'Hello 👋';
+  String get dashboardHello => 'Wĩ mwega 👋';
 
   @override
   String get dashboardTotalSavings => 'Mbeca Ciothe Iigĩtwo';
 
   @override
-  String get dashboardActiveLoans => 'Active Loans';
+  String get dashboardActiveLoans => 'Mĩkopo Ĩrĩ Wĩra-inĩ';
 
   @override
-  String get dashboardFinesCollected => 'Fines Collected';
+  String get dashboardFinesCollected => 'Faini Iria Ciũnganĩtio';
 
   @override
-  String get disburseLoanLoanEligibility => 'Loan Eligibility';
+  String get disburseLoanLoanEligibility => 'Ũhoti wa Kũheo Mũkopo';
 
   @override
-  String get disburseLoanSelectMember => 'Select Member';
+  String get disburseLoanSelectMember => 'Thuura Mũmemba';
 
   @override
-  String get disburseLoanPrincipalAmountKsh => 'Principal Amount (KSh)';
+  String get disburseLoanPrincipalAmountKsh => 'Mbeca cia Kĩambĩrĩria (KSh)';
 
   @override
-  String get disburseLoanDueDate => 'Due Date';
+  String get disburseLoanDueDate => 'Mũthenya wa Kũrĩha';
 
   @override
-  String get joinGroupRequestSent => 'Request sent';
+  String get joinGroupRequestSent => 'Ihooya nĩrĩatũmwo';
 
   @override
   String get joinGroupDone => 'Nĩ kũhĩte';
 
   @override
-  String get joinGroupAskYourGroupToAdd => 'Ask your group to add you';
+  String get joinGroupAskYourGroupToAdd => 'Hooya gĩkundi gĩaku gĩkuongerere';
 
   @override
   String get joinGroupSendRequest => 'Tũma ihooya';
 
   @override
-  String get joinGroupViewing => 'Viewing';
+  String get joinGroupViewing => 'Ũroroa';
 
   @override
-  String get joinGroupGroupCode => 'Group code';
+  String get joinGroupGroupCode => 'Kĩmenyithia kĩa gĩkundi';
 
   @override
-  String get memberDetailEditDetails => 'Edit details';
+  String get memberDetailEditDetails => 'Garũra ũhoro';
 
   @override
-  String get memberDetailMemberReport => 'Member report';
+  String get memberDetailMemberReport => 'Ripoti ya mũmemba';
 
   @override
-  String get memberDetailNoLoansTaken => 'No loans taken';
+  String get memberDetailNoLoansTaken => 'Gũtirĩ mũkopo woetwo';
 
   @override
-  String get memberDetailStartingPassword => 'Starting password';
+  String get memberDetailStartingPassword => 'Kĩhithe kĩa kwambĩrĩria';
 
   @override
-  String get memberDetailAtLeast6Characters => 'At least 6 characters.';
+  String get memberDetailAtLeast6Characters => 'Ndemwa 6 kana nyingĩ.';
 
   @override
-  String get cyclesCloseCycle => 'Close cycle';
+  String get cyclesCloseCycle => 'Hinga mũthiũrũrũko';
 
   @override
-  String get cyclesSavingCycles => 'Saving Cycles';
+  String get cyclesSavingCycles => 'Mĩthiũrũrũko ya Ũigi';
 
   @override
-  String get cyclesCloseCycleAndStartThe => 'Close cycle and start the next';
+  String get cyclesCloseCycleAndStartThe =>
+      'Hinga mũthiũrũrũko wambĩrĩrie ũrĩa ũngĩ';
 
   @override
   String get cyclesReadOnlyStillVisibleIn =>
-      'Read-only — still visible in reports';
+      'Gũthomwo tu — no ũronekaga ripoti-inĩ';
 
   @override
-  String get externalLoansCreditVentures => 'Credit ventures';
+  String get externalLoansCreditVentures => 'Mĩbango ya mũkopo';
 
   @override
   String get externalLoansConnectToSeeLoanOffers =>
-      'Connect to see loan offers';
+      'Ohania nĩguo wone mĩkopo ĩrĩa ĩrĩ ho';
 
   @override
-  String get externalLoansCouldNotLoadLoanOffers =>
-      'Could not load loan offers';
+  String get externalLoansCouldNotLoadLoanOffers => 'Mĩkopo ĩtinahota kũrutwo';
 
   @override
-  String get externalLoansNoLoanOffersRightNow => 'No loan offers right now';
+  String get externalLoansNoLoanOffersRightNow => 'Gũtirĩ mũkopo rĩu';
 
   @override
   String get accountAccount => 'Akaũnti';
 
   @override
-  String get accountServer => 'Server';
+  String get accountServer => 'Cheba';
 
   @override
-  String get accountAppVersion => 'App version';
+  String get accountAppVersion => 'Mũthemba wa app';
 
   @override
-  String get accountPhone => 'Phone';
+  String get accountPhone => 'Thimũ';
 
   @override
-  String get businessProfileGroupBusiness => 'Group business';
+  String get businessProfileGroupBusiness => 'Wonjoria wa gĩkundi';
 
   @override
   String get businessProfileWhatDoesTheGroupRun =>
-      'What does the group run together?';
+      'Nĩ wonjoria ũrĩkũ gĩkundi kĩrutaga hamwe?';
 
   @override
-  String get businessProfileTypeOfBusiness => 'Type of business';
+  String get businessProfileTypeOfBusiness => 'Mũthemba wa wonjoria';
 
   @override
-  String get businessProfileEGPoultryCerealBuying =>
-      'e.g. poultry, cereal buying';
+  String get businessProfileEGPoultryCerealBuying => 'ta: ngũkũ, kũgũra mbembe';
 
   @override
-  String get businessProfileMoneyInEachMonthKes => 'Money in each month (KES)';
+  String get businessProfileMoneyInEachMonthKes =>
+      'Mbeca itonyaga o mweri (KES)';
 
   @override
-  String get businessProfileCostsEachMonthKes => 'Costs each month (KES)';
+  String get businessProfileCostsEachMonthKes => 'Thogora o mweri (KES)';
 
   @override
-  String get businessProfilePeopleItEmploys => 'People it employs';
+  String get businessProfilePeopleItEmploys => 'Andũ arĩa ũheaga wĩra';
 
   @override
   String get businessProfileBiggestProblemTheyFace =>
-      'Biggest problem they face';
+      'Thĩna mũnene ũrĩa mahĩtũkagĩra';
 
   @override
-  String get recordVisitSettings => 'Mĩthemba';
+  String get recordVisitSettings => 'Mĩbango';
 
   @override
-  String get recordVisitScoreTheGroup => 'Score the group';
+  String get recordVisitScoreTheGroup => 'Thima gĩkundi';
 
   @override
-  String get recordVisitTheGroupSEnterprise => 'The group’s enterprise';
+  String get recordVisitTheGroupSEnterprise => 'Wonjoria wa gĩkundi';
 
   @override
   String get recordVisitWhatTheyRunTogetherAnd =>
-      'What they run together, and how it is doing.';
+      'Kĩrĩa marutaga hamwe, na ũrĩa gĩgũthiĩ.';
 
   @override
   String get recordVisitSavedOnThisPhoneFirst =>
-      'Saved on this phone first, then sent when you have signal.';
+      'Kĩigagwo thimũ-inĩ ĩno mbere, gĩcooke gĩtũmwo wagĩa na mũtandao.';
 
   @override
-  String get recordVisitWhyNotOptional => 'Why not? (optional)';
+  String get recordVisitWhyNotOptional => 'Nĩkĩ gĩtirĩ? (ti bata)';
 
   @override
-  String get recordVisitWhatYouFound => 'What you found';
+  String get recordVisitWhatYouFound => 'Kĩrĩa wonire';
 
   @override
-  String get agentHomeMyGroups => 'My Groups';
+  String get agentHomeMyGroups => 'Ikundi Ciakwa';
 
   @override
-  String get agentHomeCaseloadReport => 'Caseload report';
+  String get agentHomeCaseloadReport => 'Ripoti ya ikundi';
 
   @override
-  String get agentHomeNoGroupsAssigned => 'No groups assigned';
+  String get agentHomeNoGroupsAssigned => 'Gũtirĩ gĩkundi ũheetwo';
 
   @override
-  String get agentHomeGroups => 'Groups';
+  String get agentHomeGroups => 'Ikundi';
 
   @override
-  String get agentHomeNeedSupport => 'Need support';
+  String get agentHomeNeedSupport => 'Ĩrabatara ũteithio';
 
   @override
-  String get loansLoanPortfolio => 'Loan Portfolio';
+  String get loansLoanPortfolio => 'Ibuku rĩa Mĩkopo';
 
   @override
   String get loansActive => 'Ĩrĩ Wĩra';
 
   @override
-  String get loansSearchByMemberName => 'Search by member name';
+  String get loansSearchByMemberName => 'Caria na rĩĩtwa rĩa mũmemba';
 
   @override
-  String get loansNoLoansHere => 'No loans here';
+  String get loansNoLoansHere => 'Gũtirĩ mĩkopo haha';
 
   @override
-  String get threeKeyUnlockUnlockMeeting => 'Unlock Meeting';
+  String get threeKeyUnlockUnlockMeeting => 'Hingũra Mũcemanio';
 
   @override
-  String get threeKeyUnlockVerified => 'Verified';
+  String get threeKeyUnlockVerified => 'Nĩ gwĩkĩrĩtwo hinya';
 
   @override
-  String get threeKeyUnlockSendANewCode => 'Send a new code';
+  String get threeKeyUnlockSendANewCode => 'Tũma kĩmenyithia kĩerũ';
 
   @override
   String get threeKeyUnlockNoSmsUseMySaved =>
-      'No SMS? Use my saved PIN instead';
+      'Gũtirĩ SMS? Hũthĩra PIN yakwa ĩrĩa ĩigĩtwo';
 
   @override
-  String get threeKeyUnlockOneTimeCode => 'One-time code';
+  String get threeKeyUnlockOneTimeCode => 'Kĩmenyithia kĩa riita rĩmwe';
 
   @override
-  String get threeKeyUnlockRepeatPin => 'Repeat PIN';
+  String get threeKeyUnlockRepeatPin => 'Cookera PIN';
 
   @override
   String get memberReportMyReport => 'Ripoti Yakwa';
@@ -837,584 +839,587 @@ class L10nKi extends L10n {
   String get memberReportShare => 'Gaĩra';
 
   @override
-  String get memberReportNotSignedIn => 'Not signed in';
+  String get memberReportNotSignedIn => 'Ndũtoonyete';
 
   @override
   String get memberReportSignInToYourAccount =>
-      'Sign in to your account to see and share your report.';
+      'Toonya akaũnti-inĩ yaku nĩguo wone na ũgaĩre ripoti yaku.';
 
   @override
-  String get cloudDashboardCloudData => 'Cloud Data';
+  String get cloudDashboardCloudData => 'Ũhoro wa Matu';
 
   @override
   String get cloudDashboardRefresh => 'Erũhia';
 
   @override
-  String get cloudDashboardSavingsFund => 'Savings Fund';
+  String get cloudDashboardSavingsFund => 'Mũthithũ wa Ũigi';
 
   @override
-  String get cloudDashboardInternalLoans => 'Internal Loans';
+  String get cloudDashboardInternalLoans => 'Mĩkopo ya Thĩinĩ';
 
   @override
-  String get serverSettingsOrUseAGroupAccess => 'or use a group access key';
+  String get serverSettingsOrUseAGroupAccess =>
+      'kana hũthĩra kĩhingũro kĩa gĩkundi';
 
   @override
-  String get serverSettingsViewOnlineRecords => 'View Online Records';
+  String get serverSettingsViewOnlineRecords => 'Ona Maandĩko ma Mũtandao-inĩ';
 
   @override
-  String get serverSettingsBackUpThisGroup => 'Back Up This Group';
+  String get serverSettingsBackUpThisGroup => 'Iga Gĩkundi Gĩkĩ';
 
   @override
-  String get serverSettingsAccessKey => 'Access key';
+  String get serverSettingsAccessKey => 'Kĩhingũro';
 
   @override
-  String get shareOutDistribute => 'Distribute';
+  String get shareOutDistribute => 'Gaĩra';
 
   @override
-  String get shareOutFundToDistribute => 'Fund to distribute';
+  String get shareOutFundToDistribute => 'Mbeca cia kũgayanwo';
 
   @override
-  String get shareOutSplitWelfareFundEqually => 'Split welfare fund equally';
+  String get shareOutSplitWelfareFundEqually =>
+      'Gayania mũthithũ wa ũteithio o ũndũ ũmwe';
 
   @override
-  String get shareOutNothingToShareOutYet => 'Nothing to share out yet';
+  String get shareOutNothingToShareOutYet => 'Gũtirĩ kĩndũ gĩa kũgayanwo';
 
   @override
-  String get visitAssessmentAssessment => 'Assessment';
+  String get visitAssessmentAssessment => 'Gĩthimi';
 
   @override
-  String get visitAssessmentFormNotAvailable => 'Form not available';
+  String get visitAssessmentFormNotAvailable => 'Fomu ndĩrĩ ho';
 
   @override
-  String get visitMentorshipMentorship => 'Mentorship';
+  String get visitMentorshipMentorship => 'Ũtaari';
 
   @override
-  String get visitMentorshipWhatDidYouCoachOn => 'What did you coach on?';
+  String get visitMentorshipWhatDidYouCoachOn => 'Nĩ ũndũ ũrĩkũ warutire?';
 
   @override
   String get visitMentorshipTapATopicToRecord =>
-      'Tap a topic to record it, then add what you advised.';
+      'Hutia ũndũ nĩguo ũwandĩke, ũcooke wandĩke kĩrĩa wataarire.';
 
   @override
-  String get visitMentorshipNowHandThePhoneTo =>
-      'Now hand the phone to the group';
+  String get visitMentorshipNowHandThePhoneTo => 'Rĩu nengera gĩkundi thimũ';
 
   @override
-  String get visitMentorshipWhatYouAdvised => 'What you advised';
+  String get visitMentorshipWhatYouAdvised => 'Kĩrĩa wataarire';
 
   @override
-  String get agentGroupDetailRecordAVisit => 'Record a visit';
+  String get agentGroupDetailRecordAVisit => 'Andĩka rũgendo';
 
   @override
-  String get agentGroupDetailNoMembersLoaded => 'No members loaded.';
+  String get agentGroupDetailNoMembersLoaded => 'Gũtirĩ amemba marutĩtwo.';
 
   @override
-  String get agentGroupDetailNoMeetingsLoaded => 'No meetings loaded.';
+  String get agentGroupDetailNoMeetingsLoaded => 'Gũtirĩ mĩcemanio ĩrutĩtwo.';
 
   @override
-  String get agentGroupDetailToImprove => 'To improve';
+  String get agentGroupDetailToImprove => 'Cia kwagĩrithia';
 
   @override
-  String get agentGroupDetailGovernance => 'Governance';
+  String get agentGroupDetailGovernance => 'Ũtongoria';
 
   @override
-  String get agentGroupDetailVslaCompliance => 'VSLA compliance';
+  String get agentGroupDetailVslaCompliance => 'Kũrũmĩrĩra mawatho ma VSLA';
 
   @override
-  String get recordFineReason => 'Reason';
+  String get recordFineReason => 'Gĩtũmi';
 
   @override
-  String get recordFineSpecifyReason => 'Specify reason';
+  String get recordFineSpecifyReason => 'Taarĩria gĩtũmi';
 
   @override
   String get addMemberAddMember => 'Ongerera Mũmemba';
 
   @override
-  String get addMemberRegisterMember => 'Register Member';
+  String get addMemberRegisterMember => 'Andĩkithia Mũmemba';
 
   @override
-  String get addMemberFullName => 'Rĩĩtwa rĩothe';
+  String get addMemberFullName => 'Rĩĩtwa Rĩothe';
 
   @override
-  String get addMemberPhoneOptional => 'Phone (optional)';
+  String get addMemberPhoneOptional => 'Thimũ (ti bata)';
 
   @override
-  String get addMemberRole => 'Role';
+  String get addMemberRole => 'Nafathi';
 
   @override
-  String get editMemberEditMember => 'Edit member';
+  String get editMemberEditMember => 'Garũra mũmemba';
 
   @override
   String get editMemberFullName => 'Rĩĩtwa rĩothe';
 
   @override
-  String get membersRequestsToJoin => 'Requests to join';
+  String get membersRequestsToJoin => 'Mahooya ma kwĩyũnganĩria';
 
   @override
   String get membersSearchMembers => 'Caria amemba';
 
   @override
-  String get membersNoMembersFound => 'No members found';
+  String get membersNoMembersFound => 'Gũtirĩ mũmemba wonekire';
 
   @override
   String get meetingSecurity3KeyUnlockBeforeMeetings =>
-      '3-key unlock before meetings';
+      'Cabi 3 mbere ya mĩcemanio';
 
   @override
-  String get meetingSecurityKeepPin => 'Keep PIN';
+  String get meetingSecurityKeepPin => 'Tiga PIN';
 
   @override
-  String get meetingSecurityReset => 'Reset';
+  String get meetingSecurityReset => 'Cookia rĩngĩ';
 
   @override
-  String get agentReportCaseloadReport => 'Caseload Report';
+  String get agentReportCaseloadReport => 'Ripoti ya Ikundi';
 
   @override
-  String get agentReportShareReport => 'Share Report';
+  String get agentReportShareReport => 'Gaĩra Ripoti';
 
   @override
-  String get agentReportNeedsSupport => 'Needs support';
+  String get agentReportNeedsSupport => 'Ĩrabatara ũteithio';
 
   @override
-  String get agentReportNoRating => 'No rating';
+  String get agentReportNoRating => 'Gũtirĩ gĩthimi';
 
   @override
-  String get agentReportNoGroupsYet => 'No groups yet';
+  String get agentReportNoGroupsYet => 'Gũtirĩ ikundi';
 
   @override
-  String get groupReportNoGroupYet => 'No group yet';
+  String get groupReportNoGroupYet => 'Gũtirĩ gĩkundi';
 
   @override
   String get groupReportSetUpYourGroupFirst =>
-      'Set up your group first, then come back for a report.';
+      'Thondeka gĩkundi gĩaku mbere, ũcooke ũũke kũrĩ ripoti.';
 
   @override
-  String get groupReportNoMembersYet => 'No members yet';
+  String get groupReportNoMembersYet => 'Gũtirĩ amemba';
 
   @override
   String get groupReportMembersAppearHereOnceThey =>
-      'Members appear here once they join the group.';
+      'Amemba monekaga haha maarĩkia kwĩyũnganĩria na gĩkundi.';
 
   @override
-  String get memberReportLocalMemberReport => 'Member Report';
+  String get memberReportLocalMemberReport => 'Ripoti ya Mũmemba';
 
   @override
-  String get memberReportLocalMemberNotFound => 'Member not found';
+  String get memberReportLocalMemberNotFound => 'Mũmemba ndonekire';
 
   @override
   String get memberReportLocalThisMemberIsNoLonger =>
-      'This member is no longer in the group.';
+      'Mũmemba ũyũ ndarĩ gĩkundi-inĩ rĩngĩ.';
 
   @override
   String get memberReportLocalLoansThisMemberTakesWill =>
-      'Loans this member takes will appear here.';
+      'Mĩkopo ĩrĩa mũmemba ũyũ akoya nĩĩkonekaga haha.';
 
   @override
-  String get externalLoanApplyApplyForALoan => 'Apply for a Loan';
+  String get externalLoanApplyApplyForALoan => 'Hooya Mũkopo';
 
   @override
-  String get externalLoanApplySubmitApplication => 'Submit Application';
+  String get externalLoanApplySubmitApplication => 'Tũma Ihooya';
 
   @override
-  String get externalLoanApplyWhatIsTheLoanFor => 'What is the loan for?';
+  String get externalLoanApplyWhatIsTheLoanFor => 'Mũkopo nĩ wa ũndũ ũrĩkũ?';
 
   @override
   String get externalLoanApplyEGBuyingMaizeSeed =>
-      'e.g. Buying maize seed for the season';
+      'ta: kũgũra mbegũ cia mbembe cia kĩmera';
 
   @override
-  String get meetingsNoMeetingsYet => 'No meetings yet';
+  String get meetingsNoMeetingsYet => 'Gũtirĩ mĩcemanio';
 
   @override
-  String get repaymentRecordRepayment => 'Record Repayment';
+  String get repaymentRecordRepayment => 'Andĩka Irĩhi';
 
   @override
   String get repaymentNoOutstandingLoansNothingTo =>
-      'No outstanding loans — nothing to repay. 🎉';
+      'Gũtirĩ mũkopo ũrĩ na thiirĩ — gũtirĩ kĩa kũrĩhwo. 🎉';
 
   @override
-  String get repaymentSelectLoan => 'Select Loan';
+  String get repaymentSelectLoan => 'Thuura Mũkopo';
 
   @override
   String get moreWhoIsSignedInLanguage =>
-      'Who is signed in, language, appearance and app details';
+      'Ũrĩa ũtoonyete, rũthiomi, mũonekere na ũhoro wa app';
 
   @override
   String get moreIntelliCash => 'Intelli-Cash';
 
   @override
-  String get mySavingsMySavings => 'Mbeca Ciakwa';
+  String get mySavingsMySavings => 'Ũigi Wakwa';
 
   @override
   String get mySavingsOnceAGroupAcceptsYou =>
-      'Once a group accepts you, your savings will show here.';
+      'Gĩkundi kĩngĩgwĩtĩkĩra, ũigi waku nĩũkonekaga haha.';
 
   @override
-  String get buySharesEnterCodeByHand => 'Enter Code by Hand';
+  String get buySharesEnterCodeByHand => 'Andĩka Kĩmenyithia na Guoko';
 
   @override
-  String get buySharesRecordPurchase => 'Record Purchase';
+  String get buySharesRecordPurchase => 'Andĩka Ũgũri';
 
   @override
-  String get sharesLedgerNoPurchasesYet => 'No purchases yet';
+  String get sharesLedgerNoPurchasesYet => 'Gũtirĩ ũgũri';
 
   @override
   String get socialFundThisMeetingIsClosedThe =>
-      'This meeting is closed — the record is read-only.';
+      'Mũcemanio ũyũ nĩmũhinge — maandĩko no ma gũthomwo tu.';
 
   @override
-  String get socialFundNoMembers => 'No members';
+  String get socialFundNoMembers => 'Gũtirĩ amemba';
 
   @override
   String get socialFundAddMembersToTheGroup =>
-      'Add members to the group first.';
+      'Ongerera amemba gĩkundi-inĩ mbere.';
 
   @override
-  String get welcomeUseTheWebConsoleFor =>
-      'Use the web console for this account';
+  String get welcomeUseTheWebConsoleFor => 'Hũthĩra ĩntaneti kũrĩ akaũnti ĩno';
 
   @override
-  String get welcomeLoadYourGroupOntoThis => 'Load your group onto this phone';
+  String get welcomeLoadYourGroupOntoThis => 'Ruta gĩkundi gĩaku thimũ-inĩ ĩno';
 
   @override
   String get memberReportsTapAMemberToSee =>
-      'Tap a member to see and share their report.';
+      'Hutia mũmemba nĩguo wone na ũgaĩre ripoti yake.';
 
   @override
-  String get openActionItemsNothingOutstanding => 'Nothing outstanding';
+  String get openActionItemsNothingOutstanding => 'Gũtirĩ kĩrĩa gĩtigarĩte';
 
   @override
   String get openActionItemsThisGroupHasNoOpen =>
-      'This group has no open actions from previous visits.';
+      'Gĩkundi gĩkĩ gĩtirĩ na wĩra ũtigarĩte kuuma ngendo iria ciathirire.';
 
   @override
-  String get openActionItemsFromTheLastVisit => 'From the last visit';
+  String get openActionItemsFromTheLastVisit => 'Kuuma rũgendo rũrĩa rwa mũico';
 
   @override
-  String get loanDetailNoRepaymentsYet => 'No repayments yet';
+  String get loanDetailNoRepaymentsYet => 'Gũtirĩ marĩhi';
 
   @override
   String get attendanceAttendance => 'Ũkinyu';
 
   @override
-  String get attendanceContinueToMeeting => 'Continue to Meeting';
+  String get attendanceContinueToMeeting => 'Thiĩ na mbere Mũcemanio-inĩ';
 
   @override
   String get appearanceChooseHowIntelliCashLooks =>
-      'Choose how Intelli-Cash looks on this phone.';
+      'Thuura ũrĩa Intelli-Cash ĩkuoneka thimũ-inĩ ĩno.';
 
   @override
-  String get gatewayPaymentOpenThisLinkToPay => 'Open this link to pay:';
+  String get gatewayPaymentOpenThisLinkToPay => 'Hingũra kĩohanio gĩkĩ ũrĩhe:';
 
   @override
   String get numericKeypadDelete => 'Theria';
 
   @override
   String get agentHomeWhenGroupsAreAssignedToYou =>
-      'When groups are assigned to you, they appear here with their credit rating.';
+      'Ikundi ciangĩneanwo kũrĩ we, nĩikonekaga haha hamwe na gĩthimi kĩao kĩa mũkopo.';
 
   @override
   String get dashboardTheSavingsCurveAppearsAfterYour =>
-      'The savings curve appears after your first two meetings.';
+      'Mũharo wa ũigi ũronekaga thutha wa mĩcemanio yaku ĩĩrĩ ya mbere.';
 
   @override
   String get disburseLoanThisMemberHasNoBorrowingHeadroom =>
-      'This member has no borrowing headroom — savings must grow or the current loan must reduce first.';
+      'Mũmemba ũyũ ndarĩ na ũhoti wa kũhooya mũkopo — ũigi no mũhaka wongerereke kana mũkopo ũrĩa arĩ naguo ũnyihanyiihe mbere.';
 
   @override
   String get disburseLoanTheLoanFundIsEmptyCollect =>
-      'The loan fund is empty. Collect share purchases or loan repayments before lending again.';
+      'Mũthithũ wa mĩkopo nĩ ũtheri. Ũnganĩria ũgũri wa hisa kana marĩhi ma mĩkopo mbere ya gũkombithania rĩngĩ.';
 
   @override
   String get loanDetailRepaymentsAreRecordedInsideMeetingsAnd =>
-      'Repayments are recorded inside meetings and appear here instantly.';
+      'Marĩhi mandĩkagwo thĩinĩ wa mĩcemanio na monekaga haha o rĩmwe.';
 
   @override
   String get loansLoansAreDisbursedInsideAMeeting =>
-      'Loans are disbursed inside a meeting — open a meeting and use Disburse Loan.';
+      'Mĩkopo ĩheanagwo thĩinĩ wa mũcemanio — hingũra mũcemanio ũcooke ũhũthĩre Heana Mũkopo.';
 
   @override
   String get gatewayPaymentRequestSentAskTheMemberTo =>
-      'Request sent. Ask the member to enter their M-Pesa PIN on their phone.';
+      'Ihooya nĩrĩatũmwo. Ĩra mũmemba ekĩre PIN yake ya M-Pesa thimũ-inĩ yake.';
 
   @override
   String get meetingHubThisMeetingIsClosedItsRecords =>
-      'This meeting is closed. Its records are read-only and form part of the audit trail.';
+      'Mũcemanio ũyũ nĩmũhinge. Maandĩko maguo no ma gũthomwo tu na nĩ gĩcunjĩ kĩa ũrorio.';
 
   @override
   String get meetingHubAllRecordsInThisMeetingWill =>
-      'All records in this meeting will be locked permanently. This cannot be undone.';
+      'Maandĩko mothe ma mũcemanio ũyũ nĩmakũhingwo nginya tene. Ũndũ ũyũ ndũngĩcookererio.';
 
   @override
   String get meetings3KeyUnlockIsOnOfficials =>
-      '3-key unlock is on: officials confirm their PINs before the meeting opens.';
+      'Cabi 3 nĩ ciarutithio wĩra: atongoria nĩmakũhingĩria PIN ciao mbere ya mũcemanio kũhingũrwo.';
 
   @override
   String get meetingsStartYourFirstMeetingToRecord =>
-      'Start your first meeting to record attendance, savings, fines and loans.';
+      'Ambĩrĩria mũcemanio waku wa mbere nĩguo wandĩke ũkinyu, ũigi, faini na mĩkopo.';
 
   @override
   String get meetingsClosedMeetingsAreLockedTheirRecords =>
-      'Closed meetings are locked — their records form the group\\\'s permanent audit trail.';
+      'Mĩcemanio ĩrĩa ĩhinge nĩ ĩhingĩre — maandĩko mayo nĩmo ũrorio wa gĩkundi wa nginya tene.';
 
   @override
   String get sharesLedgerSharePurchasesLandHereTheMoment =>
-      'Share purchases land here the moment they are recorded.';
+      'Ũgũri wa hisa ũronekaga haha o rĩrĩa wandĩkwo.';
 
   @override
   String get joinGroupYourGroupHasACodeOn =>
-      'Your group has a code on its records — ask the secretary if you do not know it. Sending a request does not open the group\\\'s books to you; an official has to accept you first.';
+      'Gĩkundi gĩaku kĩrĩ na kĩmenyithia maandĩko-inĩ makĩo — ũria mwandĩki angĩkorũo ndũũĩ. Gũtũma ihooya gũtikũhingũragĩra mabuku ma gĩkundi; mũtongoria no mũhaka akwĩtĩkĩre mbere.';
 
   @override
   String get memberPassbookAskYourGroupToAddYou =>
-      'Ask your group to add you and your savings will show up here.';
+      'Hooya gĩkundi gĩaku gĩkuongerere na ũigi waku nĩũkonekaga haha.';
 
   @override
   String get editMemberCorrectingASpellingOrAMistyped =>
-      'Correcting a spelling or a mistyped number. Their savings, loans and attendance stay exactly as they are.';
+      'Kũrũngĩrĩria ndemwa kana namba ĩrĩa ĩhĩtĩtie. Ũigi, mĩkopo na ũkinyu wake ũtigwo o ũrĩa ũrĩ.';
 
   @override
   String get joinRequestsTheyWillNotBeAddedTo =>
-      'They will not be added to the group. You can say why if you want to — it is not required.';
+      'Ndegũongererwo gĩkundi-inĩ. No woige gĩtũmi ũngĩenda — ti bata.';
 
   @override
   String get joinRequestsThisListIsOutOfDate =>
-      'This list is out of date. Pull down to refresh, then check the answer again.';
+      'Rũtaratara rũrũ ti rwa rĩu. Guucia na thĩ nĩguo rwerũhio, ũcooke ũrore macookio rĩngĩ.';
 
   @override
   String get joinRequestsWhenSomeoneAsksToJoinYour =>
-      'When someone asks to join your group, their request will show up here for you to answer.';
+      'Mũndũ angĩhooya kwĩyũnganĩria na gĩkundi gĩaku, ihooya rĩake nĩrĩkonekaga haha nĩguo ũrĩcookerie.';
 
   @override
   String get memberDetailToCreateASignInAccount =>
-      'To create a sign-in account, first back this group up to the cloud (More → Sync & Backup) while online.';
+      'Nĩguo ũthondeke akaũnti ya gũtoonya, amba wĩgĩe gĩkundi gĩkĩ matu-inĩ (Mangĩ → Sync & Backup) ũrĩ na ĩntaneti.';
 
   @override
   String get memberDetailLoansThisMemberTakesWillBe =>
-      'Loans this member takes will be listed here with their live status.';
+      'Mĩkopo ĩrĩa mũmemba ũyũ akoya nĩĩkwandĩkwo haha hamwe na ũrĩa ĩhaana.';
 
   @override
   String get membersAddMembersWithTheButtonBelow =>
-      'Add members with the button below — each gets an individual savings and loan profile.';
+      'Ongerera amemba na batani ĩrĩa ĩrĩ na thĩ — o ũmwe agĩaga na maandĩko make ma ũigi na mĩkopo.';
 
   @override
   String get meetingSecurityAssignAChairpersonSecretaryAndTreasurer =>
-      'Assign a chairperson, secretary and treasurer below so three officials can unlock meetings. Until then, most members\\\' PINs are needed instead.';
+      'Thuura mũtongoria, mwandĩki na mũigi mbeca haha na thĩ nĩguo atongoria atatũ mahote kũhingũra mĩcemanio. Nginya hĩndĩ ĩyo, PIN cia amemba aingĩ nĩcio ikũbatarania.';
 
   @override
   String get meetingSecurityTheOldPinStopsWorkingThe =>
-      'The old PIN stops working. The member chooses a new PIN the next time they turn their key at a meeting unlock.';
+      'PIN ya tene ĩtigaga kũruta wĩra. Mũmemba athuuraga PIN njerũ hĩndĩ ĩrĩa akũhũthĩra cabi yake kũhingũra mũcemanio.';
 
   @override
   String get moreYourGroupSSavingsAndLoans =>
-      'Your group\\\'s savings and loans, right on your phone. Everything is saved on this phone first and backed up online when you have internet.\\n\\nIntelli-Wealth Limited · intelliwealth.org';
+      'Ũigi na mĩkopo ya gĩkundi gĩaku, o thimũ-inĩ yaku. Kĩndũ o gĩothe kĩigagwo thimũ-inĩ ĩno mbere, gĩcooke kĩigwo ĩntaneti-inĩ wagĩa na mũtandao.\n\nIntelli-Wealth Limited · intelliwealth.org';
 
   @override
   String get moreNoInternetYourRecordsAreSafe =>
-      'No internet — your records are safe on this phone and will back up later.';
+      'Gũtirĩ ĩntaneti — maandĩko maku marĩ mũgitĩre thimũ-inĩ ĩno na nĩmakũigwo thutha-inĩ.';
 
   @override
   String get welcomeThePhoneAppIsForGroups =>
-      'The phone app is for groups, members and field agents. Your account does not need to create a group here — sign in on the web console instead, or sign out to use a different account.';
+      'App ya thimũ nĩ ya ikundi, amemba na arũgamĩrĩri a mũgũnda. Akaũnti yaku ndĩbataire gũthondeka gĩkundi haha — toonya ĩntaneti-inĩ handũ ha ũguo, kana uma nĩguo ũhũthĩre akaũnti ĩngĩ.';
 
   @override
   String get welcomeYourGroupIsAlreadyOnThe =>
-      'Your group is already on the server. Load it here instead of creating a new one, so your savings history stays in one record.';
+      'Gĩkundi gĩaku nĩ kĩrĩ cheba-inĩ. Kĩrute haha handũ ha gũthondeka kĩngĩ, nĩguo ũhoro wa ũigi waku ũtige ũrĩ handũ hamwe.';
 
   @override
   String get agentReportWhenGroupsAreAssignedToYou =>
-      'When groups are assigned to you, their report appears here.';
+      'Ikundi ciangĩneanwo kũrĩ we, ripoti yacio nĩyonekaga haha.';
 
   @override
   String get groupReportFiguresFromThisPhoneOnlyWork =>
-      'Figures from this phone only - work saved on other phones may not be included yet.';
+      'Namba cia thimũ ĩno tu - wĩra ũrĩa ũigĩtwo thimũ ingĩ no ũkorũo ũtarĩ thĩinĩ.';
 
   @override
   String get groupReportFromThisPhoneOnlyWorkSaved =>
-      'From this phone only. Work saved on other phones may not be included yet.';
+      'Kuuma thimũ ĩno tu. Wĩra ũrĩa ũigĩtwo thimũ ingĩ no ũkorũo ũtarĩ thĩinĩ.';
 
   @override
   String get memberReportLocalFiguresFromThisPhoneOnlyRecords =>
-      'Figures from this phone only - records saved elsewhere may not be included yet.';
+      'Namba cia thimũ ĩno tu - maandĩko marĩa maigĩtwo kũndũ kũngĩ no makorũo matarĩ thĩinĩ.';
 
   @override
   String get mySavingsWhatYouOweIsCountedFor =>
-      'What you owe is counted for each group on its own. Paying extra in one group does not reduce what you owe in another.';
+      'Thiirĩ waku ũtaragwo o gĩkundi kĩrĩ kĩnyiki. Kũrĩha makĩria gĩkundi-inĩ kĩmwe gũtinyihagia thiirĩ waku gĩkundi-inĩ kĩngĩ.';
 
   @override
   String get groupSyncThisClearsTheLocalBackendMapping =>
-      'This clears the local↔backend mapping. Already-synced records stay on the server; nothing is deleted.';
+      'Ũndũ ũyũ nĩũtheragia kĩohanio gatagatĩ ka thimũ na cheba. Maandĩko marĩa marĩkĩtie kũiganania matigagwo cheba-inĩ; gũtirĩ kĩndũ gĩgũtherio.';
 
   @override
   String get groupSyncConnectToTheIntellicashBackendBefore =>
-      'Connect to the IntelliCash backend before linking and syncing this group.';
+      'Ohania na cheba ya IntelliCash mbere ya kuohania na kũiganania gĩkundi gĩkĩ.';
 
   @override
   String get groupSyncLinkingMatchesYourLocalMembersTo =>
-      'Linking matches your local members to the backend roster by phone, then name. Unmatched members can be linked by hand afterwards.';
+      'Kuohania kũringithanagia amemba a thimũ ĩno na rũtaratara rwa cheba na namba ya thimũ, gũcooka na rĩĩtwa. Arĩa matarĩngithanie no maohanio na guoko thutha-inĩ.';
 
   @override
   String get groupSyncTheseLocalMembersHaveNoBackend =>
-      'These local members have no backend match. Link them before their transactions can sync.';
+      'Amemba aya a thimũ ĩno matirĩ arĩa maringaine nao cheba-inĩ. Maohanie mbere ya maũndũ mao kũiganania.';
 
   @override
   String get groupSyncUploadsAttendanceAndLedgerSharesSocial =>
-      'Uploads attendance and ledger (shares, social fund, loans, repayments) for every closed meeting. Safe to re-run — already synced records are skipped. Fines and meeting sealing come in a later phase.';
+      'Ĩtwaraga ũkinyu na ibuku (hisa, mũthithũ wa ũteithio, mĩkopo, marĩhi) rĩa o mũcemanio ũrĩa ũhinge. Nĩ mwega gũcookera — maandĩko marĩa marĩkĩtie kũiganania nĩmatigagwo. Faini na kũhinga mĩcemanio ikinyaga thutha-inĩ.';
 
   @override
   String get serverSettingsAskYourGroupAdministratorForAn =>
-      'Ask your group administrator for an access key, then paste it here. It only lets this phone see and record your group\\\'s savings, loans and meetings.';
+      'Hooya mũrori wa gĩkundi gĩaku kĩhingũro, ũcooke ũgĩkĩre haha. Kĩrekagĩria thimũ ĩno kuona na kwandĩka ũigi, mĩkopo na mĩcemanio ya gĩkundi gĩaku tu.';
 
   @override
   String get cyclesPullDownToTryAgainIf =>
-      'Pull down to try again. If it keeps happening, check the group is still selected under Cloud Account.';
+      'Guucia na thĩ ũgerie rĩngĩ. Ũngĩthiĩ na mbere, rora kana gĩkundi no kĩthuurĩtwo harĩ Akaũnti ya Matu.';
 
   @override
   String get cyclesClosingACycleMakesItsRecords =>
-      'Closing a cycle makes its records read-only. Nothing is deleted — past meetings and money stay in history and reports.';
+      'Kũhinga mũthiũrũrũko gũtũmaga maandĩko maguo makorũo ma gũthomwo tu. Gũtirĩ kĩndũ gĩgũtherio — mĩcemanio na mbeca cia tene itigagwo ũhoro-inĩ na ripoti-inĩ.';
 
   @override
   String get cyclesYouCanSeeTheCyclesBut =>
-      'You can see the cycles but not close one. Only the group account or a platform admin can.';
+      'No wone mĩthiũrũrũko no ndũngĩhota kũhinga. Nĩ akaũnti ya gĩkundi kana mũrori wa kĩoneki tu ũngĩhota.';
 
   @override
   String get groupPolicyAppliesToNewLoansLoansAlready =>
-      'Applies to new loans. Loans already given keep the term they were agreed with — changing this never changes what a member already owes.';
+      'Ũhũthĩkaga harĩ mĩkopo mĩerũ. Mĩkopo ĩrĩa ĩrĩkĩtie kũheanwo ĩtigagwo na ihinda rĩrĩa rĩetĩkanĩirio — kũgarũra ũndũ ũyũ gũtigarũraga thiirĩ ũrĩa mũmemba arĩ naguo.';
 
   @override
   String get groupPolicyFlatOnTheAmountBorrowedEach =>
-      'Flat on the amount borrowed each month — it does not fall as the member repays, and it stops at the end of the agreed term. Zero is fine: many groups lend interest-free. Each loan keeps the rate it was made at, so changing this never reprices money already lent.';
+      'Nĩ gĩthimi kĩmwe harĩ mbeca iria ciakombirwo o mweri — gĩtinyihanyiihaga mũmemba akĩrĩha, na gĩthiraga mũthia wa ihinda rĩrĩa rĩetĩkanĩirio. Naili nĩ wega: ikundi nyingĩ ikombithanagia hatarĩ ũcuuthi. O mũkopo ũtigagwo na ũcuuthi ũrĩa waheanirwo naguo, nĩ ũndũ ũcio kũgarũra ũndũ ũyũ gũtigarũraga mbeca iria ciarĩkĩtie gũkombithanio.';
 
   @override
   String get groupPolicyYouCanSeeTheseRulesBut =>
-      'You can see these rules but not change them. Only the group account or a platform admin can.';
+      'No wone mawatho maya no ndũngĩhota kũmagarũra. Nĩ akaũnti ya gĩkundi kana mũrori wa kĩoneki tu ũngĩhota.';
 
   @override
   String get groupPolicyUnpaidFinesAndWelfareAreTaken =>
-      'Unpaid fines and welfare are taken off a member\\\'s share-out payout — they never stop a member from sharing out.\\n\\nOutstanding loans are taken off at share-out and are never carried into the next cycle.';
+      'Faini na mbeca cia ũteithio iria itarĩhĩtwo iruthagio kuuma kĩgayo-inĩ kĩa mũmemba — itingĩgiria mũmemba kũgayana.\n\nMĩkopo ĩrĩa ĩtarĩhĩtwo ĩruthagio hĩndĩ ya kũgayana na ndĩtwaragwo mũthiũrũrũko-inĩ ũrĩa ũngĩ.';
 
   @override
   String get paymentProvidersMPesaClassicNeedsNothingHere =>
-      'M-Pesa Classic needs nothing here — the member types in the transaction code from their phone.';
+      'M-Pesa Classic ndĩbataire kĩndũ haha — mũmemba nĩwe wandĩkaga kĩmenyithia kĩa muamala kuuma thimũ-inĩ yake.';
 
   @override
   String get paymentProvidersYouCanSeeThisButNot =>
-      'You can see this but not change it. Only the group account or a platform admin can move where money is received.';
+      'No wone ũndũ ũyũ no ndũngĩhota kũũgarũra. Nĩ akaũnti ya gĩkundi kana mũrori wa kĩoneki tu ũngĩhota kũgarũra harĩa mbeca ciamũkĩragĩrwo.';
 
   @override
   String get welfareYouAreOfflineWelfarePaymentsAre =>
-      'You are offline. Welfare payments are recorded on the server so the fund cannot be overspent by two phones at once — reconnect to record one.';
+      'Ndũrĩ na mũtandao. Marĩhi ma ũteithio mandĩkagwo cheba-inĩ nĩguo mũthithũ ndũkahũthĩrwo makĩria nĩ thimũ igĩrĩ hamwe — ohania nĩguo wandĩke.';
 
   @override
   String get welfareNoMeetingIsOpenWelfareIs =>
-      'No meeting is open. Welfare is paid out during a meeting, in front of the members — open one first, then record it there.';
+      'Gũtirĩ mũcemanio ũhingũre. Mbeca cia ũteithio irĩhagwo hĩndĩ ya mũcemanio, mbere ya amemba — hingũra mũcemanio mbere, ũcooke wandĩke ho.';
 
   @override
   String get shareOutMembersHavenTBoughtSharesThis =>
-      'Members haven\\\'t bought shares this cycle. Run meetings and collect shares first, then come back to distribute the fund.';
+      'Amemba matigũrĩte hisa mũthiũrũrũko-inĩ ũyũ. Rutithia mĩcemanio na ũũnganĩrie hisa mbere, ũcooke ũũke kũgayana mbeca.';
 
   @override
   String get externalLoanApplyCreditRatingUnavailableTheLenderChecks =>
-      'Credit rating unavailable — the lender checks it when reviewing your application.';
+      'Gĩthimi kĩa mũkopo gĩtirĩ ho — mũkombithania nĩwe ũgĩroraga akĩrora ihooya rĩaku.';
 
   @override
   String get externalLoansCheckBackLaterPartnersAddNew =>
-      'Check back later — partners add new loan offers from time to time.';
+      'Cooka thutha-inĩ — athiritũ mongereragĩra mĩkopo mĩerũ hĩndĩ na hĩndĩ.';
 
   @override
   String get externalLoansExternalLoansLoadFromTheIntelli =>
-      'External loans load from the Intelli-Cash backend. Connect or sign in first.';
+      'Mĩkopo ya nja ĩrutagwo cheba-inĩ ya Intelli-Cash. Ohania kana ũtoonye mbere.';
 
   @override
   String get storeFarmSolarHouseholdAndBusinessProducts =>
-      'Farm, solar, household and business products — priced by your group\\\'s credit rating.';
+      'Indo cia mũgũnda, riũa, nyũmba na wonjoria — thogora kũringana na gĩthimi kĩa mũkopo kĩa gĩkundi gĩaku.';
 
   @override
   String get storeIntelliStoresLoadsFromTheIntelli =>
-      'Intelli-Stores loads from the Intelli-Cash backend. Connect or sign in first.';
+      'Intelli-Stores ĩrutagwo cheba-inĩ ya Intelli-Cash. Ohania kana ũtoonye mbere.';
 
   @override
   String get businessProfileTheGroupSOwnEnterpriseNot =>
-      'The group\\\'s own enterprise, not a member\\\'s. Leave blank if they do not run one.';
+      'Wonjoria wa gĩkundi kĩene, ti wa mũmemba. Tiga hatarĩ kĩndũ mangĩkorũo matarĩ naguo.';
 
   @override
   String get businessProfileThisVisitHasNotSyncedYet =>
-      'This visit has not synced yet, so the figures are saved against the group but not against this visit.';
+      'Rũgendo rũrũ rũtirĩ rwaiganania, nĩ ũndũ ũcio namba ciigĩtwo harĩ gĩkundi no ti harĩ rũgendo rũrũ.';
 
   @override
   String get businessProfileSavedAgainstThisVisitSoNext =>
-      'Saved against this visit, so next time you can see what changed.';
+      'Nĩ ciigĩtwo harĩ rũgendo rũrũ, nĩguo hĩndĩ ĩngĩ wone kĩrĩa kĩagarũrũkire.';
 
   @override
   String get recordVisitAVisitCanStillBeRecorded =>
-      'A visit can still be recorded without a location. Whether it matches this group is decided by the office, not here.';
+      'Rũgendo no rũngĩandĩkwo o na hatarĩ handũ. Kana nĩrũringaine na gĩkundi gĩkĩ gũtuagwo nĩ ofisi, ti haha.';
 
   @override
   String get recordVisitRecordWhatYouCoachedOnThen =>
-      'Record what you coached on, then let the group score it.';
+      'Andĩka kĩrĩa warutire, ũcooke ũreke gĩkundi gĩgĩthime.';
 
   @override
   String get visitAssessmentNoAssessmentFormHasBeenDownloaded =>
-      'No assessment form has been downloaded yet. Connect once to fetch it, then it works offline.';
+      'Gũtirĩ fomu ya gĩthimi ĩrutĩtwo. Ohania riita rĩmwe nĩguo ũmĩrute, ĩcooke ĩrute wĩra hatarĩ mũtandao.';
 
   @override
   String get visitMentorshipNotScoredYetAVisitCan =>
-      'Not scored yet. A visit can be recorded without it, but the group\\\'s view is the only useful measure of the coaching.';
+      'Rũtirĩ rwathimwo. Rũgendo no rũngĩandĩkwo hatarĩ ũguo, no mawoni ma gĩkundi nĩmo gĩthimi kĩrĩa kĩrĩ bata kĩa ũtaari.';
 
   @override
   String get createPollNoMembersLoadedForThisGroup =>
-      'No members loaded for this group yet. Connect and open the group first.';
+      'Gũtirĩ amemba marutĩtwo gĩkundi gĩkĩ. Ohania na ũhingũre gĩkundi mbere.';
 
   @override
   String get createPollNobodySeesWhoVotedForWhat =>
-      'Nobody sees who voted for what. The counts are still shown to everyone.';
+      'Gũtirĩ mũndũ ũkuona nũũ watuire kũrĩ ũ. Namba nĩcionagio andũ othe.';
 
   @override
   String get pollDetailNoMoreVotesCanBeCast =>
-      'No more votes can be cast after this, and the result is written into the group records. This cannot be undone.';
+      'Gũtirĩ itua rĩngĩ rĩgũtuo thutha wa ũyũ, na macookio mandĩkagwo maandĩko-inĩ ma gĩkundi. Ũndũ ũyũ ndũngĩcookererio.';
 
   @override
   String get pollDetailClosingCountsTheVotesAndWrites =>
-      'Closing counts the votes and writes the result into the group records.';
+      'Kũhinga gũtaraga itua na gũkandĩka macookio maandĩko-inĩ ma gĩkundi.';
 
   @override
   String get pollDetailYouHaveVotedThisIsA =>
-      'You have voted. This is a secret ballot, so your choice is not shown to anyone.';
+      'Nĩwatua. Rĩrĩ nĩ itua rĩa hitho, nĩ ũndũ ũcio ũthuuri waku ndwĩonagio mũndũ o na ũrĩkũ.';
 
   @override
   String get pollsElectYourLeadersAndDecideTogether =>
-      'Elect your leaders and decide together. One member, one vote.';
+      'Thuurai atongoria anyu na mũtue hamwe. Mũmemba ũmwe, itua rĩmwe.';
 
   @override
   String get pollsTapNewVoteToElectA =>
-      'Tap New Vote to elect a leader or put a question to the group.';
+      'Hutia Itua Rĩerũ nĩguo ũthuure mũtongoria kana ũũrie gĩkundi kĩũria.';
 
   @override
   String get pollsVotingIsKeptOnTheIntelli =>
-      'Voting is kept on the Intelli-Cash backend so every member sees the same tally. Connect or sign in first.';
+      'Itua ciigagwo cheba-inĩ ya Intelli-Cash nĩguo o mũmemba one namba o ĩyo. Ohania kana ũtoonye mbere.';
 
   @override
   String unlockOpensWhen(int officials, int members) {
-    return 'The meeting opens when $officials officials — or $members members — each turn their key.';
+    return 'Mũcemanio ũhingũragwo rĩrĩa atongoria $officials — kana amemba $members — mahũthĩra cabi ciao.';
   }
 
   @override
   String paymentProvidersStillNeeded(String fields) {
-    return 'Not finished — still needed: $fields. Until then money still goes to the platform account.';
+    return 'Gũtirĩ kwarĩkia — no kũbataraga: $fields. Nginya hĩndĩ ĩyo mbeca ithiaga akaũnti-inĩ ya kĩoneki.';
   }
 
   @override
   String welfareSharedOutExplainer(String paidOut) {
-    return 'This is what gets shared out at the end of the cycle — not the total contributed. $paidOut has been paid out so far.';
+    return 'Ĩno nĩyo ĩkũgayanwo mũthia wa mũthiũrũrũko — ti mbeca ciothe iria ciarutirwo. $paidOut nĩcirĩhĩtwo nginya rĩu.';
   }
 
   @override
   String shareOutStartsNextCycle(int cycle) {
-    return 'This records every payout, settles outstanding loans, and starts Cycle $cycle. It cannot be undone.';
+    return 'Ũndũ ũyũ nĩwandĩkaga o irĩhi, ũkarĩhia mĩkopo ĩrĩa ĩtigarĩte, na ũkambĩrĩria Mũthiũrũrũko $cycle. Ndũngĩcookererio.';
   }
 
   @override
   String visitAssessmentPhotoCapReached(int max) {
-    return 'This visit already has $max photos.';
+    return 'Rũgendo rũrũ nĩrũrĩ na mbica $max.';
   }
+
+  @override
+  String get languageDraftBadge => 'rasimu';
 }

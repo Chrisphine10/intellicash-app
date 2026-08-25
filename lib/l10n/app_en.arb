@@ -76,7 +76,7 @@
   "intelliStores": "Intelli-Stores",
   "language": "Language",
   "languageSubtitle": "Choose the language for this phone",
-  "languageNeedsReview": "This translation is still being checked by native speakers. Anything not yet translated shows in English.",
+  "languageNeedsReview": "Every screen is translated, but a speaker of this language has not checked the wording yet. If something reads wrongly, please tell us — you can switch back to English or Kiswahili at any time.",
   "shareTextButton": "Share Text",
   "back": "Back",
   "cancel": "Cancel",
@@ -467,5 +467,6 @@
         "type": "int"
       }
     }
-  }
+  },
+  "languageDraftBadge": "draft"
 }

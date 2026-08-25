@@ -1,11 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// How far a translation has got.
+///
+/// Two axes were being confused by a single `complete` flag: whether every
+/// string HAS a translation, and whether a speaker of the language has ever
+/// looked at it. They are not the same, and the second is the one a group in
+/// Embu actually cares about.
+enum TranslationState {
+  /// Every string translated, and the wording is trusted.
+  ready,
+
+  /// Every string translated, but no native speaker has reviewed it yet.
+  /// Nothing falls back to English any more — the risk is a word that is
+  /// grammatical but wrong, which is worse than a gap because it does not
+  /// announce itself.
+  draft,
+}
+
 /// The languages Intelli-Cash ships. Codes match the backend's
 /// `languagePreferences` list so a signed-in account's choice lines up.
 enum AppLanguage {
-  english('en', 'English', 'English', 'ENGLISH', complete: true),
-  kiswahili('sw', 'Kiswahili', 'Swahili', 'KISWAHILI', complete: true),
+  english('en', 'English', 'English', 'ENGLISH', state: TranslationState.ready),
+  kiswahili('sw', 'Kiswahili', 'Swahili', 'KISWAHILI',
+      state: TranslationState.ready),
   gikuyu('ki', 'Gĩkũyũ', 'Kikuyu', 'GIKUYU'),
   dholuo('luo', 'Dholuo', 'Luo', 'LUO'),
   kiembu('ebu', 'Kĩembu', 'Embu', 'KIEMBU');
@@ -15,7 +33,7 @@ enum AppLanguage {
     this.nativeName,
     this.englishName,
     this.backendValue, {
-    this.complete = false,
+    this.state = TranslationState.draft,
   });
 
   /// Locale code, matching the `app_<code>.arb` file.
@@ -28,9 +46,12 @@ enum AppLanguage {
   /// The backend `languagePreference` enum value.
   final String backendValue;
 
-  /// False while the translation is still partial: untranslated text falls
-  /// back to English, and the picker says so rather than pretending.
-  final bool complete;
+  /// How far this translation has got. The picker shows it, rather than
+  /// letting a language look finished because every screen has words on it.
+  final TranslationState state;
+
+  /// True only when a speaker of the language has signed the wording off.
+  bool get isReviewed => state == TranslationState.ready;
 
   Locale get locale => Locale(code);
 

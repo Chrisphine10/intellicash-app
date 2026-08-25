@@ -502,7 +502,7 @@ abstract class L10n {
   /// No description provided for @languageNeedsReview.
   ///
   /// In en, this message translates to:
-  /// **'This translation is still being checked by native speakers. Anything not yet translated shows in English.'**
+  /// **'Every screen is translated, but a speaker of this language has not checked the wording yet. If something reads wrongly, please tell us — you can switch back to English or Kiswahili at any time.'**
   String get languageNeedsReview;
 
   /// No description provided for @shareTextButton.
@@ -2622,6 +2622,12 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'This visit already has {max} photos.'**
   String visitAssessmentPhotoCapReached(int max);
+
+  /// No description provided for @languageDraftBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'draft'**
+  String get languageDraftBadge;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

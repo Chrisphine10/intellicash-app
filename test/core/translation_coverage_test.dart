@@ -62,25 +62,31 @@ void main() {
             reason: 'a key with no English original can never be shown');
       });
 
-      test('${language.englishName} tells the truth about being complete', () {
+      test('${language.englishName} has every string', () {
+        // Every shipped language is now fully translated. A gap here means a
+        // screen would silently show English inside an otherwise translated
+        // app — the exact half-finished state this work removed.
         final translated = _keysOf(language.code);
-        if (language.complete) {
-          final missing =
-              english.keys.where((k) => !translated.containsKey(k)).toList();
-          expect(missing, isEmpty,
-              reason: '${language.code} claims complete=true, so every string '
-                  'must be translated — otherwise the picker lies and the '
-                  'screen silently falls back to English');
-        } else {
-          // A partial language is fine; claiming otherwise is not. It must
-          // still carry the note explaining that the gaps are deliberate.
-          final raw = jsonDecode(_arb(language.code).readAsStringSync())
-              as Map<String, dynamic>;
-          final note = raw['_comment'] ?? '';
-          expect('$note'.toUpperCase(), contains('PARTIAL'),
-              reason: 'a partly translated file should say so in the file, '
-                  'not only in the picker');
-        }
+        final missing =
+            english.keys.where((k) => !translated.containsKey(k)).toList();
+
+        expect(missing, isEmpty,
+            reason: '${language.code} is missing ${missing.length} strings');
+      });
+
+      test('${language.englishName} says whether a speaker has checked it', () {
+        if (language.isReviewed) return;
+
+        // Being complete is not the same as being right. An unreviewed
+        // language no longer falls back to English, so a wrong word arrives
+        // looking exactly as confident as a correct one — the file has to say
+        // so, and the picker has to show it.
+        final raw = jsonDecode(_arb(language.code).readAsStringSync())
+            as Map<String, dynamic>;
+        final note = '${raw['_comment'] ?? ''}'.toUpperCase();
+
+        expect(note, contains('UNREVIEWED'),
+            reason: 'an unreviewed translation must say so in its own file');
       });
     }
   });

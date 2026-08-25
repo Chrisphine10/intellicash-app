@@ -222,7 +222,7 @@ class L10nEn extends L10n {
 
   @override
   String get languageNeedsReview =>
-      'This translation is still being checked by native speakers. Anything not yet translated shows in English.';
+      'Every screen is translated, but a speaker of this language has not checked the wording yet. If something reads wrongly, please tell us — you can switch back to English or Kiswahili at any time.';
 
   @override
   String get shareTextButton => 'Share Text';
@@ -1417,4 +1417,7 @@ class L10nEn extends L10n {
   String visitAssessmentPhotoCapReached(int max) {
     return 'This visit already has $max photos.';
   }
+
+  @override
+  String get languageDraftBadge => 'draft';
 }
