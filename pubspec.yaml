@@ -1,7 +1,7 @@
 name: intellicash_mobile
 description: "Intelli-Cash - Digital VSLA platform. Paperless, transparent, connected."
 publish_to: 'none'
-version: 2.4.2+14
+version: 2.5.0+15
 
 environment:
   sdk: ^3.9.2
