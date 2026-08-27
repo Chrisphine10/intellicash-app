@@ -1553,4 +1553,17 @@ class L10nEbu extends L10n {
   @override
   String get enterpriseNameRequired =>
       'Give this business a name so it can be told apart.';
+
+  @override
+  String get enterpriseReadingsTaken => 'Times recorded';
+
+  @override
+  String get enterpriseRevenueSinceFirst => 'Change since the first visit';
+
+  @override
+  String get enterpriseNoBaselineYet => 'Only recorded once so far';
+
+  @override
+  String get enterpriseGroupNotYours =>
+      'This group is not on your list. Ask your supervisor to assign it.';
 }

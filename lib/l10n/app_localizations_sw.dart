@@ -1549,4 +1549,17 @@ class L10nSw extends L10n {
   @override
   String get enterpriseNameRequired =>
       'Ipe biashara hii jina ili itofautishwe.';
+
+  @override
+  String get enterpriseReadingsTaken => 'Mara zilizoandikwa';
+
+  @override
+  String get enterpriseRevenueSinceFirst => 'Mabadiliko tangu ziara ya kwanza';
+
+  @override
+  String get enterpriseNoBaselineYet => 'Imeandikwa mara moja tu hadi sasa';
+
+  @override
+  String get enterpriseGroupNotYours =>
+      'Kikundi hiki hakipo kwenye orodha yako. Muulize msimamizi wako akikupe.';
 }

@@ -2868,6 +2868,30 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Give this business a name so it can be told apart.'**
   String get enterpriseNameRequired;
+
+  /// No description provided for @enterpriseReadingsTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'Times recorded'**
+  String get enterpriseReadingsTaken;
+
+  /// No description provided for @enterpriseRevenueSinceFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Change since the first visit'**
+  String get enterpriseRevenueSinceFirst;
+
+  /// No description provided for @enterpriseNoBaselineYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Only recorded once so far'**
+  String get enterpriseNoBaselineYet;
+
+  /// No description provided for @enterpriseGroupNotYours.
+  ///
+  /// In en, this message translates to:
+  /// **'This group is not on your list. Ask your supervisor to assign it.'**
+  String get enterpriseGroupNotYours;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/network/api_client.dart';
+import '../../core/network/api_exception.dart';
 import '../../l10n/app_localizations.dart';
 
 /// The businesses a group runs, recorded during a visit.
@@ -60,6 +61,11 @@ class _Enterprise {
             .toList(),
         supportNeeds = ((json['supportNeeds'] as List<dynamic>?) ?? const [])
             .whereType<Map<String, dynamic>>()
+            .toList(),
+        // Returned by the server on every read and previously discarded, so the
+        // phone could not answer the one question the snapshots exist for.
+        history = ((json['history'] as List<dynamic>?) ?? const [])
+            .whereType<Map<String, dynamic>>()
             .toList();
 
   final String id;
@@ -76,6 +82,21 @@ class _Enterprise {
   final List<String> channels;
   final List<int> salesMonths;
   final List<Map<String, dynamic>> supportNeeds;
+  final List<Map<String, dynamic>> history;
+
+  /// Revenue at the earliest dated reading against the latest.
+  ///
+  /// Null with fewer than two readings: there is no baseline, which is a
+  /// different fact from no growth and must not be shown as zero.
+  int? get revenueSinceFirstVisit {
+    final readings = history
+        .where((row) => row['monthlyRevenueCents'] is int)
+        .toList()
+      ..sort((a, b) => '${a['recordedAt']}'.compareTo('${b['recordedAt']}'));
+    if (readings.length < 2) return null;
+    return (readings.last['monthlyRevenueCents'] as int) -
+        (readings.first['monthlyRevenueCents'] as int);
+  }
 }
 
 class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
@@ -98,46 +119,60 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
     _load();
   }
 
+  /// Loads the two calls INDEPENDENTLY.
+  ///
+  /// They used to be one `Future.wait`, so a failure on either blanked the
+  /// screen — and the vocabularies are only needed to open the editor, not to
+  /// read what is already recorded. An agent whose reference call failed saw no
+  /// businesses at all, and the businesses had loaded perfectly.
   Future<void> _load() async {
+    final l10n = L10n.of(context);
+    String? failure;
+
     try {
-      final results = await Future.wait([
-        widget.client.getData('/groups/${widget.remoteGroupId}/enterprises'),
-        widget.client.getData('/enterprise-reference'),
-      ]);
-
-      final list = results[0] is Map<String, dynamic>
-          ? (results[0] as Map<String, dynamic>)
-          : const <String, dynamic>{};
-      final reference = results[1] is Map<String, dynamic>
-          ? (results[1] as Map<String, dynamic>)
-          : const <String, dynamic>{};
-
-      if (!mounted) return;
-      setState(() {
-        _enterprises = ((list['enterprises'] as List<dynamic>?) ?? const [])
-            .whereType<Map<String, dynamic>>()
-            .map(_Enterprise.new)
-            .toList();
-        _reachLadder = ((reference['marketReach'] as List<dynamic>?) ?? const [])
-            .whereType<Map<String, dynamic>>()
-            .toList();
-        _channels = ((reference['marketChannels'] as List<dynamic>?) ?? const [])
-            .whereType<Map<String, dynamic>>()
-            .toList();
-        _needTypes = ((reference['supportNeedTypes'] as List<dynamic>?) ?? const [])
-            .whereType<Map<String, dynamic>>()
-            .toList();
-        _loading = false;
-        _error = null;
-      });
-    } catch (_) {
-      if (!mounted) return;
-      final l10n = L10n.of(context);
-      setState(() {
-        _loading = false;
-        _error = l10n.enterpriseCouldNotLoad;
-      });
+      final list = await widget.client
+          .getData('/groups/${widget.remoteGroupId}/enterprises');
+      final map = list is Map<String, dynamic> ? list : const <String, dynamic>{};
+      final parsed = ((map['enterprises'] as List<dynamic>?) ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(_Enterprise.new)
+          .toList();
+      if (mounted) setState(() => _enterprises = parsed);
+    } catch (error) {
+      // Named for what actually happened. "Check your connection" for a group
+      // outside this agent's caseload sends them to look at the wrong thing.
+      failure = error is ApiException && error.statusCode == 404
+          ? l10n.enterpriseGroupNotYours
+          : l10n.enterpriseCouldNotLoad;
     }
+
+    try {
+      final reference = await widget.client.getData('/enterprise-reference');
+      final map =
+          reference is Map<String, dynamic> ? reference : const <String, dynamic>{};
+      if (mounted) {
+        setState(() {
+          _reachLadder = ((map['marketReach'] as List<dynamic>?) ?? const [])
+              .whereType<Map<String, dynamic>>()
+              .toList();
+          _channels = ((map['marketChannels'] as List<dynamic>?) ?? const [])
+              .whereType<Map<String, dynamic>>()
+              .toList();
+          _needTypes = ((map['supportNeedTypes'] as List<dynamic>?) ?? const [])
+              .whereType<Map<String, dynamic>>()
+              .toList();
+        });
+      }
+    } catch (_) {
+      // Not fatal: what is already recorded still reads. Only the editor's
+      // pickers are affected, and it says so when opened.
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _loading = false;
+      _error = failure;
+    });
   }
 
   Future<void> _openEditor([_Enterprise? existing]) async {
@@ -346,6 +381,48 @@ class _EnterpriseCard extends StatelessWidget {
                       ? l10n.enterpriseYes
                       : l10n.enterpriseNoInformal),
             ),
+            // Everything below was being captured in the editor and never shown
+            // back, so an agent filled it in, reopened the screen and could not
+            // see it. The data was saved and returned the whole time.
+            _Line(
+              label: l10n.businessProfilePeopleItEmploys,
+              value: enterprise.employs?.toString() ?? l10n.enterpriseNotAsked,
+            ),
+            if (enterprise.channels.isNotEmpty)
+              _Line(
+                label: l10n.enterpriseHowTheySell,
+                value: enterprise.channels
+                    .map((key) => _channelLabel(key))
+                    .join(', '),
+              ),
+            // Only when it is actually seasonal: "sells in all twelve months"
+            // is noise on a small screen.
+            if (enterprise.salesMonths.isNotEmpty && enterprise.salesMonths.length < 12)
+              _Line(
+                label: l10n.enterpriseMonthsTheySellIn,
+                value: (enterprise.salesMonths.toList()..sort())
+                    .map((month) => _monthLabels[month - 1])
+                    .join(', '),
+              ),
+            _Line(
+              label: l10n.enterpriseReadingsTaken,
+              value: enterprise.history.length.toString(),
+            ),
+            _Line(
+              label: l10n.enterpriseRevenueSinceFirst,
+              value: enterprise.revenueSinceFirstVisit == null
+                  ? l10n.enterpriseNoBaselineYet
+                  : _money(l10n, enterprise.revenueSinceFirstVisit),
+            ),
+            if (enterprise.mainChallenge != null &&
+                enterprise.mainChallenge!.trim().isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Text(
+                  '${l10n.businessProfileBiggestProblemTheyFace}: ${enterprise.mainChallenge}',
+                  style: theme.textTheme.bodySmall,
+                ),
+              ),
 
             if (enterprise.supportNeeds.isNotEmpty) ...[
               const SizedBox(height: 10),
@@ -380,6 +457,18 @@ class _EnterpriseCard extends StatelessWidget {
       ),
     );
   }
+
+  /// Channel keys are rendered from the same list the editor uses. The server
+  /// sends a label with each one, but the card only holds the keys, so this
+  /// falls back to a readable form rather than printing EXPORT_AGENT at
+  /// somebody.
+  static String _channelLabel(String key) =>
+      key.toLowerCase().replaceAll('_', ' ');
+
+  static const _monthLabels = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+  ];
 
   static String _money(L10n l10n, int? cents) {
     if (cents == null) return l10n.enterpriseNotRecorded;

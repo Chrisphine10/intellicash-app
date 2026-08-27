@@ -461,5 +461,9 @@
   "enterpriseCouldNotLoad": "Could not load. You need a connection for this one.",
   "enterpriseCouldNotSave": "Could not save. Check your connection and try again.",
   "enterpriseCouldNotSaveNeed": "Could not save that need. Check your connection.",
-  "enterpriseNameRequired": "Give this business a name so it can be told apart."
+  "enterpriseNameRequired": "Give this business a name so it can be told apart.",
+  "enterpriseReadingsTaken": "Times recorded",
+  "enterpriseRevenueSinceFirst": "Change since the first visit",
+  "enterpriseNoBaselineYet": "Only recorded once so far",
+  "enterpriseGroupNotYours": "This group is not on your list. Ask your supervisor to assign it."
 }

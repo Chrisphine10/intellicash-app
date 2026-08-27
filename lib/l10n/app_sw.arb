@@ -460,5 +460,9 @@
   "enterpriseCouldNotLoad": "Haikuweza kupakia. Unahitaji mtandao kwa hii.",
   "enterpriseCouldNotSave": "Haikuweza kuhifadhi. Angalia mtandao wako na ujaribu tena.",
   "enterpriseCouldNotSaveNeed": "Haikuweza kuhifadhi hitaji hilo. Angalia mtandao wako.",
-  "enterpriseNameRequired": "Ipe biashara hii jina ili itofautishwe."
+  "enterpriseNameRequired": "Ipe biashara hii jina ili itofautishwe.",
+  "enterpriseReadingsTaken": "Mara zilizoandikwa",
+  "enterpriseRevenueSinceFirst": "Mabadiliko tangu ziara ya kwanza",
+  "enterpriseNoBaselineYet": "Imeandikwa mara moja tu hadi sasa",
+  "enterpriseGroupNotYours": "Kikundi hiki hakipo kwenye orodha yako. Muulize msimamizi wako akikupe."
 }

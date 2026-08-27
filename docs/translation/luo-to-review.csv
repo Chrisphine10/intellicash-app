@@ -468,3 +468,7 @@ enterpriseCouldNotLoad,Could not load. You need a connection for this one.,Haiku
 enterpriseCouldNotSave,Could not save. Check your connection and try again.,Haikuweza kuhifadhi. Angalia mtandao wako na ujaribu tena.,,,
 enterpriseCouldNotSaveNeed,Could not save that need. Check your connection.,Haikuweza kuhifadhi hitaji hilo. Angalia mtandao wako.,,,
 enterpriseNameRequired,Give this business a name so it can be told apart.,Ipe biashara hii jina ili itofautishwe.,,,
+enterpriseReadingsTaken,Times recorded,Mara zilizoandikwa,,,
+enterpriseRevenueSinceFirst,Change since the first visit,Mabadiliko tangu ziara ya kwanza,,,
+enterpriseNoBaselineYet,Only recorded once so far,Imeandikwa mara moja tu hadi sasa,,,
+enterpriseGroupNotYours,This group is not on your list. Ask your supervisor to assign it.,Kikundi hiki hakipo kwenye orodha yako. Muulize msimamizi wako akikupe.,,,
