@@ -1558,4 +1558,99 @@ class L10nLuo extends L10n {
   @override
   String get enterpriseGroupNotYours =>
       'This group is not on your list. Ask your supervisor to assign it.';
+
+  @override
+  String get agreedActionsTitle => 'Gima riwruok oyie timo';
+
+  @override
+  String get agreedActionsNothingYet =>
+      'Onge gima oyiego. Gimoro amora ma indiko ka nonenre ka in kata jakony machielo oyawo limbe maluwo.';
+
+  @override
+  String agreedActionsRecordedCount(int count) {
+    return '$count ondiki e limbeni.';
+  }
+
+  @override
+  String get agreedActionsAgreeAnAction => 'Yie tich moro';
+
+  @override
+  String get agreedActionsReopen => 'Yaw kendo';
+
+  @override
+  String get agreedActionsNotYetSent => 'Pok oor';
+
+  @override
+  String get agreedActionsSheetIntro =>
+      'Okan e simbeni kendo ioro kaachiel gi limbe. Jakony maluwo mabiro yawo riwruokni none kapok ochako.';
+
+  @override
+  String get agreedActionsWhatWasAgreed => 'Gima ne oyie';
+
+  @override
+  String get agreedActionsWhatWasAgreedHint =>
+      'Ndik bug weche nyaka chokruok mogik';
+
+  @override
+  String get agreedActionsNeedTitle => 'Wach gima riwruok oyie timo.';
+
+  @override
+  String get agreedActionsWhoIsResponsible => 'Ngʼa man gi tijni';
+
+  @override
+  String get agreedActionsSetADate => 'Ket odiechiengʼ (ok ochuno)';
+
+  @override
+  String agreedActionsDueOn(String date) {
+    return 'Ochuno $date';
+  }
+
+  @override
+  String get agreedActionsDetailOptional => 'Weche mamoko (ok ochuno)';
+
+  @override
+  String get agreedActionsAddToThePlan => 'Med e chenro';
+
+  @override
+  String get actionOwnerChairperson => 'Jatend bura';
+
+  @override
+  String get actionOwnerSecretary => 'Jagoro';
+
+  @override
+  String get actionOwnerTreasurer => 'Jakan pesa';
+
+  @override
+  String get actionOwnerMoneyCounter => 'Jakwan pesa';
+
+  @override
+  String get actionOwnerKeyHolder => 'Jatingʼ ofungʼo';
+
+  @override
+  String get actionOwnerTheGroup => 'Riwruok';
+
+  @override
+  String get actionDueToday => 'Ochuno kawuono';
+
+  @override
+  String get actionDueTomorrow => 'Ochuno kiny';
+
+  @override
+  String actionDueInDays(int days) {
+    return 'Ochuno bangʼ ndalo $days';
+  }
+
+  @override
+  String actionDaysOverdue(int days) {
+    return 'Osedeko ndalo $days';
+  }
+
+  @override
+  String get actionOneDayOverdue => 'Osedeko odiechiengʼ 1';
+
+  @override
+  String get actionNoDueDate => 'Onge odiechiengʼ';
+
+  @override
+  String get actionDropped => 'Owe';
 }

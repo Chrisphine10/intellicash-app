@@ -1564,4 +1564,99 @@ class L10nEn extends L10n {
   @override
   String get enterpriseGroupNotYours =>
       'This group is not on your list. Ask your supervisor to assign it.';
+
+  @override
+  String get agreedActionsTitle => 'What the group agreed to do';
+
+  @override
+  String get agreedActionsNothingYet =>
+      'Nothing agreed yet. Whatever you record here is on screen when you or another agent opens the next visit.';
+
+  @override
+  String agreedActionsRecordedCount(int count) {
+    return '$count recorded at this visit.';
+  }
+
+  @override
+  String get agreedActionsAgreeAnAction => 'Agree an action';
+
+  @override
+  String get agreedActionsReopen => 'Reopen';
+
+  @override
+  String get agreedActionsNotYetSent => 'Not yet sent';
+
+  @override
+  String get agreedActionsSheetIntro =>
+      'Saved on this phone and sent with the visit. The next agent to open this group sees it before they start.';
+
+  @override
+  String get agreedActionsWhatWasAgreed => 'What was agreed';
+
+  @override
+  String get agreedActionsWhatWasAgreedHint =>
+      'Write up the ledger to the last meeting';
+
+  @override
+  String get agreedActionsNeedTitle => 'Say what the group agreed to do.';
+
+  @override
+  String get agreedActionsWhoIsResponsible => 'Who is responsible';
+
+  @override
+  String get agreedActionsSetADate => 'Set a date (optional)';
+
+  @override
+  String agreedActionsDueOn(String date) {
+    return 'Due $date';
+  }
+
+  @override
+  String get agreedActionsDetailOptional => 'Detail (optional)';
+
+  @override
+  String get agreedActionsAddToThePlan => 'Add to the plan';
+
+  @override
+  String get actionOwnerChairperson => 'Chairperson';
+
+  @override
+  String get actionOwnerSecretary => 'Secretary';
+
+  @override
+  String get actionOwnerTreasurer => 'Treasurer';
+
+  @override
+  String get actionOwnerMoneyCounter => 'Money counter';
+
+  @override
+  String get actionOwnerKeyHolder => 'Key holder';
+
+  @override
+  String get actionOwnerTheGroup => 'The group';
+
+  @override
+  String get actionDueToday => 'Due today';
+
+  @override
+  String get actionDueTomorrow => 'Due tomorrow';
+
+  @override
+  String actionDueInDays(int days) {
+    return 'Due in $days days';
+  }
+
+  @override
+  String actionDaysOverdue(int days) {
+    return '$days days overdue';
+  }
+
+  @override
+  String get actionOneDayOverdue => '1 day overdue';
+
+  @override
+  String get actionNoDueDate => 'No date';
+
+  @override
+  String get actionDropped => 'Dropped';
 }

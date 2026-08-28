@@ -344,6 +344,67 @@ void main() {
       expect(cached.dueDate!.day, 30);
     });
 
+    /// The bug: the same item appeared in both cards on one visit screen, once
+    /// under "From the last visit" with its own Done button. An item agreed ten
+    /// minutes ago in the visit being recorded is not something the group owed
+    /// when that visit began.
+    test('leaves out the current visit own work, by local id and by remote id',
+        () async {
+      await seedVisit('v1', remoteId: 'remote-v1');
+      await seedVisit('v2');
+
+      // Raised here, still only on the phone: identified by the LOCAL id.
+      await mentorship.raise(
+        visitId: 'v1',
+        remoteGroupId: 'remote-g1',
+        title: 'Agreed during this visit',
+      );
+      // Raised at an earlier visit.
+      await mentorship.raise(
+        visitId: 'v2',
+        remoteGroupId: 'remote-g1',
+        title: 'Owed from before',
+      );
+      // Pulled from the server for this same visit, which rewrites visit_id to
+      // the REMOTE id -- the case that made the duplicate come back on sync.
+      await mentorship.cacheFromServer(
+        remoteGroupId: 'remote-g1',
+        items: [
+          {
+            'id': 'remote-a9',
+            'visitId': 'remote-v1',
+            'title': 'Also agreed during this visit',
+            'status': 'OPEN',
+          },
+          {
+            // The office can raise work against no visit at all. NULL never
+            // matches NOT IN, so this is the row an exclusion silently drops.
+            'id': 'remote-a10',
+            'title': 'Raised by the office',
+            'status': 'OPEN',
+          },
+        ],
+      );
+
+      final before = await mentorship.openItemsFor(
+        'remote-g1',
+        excludingVisitIds: const ['v1', 'remote-v1'],
+      );
+
+      expect(
+        before.map((item) => item.title),
+        containsAll(['Owed from before', 'Raised by the office']),
+      );
+      expect(before.map((item) => item.title), isNot(contains('Agreed during this visit')));
+      expect(
+        before.map((item) => item.title),
+        isNot(contains('Also agreed during this visit')),
+      );
+
+      // With no exclusion it is still the group's whole outstanding list.
+      expect(await mentorship.openItemsFor('remote-g1'), hasLength(4));
+    });
+
     test('records which visit signed an item off, and clears it on reopen',
         () async {
       await seedVisit('v1');

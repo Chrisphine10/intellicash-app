@@ -1566,4 +1566,99 @@ class L10nKi extends L10n {
   @override
   String get enterpriseGroupNotYours =>
       'This group is not on your list. Ask your supervisor to assign it.';
+
+  @override
+  String get agreedActionsTitle => 'Kĩrĩa gĩkundi gĩtĩkĩrire gwĩka';
+
+  @override
+  String get agreedActionsNothingYet =>
+      'Gũtirĩ kĩndũ gĩtĩkĩrĩtio. Kĩrĩa gĩothe ũkwandĩka haha nĩgĩkoneka rĩrĩa wee kana mũteithĩrĩria ũngĩ akũhingũra rũgendo rũrũ rũngĩ.';
+
+  @override
+  String agreedActionsRecordedCount(int count) {
+    return '$count nĩciandĩkĩtwo rũgendo-inĩ rũrũ.';
+  }
+
+  @override
+  String get agreedActionsAgreeAnAction => 'Ĩtĩkĩrania ũndũ wa gwĩkwo';
+
+  @override
+  String get agreedActionsReopen => 'Hingũra rĩngĩ';
+
+  @override
+  String get agreedActionsNotYetSent => 'Ndĩrĩ ĩratũmwo';
+
+  @override
+  String get agreedActionsSheetIntro =>
+      'Nĩ ĩigĩtwo thimũ-inĩ ĩno na ĩgatũmwo hamwe na rũgendo. Mũteithĩrĩria ũrĩa ũgũthiĩ kũhingũra gĩkundi gĩkĩ nĩekũmĩona mbere ya kwambĩrĩria.';
+
+  @override
+  String get agreedActionsWhatWasAgreed => 'Kĩrĩa gĩatĩkĩrĩtio';
+
+  @override
+  String get agreedActionsWhatWasAgreedHint =>
+      'Andĩka ibuku nginya mũcemanio wa mũico';
+
+  @override
+  String get agreedActionsNeedTitle => 'Ugana kĩrĩa gĩkundi gĩtĩkĩrire gwĩka.';
+
+  @override
+  String get agreedActionsWhoIsResponsible => 'Nũũ ũrĩ na wĩra ũcio';
+
+  @override
+  String get agreedActionsSetADate => 'Ĩkĩra mũthenya (ti bata mũno)';
+
+  @override
+  String agreedActionsDueOn(String date) {
+    return 'Nĩ ya $date';
+  }
+
+  @override
+  String get agreedActionsDetailOptional => 'Ũhoro mũingĩ (ti bata mũno)';
+
+  @override
+  String get agreedActionsAddToThePlan => 'Ongerera mũbango-inĩ';
+
+  @override
+  String get actionOwnerChairperson => 'Mũtongoria';
+
+  @override
+  String get actionOwnerSecretary => 'Mwandĩki';
+
+  @override
+  String get actionOwnerTreasurer => 'Mũigi mbeca';
+
+  @override
+  String get actionOwnerMoneyCounter => 'Mũtarĩ mbeca';
+
+  @override
+  String get actionOwnerKeyHolder => 'Mũnyiti kĩhingũro';
+
+  @override
+  String get actionOwnerTheGroup => 'Gĩkundi';
+
+  @override
+  String get actionDueToday => 'Nĩ ya ũmũthĩ';
+
+  @override
+  String get actionDueTomorrow => 'Nĩ ya rũciũ';
+
+  @override
+  String actionDueInDays(int days) {
+    return 'Nĩ ya thutha wa mĩthenya $days';
+  }
+
+  @override
+  String actionDaysOverdue(int days) {
+    return 'Nĩ ĩtigĩte mĩthenya $days';
+  }
+
+  @override
+  String get actionOneDayOverdue => 'Nĩ ĩtigĩte mũthenya 1';
+
+  @override
+  String get actionNoDueDate => 'Gũtirĩ mũthenya';
+
+  @override
+  String get actionDropped => 'Nĩ ĩtiganĩrie';
 }

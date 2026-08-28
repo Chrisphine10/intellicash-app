@@ -4,6 +4,22 @@ Newest first.
 
 ---
 
+## 2.5.3 — 28 August 2026
+
+**An action no longer appears twice in one visit.** Something the group agreed
+during the visit you are recording was also being listed under "Before you
+start" as though it were owed from the last one — the same line twice on one
+screen, with a Done button beside each copy. "Before you start" now shows only
+what was outstanding when the visit began.
+
+**The action plan is in your language.** The whole of it — the wording, the
+offices you pick from, and the due dates — was English in every language.
+Kiswahili, Gĩkũyũ, Dholuo and Kĩembu now have all of it, like the rest of the
+app. The three unreviewed languages are still waiting on a speaker to check
+them.
+
+---
+
 ## 2.5.2 — 28 August 2026
 
 **An action shows the date it is due.** Setting a due date on an action had no

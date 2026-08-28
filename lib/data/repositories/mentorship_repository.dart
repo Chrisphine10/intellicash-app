@@ -322,12 +322,37 @@ class MentorshipRepository {
   /// This is what the phone shows at the START of a visit. Surfacing it before
   /// the agent begins is the difference between a follow-up and repeating last
   /// month's conversation.
-  Future<List<LocalActionItem>> openItemsFor(String remoteGroupId) async {
+  /// What the group still owes.
+  ///
+  /// [excludingVisitIds] leaves out work raised at a particular visit, which is
+  /// what the "before you start" card needs: an item agreed ten minutes ago in
+  /// the visit being recorded is not something the group owed when that visit
+  /// began. Without it the same row appeared twice on one screen, once under
+  /// "From the last visit" — with its own Done button beside each copy.
+  ///
+  /// Ids plural because a row identifies its visit by the LOCAL id while it is
+  /// only on the phone, and by the server's id once a refresh has replaced it.
+  /// Excluding one and not the other makes the duplicate reappear the moment
+  /// the visit syncs.
+  Future<List<LocalActionItem>> openItemsFor(
+    String remoteGroupId, {
+    Iterable<String> excludingVisitIds = const [],
+  }) async {
     final db = await _db;
+    final excluded = excludingVisitIds.where((id) => id.isNotEmpty).toList();
+    final placeholders = List.filled(excluded.length, '?').join(', ');
+
     final rows = await db.query(
       'visit_action_items',
-      where: 'remote_group_id = ? AND status NOT IN (?, ?)',
-      whereArgs: [remoteGroupId, 'DONE', 'CANCELLED'],
+      where: [
+        'remote_group_id = ?',
+        'status NOT IN (?, ?)',
+        // NULL never matches NOT IN, so an item with no visit at all -- one
+        // raised by the office -- has to be admitted explicitly.
+        if (excluded.isNotEmpty)
+          '(visit_id IS NULL OR visit_id NOT IN ($placeholders))',
+      ].join(' AND '),
+      whereArgs: [remoteGroupId, 'DONE', 'CANCELLED', ...excluded],
     );
     final items = rows.map(LocalActionItem.fromRow).toList()
       ..sort((a, b) => byUrgency(a.state, b.state));

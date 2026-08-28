@@ -391,6 +391,7 @@ class _RecordVisitScreenState extends State<RecordVisitScreen> {
             OpenActionItemsCard(
               remoteGroupId: widget.groupId,
               visitId: _visit!.id,
+              remoteVisitId: _visit!.remoteId,
               mentorship: _mentorship,
               sync: context.read<MentorshipSyncService>(),
             ),

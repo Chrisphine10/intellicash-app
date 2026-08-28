@@ -22,6 +22,7 @@ class OpenActionItemsCard extends StatefulWidget {
     required this.remoteGroupId,
     required this.visitId,
     required this.mentorship,
+    this.remoteVisitId,
     this.sync,
     this.onChanged,
   });
@@ -30,6 +31,14 @@ class OpenActionItemsCard extends StatefulWidget {
 
   /// The visit being recorded, so closing an item records where it was closed.
   final String visitId;
+
+  /// The same visit's server id, once it has one.
+  ///
+  /// A refresh rewrites a row's `visit_id` from the local id to this one, so
+  /// filtering on the local id alone stops working the moment the visit syncs
+  /// — and this card would start listing the visit's own work as though the
+  /// group had owed it all along.
+  final String? remoteVisitId;
   final MentorshipRepository mentorship;
 
   /// Pulls the server's items into the local cache when there is signal.
@@ -72,7 +81,12 @@ class _OpenActionItemsCardState extends State<OpenActionItemsCard> {
   }
 
   Future<void> _load() async {
-    final items = await widget.mentorship.openItemsFor(widget.remoteGroupId);
+    // This card answers "what did the group owe when this visit began", so
+    // anything agreed during the visit itself belongs to the other card.
+    final items = await widget.mentorship.openItemsFor(
+      widget.remoteGroupId,
+      excludingVisitIds: [widget.visitId, ?widget.remoteVisitId],
+    );
     if (!mounted) return;
     setState(() {
       _items = items;
@@ -174,7 +188,7 @@ class _ActionRow extends StatelessWidget {
                 Text(
                   [
                     if (item.owner != null) item.owner,
-                    dueSummary(state),
+                    dueSummary(state, l10n),
                   ].whereType<String>().join(' · '),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: late ? theme.colorScheme.error : null,

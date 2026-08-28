@@ -9,6 +9,8 @@
 /// that they should not: a subtraction and two comparisons.
 library;
 
+import '../../l10n/app_localizations.dart';
+
 /// What somebody did about the item. Stored.
 const actionItemStatuses = ['OPEN', 'IN_PROGRESS', 'DONE', 'CANCELLED'];
 
@@ -144,28 +146,36 @@ bool isValidMentorshipRating(int score) =>
 /// who had just set a due date saw no date anywhere afterwards — the one piece
 /// of information they had gone to the trouble of entering.
 ///
-/// The date is written the way the picker writes it (`30/9/2026`) rather than
-/// with a spelled month: the app ships in five languages and an English "Sep"
-/// in a Dholuo sentence would be worse than a number.
-String dueSummary(ActionItemStatus status) {
+/// Takes the localisations rather than reading them: this file has no
+/// BuildContext, the same reason the PDF builders are handed their strings.
+///
+/// The date itself is written the way the picker writes it (`30/9/2026`)
+/// rather than with a spelled month: the app ships in five languages and an
+/// English "Sep" in a Dholuo sentence would be worse than a number.
+String dueSummary(ActionItemStatus status, L10n l10n) {
   switch (status.state) {
     case ActionItemState.overdue:
       final days = status.daysOverdue;
-      return days == 1 ? '1 day overdue' : '$days days overdue';
+      return days == 1
+          ? l10n.actionOneDayOverdue
+          : l10n.actionDaysOverdue(days);
     case ActionItemState.done:
-      return 'Done';
+      return l10n.joinGroupDone;
     case ActionItemState.cancelled:
-      return 'Dropped';
+      return l10n.actionDropped;
     case ActionItemState.dueSoon:
     case ActionItemState.open:
     case ActionItemState.inProgress:
       final due = status.dueDate;
-      if (due == null) return 'No date';
+      if (due == null) return l10n.actionNoDueDate;
 
       final days = status.daysUntilDue ?? 0;
-      if (days == 0) return 'Due today';
-      if (days == 1) return 'Due tomorrow';
-      if (days <= dueSoonDays) return 'Due in $days days';
-      return 'Due ${due.day}/${due.month}/${due.year}';
+      if (days == 0) return l10n.actionDueToday;
+      if (days == 1) return l10n.actionDueTomorrow;
+      if (days <= dueSoonDays) return l10n.actionDueInDays(days);
+      return l10n.agreedActionsDueOn(formatDueDate(due));
   }
 }
+
+/// `30/9/2026`. Shared so the picker button and the rows agree.
+String formatDueDate(DateTime date) => '${date.day}/${date.month}/${date.year}';

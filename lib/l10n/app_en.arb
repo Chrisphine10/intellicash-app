@@ -512,5 +512,61 @@
   "enterpriseReadingsTaken": "Times recorded",
   "enterpriseRevenueSinceFirst": "Change since the first visit",
   "enterpriseNoBaselineYet": "Only recorded once so far",
-  "enterpriseGroupNotYours": "This group is not on your list. Ask your supervisor to assign it."
+  "enterpriseGroupNotYours": "This group is not on your list. Ask your supervisor to assign it.",
+  "agreedActionsTitle": "What the group agreed to do",
+  "agreedActionsNothingYet": "Nothing agreed yet. Whatever you record here is on screen when you or another agent opens the next visit.",
+  "agreedActionsRecordedCount": "{count} recorded at this visit.",
+  "@agreedActionsRecordedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "agreedActionsAgreeAnAction": "Agree an action",
+  "agreedActionsReopen": "Reopen",
+  "agreedActionsNotYetSent": "Not yet sent",
+  "agreedActionsSheetIntro": "Saved on this phone and sent with the visit. The next agent to open this group sees it before they start.",
+  "agreedActionsWhatWasAgreed": "What was agreed",
+  "agreedActionsWhatWasAgreedHint": "Write up the ledger to the last meeting",
+  "agreedActionsNeedTitle": "Say what the group agreed to do.",
+  "agreedActionsWhoIsResponsible": "Who is responsible",
+  "agreedActionsSetADate": "Set a date (optional)",
+  "agreedActionsDueOn": "Due {date}",
+  "@agreedActionsDueOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "agreedActionsDetailOptional": "Detail (optional)",
+  "agreedActionsAddToThePlan": "Add to the plan",
+  "actionOwnerChairperson": "Chairperson",
+  "actionOwnerSecretary": "Secretary",
+  "actionOwnerTreasurer": "Treasurer",
+  "actionOwnerMoneyCounter": "Money counter",
+  "actionOwnerKeyHolder": "Key holder",
+  "actionOwnerTheGroup": "The group",
+  "actionDueToday": "Due today",
+  "actionDueTomorrow": "Due tomorrow",
+  "actionDueInDays": "Due in {days} days",
+  "@actionDueInDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "actionDaysOverdue": "{days} days overdue",
+  "@actionDaysOverdue": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "actionOneDayOverdue": "1 day overdue",
+  "actionNoDueDate": "No date",
+  "actionDropped": "Dropped"
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/utils/action_item_state.dart';
+import '../../l10n/app_localizations.dart';
 import '../../data/repositories/mentorship_repository.dart';
 
 /// What the group agreed to do, recorded at THIS visit.
@@ -93,6 +94,7 @@ class _AgreedActionsCardState extends State<AgreedActionsCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = L10n.of(context);
     if (_loading) return const SizedBox.shrink();
 
     return Card(
@@ -107,7 +109,7 @@ class _AgreedActionsCardState extends State<AgreedActionsCard> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'What the group agreed to do',
+                    l10n.agreedActionsTitle,
                     style: theme.textTheme.titleSmall,
                   ),
                 ),
@@ -116,9 +118,8 @@ class _AgreedActionsCardState extends State<AgreedActionsCard> {
             const SizedBox(height: 4),
             Text(
               _items.isEmpty
-                  ? 'Nothing agreed yet. Whatever you record here is on screen '
-                      'when you or another agent opens the next visit.'
-                  : '${_items.length} recorded at this visit.',
+                  ? l10n.agreedActionsNothingYet
+                  : l10n.agreedActionsRecordedCount(_items.length),
               style: theme.textTheme.bodySmall,
             ),
             if (_items.isNotEmpty) ...[
@@ -136,7 +137,7 @@ class _AgreedActionsCardState extends State<AgreedActionsCard> {
               child: FilledButton.tonalIcon(
                 onPressed: _add,
                 icon: const Icon(Icons.add, size: 18),
-                label: const Text('Agree an action'),
+                label: Text(l10n.agreedActionsAgreeAnAction),
               ),
             ),
           ],
@@ -160,6 +161,7 @@ class _AgreedRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = L10n.of(context);
     final state = item.state;
     final open = state.state != ActionItemState.done &&
         state.state != ActionItemState.cancelled;
@@ -190,10 +192,10 @@ class _AgreedRow extends StatelessWidget {
                 Text(
                   [
                     if (item.owner != null && item.owner!.isNotEmpty) item.owner!,
-                    dueSummary(state),
+                    dueSummary(state, l10n),
                     // A row that has not reached the office yet says so, rather
                     // than looking identical to one that has.
-                    if (item.isDirty) 'Not yet sent',
+                    if (item.isDirty) l10n.agreedActionsNotYetSent,
                   ].join(' · '),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: late ? theme.colorScheme.error : null,
@@ -205,7 +207,7 @@ class _AgreedRow extends StatelessWidget {
           const SizedBox(width: 8),
           TextButton(
             onPressed: open ? onDone : onReopen,
-            child: Text(open ? 'Done' : 'Reopen'),
+            child: Text(open ? l10n.joinGroupDone : l10n.agreedActionsReopen),
           ),
         ],
       ),
@@ -232,14 +234,18 @@ class _ActionDraft {
 /// Chips rather than a free-text field, because an owner that names a ROLE
 /// survives the person leaving the group — and because typing on a handset in
 /// a field is the slowest thing an agent can be asked to do.
-const _owners = <String>[
-  'Chairperson',
-  'Secretary',
-  'Treasurer',
-  'Money counter',
-  'Key holder',
-  'The group',
-];
+///
+/// Stored in English and shown translated. An owner recorded in Dholuo has to
+/// mean the same thing to the office reading it in the console, so the label
+/// is a display concern and the value is not.
+List<(String, String)> _owners(L10n l10n) => [
+      ('Chairperson', l10n.actionOwnerChairperson),
+      ('Secretary', l10n.actionOwnerSecretary),
+      ('Treasurer', l10n.actionOwnerTreasurer),
+      ('Money counter', l10n.actionOwnerMoneyCounter),
+      ('Key holder', l10n.actionOwnerKeyHolder),
+      ('The group', l10n.actionOwnerTheGroup),
+    ];
 
 class _AgreeActionSheet extends StatefulWidget {
   const _AgreeActionSheet();
@@ -289,6 +295,7 @@ class _AgreeActionSheetState extends State<_AgreeActionSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = L10n.of(context);
 
     return Padding(
       // The keyboard covers a bottom sheet on a short handset, which is most of
@@ -306,11 +313,11 @@ class _AgreeActionSheetState extends State<_AgreeActionSheet> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Agree an action', style: theme.textTheme.titleMedium),
+              Text(l10n.agreedActionsAgreeAnAction,
+                  style: theme.textTheme.titleMedium),
               const SizedBox(height: 4),
               Text(
-                'Saved on this phone and sent with the visit. The next agent to '
-                'open this group sees it before they start.',
+                l10n.agreedActionsSheetIntro,
                 style: theme.textTheme.bodySmall,
               ),
               const SizedBox(height: 16),
@@ -319,27 +326,28 @@ class _AgreeActionSheetState extends State<_AgreeActionSheet> {
                 autofocus: true,
                 maxLength: 300,
                 textCapitalization: TextCapitalization.sentences,
-                decoration: const InputDecoration(
-                  labelText: 'What was agreed',
-                  hintText: 'Write up the ledger to the last meeting',
+                decoration: InputDecoration(
+                  labelText: l10n.agreedActionsWhatWasAgreed,
+                  hintText: l10n.agreedActionsWhatWasAgreedHint,
                 ),
                 validator: (value) => (value ?? '').trim().isEmpty
-                    ? 'Say what the group agreed to do.'
+                    ? l10n.agreedActionsNeedTitle
                     : null,
               ),
               const SizedBox(height: 8),
-              Text('Who is responsible', style: theme.textTheme.labelLarge),
+              Text(l10n.agreedActionsWhoIsResponsible,
+                  style: theme.textTheme.labelLarge),
               const SizedBox(height: 6),
               Wrap(
                 spacing: 8,
                 runSpacing: 4,
                 children: [
-                  for (final owner in _owners)
+                  for (final (value, label) in _owners(l10n))
                     ChoiceChip(
-                      label: Text(owner),
-                      selected: _owner == owner,
+                      label: Text(label),
+                      selected: _owner == value,
                       onSelected: (selected) =>
-                          setState(() => _owner = selected ? owner : null),
+                          setState(() => _owner = selected ? value : null),
                     ),
                 ],
               ),
@@ -349,8 +357,8 @@ class _AgreeActionSheetState extends State<_AgreeActionSheet> {
                 icon: const Icon(Icons.event_outlined, size: 18),
                 label: Text(
                   _dueDate == null
-                      ? 'Set a date (optional)'
-                      : 'Due ${_dueDate!.day}/${_dueDate!.month}/${_dueDate!.year}',
+                      ? l10n.agreedActionsSetADate
+                      : l10n.agreedActionsDueOn(formatDueDate(_dueDate!)),
                 ),
               ),
               const SizedBox(height: 12),
@@ -359,8 +367,8 @@ class _AgreeActionSheetState extends State<_AgreeActionSheet> {
                 maxLines: 3,
                 maxLength: 2000,
                 textCapitalization: TextCapitalization.sentences,
-                decoration: const InputDecoration(
-                  labelText: 'Detail (optional)',
+                decoration: InputDecoration(
+                  labelText: l10n.agreedActionsDetailOptional,
                   alignLabelWithHint: true,
                 ),
               ),
@@ -370,13 +378,13 @@ class _AgreeActionSheetState extends State<_AgreeActionSheet> {
                   Expanded(
                     child: FilledButton(
                       onPressed: _submit,
-                      child: const Text('Add to the plan'),
+                      child: Text(l10n.agreedActionsAddToThePlan),
                     ),
                   ),
                   const SizedBox(width: 8),
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Cancel'),
+                    child: Text(l10n.cancel),
                   ),
                 ],
               ),

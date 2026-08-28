@@ -2892,6 +2892,174 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'This group is not on your list. Ask your supervisor to assign it.'**
   String get enterpriseGroupNotYours;
+
+  /// No description provided for @agreedActionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What the group agreed to do'**
+  String get agreedActionsTitle;
+
+  /// No description provided for @agreedActionsNothingYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing agreed yet. Whatever you record here is on screen when you or another agent opens the next visit.'**
+  String get agreedActionsNothingYet;
+
+  /// No description provided for @agreedActionsRecordedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} recorded at this visit.'**
+  String agreedActionsRecordedCount(int count);
+
+  /// No description provided for @agreedActionsAgreeAnAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Agree an action'**
+  String get agreedActionsAgreeAnAction;
+
+  /// No description provided for @agreedActionsReopen.
+  ///
+  /// In en, this message translates to:
+  /// **'Reopen'**
+  String get agreedActionsReopen;
+
+  /// No description provided for @agreedActionsNotYetSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Not yet sent'**
+  String get agreedActionsNotYetSent;
+
+  /// No description provided for @agreedActionsSheetIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved on this phone and sent with the visit. The next agent to open this group sees it before they start.'**
+  String get agreedActionsSheetIntro;
+
+  /// No description provided for @agreedActionsWhatWasAgreed.
+  ///
+  /// In en, this message translates to:
+  /// **'What was agreed'**
+  String get agreedActionsWhatWasAgreed;
+
+  /// No description provided for @agreedActionsWhatWasAgreedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write up the ledger to the last meeting'**
+  String get agreedActionsWhatWasAgreedHint;
+
+  /// No description provided for @agreedActionsNeedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Say what the group agreed to do.'**
+  String get agreedActionsNeedTitle;
+
+  /// No description provided for @agreedActionsWhoIsResponsible.
+  ///
+  /// In en, this message translates to:
+  /// **'Who is responsible'**
+  String get agreedActionsWhoIsResponsible;
+
+  /// No description provided for @agreedActionsSetADate.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a date (optional)'**
+  String get agreedActionsSetADate;
+
+  /// No description provided for @agreedActionsDueOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Due {date}'**
+  String agreedActionsDueOn(String date);
+
+  /// No description provided for @agreedActionsDetailOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Detail (optional)'**
+  String get agreedActionsDetailOptional;
+
+  /// No description provided for @agreedActionsAddToThePlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to the plan'**
+  String get agreedActionsAddToThePlan;
+
+  /// No description provided for @actionOwnerChairperson.
+  ///
+  /// In en, this message translates to:
+  /// **'Chairperson'**
+  String get actionOwnerChairperson;
+
+  /// No description provided for @actionOwnerSecretary.
+  ///
+  /// In en, this message translates to:
+  /// **'Secretary'**
+  String get actionOwnerSecretary;
+
+  /// No description provided for @actionOwnerTreasurer.
+  ///
+  /// In en, this message translates to:
+  /// **'Treasurer'**
+  String get actionOwnerTreasurer;
+
+  /// No description provided for @actionOwnerMoneyCounter.
+  ///
+  /// In en, this message translates to:
+  /// **'Money counter'**
+  String get actionOwnerMoneyCounter;
+
+  /// No description provided for @actionOwnerKeyHolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Key holder'**
+  String get actionOwnerKeyHolder;
+
+  /// No description provided for @actionOwnerTheGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'The group'**
+  String get actionOwnerTheGroup;
+
+  /// No description provided for @actionDueToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Due today'**
+  String get actionDueToday;
+
+  /// No description provided for @actionDueTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Due tomorrow'**
+  String get actionDueTomorrow;
+
+  /// No description provided for @actionDueInDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Due in {days} days'**
+  String actionDueInDays(int days);
+
+  /// No description provided for @actionDaysOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days overdue'**
+  String actionDaysOverdue(int days);
+
+  /// No description provided for @actionOneDayOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'1 day overdue'**
+  String get actionOneDayOverdue;
+
+  /// No description provided for @actionNoDueDate.
+  ///
+  /// In en, this message translates to:
+  /// **'No date'**
+  String get actionNoDueDate;
+
+  /// No description provided for @actionDropped.
+  ///
+  /// In en, this message translates to:
+  /// **'Dropped'**
+  String get actionDropped;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

@@ -1562,4 +1562,99 @@ class L10nSw extends L10n {
   @override
   String get enterpriseGroupNotYours =>
       'Kikundi hiki hakipo kwenye orodha yako. Muulize msimamizi wako akikupe.';
+
+  @override
+  String get agreedActionsTitle => 'Kikundi kilichokubaliana kufanya';
+
+  @override
+  String get agreedActionsNothingYet =>
+      'Hakuna kilichokubaliwa bado. Chochote unachorekodi hapa kitaonekana wewe au wakala mwingine atakapofungua ziara ijayo.';
+
+  @override
+  String agreedActionsRecordedCount(int count) {
+    return '$count zimerekodiwa katika ziara hii.';
+  }
+
+  @override
+  String get agreedActionsAgreeAnAction => 'Kubaliana jambo la kufanya';
+
+  @override
+  String get agreedActionsReopen => 'Fungua tena';
+
+  @override
+  String get agreedActionsNotYetSent => 'Bado haijatumwa';
+
+  @override
+  String get agreedActionsSheetIntro =>
+      'Imehifadhiwa kwenye simu hii na kutumwa pamoja na ziara. Wakala atakayefungua kikundi hiki ataiona kabla ya kuanza.';
+
+  @override
+  String get agreedActionsWhatWasAgreed => 'Kilichokubaliwa';
+
+  @override
+  String get agreedActionsWhatWasAgreedHint =>
+      'Andika daftari hadi mkutano wa mwisho';
+
+  @override
+  String get agreedActionsNeedTitle => 'Sema kikundi kilichokubaliana kufanya.';
+
+  @override
+  String get agreedActionsWhoIsResponsible => 'Nani anahusika';
+
+  @override
+  String get agreedActionsSetADate => 'Weka tarehe (si lazima)';
+
+  @override
+  String agreedActionsDueOn(String date) {
+    return 'Inatakiwa $date';
+  }
+
+  @override
+  String get agreedActionsDetailOptional => 'Maelezo (si lazima)';
+
+  @override
+  String get agreedActionsAddToThePlan => 'Ongeza kwenye mpango';
+
+  @override
+  String get actionOwnerChairperson => 'Mwenyekiti';
+
+  @override
+  String get actionOwnerSecretary => 'Katibu';
+
+  @override
+  String get actionOwnerTreasurer => 'Mweka hazina';
+
+  @override
+  String get actionOwnerMoneyCounter => 'Mhesabu pesa';
+
+  @override
+  String get actionOwnerKeyHolder => 'Mwenye ufunguo';
+
+  @override
+  String get actionOwnerTheGroup => 'Kikundi';
+
+  @override
+  String get actionDueToday => 'Inatakiwa leo';
+
+  @override
+  String get actionDueTomorrow => 'Inatakiwa kesho';
+
+  @override
+  String actionDueInDays(int days) {
+    return 'Inatakiwa baada ya siku $days';
+  }
+
+  @override
+  String actionDaysOverdue(int days) {
+    return 'Imechelewa siku $days';
+  }
+
+  @override
+  String get actionOneDayOverdue => 'Imechelewa siku 1';
+
+  @override
+  String get actionNoDueDate => 'Hakuna tarehe';
+
+  @override
+  String get actionDropped => 'Imeachwa';
 }

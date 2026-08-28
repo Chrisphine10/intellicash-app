@@ -28,6 +28,7 @@ void main() {
           body: OpenActionItemsCard(
             remoteGroupId: 'remote-g1',
             visitId: 'v1',
+            remoteVisitId: 'remote-v1',
             mentorship: mentorship,
             sync: sync,
           ),
@@ -49,7 +50,7 @@ void main() {
       LocalActionItem(
         id: 'a${mentorship.items.length + 1}',
         remoteGroupId: 'remote-g1',
-        visitId: 'v1',
+        visitId: 'v0',
         title: title,
         owner: owner,
         status: 'OPEN',
@@ -165,6 +166,42 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.text('From the last visit'), findsOneWidget);
   });
+  testWidgets('does not repeat work agreed during this very visit',
+      (tester) async {
+    // The bug: the same row appeared in both cards on one screen, once under
+    // "From the last visit" -- with a Done button beside each copy. An item
+    // agreed ten minutes ago in this visit was never owed before it began.
+    mentorship.items.add(
+      LocalActionItem(
+        id: 'raised-here',
+        remoteGroupId: 'remote-g1',
+        visitId: 'v1',
+        title: 'Agreed during this visit',
+        status: 'OPEN',
+        isDirty: true,
+      ),
+    );
+    // The same item after a sync rewrote visit_id to the server's id, which is
+    // what made the duplicate come back the moment the visit landed.
+    mentorship.items.add(
+      LocalActionItem(
+        id: 'raised-here-synced',
+        remoteGroupId: 'remote-g1',
+        visitId: 'remote-v1',
+        title: 'Also agreed during this visit',
+        status: 'OPEN',
+        isDirty: false,
+      ),
+    );
+    give(title: 'Owed from before', dueIn: const Duration(days: 20));
+
+    await pump(tester);
+
+    expect(find.text('Owed from before'), findsOneWidget);
+    expect(find.text('Agreed during this visit'), findsNothing);
+    expect(find.text('Also agreed during this visit'), findsNothing);
+    expect(find.textContaining('1 still open'), findsOneWidget);
+  });
 }
 
 /// Stands in for the network. `refreshOpenItems` writes into the same fake
@@ -196,12 +233,18 @@ class _FakeMentorshipRepository extends MentorshipRepository {
   final List<(String, String, String?)> closed = [];
 
   @override
-  Future<List<LocalActionItem>> openItemsFor(String remoteGroupId) async {
+  Future<List<LocalActionItem>> openItemsFor(
+    String remoteGroupId, {
+    Iterable<String> excludingVisitIds = const [],
+  }) async {
+    final excluded = excludingVisitIds.toSet();
     final open = items
         .where((item) =>
             item.remoteGroupId == remoteGroupId &&
             item.status != 'DONE' &&
-            item.status != 'CANCELLED')
+            item.status != 'CANCELLED' &&
+            // A null visit is the office's own work, and always belongs here.
+            (item.visitId == null || !excluded.contains(item.visitId)))
         .toList();
     open.sort((a, b) => byUrgencyOf(a, b));
     return open;
