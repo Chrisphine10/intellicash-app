@@ -4,6 +4,25 @@ Newest first.
 
 ---
 
+## 2.5.4 — 29 August 2026
+
+**Throw away a visit you opened by mistake.** A mis-tap on "Record a visit"
+used to leave a draft on the phone for good — the app resumed it every time,
+and the only way past it was to finish and send a visit that never happened.
+There is now a bin in the corner while the visit is still a draft. Anything you
+agreed in it that has not been sent goes with it; anything already at the
+office stays on the group's list, because they have been told.
+
+**The phone stops hoarding what it has already sent.** The queue of visits
+waiting to go kept every entry it had ever completed, so it grew for the life
+of the install and was re-read on every sync. Entries are now retired a week
+after they land.
+
+**"1 still open" now says so in your language.** That line was English in all
+five.
+
+---
+
 ## 2.5.3 — 28 August 2026
 
 **An action no longer appears twice in one visit.** Something the group agreed

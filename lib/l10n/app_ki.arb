@@ -493,5 +493,10 @@
   "actionDaysOverdue": "Nĩ ĩtigĩte mĩthenya {days}",
   "actionOneDayOverdue": "Nĩ ĩtigĩte mũthenya 1",
   "actionNoDueDate": "Gũtirĩ mũthenya",
-  "actionDropped": "Nĩ ĩtiganĩrie"
+  "actionDropped": "Nĩ ĩtiganĩrie",
+  "recordVisitDiscardVisit": "Ũteanie rũgendo rũrũ",
+  "recordVisitDiscardVisitBody": "Gũtirĩ kĩndũ kĩandĩkĩtwo haha gĩtũmĩtwo, na gĩtigũigwo. Hũthĩra ũndũ ũyũ rĩrĩa rũgendo rwahingũrwo na mahĩtia.",
+  "recordVisitDiscardVisitConfirm": "Ũteanie",
+  "openActionItemsStillOpen": "{count} irĩ o ho.",
+  "openActionItemsStillOpenOverdue": "{count} irĩ o ho, {overdue} nĩ itigĩte. Ambĩrĩria na ici."
 }

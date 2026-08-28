@@ -493,5 +493,10 @@
   "actionDaysOverdue": "Osedeko ndalo {days}",
   "actionOneDayOverdue": "Osedeko odiechiengʼ 1",
   "actionNoDueDate": "Onge odiechiengʼ",
-  "actionDropped": "Owe"
+  "actionDropped": "Owe",
+  "recordVisitDiscardVisit": "Wit limbeni",
+  "recordVisitDiscardVisitBody": "Onge gima ondiki ka mosewor, kendo ok noketi. Ti gi ma ka limbe oyaw ka ok owinjore.",
+  "recordVisitDiscardVisitConfirm": "Wite",
+  "openActionItemsStillOpen": "{count} pod odongʼ.",
+  "openActionItemsStillOpenOverdue": "{count} pod odongʼ, {overdue} osedeko. Chak gi magi."
 }

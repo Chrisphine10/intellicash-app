@@ -493,5 +493,10 @@
   "actionDaysOverdue": "Ni itigite mithenya {days}",
   "actionOneDayOverdue": "Ni itigite muthenya 1",
   "actionNoDueDate": "Gutiri muthenya",
-  "actionDropped": "Ni itiganirie"
+  "actionDropped": "Ni itiganirie",
+  "recordVisitDiscardVisit": "Uteanie rugendo ruru",
+  "recordVisitDiscardVisitBody": "Gutiri kindu kiandikitwo haha gitumitwo, na gitiguigwo. Huthira undu uyu ria rugendo rwahingurwo na mahitia.",
+  "recordVisitDiscardVisitConfirm": "Uteanie",
+  "openActionItemsStillOpen": "{count} iri o ho.",
+  "openActionItemsStillOpenOverdue": "{count} iri o ho, {overdue} ni itigite. Ambiriria na ici."
 }

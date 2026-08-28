@@ -1653,4 +1653,24 @@ class L10nLuo extends L10n {
 
   @override
   String get actionDropped => 'Owe';
+
+  @override
+  String get recordVisitDiscardVisit => 'Wit limbeni';
+
+  @override
+  String get recordVisitDiscardVisitBody =>
+      'Onge gima ondiki ka mosewor, kendo ok noketi. Ti gi ma ka limbe oyaw ka ok owinjore.';
+
+  @override
+  String get recordVisitDiscardVisitConfirm => 'Wite';
+
+  @override
+  String openActionItemsStillOpen(int count) {
+    return '$count pod odongʼ.';
+  }
+
+  @override
+  String openActionItemsStillOpenOverdue(int count, int overdue) {
+    return '$count pod odongʼ, $overdue osedeko. Chak gi magi.';
+  }
 }

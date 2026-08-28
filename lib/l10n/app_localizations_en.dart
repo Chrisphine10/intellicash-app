@@ -1659,4 +1659,24 @@ class L10nEn extends L10n {
 
   @override
   String get actionDropped => 'Dropped';
+
+  @override
+  String get recordVisitDiscardVisit => 'Discard this visit';
+
+  @override
+  String get recordVisitDiscardVisitBody =>
+      'Nothing recorded here has been sent yet, and it will not be kept. Use this when a visit was opened by mistake.';
+
+  @override
+  String get recordVisitDiscardVisitConfirm => 'Discard';
+
+  @override
+  String openActionItemsStillOpen(int count) {
+    return '$count still open.';
+  }
+
+  @override
+  String openActionItemsStillOpenOverdue(int count, int overdue) {
+    return '$count still open, $overdue overdue. Go through these first.';
+  }
 }

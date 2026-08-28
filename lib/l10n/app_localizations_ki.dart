@@ -1661,4 +1661,24 @@ class L10nKi extends L10n {
 
   @override
   String get actionDropped => 'Nĩ ĩtiganĩrie';
+
+  @override
+  String get recordVisitDiscardVisit => 'Ũteanie rũgendo rũrũ';
+
+  @override
+  String get recordVisitDiscardVisitBody =>
+      'Gũtirĩ kĩndũ kĩandĩkĩtwo haha gĩtũmĩtwo, na gĩtigũigwo. Hũthĩra ũndũ ũyũ rĩrĩa rũgendo rwahingũrwo na mahĩtia.';
+
+  @override
+  String get recordVisitDiscardVisitConfirm => 'Ũteanie';
+
+  @override
+  String openActionItemsStillOpen(int count) {
+    return '$count irĩ o ho.';
+  }
+
+  @override
+  String openActionItemsStillOpenOverdue(int count, int overdue) {
+    return '$count irĩ o ho, $overdue nĩ itigĩte. Ambĩrĩria na ici.';
+  }
 }

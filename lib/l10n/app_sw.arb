@@ -492,5 +492,10 @@
   "actionDaysOverdue": "Imechelewa siku {days}",
   "actionOneDayOverdue": "Imechelewa siku 1",
   "actionNoDueDate": "Hakuna tarehe",
-  "actionDropped": "Imeachwa"
+  "actionDropped": "Imeachwa",
+  "recordVisitDiscardVisit": "Tupa ziara hii",
+  "recordVisitDiscardVisitBody": "Hakuna kilichorekodiwa hapa kilichotumwa, na hakitahifadhiwa. Tumia hii ziara ilipofunguliwa kimakosa.",
+  "recordVisitDiscardVisitConfirm": "Tupa",
+  "openActionItemsStillOpen": "{count} bado zimebaki.",
+  "openActionItemsStillOpenOverdue": "{count} bado zimebaki, {overdue} zimechelewa. Anza na hizi."
 }

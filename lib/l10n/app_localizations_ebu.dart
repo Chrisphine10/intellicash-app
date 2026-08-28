@@ -1661,4 +1661,24 @@ class L10nEbu extends L10n {
 
   @override
   String get actionDropped => 'Ni itiganirie';
+
+  @override
+  String get recordVisitDiscardVisit => 'Uteanie rugendo ruru';
+
+  @override
+  String get recordVisitDiscardVisitBody =>
+      'Gutiri kindu kiandikitwo haha gitumitwo, na gitiguigwo. Huthira undu uyu ria rugendo rwahingurwo na mahitia.';
+
+  @override
+  String get recordVisitDiscardVisitConfirm => 'Uteanie';
+
+  @override
+  String openActionItemsStillOpen(int count) {
+    return '$count iri o ho.';
+  }
+
+  @override
+  String openActionItemsStillOpenOverdue(int count, int overdue) {
+    return '$count iri o ho, $overdue ni itigite. Ambiriria na ici.';
+  }
 }

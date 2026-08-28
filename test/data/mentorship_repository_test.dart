@@ -405,6 +405,35 @@ void main() {
       expect(await mentorship.openItemsFor('remote-g1'), hasLength(4));
     });
 
+    /// Discarding a draft visit takes its unsent work with it, and leaves
+    /// alone anything the office has already been told about.
+    test('discards a visit unsent work, and keeps what already reached the office',
+        () async {
+      await seedVisit('v1');
+
+      final unsent = await mentorship.raise(
+        visitId: 'v1',
+        remoteGroupId: 'remote-g1',
+        title: 'Never left the phone',
+      );
+      final sent = await mentorship.raise(
+        visitId: 'v1',
+        remoteGroupId: 'remote-g1',
+        title: 'Already at the office',
+      );
+      await mentorship.markSynced(id: sent.id, remoteId: 'remote-a1');
+
+      final removed = await mentorship.discardUnsyncedForVisit('v1');
+
+      expect(removed, 1);
+      final left = await mentorship.itemsForVisit('v1');
+      expect(left.map((item) => item.title), ['Already at the office']);
+      // Otherwise the push resolves a deleted visit and skips it on every sync
+      // forever, leaving a dirty row nobody can see or clear.
+      expect((await mentorship.dirty()).map((item) => item.id),
+          isNot(contains(unsent.id)));
+    });
+
     test('records which visit signed an item off, and clears it on reopen',
         () async {
       await seedVisit('v1');

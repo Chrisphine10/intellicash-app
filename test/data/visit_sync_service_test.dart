@@ -217,4 +217,32 @@ void main() {
     expect(await sync.pushDue(), 1);
     expect((await visits.byId(visit.id))!.isSynced, isTrue);
   });
+
+  /// Every row, synced or not. Read from the table rather than through a
+  /// method added to production code for a test to call.
+  Future<int> outboxRows() async {
+    final db = await AppDatabase.instance.database;
+    final rows = await db.rawQuery('SELECT COUNT(*) c FROM outbox');
+    return (rows.first['c'] as num).toInt();
+  }
+
+  test('retires entries it has been done with, rather than keeping them forever',
+      () async {
+    // `pruneSynced` was written, tested against the repository, and called from
+    // nowhere — so every visit this phone had ever sent stayed in the outbox
+    // and `due()` scanned all of them on every sync.
+    await readyVisit();
+    expect(await sync.pushDue(), 1);
+
+    // Still there the same week: a synced entry is the evidence that a visit
+    // was sent, and worth having while somebody might ask.
+    final soon = DateTime.now().add(const Duration(days: 2));
+    await sync.pushDue(now: soon);
+    expect(await outboxRows(), 1);
+
+    // Gone once it is old enough to be of no use to anyone.
+    final later = DateTime.now().add(const Duration(days: 9));
+    await sync.pushDue(now: later);
+    expect(await outboxRows(), 0);
+  });
 }

@@ -370,6 +370,25 @@ class MentorshipRepository {
     return rows.map(LocalActionItem.fromRow).toList();
   }
 
+  /// Throws away work raised at a visit that is being abandoned.
+  ///
+  /// Only rows that never reached the server. An item that has synced belongs
+  /// to the GROUP from that moment on — discarding the occasion it was agreed
+  /// at is not the same as the group no longer owing it, and the office has
+  /// already been told.
+  ///
+  /// Without this, discarding a draft strands its unsynced items: the push
+  /// resolves their visit, finds it deleted, and skips them on every sync
+  /// forever, so they sit dirty and invisible for the life of the install.
+  Future<int> discardUnsyncedForVisit(String visitId) async {
+    final db = await _db;
+    return db.delete(
+      'visit_action_items',
+      where: 'visit_id = ? AND remote_id IS NULL',
+      whereArgs: [visitId],
+    );
+  }
+
   /// Closes or reopens an item. Marked dirty so the change reaches the server.
   Future<void> setStatus({
     required String id,

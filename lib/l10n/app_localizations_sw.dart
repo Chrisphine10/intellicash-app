@@ -1657,4 +1657,24 @@ class L10nSw extends L10n {
 
   @override
   String get actionDropped => 'Imeachwa';
+
+  @override
+  String get recordVisitDiscardVisit => 'Tupa ziara hii';
+
+  @override
+  String get recordVisitDiscardVisitBody =>
+      'Hakuna kilichorekodiwa hapa kilichotumwa, na hakitahifadhiwa. Tumia hii ziara ilipofunguliwa kimakosa.';
+
+  @override
+  String get recordVisitDiscardVisitConfirm => 'Tupa';
+
+  @override
+  String openActionItemsStillOpen(int count) {
+    return '$count bado zimebaki.';
+  }
+
+  @override
+  String openActionItemsStillOpenOverdue(int count, int overdue) {
+    return '$count bado zimebaki, $overdue zimechelewa. Anza na hizi.';
+  }
 }

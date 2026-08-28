@@ -113,6 +113,15 @@ class VisitSyncService {
     // Visits that landed earlier but whose assessment did not.
     await pushPendingAssessments();
 
+    // Retire entries that have been done with for a week.
+    //
+    // `pruneSynced` was written and tested and nothing ever called it, so the
+    // outbox only ever grew: every visit this phone has ever sent stayed in
+    // the table, and `due()` scanned all of them on every sync. A week is kept
+    // rather than deleting on success, because a synced entry is the evidence
+    // that a visit was sent — worth having while somebody might still ask.
+    await _outbox.pruneSynced(now: now);
+
     return synced;
   }
 

@@ -568,5 +568,27 @@
   },
   "actionOneDayOverdue": "1 day overdue",
   "actionNoDueDate": "No date",
-  "actionDropped": "Dropped"
+  "actionDropped": "Dropped",
+  "recordVisitDiscardVisit": "Discard this visit",
+  "recordVisitDiscardVisitBody": "Nothing recorded here has been sent yet, and it will not be kept. Use this when a visit was opened by mistake.",
+  "recordVisitDiscardVisitConfirm": "Discard",
+  "openActionItemsStillOpen": "{count} still open.",
+  "@openActionItemsStillOpen": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "openActionItemsStillOpenOverdue": "{count} still open, {overdue} overdue. Go through these first.",
+  "@openActionItemsStillOpenOverdue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "overdue": {
+        "type": "int"
+      }
+    }
+  }
 }

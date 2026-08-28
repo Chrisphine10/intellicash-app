@@ -275,6 +275,47 @@ class _RecordVisitScreenState extends State<RecordVisitScreen> {
     );
   }
 
+  /// Throws away a visit opened by mistake.
+  ///
+  /// `VisitRepository.discardDraft` was written and tested and reachable from
+  /// no screen, so a visit started by a mis-tap stayed on the phone for good:
+  /// "Record a visit" resumed it every time, and the only way past it was to
+  /// finish and submit a visit that never happened.
+  ///
+  /// Confirmed first, and offered only for an unsynced draft. Once a visit has
+  /// reached the office it is immutable and is amended rather than deleted.
+  Future<void> _discardVisit() async {
+    final visit = _visit;
+    if (visit == null || visit.remoteId != null) return;
+
+    final l10n = L10n.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.recordVisitDiscardVisit),
+        content: Text(l10n.recordVisitDiscardVisitBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l10n.recordVisitDiscardVisitConfirm),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    // Its own unsent work goes with it. Anything already sent belongs to the
+    // group and stays on their outstanding list.
+    await _mentorship.discardUnsyncedForVisit(visit.id);
+    if (!mounted) return;
+    await context.read<VisitRepository>().discardDraft(visit.id);
+    if (mounted) Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = L10n.of(context);
@@ -286,7 +327,19 @@ class _RecordVisitScreenState extends State<RecordVisitScreen> {
     final hasFix = visit?.hasLocation ?? false;
 
     return Scaffold(
-      appBar: AppBar(title: Text(widget.groupName)),
+      appBar: AppBar(
+        title: Text(widget.groupName),
+        actions: [
+          // Only while it is still a draft on this phone. A submitted visit is
+          // immutable and is amended, never deleted.
+          if (visit != null && visit.remoteId == null)
+            IconButton(
+              icon: const Icon(Icons.delete_outline),
+              tooltip: l10n.recordVisitDiscardVisit,
+              onPressed: _discardVisit,
+            ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
         children: [

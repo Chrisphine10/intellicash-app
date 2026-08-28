@@ -3060,6 +3060,36 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Dropped'**
   String get actionDropped;
+
+  /// No description provided for @recordVisitDiscardVisit.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard this visit'**
+  String get recordVisitDiscardVisit;
+
+  /// No description provided for @recordVisitDiscardVisitBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing recorded here has been sent yet, and it will not be kept. Use this when a visit was opened by mistake.'**
+  String get recordVisitDiscardVisitBody;
+
+  /// No description provided for @recordVisitDiscardVisitConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get recordVisitDiscardVisitConfirm;
+
+  /// No description provided for @openActionItemsStillOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} still open.'**
+  String openActionItemsStillOpen(int count);
+
+  /// No description provided for @openActionItemsStillOpenOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} still open, {overdue} overdue. Go through these first.'**
+  String openActionItemsStillOpenOverdue(int count, int overdue);
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

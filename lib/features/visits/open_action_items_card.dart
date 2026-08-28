@@ -149,8 +149,8 @@ class _OpenActionItemsCardState extends State<OpenActionItemsCard> {
             const SizedBox(height: 4),
             Text(
               overdue > 0
-                  ? '${_items.length} still open, $overdue overdue. Go through these first.'
-                  : '${_items.length} still open.',
+                  ? l10n.openActionItemsStillOpenOverdue(_items.length, overdue)
+                  : l10n.openActionItemsStillOpen(_items.length),
               style: theme.textTheme.bodySmall,
             ),
             const SizedBox(height: 8),
