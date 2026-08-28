@@ -13,6 +13,7 @@ import '../../data/services/visit_sync_service.dart';
 import '../../shared/widgets/common.dart';
 import '../../core/network/api_client.dart';
 import 'business_profile_screen.dart';
+import 'agreed_actions_card.dart';
 import 'open_action_items_card.dart';
 import 'visit_assessment_screen.dart';
 import 'visit_mentorship_screen.dart';
@@ -417,6 +418,16 @@ class _RecordVisitScreenState extends State<RecordVisitScreen> {
               onTap: _visit == null ? null : _openMentorship,
             ),
           ),
+          // After the coaching, not before it: what the group agrees to do is
+          // the OUTPUT of the conversation, and an agent asked to fill this in
+          // first has nothing to write down yet.
+          const SectionLabel('Action plan'),
+          if (_visit != null)
+            AgreedActionsCard(
+              remoteGroupId: widget.groupId,
+              visitId: _visit!.id,
+              mentorship: _mentorship,
+            ),
           const SectionLabel('Group business'),
           Card(
             child: ListTile(

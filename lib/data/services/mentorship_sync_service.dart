@@ -89,11 +89,25 @@ class MentorshipSyncService {
           }
         } else {
           // Closed or reopened here — send the status change.
+          //
+          // `closed_at_visit_id` holds the LOCAL visit id, because that is the
+          // only id the phone has when an agent taps Done in a field. The
+          // server knows visits by their own cuid, so it is translated here.
+          // Sending the local uuid would store an id that matches nothing —
+          // the same trap as local vs remote meeting ids.
+          final closedAt = item.closedAtVisitId;
+          final closedAtRemoteId =
+              closedAt == null ? null : (await _visits.byId(closedAt))?.remoteId;
+
           await _client.patchData(
             '/action-items/${item.remoteId}',
             body: {
               'status': item.status,
               if (item.closingNote != null) 'closingNote': item.closingNote,
+              // Where it was signed off. The console has always sent this and
+              // the phone never did, so an item closed in the field arrived
+              // with no record of the visit that closed it.
+              if (closedAtRemoteId != null) 'closedAtVisitId': closedAtRemoteId,
             },
           );
           await _mentorship.markSynced(id: item.id, remoteId: item.remoteId!);

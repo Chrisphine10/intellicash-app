@@ -275,5 +275,66 @@ void main() {
       expect(await mentorship.pendingCount(), 0);
       expect(await mentorship.dirty(), isEmpty);
     });
+
+    /// An agent standing in a field agrees three things and closes one. Until
+    /// `AgreedActionsCard` shipped, `raise()` had no caller anywhere in the
+    /// app: every one of these steps was reachable from a test and from
+    /// nothing else, so the visit produced no record of what was agreed.
+    test('keeps each visit own actions, and the group list holds both',
+        () async {
+      await seedVisit('v1');
+      await seedVisit('v2');
+
+      await mentorship.raise(
+        visitId: 'v1',
+        remoteGroupId: 'remote-g1',
+        title: 'Agreed at the first visit',
+      );
+      await mentorship.raise(
+        visitId: 'v2',
+        remoteGroupId: 'remote-g1',
+        title: 'Agreed at the second visit',
+      );
+
+      final first = await mentorship.itemsForVisit('v1');
+      final second = await mentorship.itemsForVisit('v2');
+
+      expect(first.map((item) => item.title), ['Agreed at the first visit']);
+      expect(second.map((item) => item.title), ['Agreed at the second visit']);
+
+      // Both are still the group's outstanding work, which is what the next
+      // agent meets before they begin.
+      final open = await mentorship.openItemsFor('remote-g1');
+      expect(open, hasLength(2));
+    });
+
+    test('records which visit signed an item off, and clears it on reopen',
+        () async {
+      await seedVisit('v1');
+      final item = await mentorship.raise(
+        visitId: 'v1',
+        remoteGroupId: 'remote-g1',
+        title: 'Write up the ledger',
+      );
+
+      await mentorship.setStatus(
+        id: item.id,
+        status: 'DONE',
+        closedAtVisitId: 'v1',
+      );
+
+      var stored = (await mentorship.itemsForVisit('v1')).single;
+      expect(stored.status, 'DONE');
+      // Traceable both ways: where it was agreed, and where it was closed.
+      expect(stored.closedAtVisitId, 'v1');
+      expect(stored.isDirty, isTrue);
+
+      await mentorship.setStatus(id: item.id, status: 'OPEN');
+
+      stored = (await mentorship.itemsForVisit('v1')).single;
+      expect(stored.status, 'OPEN');
+      // It is open again, so it belongs back on the group's outstanding list.
+      expect(await mentorship.openItemsFor('remote-g1'), hasLength(1));
+    });
   });
 }

@@ -57,6 +57,7 @@ class LocalActionItem {
     this.owner,
     this.dueDate,
     this.closingNote,
+    this.closedAtVisitId,
     this.remoteId,
   });
 
@@ -69,6 +70,10 @@ class LocalActionItem {
   final DateTime? dueDate;
   final String status;
   final String? closingNote;
+
+  /// The visit it was signed off at, so the loop is traceable both ways: where
+  /// the work was agreed, and where it was closed.
+  final String? closedAtVisitId;
   final String? remoteId;
 
   /// Raised or changed on this phone and not yet pushed.
@@ -90,6 +95,7 @@ class LocalActionItem {
       dueDate: due == null ? null : DateTime.tryParse(due),
       status: row['status'] as String? ?? 'OPEN',
       closingNote: row['closing_note'] as String?,
+      closedAtVisitId: row['closed_at_visit_id'] as String?,
       remoteId: row['remote_id'] as String?,
       isDirty: (row['is_dirty'] as num?)?.toInt() == 1,
     );
