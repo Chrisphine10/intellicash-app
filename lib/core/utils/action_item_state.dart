@@ -136,3 +136,36 @@ const int maxMentorshipRating = 5;
 
 bool isValidMentorshipRating(int score) =>
     score >= minMentorshipRating && score <= maxMentorshipRating;
+
+/// How an item's timing reads on one line.
+///
+/// The two action cards each built this by hand and both landed on
+/// `state.label`, which for an item due in a month is the word "Open". An agent
+/// who had just set a due date saw no date anywhere afterwards — the one piece
+/// of information they had gone to the trouble of entering.
+///
+/// The date is written the way the picker writes it (`30/9/2026`) rather than
+/// with a spelled month: the app ships in five languages and an English "Sep"
+/// in a Dholuo sentence would be worse than a number.
+String dueSummary(ActionItemStatus status) {
+  switch (status.state) {
+    case ActionItemState.overdue:
+      final days = status.daysOverdue;
+      return days == 1 ? '1 day overdue' : '$days days overdue';
+    case ActionItemState.done:
+      return 'Done';
+    case ActionItemState.cancelled:
+      return 'Dropped';
+    case ActionItemState.dueSoon:
+    case ActionItemState.open:
+    case ActionItemState.inProgress:
+      final due = status.dueDate;
+      if (due == null) return 'No date';
+
+      final days = status.daysUntilDue ?? 0;
+      if (days == 0) return 'Due today';
+      if (days == 1) return 'Due tomorrow';
+      if (days <= dueSoonDays) return 'Due in $days days';
+      return 'Due ${due.day}/${due.month}/${due.year}';
+  }
+}

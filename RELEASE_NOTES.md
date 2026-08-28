@@ -4,6 +4,18 @@ Newest first.
 
 ---
 
+## 2.5.2 — 28 August 2026
+
+**An action shows the date it is due.** Setting a due date on an action had no
+visible effect afterwards: the row said "Open" on every screen, so the one
+thing you had gone to the trouble of entering was the one thing you could not
+see. It now reads "Due 27/9/2026", or "Due in 4 days" as the date approaches,
+or "11 days overdue" once it has passed.
+
+Do not install 2.5.1 — this is that release with the date shown.
+
+---
+
 ## 2.5.1 — 28 August 2026
 
 **Agree what happens next, before you leave the group.** A visit now has an

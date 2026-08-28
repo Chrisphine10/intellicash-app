@@ -308,6 +308,42 @@ void main() {
       expect(open, hasLength(2));
     });
 
+    /// The server nests the date inside `state`, because lateness is derived
+    /// there on every read. The phone reads a flat `dueDate` first and falls
+    /// back to the nested one -- so this pins the shape the server ACTUALLY
+    /// sends, not the one the mapping happens to try first.
+    test('keeps the due date when the server sends it nested in state',
+        () async {
+      await seedVisit('v1', remoteId: 'remote-v1');
+
+      final written = await mentorship.cacheFromServer(
+        remoteGroupId: 'remote-g1',
+        items: [
+          {
+            'id': 'remote-a1',
+            'visitId': 'remote-v1',
+            'title': 'Open a group bank account',
+            'owner': 'Treasurer',
+            'status': 'OPEN',
+            'state': {
+              'state': 'OPEN',
+              'label': 'Open',
+              'dueDate': '2026-09-30T00:00:00.000Z',
+              'daysOverdue': 0,
+              'open': true,
+            },
+          },
+        ],
+      );
+
+      expect(written, 1);
+      final cached = (await mentorship.openItemsFor('remote-g1')).single;
+      expect(cached.dueDate, isNotNull);
+      expect(cached.dueDate!.year, 2026);
+      expect(cached.dueDate!.month, 9);
+      expect(cached.dueDate!.day, 30);
+    });
+
     test('records which visit signed an item off, and clears it on reopen',
         () async {
       await seedVisit('v1');

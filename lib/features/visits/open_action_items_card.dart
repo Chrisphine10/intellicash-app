@@ -174,11 +174,7 @@ class _ActionRow extends StatelessWidget {
                 Text(
                   [
                     if (item.owner != null) item.owner,
-                    late
-                        ? '${state.daysOverdue} days overdue'
-                        : state.dueDate == null
-                            ? 'No date'
-                            : state.label,
+                    dueSummary(state),
                   ].whereType<String>().join(' · '),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: late ? theme.colorScheme.error : null,

@@ -190,12 +190,7 @@ class _AgreedRow extends StatelessWidget {
                 Text(
                   [
                     if (item.owner != null && item.owner!.isNotEmpty) item.owner!,
-                    if (late)
-                      '${state.daysOverdue} days overdue'
-                    else if (item.dueDate == null)
-                      'No date'
-                    else
-                      state.label,
+                    dueSummary(state),
                     // A row that has not reached the office yet says so, rather
                     // than looking identical to one that has.
                     if (item.isDirty) 'Not yet sent',
