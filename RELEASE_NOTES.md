@@ -4,6 +4,56 @@ Newest first.
 
 ---
 
+## 2.5.1 — 28 August 2026
+
+**Agree what happens next, before you leave the group.** A visit now has an
+Action plan, after the coaching. Write down what the group agreed to do, say
+who is responsible and when it is due, and tick items off as they are done.
+Whatever you record is on screen for whoever opens the next visit at that
+group, so a follow-up starts where the last one finished instead of repeating
+it.
+
+Until now you could only close work agreed at a previous visit. There was
+nowhere to record a new one, so it had to be remembered or phoned in.
+
+Everything is saved on the phone as you write it and sent when you have signal.
+An action that has not reached the office yet says so.
+
+**A group's businesses show what you recorded about them.** How they sell,
+which months they sell in, how many people they employ and the biggest problem
+they face were all being saved and none of them appeared when you reopened the
+screen — so it looked as though the app had lost them. They are there now,
+along with how many times a business has been recorded and what its revenue has
+done since the first visit.
+
+**One failed request no longer empties the screen.** The businesses and the
+reference lists were fetched together, so if either failed you saw nothing at
+all — including businesses that had loaded perfectly. And a group outside your
+caseload now says so, instead of telling you to check your connection.
+
+---
+
+## 2.5.0 — 27 August 2026
+
+**Every language is now a full translation.** Gĩkũyũ, Dholuo and Kĩembu were
+listed but barely translated — five menu labels changed and every screen
+underneath stayed in English. All 421 strings are translated in all five
+languages. Nothing falls back to English any more.
+
+**Change the language from the sign-in screen.** The picker was only on the
+first-ever welcome screen, so on a shared handset the next person to sign in
+had no way to reach it — and if the phone was left in a language they could not
+read, every way out of that screen was written in it.
+
+**Record more than one business for a group.** A group with a poultry unit and
+a cereal store no longer has to overwrite one with the other. Each business
+carries how far it sells — farm gate, local market, county — picked from a list
+rather than typed, so a group widening its market registers as a step forward.
+Selling channels and selling months allow more than one answer, because most
+businesses use more than one.
+
+---
+
 ## 2.4.2 — 24 August 2026
 
 **Your PIN works again.** Entering your PIN could be refused with a message
