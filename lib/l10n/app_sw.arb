@@ -511,5 +511,21 @@
   "joinRequestsAlreadyDeclined": "Tayari amekataliwa",
   "joinRequestsCouldNotLoad": "Imeshindwa kupakia maombi. Angalia mtandao wako kisha vuta chini ujaribu tena.",
   "joinRequestsAskedJustNow": "Sasa hivi",
-  "joinRequestsCouldNotLoadTitle": "Imeshindwa kupakia"
+  "joinRequestsCouldNotLoadTitle": "Imeshindwa kupakia",
+  "inviteTitle": "Alika watu",
+  "inviteScanToJoin": "Changanua hii ili kuomba kujiunga",
+  "inviteLinkLabel": "Au shiriki kiungo hiki",
+  "inviteCopy": "Nakili",
+  "inviteShare": "Shiriki",
+  "inviteCopied": "Kiungo kimenakiliwa",
+  "inviteShareMessage": "Jiunge na {group} kwenye Intelli-Cash. Fungua kiungo hiki ujaze maelezo yako: {url}",
+  "inviteApprovalNotice": "Kushiriki hii hakumruhusu mtu kuingia. Atakayeitumia atafungua akaunti na ombi lake litaonekana chini ya Maombi ya kujiunga, ili afisa akubali au akatae.",
+  "inviteCouldNotLoad": "Imeshindwa kupakia kiungo cha mwaliko. Angalia mtandao wako kisha vuta chini ujaribu tena.",
+  "inviteNewLink": "Pata kiungo kipya",
+  "inviteNewLinkWorking": "Inapata kiungo kipya…",
+  "inviteNewLinkTitle": "Upate kiungo kipya?",
+  "inviteNewLinkBody": "Kiungo na msimbo wa QR ulioshiriki tayari vitaacha kufanya kazi mara moja, pamoja na bango lolote lililochapishwa. Fanya hivi tu ikiwa cha zamani kilifika mahali pasipofaa.",
+  "inviteNewLinkConfirm": "Ndiyo, badilisha",
+  "inviteNewLinkDone": "Kiungo kipya kiko tayari. Cha zamani hakifanyi kazi tena.",
+  "inviteTileSubtitle": "Shiriki kiungo au msimbo wa QR ili watu waweze kuomba kujiunga"
 }

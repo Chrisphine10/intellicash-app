@@ -1728,4 +1728,59 @@ class L10nEbu extends L10n {
 
   @override
   String get joinRequestsCouldNotLoadTitle => 'Ndirahotire kurehe';
+
+  @override
+  String get inviteTitle => 'Ita andu';
+
+  @override
+  String get inviteScanToJoin => 'Thoma ino niguo uhoe kwiyongerera';
+
+  @override
+  String get inviteLinkLabel => 'Kana ugaire kiohanio giki';
+
+  @override
+  String get inviteCopy => 'Kopia';
+
+  @override
+  String get inviteShare => 'Gaira';
+
+  @override
+  String get inviteCopied => 'Kiohanio nigikopetio';
+
+  @override
+  String inviteShareMessage(String group, String url) {
+    return 'Iyongerere $group thiini wa Intelli-Cash. Hingura kiohanio giki wiyandikithie: $url';
+  }
+
+  @override
+  String get inviteApprovalNotice =>
+      'Kugaira uu gutitikiragia mundu gutoonya. Uria ukumihuthira niekwambiriria akaunti na ihooya riake rioneke rungu rwa Mahoya ma kwiyongerera, niguo munene etikire kana arege.';
+
+  @override
+  String get inviteCouldNotLoad =>
+      'Ndirahotire kurehe kiohanio kia nyita. Rora mutandaro waku ucooke uguucie na thi ugerie ringi.';
+
+  @override
+  String get inviteNewLink => 'Rutwo kiohanio kieru';
+
+  @override
+  String get inviteNewLinkWorking => 'Nikurutwo kiohanio kieru…';
+
+  @override
+  String get inviteNewLinkTitle => 'Urutwo kiohanio kieru?';
+
+  @override
+  String get inviteNewLinkBody =>
+      'Kiohanio na QR iria ugairite niigutiga kuruta wira o riu, hamwe na karatathi karia gothe gaacapitwo. Ika uu o ria kiria kia tene giathii handu hataagiriire.';
+
+  @override
+  String get inviteNewLinkConfirm => 'Ii, gikuuranie';
+
+  @override
+  String get inviteNewLinkDone =>
+      'Kiohanio kieru nikihaaririe. Kiria kia tene gitirutaga wira ringi.';
+
+  @override
+  String get inviteTileSubtitle =>
+      'Gaira kiohanio kana QR niguo andu mahote kuhoya kwiyongerera';
 }

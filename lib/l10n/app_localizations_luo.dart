@@ -1720,4 +1720,58 @@ class L10nLuo extends L10n {
 
   @override
   String get joinRequestsCouldNotLoadTitle => 'Ok onyal kelo';
+
+  @override
+  String get inviteTitle => 'Gwel ji';
+
+  @override
+  String get inviteScanToJoin => 'Som mani mondo ikwa donjo';
+
+  @override
+  String get inviteLinkLabel => 'Kata pog link ni';
+
+  @override
+  String get inviteCopy => 'Lok';
+
+  @override
+  String get inviteShare => 'Pogi';
+
+  @override
+  String get inviteCopied => 'Link olok';
+
+  @override
+  String inviteShareMessage(String group, String url) {
+    return 'Donj e $group e Intelli-Cash. Yaw link ni kendo indik wechegi: $url';
+  }
+
+  @override
+  String get inviteApprovalNotice =>
+      'Pogo mani ok mi ngʼato donjo. Ngʼama tiyo kode chweyo akaont kendo kwaye nenre e bwo Kwayo mar donjo, mondo jatelo oyie kata otam.';
+
+  @override
+  String get inviteCouldNotLoad =>
+      'Ok onyal kelo link mar gwelo. Ngʼi intanet mari eka iywa piny mondo item kendo.';
+
+  @override
+  String get inviteNewLink => 'Yud link manyien';
+
+  @override
+  String get inviteNewLinkWorking => 'Yudo link manyien…';
+
+  @override
+  String get inviteNewLinkTitle => 'Iyud link manyien?';
+
+  @override
+  String get inviteNewLinkBody =>
+      'Link kod QR ma isepogo biro chungo tich sani, kaachiel gi kalatas moro amora mogo. Tim ma mana ka machon nodhi kama ok owinjore.';
+
+  @override
+  String get inviteNewLinkConfirm => 'Ee, loke';
+
+  @override
+  String get inviteNewLinkDone => 'Link manyien oikore. Machon ok ti kendo.';
+
+  @override
+  String get inviteTileSubtitle =>
+      'Pog link kata QR mondo ji onyal kwayo donjo';
 }

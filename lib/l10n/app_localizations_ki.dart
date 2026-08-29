@@ -1728,4 +1728,59 @@ class L10nKi extends L10n {
 
   @override
   String get joinRequestsCouldNotLoadTitle => 'Ndĩrahotire kũrehe';
+
+  @override
+  String get inviteTitle => 'Ĩta andũ';
+
+  @override
+  String get inviteScanToJoin => 'Thoma ĩno nĩguo ũhoe kwĩyongerera';
+
+  @override
+  String get inviteLinkLabel => 'Kana ũgaĩre kĩohanio gĩkĩ';
+
+  @override
+  String get inviteCopy => 'Kopia';
+
+  @override
+  String get inviteShare => 'Gaĩra';
+
+  @override
+  String get inviteCopied => 'Kĩohanio nĩgĩkopetio';
+
+  @override
+  String inviteShareMessage(String group, String url) {
+    return 'Ĩyongerere $group thĩinĩ wa Intelli-Cash. Hingũra kĩohanio gĩkĩ wĩyandĩkithie: $url';
+  }
+
+  @override
+  String get inviteApprovalNotice =>
+      'Kũgaĩra ũũ gũtitĩkĩragia mũndũ gũtoonya. Ũrĩa ũkũmĩhũthĩra nĩekwambĩrĩria akaũnti na ihooya rĩake rĩoneke rungu rwa Mahoya ma kwĩyongerera, nĩguo mũnene etĩkĩre kana arege.';
+
+  @override
+  String get inviteCouldNotLoad =>
+      'Ndĩrahotire kũrehe kĩohanio kĩa nyita. Rora mũtandaro waku ũcooke ũguucie na thĩ ũgerie rĩngĩ.';
+
+  @override
+  String get inviteNewLink => 'Rutwo kĩohanio kĩerũ';
+
+  @override
+  String get inviteNewLinkWorking => 'Nĩkũrutwo kĩohanio kĩerũ…';
+
+  @override
+  String get inviteNewLinkTitle => 'Ũrutwo kĩohanio kĩerũ?';
+
+  @override
+  String get inviteNewLinkBody =>
+      'Kĩohanio na QR ĩrĩa ũgaĩrĩte nĩigũtiga kũruta wĩra o rĩu, hamwe na karatathi karĩa gothe gaacapĩtwo. Ĩka ũũ o rĩrĩa kĩrĩa kĩa tene gĩathiĩ handũ hataagĩrĩire.';
+
+  @override
+  String get inviteNewLinkConfirm => 'Ĩĩ, gĩkũũranie';
+
+  @override
+  String get inviteNewLinkDone =>
+      'Kĩohanio kĩerũ nĩkĩhaarĩrie. Kĩrĩa kĩa tene gĩtirutaga wĩra rĩngĩ.';
+
+  @override
+  String get inviteTileSubtitle =>
+      'Gaĩra kĩohanio kana QR nĩguo andũ mahote kũhoya kwĩyongerera';
 }

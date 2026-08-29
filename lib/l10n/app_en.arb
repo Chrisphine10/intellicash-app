@@ -378,7 +378,7 @@
   "membersAddMembersWithTheButtonBelow": "Add members with the button below — each gets an individual savings and loan profile.",
   "meetingSecurityAssignAChairpersonSecretaryAndTreasurer": "Assign a chairperson, secretary and treasurer below so three officials can unlock meetings. Until then, most members' PINs are needed instead.",
   "meetingSecurityTheOldPinStopsWorkingThe": "The old PIN stops working. The member chooses a new PIN the next time they turn their key at a meeting unlock.",
-  "moreYourGroupSSavingsAndLoans": "Your group's savings and loans, right on your phone. Everything is saved on this phone first and backed up online when you have internet.\\n\\nIntelli-Wealth Limited · intelliwealth.org",
+  "moreYourGroupSSavingsAndLoans": "Your group's savings and loans, right on your phone. Everything is saved on this phone first and backed up online when you have internet.\n\nIntelli-Wealth Limited · intelliwealth.org",
   "moreNoInternetYourRecordsAreSafe": "No internet — your records are safe on this phone and will back up later.",
   "welcomeThePhoneAppIsForGroups": "The phone app is for groups, members and field agents. Your account does not need to create a group here — sign in on the web console instead, or sign out to use a different account.",
   "welcomeYourGroupIsAlreadyOnThe": "Your group is already on the server. Load it here instead of creating a new one, so your savings history stays in one record.",
@@ -399,7 +399,7 @@
   "groupPolicyAppliesToNewLoansLoansAlready": "Applies to new loans. Loans already given keep the term they were agreed with — changing this never changes what a member already owes.",
   "groupPolicyFlatOnTheAmountBorrowedEach": "Flat on the amount borrowed each month — it does not fall as the member repays, and it stops at the end of the agreed term. Zero is fine: many groups lend interest-free. Each loan keeps the rate it was made at, so changing this never reprices money already lent.",
   "groupPolicyYouCanSeeTheseRulesBut": "You can see these rules but not change them. Only the group account or a platform admin can.",
-  "groupPolicyUnpaidFinesAndWelfareAreTaken": "Unpaid fines and welfare are taken off a member's share-out payout — they never stop a member from sharing out.\\n\\nOutstanding loans are taken off at share-out and are never carried into the next cycle.",
+  "groupPolicyUnpaidFinesAndWelfareAreTaken": "Unpaid fines and welfare are taken off a member's share-out payout — they never stop a member from sharing out.\n\nOutstanding loans are taken off at share-out and are never carried into the next cycle.",
   "paymentProvidersMPesaClassicNeedsNothingHere": "M-Pesa Classic needs nothing here — the member types in the transaction code from their phone.",
   "paymentProvidersYouCanSeeThisButNot": "You can see this but not change it. Only the group account or a platform admin can move where money is received.",
   "welfareYouAreOfflineWelfarePaymentsAre": "You are offline. Welfare payments are recorded on the server so the fund cannot be overspent by two phones at once — reconnect to record one.",
@@ -611,5 +611,31 @@
   "joinRequestsAlreadyDeclined": "Already declined",
   "joinRequestsCouldNotLoad": "Could not load requests. Check your connection and pull down to try again.",
   "joinRequestsAskedJustNow": "Just now",
-  "joinRequestsCouldNotLoadTitle": "Could not load"
+  "joinRequestsCouldNotLoadTitle": "Could not load",
+  "inviteTitle": "Invite people",
+  "inviteScanToJoin": "Scan this to ask to join",
+  "inviteLinkLabel": "Or share this link",
+  "inviteCopy": "Copy",
+  "inviteShare": "Share",
+  "inviteCopied": "Link copied",
+  "inviteShareMessage": "Join {group} on Intelli-Cash. Open this link and fill in your details: {url}",
+  "@inviteShareMessage": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      },
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "inviteApprovalNotice": "Sharing this does not let anybody in. Whoever uses it creates an account and their request appears under Requests to join, for an official to approve or decline.",
+  "inviteCouldNotLoad": "Could not load the invite link. Check your connection and pull down to try again.",
+  "inviteNewLink": "Get a new link",
+  "inviteNewLinkWorking": "Getting a new link…",
+  "inviteNewLinkTitle": "Get a new link?",
+  "inviteNewLinkBody": "The link and QR code you have already shared will stop working straight away, including any printed poster. Only do this if the old one went somewhere it should not.",
+  "inviteNewLinkConfirm": "Yes, replace it",
+  "inviteNewLinkDone": "New link ready. The old one no longer works.",
+  "inviteTileSubtitle": "Share a link or QR code so people can ask to join"
 }

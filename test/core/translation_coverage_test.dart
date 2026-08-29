@@ -100,17 +100,26 @@ void main() {
     // Nothing else catches this. The string is present, non-empty, correctly
     // keyed and fully translated. It is simply wrong by one character, and it
     // was found by looking at a phone.
+    // Widened after the About card on the More screen was found printing a
+    // literal \n between its two paragraphs, in all five languages. The
+    // check only looked for escaped QUOTES, so an escaped newline - the same
+    // mistake one character along - sailed through. A real line break is a
+    // real newline in JSON; a backslash followed by n is always the bug.
     final offenders = <String>[];
     for (final code in AppLanguage.values.map((language) => language.code)) {
       _keysOf(code).forEach((key, value) {
-        if (value.contains(r"\'") || value.contains(r'\"')) {
+        final carriesEscape = value.contains(r"\'") ||
+            value.contains(r'\"') ||
+            value.contains(r'\n') ||
+            value.contains(r'\t');
+        if (carriesEscape) {
           offenders.add('$code/$key: $value');
         }
       });
     }
 
     expect(offenders, isEmpty,
-        reason: 'a backslash before a quote reaches the screen as a backslash:'
+        reason: 'a Dart escape reaches the screen as literal characters:'
             '\n${offenders.join('\n')}');
   });
 

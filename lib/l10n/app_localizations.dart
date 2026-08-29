@@ -2314,7 +2314,7 @@ abstract class L10n {
   /// No description provided for @moreYourGroupSSavingsAndLoans.
   ///
   /// In en, this message translates to:
-  /// **'Your group\'s savings and loans, right on your phone. Everything is saved on this phone first and backed up online when you have internet.\\n\\nIntelli-Wealth Limited · intelliwealth.org'**
+  /// **'Your group\'s savings and loans, right on your phone. Everything is saved on this phone first and backed up online when you have internet.\n\nIntelli-Wealth Limited · intelliwealth.org'**
   String get moreYourGroupSSavingsAndLoans;
 
   /// No description provided for @moreNoInternetYourRecordsAreSafe.
@@ -2440,7 +2440,7 @@ abstract class L10n {
   /// No description provided for @groupPolicyUnpaidFinesAndWelfareAreTaken.
   ///
   /// In en, this message translates to:
-  /// **'Unpaid fines and welfare are taken off a member\'s share-out payout — they never stop a member from sharing out.\\n\\nOutstanding loans are taken off at share-out and are never carried into the next cycle.'**
+  /// **'Unpaid fines and welfare are taken off a member\'s share-out payout — they never stop a member from sharing out.\n\nOutstanding loans are taken off at share-out and are never carried into the next cycle.'**
   String get groupPolicyUnpaidFinesAndWelfareAreTaken;
 
   /// No description provided for @paymentProvidersMPesaClassicNeedsNothingHere.
@@ -3174,6 +3174,102 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Could not load'**
   String get joinRequestsCouldNotLoadTitle;
+
+  /// No description provided for @inviteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite people'**
+  String get inviteTitle;
+
+  /// No description provided for @inviteScanToJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan this to ask to join'**
+  String get inviteScanToJoin;
+
+  /// No description provided for @inviteLinkLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Or share this link'**
+  String get inviteLinkLabel;
+
+  /// No description provided for @inviteCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get inviteCopy;
+
+  /// No description provided for @inviteShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get inviteShare;
+
+  /// No description provided for @inviteCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Link copied'**
+  String get inviteCopied;
+
+  /// No description provided for @inviteShareMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Join {group} on Intelli-Cash. Open this link and fill in your details: {url}'**
+  String inviteShareMessage(String group, String url);
+
+  /// No description provided for @inviteApprovalNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharing this does not let anybody in. Whoever uses it creates an account and their request appears under Requests to join, for an official to approve or decline.'**
+  String get inviteApprovalNotice;
+
+  /// No description provided for @inviteCouldNotLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the invite link. Check your connection and pull down to try again.'**
+  String get inviteCouldNotLoad;
+
+  /// No description provided for @inviteNewLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Get a new link'**
+  String get inviteNewLink;
+
+  /// No description provided for @inviteNewLinkWorking.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting a new link…'**
+  String get inviteNewLinkWorking;
+
+  /// No description provided for @inviteNewLinkTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Get a new link?'**
+  String get inviteNewLinkTitle;
+
+  /// No description provided for @inviteNewLinkBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The link and QR code you have already shared will stop working straight away, including any printed poster. Only do this if the old one went somewhere it should not.'**
+  String get inviteNewLinkBody;
+
+  /// No description provided for @inviteNewLinkConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, replace it'**
+  String get inviteNewLinkConfirm;
+
+  /// No description provided for @inviteNewLinkDone.
+  ///
+  /// In en, this message translates to:
+  /// **'New link ready. The old one no longer works.'**
+  String get inviteNewLinkDone;
+
+  /// No description provided for @inviteTileSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share a link or QR code so people can ask to join'**
+  String get inviteTileSubtitle;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

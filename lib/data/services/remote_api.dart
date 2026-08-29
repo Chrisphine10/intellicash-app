@@ -206,6 +206,23 @@ class RemoteApi {
     );
   }
 
+  /// `GET /groups/:id/join-link` — the group's shareable invite link, minted
+  /// on first use.
+  ///
+  /// Built on a random token rather than the group code: codes read
+  /// `IWL-KBU-0001` and can be counted upwards, so a link made from one would
+  /// let anybody walk the whole platform's group list.
+  Future<GroupJoinLink> joinLink(String groupId) async {
+    final data = await _client.getData('/groups/$groupId/join-link');
+    return GroupJoinLink.fromJson(data as Map<String, dynamic>);
+  }
+
+  /// `POST /groups/:id/join-link/rotate` — kills the old link and QR.
+  Future<GroupJoinLink> rotateJoinLink(String groupId) async {
+    final data = await _client.postData('/groups/$groupId/join-link/rotate');
+    return GroupJoinLink.fromJson(data as Map<String, dynamic>);
+  }
+
   /// `GET /groups/:id/join-requests` — people waiting for this group to let
   /// them in. Officials only.
   Future<List<JoinRequest>> joinRequests(String groupId,

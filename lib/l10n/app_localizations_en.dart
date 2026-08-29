@@ -1207,7 +1207,7 @@ class L10nEn extends L10n {
 
   @override
   String get moreYourGroupSSavingsAndLoans =>
-      'Your group\'s savings and loans, right on your phone. Everything is saved on this phone first and backed up online when you have internet.\\n\\nIntelli-Wealth Limited · intelliwealth.org';
+      'Your group\'s savings and loans, right on your phone. Everything is saved on this phone first and backed up online when you have internet.\n\nIntelli-Wealth Limited · intelliwealth.org';
 
   @override
   String get moreNoInternetYourRecordsAreSafe =>
@@ -1291,7 +1291,7 @@ class L10nEn extends L10n {
 
   @override
   String get groupPolicyUnpaidFinesAndWelfareAreTaken =>
-      'Unpaid fines and welfare are taken off a member\'s share-out payout — they never stop a member from sharing out.\\n\\nOutstanding loans are taken off at share-out and are never carried into the next cycle.';
+      'Unpaid fines and welfare are taken off a member\'s share-out payout — they never stop a member from sharing out.\n\nOutstanding loans are taken off at share-out and are never carried into the next cycle.';
 
   @override
   String get paymentProvidersMPesaClassicNeedsNothingHere =>
@@ -1726,4 +1726,59 @@ class L10nEn extends L10n {
 
   @override
   String get joinRequestsCouldNotLoadTitle => 'Could not load';
+
+  @override
+  String get inviteTitle => 'Invite people';
+
+  @override
+  String get inviteScanToJoin => 'Scan this to ask to join';
+
+  @override
+  String get inviteLinkLabel => 'Or share this link';
+
+  @override
+  String get inviteCopy => 'Copy';
+
+  @override
+  String get inviteShare => 'Share';
+
+  @override
+  String get inviteCopied => 'Link copied';
+
+  @override
+  String inviteShareMessage(String group, String url) {
+    return 'Join $group on Intelli-Cash. Open this link and fill in your details: $url';
+  }
+
+  @override
+  String get inviteApprovalNotice =>
+      'Sharing this does not let anybody in. Whoever uses it creates an account and their request appears under Requests to join, for an official to approve or decline.';
+
+  @override
+  String get inviteCouldNotLoad =>
+      'Could not load the invite link. Check your connection and pull down to try again.';
+
+  @override
+  String get inviteNewLink => 'Get a new link';
+
+  @override
+  String get inviteNewLinkWorking => 'Getting a new link…';
+
+  @override
+  String get inviteNewLinkTitle => 'Get a new link?';
+
+  @override
+  String get inviteNewLinkBody =>
+      'The link and QR code you have already shared will stop working straight away, including any printed poster. Only do this if the old one went somewhere it should not.';
+
+  @override
+  String get inviteNewLinkConfirm => 'Yes, replace it';
+
+  @override
+  String get inviteNewLinkDone =>
+      'New link ready. The old one no longer works.';
+
+  @override
+  String get inviteTileSubtitle =>
+      'Share a link or QR code so people can ask to join';
 }

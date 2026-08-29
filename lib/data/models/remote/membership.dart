@@ -82,3 +82,35 @@ class JoinRequest {
         willLinkToMemberName: json['willLinkToMemberName']?.toString(),
       );
 }
+
+/// A group's shareable invite link, and the QR code drawn from it.
+///
+/// The token is deliberately NOT the group code. Codes read `IWL-KBU-0001` and
+/// can be counted upwards, so a link built on one would let anybody enumerate
+/// every group on the platform. This one is random and can be reissued, which
+/// is what makes a printed poster revocable.
+class GroupJoinLink {
+  const GroupJoinLink({
+    required this.groupId,
+    required this.groupName,
+    required this.token,
+    required this.url,
+  });
+
+  final String groupId;
+  final String groupName;
+  final String token;
+
+  /// The full address a QR code encodes and a person taps.
+  final String url;
+
+  factory GroupJoinLink.fromJson(Map<String, dynamic> json) {
+    final group = json['group'];
+    return GroupJoinLink(
+      groupId: group is Map ? group['id']?.toString() ?? '' : '',
+      groupName: group is Map ? group['name']?.toString() ?? '' : '',
+      token: json['token']?.toString() ?? '',
+      url: json['url']?.toString() ?? '',
+    );
+  }
+}

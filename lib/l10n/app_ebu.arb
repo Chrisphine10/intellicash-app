@@ -512,5 +512,21 @@
   "joinRequestsAlreadyDeclined": "Niaregeirwo",
   "joinRequestsCouldNotLoad": "Ndirahotire kurehe mahoya. Rora mutandaro waku ucooke uguucie na thi ugerie ringi.",
   "joinRequestsAskedJustNow": "Riu riu",
-  "joinRequestsCouldNotLoadTitle": "Ndirahotire kurehe"
+  "joinRequestsCouldNotLoadTitle": "Ndirahotire kurehe",
+  "inviteTitle": "Ita andu",
+  "inviteScanToJoin": "Thoma ino niguo uhoe kwiyongerera",
+  "inviteLinkLabel": "Kana ugaire kiohanio giki",
+  "inviteCopy": "Kopia",
+  "inviteShare": "Gaira",
+  "inviteCopied": "Kiohanio nigikopetio",
+  "inviteShareMessage": "Iyongerere {group} thiini wa Intelli-Cash. Hingura kiohanio giki wiyandikithie: {url}",
+  "inviteApprovalNotice": "Kugaira uu gutitikiragia mundu gutoonya. Uria ukumihuthira niekwambiriria akaunti na ihooya riake rioneke rungu rwa Mahoya ma kwiyongerera, niguo munene etikire kana arege.",
+  "inviteCouldNotLoad": "Ndirahotire kurehe kiohanio kia nyita. Rora mutandaro waku ucooke uguucie na thi ugerie ringi.",
+  "inviteNewLink": "Rutwo kiohanio kieru",
+  "inviteNewLinkWorking": "Nikurutwo kiohanio kieru…",
+  "inviteNewLinkTitle": "Urutwo kiohanio kieru?",
+  "inviteNewLinkBody": "Kiohanio na QR iria ugairite niigutiga kuruta wira o riu, hamwe na karatathi karia gothe gaacapitwo. Ika uu o ria kiria kia tene giathii handu hataagiriire.",
+  "inviteNewLinkConfirm": "Ii, gikuuranie",
+  "inviteNewLinkDone": "Kiohanio kieru nikihaaririe. Kiria kia tene gitirutaga wira ringi.",
+  "inviteTileSubtitle": "Gaira kiohanio kana QR niguo andu mahote kuhoya kwiyongerera"
 }

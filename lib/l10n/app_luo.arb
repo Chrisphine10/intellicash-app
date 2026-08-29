@@ -512,5 +512,21 @@
   "joinRequestsAlreadyDeclined": "Osetami",
   "joinRequestsCouldNotLoad": "Ok onyal kelo kwayo. Ngʼi intanet mari eka iywa piny mondo item kendo.",
   "joinRequestsAskedJustNow": "Sani sani",
-  "joinRequestsCouldNotLoadTitle": "Ok onyal kelo"
+  "joinRequestsCouldNotLoadTitle": "Ok onyal kelo",
+  "inviteTitle": "Gwel ji",
+  "inviteScanToJoin": "Som mani mondo ikwa donjo",
+  "inviteLinkLabel": "Kata pog link ni",
+  "inviteCopy": "Lok",
+  "inviteShare": "Pogi",
+  "inviteCopied": "Link olok",
+  "inviteShareMessage": "Donj e {group} e Intelli-Cash. Yaw link ni kendo indik wechegi: {url}",
+  "inviteApprovalNotice": "Pogo mani ok mi ngʼato donjo. Ngʼama tiyo kode chweyo akaont kendo kwaye nenre e bwo Kwayo mar donjo, mondo jatelo oyie kata otam.",
+  "inviteCouldNotLoad": "Ok onyal kelo link mar gwelo. Ngʼi intanet mari eka iywa piny mondo item kendo.",
+  "inviteNewLink": "Yud link manyien",
+  "inviteNewLinkWorking": "Yudo link manyien…",
+  "inviteNewLinkTitle": "Iyud link manyien?",
+  "inviteNewLinkBody": "Link kod QR ma isepogo biro chungo tich sani, kaachiel gi kalatas moro amora mogo. Tim ma mana ka machon nodhi kama ok owinjore.",
+  "inviteNewLinkConfirm": "Ee, loke",
+  "inviteNewLinkDone": "Link manyien oikore. Machon ok ti kendo.",
+  "inviteTileSubtitle": "Pog link kata QR mondo ji onyal kwayo donjo"
 }

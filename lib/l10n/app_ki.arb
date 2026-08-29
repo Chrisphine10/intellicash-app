@@ -512,5 +512,21 @@
   "joinRequestsAlreadyDeclined": "Nĩaregeirwo",
   "joinRequestsCouldNotLoad": "Ndĩrahotire kũrehe mahoya. Rora mũtandaro waku ũcooke ũguucie na thĩ ũgerie rĩngĩ.",
   "joinRequestsAskedJustNow": "Rĩu rĩu",
-  "joinRequestsCouldNotLoadTitle": "Ndĩrahotire kũrehe"
+  "joinRequestsCouldNotLoadTitle": "Ndĩrahotire kũrehe",
+  "inviteTitle": "Ĩta andũ",
+  "inviteScanToJoin": "Thoma ĩno nĩguo ũhoe kwĩyongerera",
+  "inviteLinkLabel": "Kana ũgaĩre kĩohanio gĩkĩ",
+  "inviteCopy": "Kopia",
+  "inviteShare": "Gaĩra",
+  "inviteCopied": "Kĩohanio nĩgĩkopetio",
+  "inviteShareMessage": "Ĩyongerere {group} thĩinĩ wa Intelli-Cash. Hingũra kĩohanio gĩkĩ wĩyandĩkithie: {url}",
+  "inviteApprovalNotice": "Kũgaĩra ũũ gũtitĩkĩragia mũndũ gũtoonya. Ũrĩa ũkũmĩhũthĩra nĩekwambĩrĩria akaũnti na ihooya rĩake rĩoneke rungu rwa Mahoya ma kwĩyongerera, nĩguo mũnene etĩkĩre kana arege.",
+  "inviteCouldNotLoad": "Ndĩrahotire kũrehe kĩohanio kĩa nyita. Rora mũtandaro waku ũcooke ũguucie na thĩ ũgerie rĩngĩ.",
+  "inviteNewLink": "Rutwo kĩohanio kĩerũ",
+  "inviteNewLinkWorking": "Nĩkũrutwo kĩohanio kĩerũ…",
+  "inviteNewLinkTitle": "Ũrutwo kĩohanio kĩerũ?",
+  "inviteNewLinkBody": "Kĩohanio na QR ĩrĩa ũgaĩrĩte nĩigũtiga kũruta wĩra o rĩu, hamwe na karatathi karĩa gothe gaacapĩtwo. Ĩka ũũ o rĩrĩa kĩrĩa kĩa tene gĩathiĩ handũ hataagĩrĩire.",
+  "inviteNewLinkConfirm": "Ĩĩ, gĩkũũranie",
+  "inviteNewLinkDone": "Kĩohanio kĩerũ nĩkĩhaarĩrie. Kĩrĩa kĩa tene gĩtirutaga wĩra rĩngĩ.",
+  "inviteTileSubtitle": "Gaĩra kĩohanio kana QR nĩguo andũ mahote kũhoya kwĩyongerera"
 }

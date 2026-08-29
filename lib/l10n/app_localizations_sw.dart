@@ -1724,4 +1724,59 @@ class L10nSw extends L10n {
 
   @override
   String get joinRequestsCouldNotLoadTitle => 'Imeshindwa kupakia';
+
+  @override
+  String get inviteTitle => 'Alika watu';
+
+  @override
+  String get inviteScanToJoin => 'Changanua hii ili kuomba kujiunga';
+
+  @override
+  String get inviteLinkLabel => 'Au shiriki kiungo hiki';
+
+  @override
+  String get inviteCopy => 'Nakili';
+
+  @override
+  String get inviteShare => 'Shiriki';
+
+  @override
+  String get inviteCopied => 'Kiungo kimenakiliwa';
+
+  @override
+  String inviteShareMessage(String group, String url) {
+    return 'Jiunge na $group kwenye Intelli-Cash. Fungua kiungo hiki ujaze maelezo yako: $url';
+  }
+
+  @override
+  String get inviteApprovalNotice =>
+      'Kushiriki hii hakumruhusu mtu kuingia. Atakayeitumia atafungua akaunti na ombi lake litaonekana chini ya Maombi ya kujiunga, ili afisa akubali au akatae.';
+
+  @override
+  String get inviteCouldNotLoad =>
+      'Imeshindwa kupakia kiungo cha mwaliko. Angalia mtandao wako kisha vuta chini ujaribu tena.';
+
+  @override
+  String get inviteNewLink => 'Pata kiungo kipya';
+
+  @override
+  String get inviteNewLinkWorking => 'Inapata kiungo kipya…';
+
+  @override
+  String get inviteNewLinkTitle => 'Upate kiungo kipya?';
+
+  @override
+  String get inviteNewLinkBody =>
+      'Kiungo na msimbo wa QR ulioshiriki tayari vitaacha kufanya kazi mara moja, pamoja na bango lolote lililochapishwa. Fanya hivi tu ikiwa cha zamani kilifika mahali pasipofaa.';
+
+  @override
+  String get inviteNewLinkConfirm => 'Ndiyo, badilisha';
+
+  @override
+  String get inviteNewLinkDone =>
+      'Kiungo kipya kiko tayari. Cha zamani hakifanyi kazi tena.';
+
+  @override
+  String get inviteTileSubtitle =>
+      'Shiriki kiungo au msimbo wa QR ili watu waweze kuomba kujiunga';
 }

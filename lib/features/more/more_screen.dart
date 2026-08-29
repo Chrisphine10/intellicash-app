@@ -11,6 +11,7 @@ import '../../providers/theme_controller.dart';
 import '../../shared/widgets/common.dart';
 import '../../shared/widgets/status_chip.dart';
 import '../account/account_route.dart';
+import '../members/invite_screen.dart';
 import '../members/join_requests_screen.dart';
 import '../onboarding/group_setup_wizard.dart';
 import '../reports/group_report_screen.dart';
@@ -100,6 +101,8 @@ class MoreScreen extends StatelessWidget {
                     );
                   },
                 ),
+                const Divider(indent: 16, endIndent: 16),
+                const _InviteTile(),
                 const Divider(indent: 16, endIndent: 16),
                 const _JoinRequestsTile(),
                 const Divider(indent: 16, endIndent: 16),
@@ -438,6 +441,39 @@ class MoreScreen extends StatelessWidget {
 /// screen closes and the app returns to its root screen right after.
 /// Optional: let this group create sign-in accounts for its members, so each
 /// member can check their own savings on their own phone.
+/// Sharing the group's invite link and QR code.
+///
+/// Sits immediately above Requests to join, because they are two halves of one
+/// job: hand out the link, then answer what comes back.
+class _InviteTile extends StatelessWidget {
+  const _InviteTile();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
+    final connection = context.watch<ConnectionProvider>();
+    if (connection.account?.isGroupAccount != true) return const SizedBox.shrink();
+
+    final group = connection.selectedGroup;
+    return ListTile(
+      leading: const Icon(Icons.qr_code_2_rounded, size: 20),
+      title: Text(l10n.inviteTitle, style: const TextStyle(fontSize: 14)),
+      subtitle: Text(
+        l10n.inviteTileSubtitle,
+        style: Theme.of(context).textTheme.bodySmall,
+      ),
+      trailing: const Icon(Icons.chevron_right, size: 20),
+      onTap: group == null
+          ? null
+          : () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => InviteScreen(groupId: group.id),
+                ),
+              ),
+    );
+  }
+}
+
 /// The permanent way in to requests to join.
 ///
 /// There was one already - a badge on the Members app bar - but it appeared
