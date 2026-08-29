@@ -3090,6 +3090,90 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'{count} still open, {overdue} overdue. Go through these first.'**
   String openActionItemsStillOpenOverdue(int count, int overdue);
+
+  /// No description provided for @joinRequestsTileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Requests to join'**
+  String get joinRequestsTileTitle;
+
+  /// No description provided for @joinRequestsTileSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer people who have asked to join this group'**
+  String get joinRequestsTileSubtitle;
+
+  /// No description provided for @joinRequestsNoneWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody is waiting'**
+  String get joinRequestsNoneWaiting;
+
+  /// No description provided for @joinRequestsWaitingCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} waiting for your answer'**
+  String joinRequestsWaitingCount(int count);
+
+  /// No description provided for @joinRequestsOneWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'1 waiting for your answer'**
+  String get joinRequestsOneWaiting;
+
+  /// No description provided for @joinRequestsFilterWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting'**
+  String get joinRequestsFilterWaiting;
+
+  /// No description provided for @joinRequestsFilterAnswered.
+  ///
+  /// In en, this message translates to:
+  /// **'Answered'**
+  String get joinRequestsFilterAnswered;
+
+  /// No description provided for @joinRequestsNoneAnswered.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing answered yet'**
+  String get joinRequestsNoneAnswered;
+
+  /// No description provided for @joinRequestsNoneAnsweredBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Requests you approve or decline stay here, so the group can see who was let in and who was not.'**
+  String get joinRequestsNoneAnsweredBody;
+
+  /// No description provided for @joinRequestsAlreadyApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Already approved'**
+  String get joinRequestsAlreadyApproved;
+
+  /// No description provided for @joinRequestsAlreadyDeclined.
+  ///
+  /// In en, this message translates to:
+  /// **'Already declined'**
+  String get joinRequestsAlreadyDeclined;
+
+  /// No description provided for @joinRequestsCouldNotLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load requests. Check your connection and pull down to try again.'**
+  String get joinRequestsCouldNotLoad;
+
+  /// No description provided for @joinRequestsAskedJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Just now'**
+  String get joinRequestsAskedJustNow;
+
+  /// No description provided for @joinRequestsCouldNotLoadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load'**
+  String get joinRequestsCouldNotLoadTitle;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

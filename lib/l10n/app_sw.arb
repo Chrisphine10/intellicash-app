@@ -497,5 +497,19 @@
   "recordVisitDiscardVisitBody": "Hakuna kilichorekodiwa hapa kilichotumwa, na hakitahifadhiwa. Tumia hii ziara ilipofunguliwa kimakosa.",
   "recordVisitDiscardVisitConfirm": "Tupa",
   "openActionItemsStillOpen": "{count} bado zimebaki.",
-  "openActionItemsStillOpenOverdue": "{count} bado zimebaki, {overdue} zimechelewa. Anza na hizi."
+  "openActionItemsStillOpenOverdue": "{count} bado zimebaki, {overdue} zimechelewa. Anza na hizi.",
+  "joinRequestsTileTitle": "Maombi ya kujiunga",
+  "joinRequestsTileSubtitle": "Jibu watu walioomba kujiunga na kikundi hiki",
+  "joinRequestsNoneWaiting": "Hakuna anayesubiri",
+  "joinRequestsWaitingCount": "{count} wanasubiri jibu lako",
+  "joinRequestsOneWaiting": "1 anasubiri jibu lako",
+  "joinRequestsFilterWaiting": "Wanasubiri",
+  "joinRequestsFilterAnswered": "Waliojibiwa",
+  "joinRequestsNoneAnswered": "Hakuna lililojibiwa bado",
+  "joinRequestsNoneAnsweredBody": "Maombi unayokubali au kukataa yatabaki hapa, ili kikundi kiweze kuona nani aliruhusiwa na nani hakuruhusiwa.",
+  "joinRequestsAlreadyApproved": "Tayari amekubaliwa",
+  "joinRequestsAlreadyDeclined": "Tayari amekataliwa",
+  "joinRequestsCouldNotLoad": "Imeshindwa kupakia maombi. Angalia mtandao wako kisha vuta chini ujaribu tena.",
+  "joinRequestsAskedJustNow": "Sasa hivi",
+  "joinRequestsCouldNotLoadTitle": "Imeshindwa kupakia"
 }

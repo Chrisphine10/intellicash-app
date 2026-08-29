@@ -590,5 +590,26 @@
         "type": "int"
       }
     }
-  }
+  },
+  "joinRequestsTileTitle": "Requests to join",
+  "joinRequestsTileSubtitle": "Answer people who have asked to join this group",
+  "joinRequestsNoneWaiting": "Nobody is waiting",
+  "joinRequestsWaitingCount": "{count} waiting for your answer",
+  "@joinRequestsWaitingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "joinRequestsOneWaiting": "1 waiting for your answer",
+  "joinRequestsFilterWaiting": "Waiting",
+  "joinRequestsFilterAnswered": "Answered",
+  "joinRequestsNoneAnswered": "Nothing answered yet",
+  "joinRequestsNoneAnsweredBody": "Requests you approve or decline stay here, so the group can see who was let in and who was not.",
+  "joinRequestsAlreadyApproved": "Already approved",
+  "joinRequestsAlreadyDeclined": "Already declined",
+  "joinRequestsCouldNotLoad": "Could not load requests. Check your connection and pull down to try again.",
+  "joinRequestsAskedJustNow": "Just now",
+  "joinRequestsCouldNotLoadTitle": "Could not load"
 }

@@ -11,6 +11,7 @@ import '../../providers/theme_controller.dart';
 import '../../shared/widgets/common.dart';
 import '../../shared/widgets/status_chip.dart';
 import '../account/account_route.dart';
+import '../members/join_requests_screen.dart';
 import '../onboarding/group_setup_wizard.dart';
 import '../reports/group_report_screen.dart';
 import '../reports/member_reports_screen.dart';
@@ -99,6 +100,8 @@ class MoreScreen extends StatelessWidget {
                     );
                   },
                 ),
+                const Divider(indent: 16, endIndent: 16),
+                const _JoinRequestsTile(),
                 const Divider(indent: 16, endIndent: 16),
                 const _MemberAccountsToggle(),
                 const Divider(indent: 16, endIndent: 16),
@@ -435,6 +438,107 @@ class MoreScreen extends StatelessWidget {
 /// screen closes and the app returns to its root screen right after.
 /// Optional: let this group create sign-in accounts for its members, so each
 /// member can check their own savings on their own phone.
+/// The permanent way in to requests to join.
+///
+/// There was one already - a badge on the Members app bar - but it appeared
+/// only when the pending count was above zero AND the request for it had
+/// succeeded. An official who wanted to go and look, or whose phone had briefly
+/// lost signal when the roster loaded, had no route to the screen at all. A
+/// group leader has to be able to find this on purpose, not stumble on it.
+///
+/// Group accounts only: answering is theirs to do, and the API refuses anyone
+/// else with a 403 that would read like a bug.
+class _JoinRequestsTile extends StatefulWidget {
+  const _JoinRequestsTile();
+
+  @override
+  State<_JoinRequestsTile> createState() => _JoinRequestsTileState();
+}
+
+class _JoinRequestsTileState extends State<_JoinRequestsTile> {
+  int? _pending;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadCount());
+  }
+
+  /// The count is a courtesy. It decorates the tile and never gates it, so a
+  /// failure here leaves the row exactly as usable as before.
+  Future<void> _loadCount() async {
+    final connection = context.read<ConnectionProvider>();
+    final group = connection.selectedGroup;
+    if (group == null) return;
+    try {
+      final requests = await connection.api.joinRequests(group.id);
+      if (mounted) setState(() => _pending = requests.length);
+    } catch (_) {
+      if (mounted) setState(() => _pending = null);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
+    final connection = context.watch<ConnectionProvider>();
+    // The persisted role, not the live session: this app is used where there
+    // is no coverage for days, and the tile has to be right at cold start.
+    if (connection.account?.isGroupAccount != true) return const SizedBox.shrink();
+
+    final group = connection.selectedGroup;
+    final pending = _pending;
+
+    return ListTile(
+      leading: const Icon(Icons.how_to_reg_outlined, size: 20),
+      title: Text(l10n.joinRequestsTileTitle,
+          style: const TextStyle(fontSize: 14)),
+      subtitle: Text(
+        pending == null
+            ? l10n.joinRequestsTileSubtitle
+            : pending == 0
+                ? l10n.joinRequestsNoneWaiting
+                : pending == 1
+                    ? l10n.joinRequestsOneWaiting
+                    : l10n.joinRequestsWaitingCount(pending),
+        style: Theme.of(context).textTheme.bodySmall,
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (pending != null && pending > 0)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                '$pending',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.onPrimary,
+                ),
+              ),
+            ),
+          const Icon(Icons.chevron_right, size: 20),
+        ],
+      ),
+      onTap: group == null
+          ? null
+          : () async {
+              await Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => JoinRequestsScreen(groupId: group.id),
+                ),
+              );
+              await _loadCount();
+            },
+    );
+  }
+}
+
 class _MemberAccountsToggle extends StatefulWidget {
   const _MemberAccountsToggle();
 

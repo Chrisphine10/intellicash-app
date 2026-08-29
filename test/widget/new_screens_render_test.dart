@@ -23,7 +23,7 @@ import '../support/localized_app.dart';
 /// failing to lay out fails the test rather than passing silently.
 
 class _FakeApi extends RemoteApi {
-  _FakeApi({this.overview, this.requests = const []})
+  _FakeApi({this.overview, this.requests = const [], this.answered = const []})
       : super(ApiClient(
           credentials: () => ApiCredentials(
             baseUrl: ApiConfig.defaultBaseUrl(),
@@ -34,12 +34,21 @@ class _FakeApi extends RemoteApi {
   final MemberOverview? overview;
   final List<JoinRequest> requests;
 
+  /// What the answered view gets. Separate, because the whole point of the
+  /// `all` flag is that the server returns something different for it.
+  final List<JoinRequest> answered;
+
+  /// Every value of `all` this screen asked for, in order.
+  final List<bool> joinRequestCalls = [];
+
   @override
   Future<MemberOverview?> myOverview() async => overview;
 
   @override
-  Future<List<JoinRequest>> joinRequests(String groupId, {bool all = false}) async =>
-      requests;
+  Future<List<JoinRequest>> joinRequests(String groupId, {bool all = false}) async {
+    joinRequestCalls.add(all);
+    return all ? answered : requests;
+  }
 
   @override
   Future<Map<String, dynamic>> decideJoinRequest(
@@ -237,11 +246,16 @@ void main() {
   });
 
   group('Requests to join (officials)', () {
-    JoinRequest request({String? linksTo}) => JoinRequest.fromJson({
+    JoinRequest request({
+      String? linksTo,
+      String status = 'PENDING',
+      String name = 'Not Agnes',
+    }) =>
+        JoinRequest.fromJson({
           'id': 'req-1',
-          'requestedName': 'Not Agnes',
+          'requestedName': name,
           'phone': '254700000203',
-          'status': 'PENDING',
+          'status': status,
           'createdAt': DateTime.now().toIso8601String(),
           'willLinkToMemberId': linksTo == null ? null : 'member-agnes',
           'willLinkToMemberName': linksTo,
@@ -276,6 +290,37 @@ void main() {
         const JoinRequestsScreen(groupId: 'g-1'),
       );
       expect(find.text('Not Agnes'), findsOneWidget);
+    });
+
+    testWidgets('opens on the waiting list and asks for nothing else',
+        (tester) async {
+      final api = _FakeApi(requests: [request()]);
+      await _pump(tester, api, const JoinRequestsScreen(groupId: 'g-1'));
+
+      expect(api.joinRequestCalls, [false]);
+    });
+
+    testWidgets('the answered view asks the server for decided requests',
+        (tester) async {
+      // `all: true` was written and never passed by anything, so a group could
+      // not see who it had already let in, and the screen's own "Already
+      // approved" row was unreachable.
+      final api = _FakeApi(
+        requests: [request()],
+        answered: [request(status: 'APPROVED', name: 'Let In Last Month')],
+      );
+      await _pump(tester, api, const JoinRequestsScreen(groupId: 'g-1'));
+
+      await tester.tap(find.text('Answered'));
+      await tester.pump();
+      await tester.pump();
+
+      expect(api.joinRequestCalls, [false, true]);
+      expect(find.text('Let In Last Month'), findsOneWidget);
+      expect(find.text('Already approved'), findsOneWidget);
+      // A decided request is history, not something to answer again.
+      expect(find.text('Approve'), findsNothing);
+      expect(find.text('Decline'), findsNothing);
     });
   });
 }

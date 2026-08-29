@@ -1681,4 +1681,51 @@ class L10nEbu extends L10n {
   String openActionItemsStillOpenOverdue(int count, int overdue) {
     return '$count iri o ho, $overdue ni itigite. Ambiriria na ici.';
   }
+
+  @override
+  String get joinRequestsTileTitle => 'Mahoya ma kwiyongerera';
+
+  @override
+  String get joinRequestsTileSubtitle =>
+      'Cookia andu aria mahoete kwiyongerera gikundi giki';
+
+  @override
+  String get joinRequestsNoneWaiting => 'Gutiri mundu ureteterera';
+
+  @override
+  String joinRequestsWaitingCount(int count) {
+    return '$count nimareteterera macookio maku';
+  }
+
+  @override
+  String get joinRequestsOneWaiting => '1 niareteterera macookio maku';
+
+  @override
+  String get joinRequestsFilterWaiting => 'Areteterera';
+
+  @override
+  String get joinRequestsFilterAnswered => 'Macookeretio';
+
+  @override
+  String get joinRequestsNoneAnswered => 'Gutiri kindu gicookeretio';
+
+  @override
+  String get joinRequestsNoneAnsweredBody =>
+      'Mahoya maria ugwitikira kana urega nimatigaraga haha, niguo gikundi kione nuu wetikirirwo na nuu utetikirirwo.';
+
+  @override
+  String get joinRequestsAlreadyApproved => 'Nietikiritwo';
+
+  @override
+  String get joinRequestsAlreadyDeclined => 'Niaregeirwo';
+
+  @override
+  String get joinRequestsCouldNotLoad =>
+      'Ndirahotire kurehe mahoya. Rora mutandaro waku ucooke uguucie na thi ugerie ringi.';
+
+  @override
+  String get joinRequestsAskedJustNow => 'Riu riu';
+
+  @override
+  String get joinRequestsCouldNotLoadTitle => 'Ndirahotire kurehe';
 }

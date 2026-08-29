@@ -1677,4 +1677,51 @@ class L10nSw extends L10n {
   String openActionItemsStillOpenOverdue(int count, int overdue) {
     return '$count bado zimebaki, $overdue zimechelewa. Anza na hizi.';
   }
+
+  @override
+  String get joinRequestsTileTitle => 'Maombi ya kujiunga';
+
+  @override
+  String get joinRequestsTileSubtitle =>
+      'Jibu watu walioomba kujiunga na kikundi hiki';
+
+  @override
+  String get joinRequestsNoneWaiting => 'Hakuna anayesubiri';
+
+  @override
+  String joinRequestsWaitingCount(int count) {
+    return '$count wanasubiri jibu lako';
+  }
+
+  @override
+  String get joinRequestsOneWaiting => '1 anasubiri jibu lako';
+
+  @override
+  String get joinRequestsFilterWaiting => 'Wanasubiri';
+
+  @override
+  String get joinRequestsFilterAnswered => 'Waliojibiwa';
+
+  @override
+  String get joinRequestsNoneAnswered => 'Hakuna lililojibiwa bado';
+
+  @override
+  String get joinRequestsNoneAnsweredBody =>
+      'Maombi unayokubali au kukataa yatabaki hapa, ili kikundi kiweze kuona nani aliruhusiwa na nani hakuruhusiwa.';
+
+  @override
+  String get joinRequestsAlreadyApproved => 'Tayari amekubaliwa';
+
+  @override
+  String get joinRequestsAlreadyDeclined => 'Tayari amekataliwa';
+
+  @override
+  String get joinRequestsCouldNotLoad =>
+      'Imeshindwa kupakia maombi. Angalia mtandao wako kisha vuta chini ujaribu tena.';
+
+  @override
+  String get joinRequestsAskedJustNow => 'Sasa hivi';
+
+  @override
+  String get joinRequestsCouldNotLoadTitle => 'Imeshindwa kupakia';
 }

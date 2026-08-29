@@ -24,6 +24,15 @@ class _JoinRequestsScreenState extends State<JoinRequestsScreen> {
   bool _loading = true;
   String? _error;
 
+  /// Waiting, or everything that has been answered.
+  ///
+  /// `RemoteApi.joinRequests` has taken an `all` flag since it was written and
+  /// nothing ever passed it, so the server only ever returned PENDING - which
+  /// made this screen's own "Already approved / Already declined" rows
+  /// unreachable. A group that has just let somebody in should be able to see
+  /// that it did.
+  bool _showAnswered = false;
+
   /// The request currently being answered, so only its own buttons lock.
   String? _deciding;
 
@@ -37,20 +46,37 @@ class _JoinRequestsScreenState extends State<JoinRequestsScreen> {
   /// to a spinner.
   Future<void> _load({bool quiet = false}) async {
     final connection = context.read<ConnectionProvider>();
+    final l10n = L10n.of(context);
     if (!quiet) setState(() => _loading = true);
     try {
-      final requests = await connection.api.joinRequests(widget.groupId);
+      final requests =
+          await connection.api.joinRequests(widget.groupId, all: _showAnswered);
       if (mounted) {
         setState(() {
-          _requests = requests;
+          // The server returns everything when asked for ALL, so the answered
+          // view filters the waiting ones back out rather than fetching twice.
+          _requests = _showAnswered
+              ? requests.where((request) => !request.isPending).toList()
+              : requests;
           _error = null;
         });
       }
     } catch (e) {
-      if (mounted) setState(() => _error = 'Could not load join requests.');
+      // Named plainly, and with what to do about it. "Could not load join
+      // requests." told an official nothing they could act on.
+      if (mounted) setState(() => _error = l10n.joinRequestsCouldNotLoad);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  Future<void> _switchView(bool answered) async {
+    if (_showAnswered == answered) return;
+    setState(() {
+      _showAnswered = answered;
+      _requests = const [];
+    });
+    await _load();
   }
 
   Future<void> _approve(JoinRequest request) async {
@@ -261,6 +287,26 @@ class _JoinRequestsScreenState extends State<JoinRequestsScreen> {
                 ),
               ),
             ),
+            const SizedBox(height: 12),
+            // Answered requests are the group's own record of who it let in.
+            SegmentedButton<bool>(
+              segments: [
+                ButtonSegment(
+                  value: false,
+                  label: Text(l10n.joinRequestsFilterWaiting),
+                  icon: const Icon(Icons.hourglass_empty, size: 16),
+                ),
+                ButtonSegment(
+                  value: true,
+                  label: Text(l10n.joinRequestsFilterAnswered),
+                  icon: const Icon(Icons.history, size: 16),
+                ),
+              ],
+              selected: {_showAnswered},
+              showSelectedIcon: false,
+              onSelectionChanged: (selection) => _switchView(selection.first),
+            ),
+            const SizedBox(height: 4),
             if (_loading)
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 40),
@@ -271,23 +317,31 @@ class _JoinRequestsScreenState extends State<JoinRequestsScreen> {
                 padding: const EdgeInsets.only(top: 40),
                 child: EmptyState(
                   icon: Icons.error_outline,
-                  title: 'Couldn\'t load',
+                  title: l10n.joinRequestsCouldNotLoadTitle,
                   message: _error!,
                 ),
               )
             else if (_requests.isEmpty)
               Padding(
-                padding: EdgeInsets.only(top: 40),
+                padding: const EdgeInsets.only(top: 40),
                 child: EmptyState(
-                  icon: Icons.how_to_reg_outlined,
-                  title: l10n.joinRequestsNoOneIsWaiting,
-                  message: l10n.joinRequestsWhenSomeoneAsksToJoinYour,
+                  icon: _showAnswered
+                      ? Icons.history
+                      : Icons.how_to_reg_outlined,
+                  title: _showAnswered
+                      ? l10n.joinRequestsNoneAnswered
+                      : l10n.joinRequestsNoOneIsWaiting,
+                  message: _showAnswered
+                      ? l10n.joinRequestsNoneAnsweredBody
+                      : l10n.joinRequestsWhenSomeoneAsksToJoinYour,
                 ),
               )
             else ...[
-              SectionLabel(pending == 1
-                  ? '1 waiting for your answer'
-                  : '$pending waiting for your answer'),
+              SectionLabel(_showAnswered
+                  ? l10n.joinRequestsFilterAnswered
+                  : pending == 1
+                      ? l10n.joinRequestsOneWaiting
+                      : l10n.joinRequestsWaitingCount(pending)),
               for (final request in _requests)
                 _RequestCard(
                   request: request,
@@ -317,10 +371,10 @@ class _RequestCard extends StatelessWidget {
   final VoidCallback onDecline;
 
   /// Officials weigh a request partly by how long it has sat unanswered.
-  static String _waited(DateTime? at) {
-    if (at == null) return 'Just now';
+  static String _waited(DateTime? at, String justNow) {
+    if (at == null) return justNow;
     final since = DateTime.now().difference(at);
-    if (since.inMinutes < 1) return 'Just now';
+    if (since.inMinutes < 1) return justNow;
     if (since.inMinutes < 60) return '${since.inMinutes} min ago';
     if (since.inHours < 24) {
       return '${since.inHours} hour${since.inHours == 1 ? '' : 's'} ago';
@@ -348,7 +402,7 @@ class _RequestCard extends StatelessWidget {
                   const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600),
             ),
             subtitle: Text(
-              '${request.phone} · asked ${_waited(request.createdAt)}',
+              '${request.phone} · ${_waited(request.createdAt, l10n.joinRequestsAskedJustNow)}',
               style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
             ),
           ),
@@ -397,8 +451,8 @@ class _RequestCard extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   request.status == 'APPROVED'
-                      ? 'Already approved'
-                      : 'Already declined',
+                      ? l10n.joinRequestsAlreadyApproved
+                      : l10n.joinRequestsAlreadyDeclined,
                   style:
                       TextStyle(fontSize: 11, color: AppColors.textSecondary),
                 ),

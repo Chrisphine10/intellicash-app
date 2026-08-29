@@ -498,5 +498,19 @@
   "recordVisitDiscardVisitBody": "Onge gima ondiki ka mosewor, kendo ok noketi. Ti gi ma ka limbe oyaw ka ok owinjore.",
   "recordVisitDiscardVisitConfirm": "Wite",
   "openActionItemsStillOpen": "{count} pod odongʼ.",
-  "openActionItemsStillOpenOverdue": "{count} pod odongʼ, {overdue} osedeko. Chak gi magi."
+  "openActionItemsStillOpenOverdue": "{count} pod odongʼ, {overdue} osedeko. Chak gi magi.",
+  "joinRequestsTileTitle": "Kwayo mar donjo",
+  "joinRequestsTileSubtitle": "Duok ne joma okwayo donjo e riwruokni",
+  "joinRequestsNoneWaiting": "Onge ngʼama rito",
+  "joinRequestsWaitingCount": "{count} rito dwoko mari",
+  "joinRequestsOneWaiting": "1 rito dwoko mari",
+  "joinRequestsFilterWaiting": "Rito",
+  "joinRequestsFilterAnswered": "Modwoki",
+  "joinRequestsNoneAnswered": "Onge gima odwoki",
+  "joinRequestsNoneAnsweredBody": "Kwayo ma iyie kata itamo dongʼ ka, mondo riwruok one ngʼama noyie kod ngʼama ne otamo.",
+  "joinRequestsAlreadyApproved": "Osegoyie",
+  "joinRequestsAlreadyDeclined": "Osetami",
+  "joinRequestsCouldNotLoad": "Ok onyal kelo kwayo. Ngʼi intanet mari eka iywa piny mondo item kendo.",
+  "joinRequestsAskedJustNow": "Sani sani",
+  "joinRequestsCouldNotLoadTitle": "Ok onyal kelo"
 }

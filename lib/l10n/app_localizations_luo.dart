@@ -1673,4 +1673,51 @@ class L10nLuo extends L10n {
   String openActionItemsStillOpenOverdue(int count, int overdue) {
     return '$count pod odongʼ, $overdue osedeko. Chak gi magi.';
   }
+
+  @override
+  String get joinRequestsTileTitle => 'Kwayo mar donjo';
+
+  @override
+  String get joinRequestsTileSubtitle =>
+      'Duok ne joma okwayo donjo e riwruokni';
+
+  @override
+  String get joinRequestsNoneWaiting => 'Onge ngʼama rito';
+
+  @override
+  String joinRequestsWaitingCount(int count) {
+    return '$count rito dwoko mari';
+  }
+
+  @override
+  String get joinRequestsOneWaiting => '1 rito dwoko mari';
+
+  @override
+  String get joinRequestsFilterWaiting => 'Rito';
+
+  @override
+  String get joinRequestsFilterAnswered => 'Modwoki';
+
+  @override
+  String get joinRequestsNoneAnswered => 'Onge gima odwoki';
+
+  @override
+  String get joinRequestsNoneAnsweredBody =>
+      'Kwayo ma iyie kata itamo dongʼ ka, mondo riwruok one ngʼama noyie kod ngʼama ne otamo.';
+
+  @override
+  String get joinRequestsAlreadyApproved => 'Osegoyie';
+
+  @override
+  String get joinRequestsAlreadyDeclined => 'Osetami';
+
+  @override
+  String get joinRequestsCouldNotLoad =>
+      'Ok onyal kelo kwayo. Ngʼi intanet mari eka iywa piny mondo item kendo.';
+
+  @override
+  String get joinRequestsAskedJustNow => 'Sani sani';
+
+  @override
+  String get joinRequestsCouldNotLoadTitle => 'Ok onyal kelo';
 }

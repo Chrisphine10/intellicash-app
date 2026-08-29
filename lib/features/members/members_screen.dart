@@ -27,7 +27,11 @@ class _MembersScreenState extends State<MembersScreen> {
 
   /// People waiting to be let into the group. Surfaced as a badge so requests
   /// don't sit unanswered.
-  int _pendingJoins = 0;
+  ///
+  /// Null means "not known" - offline, or the count request failed. That is a
+  /// different thing from zero, and the difference decides whether the badge
+  /// shows a number, not whether the way in exists at all.
+  int? _pendingJoins;
 
   @override
   void initState() {
@@ -50,8 +54,10 @@ class _MembersScreenState extends State<MembersScreen> {
       final requests = await connection.api.joinRequests(remoteGroup.id);
       if (mounted) setState(() => _pendingJoins = requests.length);
     } catch (_) {
-      // Offline, or a login without members:write — the badge simply stays
-      // hidden rather than interrupting the roster.
+      // Offline, or a login without members:write. The count is unknown; the
+      // action stays, because an official who cannot see a badge still has to
+      // be able to go and look.
+      if (mounted) setState(() => _pendingJoins = null);
     }
   }
 
@@ -71,6 +77,9 @@ class _MembersScreenState extends State<MembersScreen> {
     final l10n = L10n.of(context);
     final group = context.watch<AppState>().group;
     final provider = context.watch<MemberProvider>();
+    // The persisted role, so this is right at cold start with no coverage.
+    final isGroupAccount =
+        context.watch<ConnectionProvider>().account?.isGroupAccount == true;
     final members = provider.members
         .where((f) =>
             _query.isEmpty ||
@@ -81,14 +90,20 @@ class _MembersScreenState extends State<MembersScreen> {
       appBar: AppBar(
         title: Text(l10n.navMembers),
         actions: [
-          if (_pendingJoins > 0)
+          // Always present for a group account, badge or no badge. It used to
+          // appear only when the count was above zero AND the request for it
+          // had succeeded, so an official who wanted to check found nothing to
+          // tap and no way to know whether that meant "none" or "offline".
+          if (isGroupAccount)
             IconButton(
               tooltip: l10n.membersRequestsToJoin,
               onPressed: _openJoinRequests,
-              icon: Badge(
-                label: Text('$_pendingJoins'),
-                child: const Icon(Icons.person_add_alt, size: 20),
-              ),
+              icon: (_pendingJoins ?? 0) > 0
+                  ? Badge(
+                      label: Text('$_pendingJoins'),
+                      child: const Icon(Icons.person_add_alt, size: 20),
+                    )
+                  : const Icon(Icons.person_add_alt, size: 20),
             ),
         ],
       ),

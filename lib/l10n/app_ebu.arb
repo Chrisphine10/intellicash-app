@@ -498,5 +498,19 @@
   "recordVisitDiscardVisitBody": "Gutiri kindu kiandikitwo haha gitumitwo, na gitiguigwo. Huthira undu uyu ria rugendo rwahingurwo na mahitia.",
   "recordVisitDiscardVisitConfirm": "Uteanie",
   "openActionItemsStillOpen": "{count} iri o ho.",
-  "openActionItemsStillOpenOverdue": "{count} iri o ho, {overdue} ni itigite. Ambiriria na ici."
+  "openActionItemsStillOpenOverdue": "{count} iri o ho, {overdue} ni itigite. Ambiriria na ici.",
+  "joinRequestsTileTitle": "Mahoya ma kwiyongerera",
+  "joinRequestsTileSubtitle": "Cookia andu aria mahoete kwiyongerera gikundi giki",
+  "joinRequestsNoneWaiting": "Gutiri mundu ureteterera",
+  "joinRequestsWaitingCount": "{count} nimareteterera macookio maku",
+  "joinRequestsOneWaiting": "1 niareteterera macookio maku",
+  "joinRequestsFilterWaiting": "Areteterera",
+  "joinRequestsFilterAnswered": "Macookeretio",
+  "joinRequestsNoneAnswered": "Gutiri kindu gicookeretio",
+  "joinRequestsNoneAnsweredBody": "Mahoya maria ugwitikira kana urega nimatigaraga haha, niguo gikundi kione nuu wetikirirwo na nuu utetikirirwo.",
+  "joinRequestsAlreadyApproved": "Nietikiritwo",
+  "joinRequestsAlreadyDeclined": "Niaregeirwo",
+  "joinRequestsCouldNotLoad": "Ndirahotire kurehe mahoya. Rora mutandaro waku ucooke uguucie na thi ugerie ringi.",
+  "joinRequestsAskedJustNow": "Riu riu",
+  "joinRequestsCouldNotLoadTitle": "Ndirahotire kurehe"
 }

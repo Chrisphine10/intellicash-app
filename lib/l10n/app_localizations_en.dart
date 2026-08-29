@@ -1679,4 +1679,51 @@ class L10nEn extends L10n {
   String openActionItemsStillOpenOverdue(int count, int overdue) {
     return '$count still open, $overdue overdue. Go through these first.';
   }
+
+  @override
+  String get joinRequestsTileTitle => 'Requests to join';
+
+  @override
+  String get joinRequestsTileSubtitle =>
+      'Answer people who have asked to join this group';
+
+  @override
+  String get joinRequestsNoneWaiting => 'Nobody is waiting';
+
+  @override
+  String joinRequestsWaitingCount(int count) {
+    return '$count waiting for your answer';
+  }
+
+  @override
+  String get joinRequestsOneWaiting => '1 waiting for your answer';
+
+  @override
+  String get joinRequestsFilterWaiting => 'Waiting';
+
+  @override
+  String get joinRequestsFilterAnswered => 'Answered';
+
+  @override
+  String get joinRequestsNoneAnswered => 'Nothing answered yet';
+
+  @override
+  String get joinRequestsNoneAnsweredBody =>
+      'Requests you approve or decline stay here, so the group can see who was let in and who was not.';
+
+  @override
+  String get joinRequestsAlreadyApproved => 'Already approved';
+
+  @override
+  String get joinRequestsAlreadyDeclined => 'Already declined';
+
+  @override
+  String get joinRequestsCouldNotLoad =>
+      'Could not load requests. Check your connection and pull down to try again.';
+
+  @override
+  String get joinRequestsAskedJustNow => 'Just now';
+
+  @override
+  String get joinRequestsCouldNotLoadTitle => 'Could not load';
 }

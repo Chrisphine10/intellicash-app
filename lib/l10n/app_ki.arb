@@ -498,5 +498,19 @@
   "recordVisitDiscardVisitBody": "Gũtirĩ kĩndũ kĩandĩkĩtwo haha gĩtũmĩtwo, na gĩtigũigwo. Hũthĩra ũndũ ũyũ rĩrĩa rũgendo rwahingũrwo na mahĩtia.",
   "recordVisitDiscardVisitConfirm": "Ũteanie",
   "openActionItemsStillOpen": "{count} irĩ o ho.",
-  "openActionItemsStillOpenOverdue": "{count} irĩ o ho, {overdue} nĩ itigĩte. Ambĩrĩria na ici."
+  "openActionItemsStillOpenOverdue": "{count} irĩ o ho, {overdue} nĩ itigĩte. Ambĩrĩria na ici.",
+  "joinRequestsTileTitle": "Mahoya ma kwĩyongerera",
+  "joinRequestsTileSubtitle": "Cookia andũ arĩa mahoete kwĩyongerera gĩkundi gĩkĩ",
+  "joinRequestsNoneWaiting": "Gũtirĩ mũndũ ũreteterera",
+  "joinRequestsWaitingCount": "{count} nĩmareteterera macookio maku",
+  "joinRequestsOneWaiting": "1 nĩareteterera macookio maku",
+  "joinRequestsFilterWaiting": "Areteterera",
+  "joinRequestsFilterAnswered": "Macookeretio",
+  "joinRequestsNoneAnswered": "Gũtirĩ kĩndũ gĩcookeretio",
+  "joinRequestsNoneAnsweredBody": "Mahoya marĩa ũgwĩtĩkĩra kana ũrega nĩmatigaraga haha, nĩguo gĩkundi kĩone nũũ wetĩkĩrirwo na nũũ ũtetĩkĩrirwo.",
+  "joinRequestsAlreadyApproved": "Nĩetĩkĩrĩtwo",
+  "joinRequestsAlreadyDeclined": "Nĩaregeirwo",
+  "joinRequestsCouldNotLoad": "Ndĩrahotire kũrehe mahoya. Rora mũtandaro waku ũcooke ũguucie na thĩ ũgerie rĩngĩ.",
+  "joinRequestsAskedJustNow": "Rĩu rĩu",
+  "joinRequestsCouldNotLoadTitle": "Ndĩrahotire kũrehe"
 }
