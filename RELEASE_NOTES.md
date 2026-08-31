@@ -4,6 +4,37 @@ Newest first.
 
 ---
 
+## 2.5.5 — 31 August 2026
+
+**Invite people with a link or a QR code.** More → Invite people shows a QR
+code with the Intelli-Cash mark at its centre, the link underneath, and Share
+and Copy. Hold the phone up at a meeting and people scan it. Joining used to
+need two things a new member rarely has — an Intelli-Cash account already, and
+the group's code typed correctly.
+
+Sharing the link lets nobody in. Whoever uses it creates their own account and
+their request appears under Requests to join, for an official to answer. If a
+link ends up somewhere it should not, "Get a new link" replaces it and every
+poster and forwarded message carrying the old one stops working.
+
+**Requests to join is somewhere you can actually find.** It was reachable only
+through a badge on the Members screen, and only when somebody was already
+waiting AND the count had loaded. A group leader who wanted to go and look
+found nothing to tap, and no way to tell "nobody is waiting" from "this did not
+load". It now has its own row under More → Group, and the Members shortcut is
+always there.
+
+**See who you have already let in.** A new Answered tab lists requests the
+group has approved or declined, so there is a record of who was admitted and
+who was not.
+
+**The About card no longer prints "
+
+" in the middle of a sentence.** In all
+five languages.
+
+---
+
 ## 2.5.4 — 29 August 2026
 
 **Throw away a visit you opened by mistake.** A mis-tap on "Record a visit"
