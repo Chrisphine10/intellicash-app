@@ -32,6 +32,11 @@ class ConnectionProvider extends ChangeNotifier {
   );
   ConnectionStatus _status = ConnectionStatus.unconfigured;
   String? _error;
+
+  /// The server's reason for the last failure, e.g. `ACCOUNT_EXISTS`. The
+  /// message alone cannot tell a registration screen "this group already has
+  /// an account — sign in instead" from any other refusal.
+  String? _errorCode;
   bool _busy = false;
   bool _initialized = false;
 
@@ -50,6 +55,7 @@ class ConnectionProvider extends ChangeNotifier {
   ApiCredentials get credentials => _credentials;
   ConnectionStatus get status => _status;
   String? get error => _error;
+  String? get errorCode => _errorCode;
   bool get busy => _busy;
   bool get isConnected => _status == ConnectionStatus.connected;
 
@@ -212,10 +218,79 @@ class ConnectionProvider extends ChangeNotifier {
       await _selectGroup(_groups.isNotEmpty ? _groups.first : null);
       _status = ConnectionStatus.connected;
       _error = null;
+      _errorCode = null;
       return true;
     } on ApiException catch (e) {
       _status = ConnectionStatus.error;
       _error = e.message;
+      _errorCode = e.code;
+      return false;
+    } finally {
+      _busy = false;
+      notifyListeners();
+    }
+  }
+
+  /// Texts a 6-digit code to [phone]. Returns false only when the request
+  /// itself failed (offline, rate limited) — never to say the number has no
+  /// account, which the server deliberately does not reveal.
+  Future<bool> requestSignInCode({
+    required String phone,
+    bool forPasswordReset = false,
+  }) async {
+    _credentials = ApiCredentials(
+        baseUrl: ApiConfig.normalize(_credentials.baseUrl), apiKey: '');
+    _applyCredentials(_credentials);
+    _busy = true;
+    _error = null;
+    _errorCode = null;
+    notifyListeners();
+    try {
+      await _api.requestSignInCode(phone, forPasswordReset: forPasswordReset);
+      return true;
+    } on ApiException catch (e) {
+      _error = e.message;
+      _errorCode = e.code;
+      return false;
+    } finally {
+      _busy = false;
+      notifyListeners();
+    }
+  }
+
+  /// Signs in with a texted code, or — with [newPassword] — sets a new
+  /// password and signs in. Finishes the session the same way a password
+  /// sign-in does, so everything after it behaves identically.
+  Future<bool> signInWithCode({
+    required String phone,
+    required String code,
+    String? newPassword,
+  }) async {
+    _busy = true;
+    _error = null;
+    _errorCode = null;
+    notifyListeners();
+    try {
+      final result = newPassword == null
+          ? await _api.verifySignInCode(phone, code)
+          : await _api.resetPassword(phone, code, newPassword);
+      _credentials = _credentials.copyWith(apiKey: result.token);
+      _applyCredentials(_credentials);
+      await _store.save(_credentials);
+      _signedInUser = result.user;
+      await _rememberAccount(result.user, phone);
+      _groups = await _safe(() => _api.groups(), const []);
+      await _selectGroup(_groups.isNotEmpty ? _groups.first : null);
+      _notifications = await _safe(
+        () => _api.notifications(),
+        const RemoteNotifications(items: [], unreadCount: 0),
+      );
+      _status = ConnectionStatus.connected;
+      return true;
+    } on ApiException catch (e) {
+      _status = ConnectionStatus.error;
+      _error = e.message;
+      _errorCode = e.code;
       return false;
     } finally {
       _busy = false;

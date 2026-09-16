@@ -7,6 +7,7 @@ import '../../l10n/app_localizations.dart';
 import '../../data/services/member_matching.dart';
 import '../../providers/connection_provider.dart';
 import '../../shared/widgets/common.dart';
+import 'code_sign_in_screen.dart';
 
 /// Create-account flow: pick what you are (Group / Member / Agent), then a
 /// short form — name, phone and a password. That's all a field user needs;
@@ -263,6 +264,31 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     );
   }
 
+  Future<void> _offerExistingAccount(String phone) async {
+    final l10n = L10n.of(context);
+    final signIn = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.accountExistsTitle),
+        content: Text(l10n.accountExistsBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(l10n.signInWithCode),
+          ),
+        ],
+      ),
+    );
+    if (signIn != true || !mounted) return;
+    await Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (_) => CodeSignInScreen(initialPhone: phone),
+    ));
+  }
+
   Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     final connection = context.read<ConnectionProvider>();
@@ -277,6 +303,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       county: _countyCtrl.text,
     );
     if (!mounted) return;
+    if (!ok && connection.errorCode == 'ACCOUNT_EXISTS') {
+      // The field team's wall: the group was onboarded centrally, so its
+      // account already exists. A snackbar saying so left them nowhere to go.
+      // Offer the way in to THAT account instead of a second, empty one.
+      await _offerExistingAccount(_phoneCtrl.text);
+      return;
+    }
     if (!ok) {
       showAppSnack(context, connection.error ?? 'Could not create the account.',
           error: true);

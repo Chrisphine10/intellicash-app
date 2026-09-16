@@ -229,6 +229,52 @@ class ApiClient {
     });
   }
 
+  /// Asks the server to text a 6-digit code to [phone].
+  ///
+  /// The server answers the same whether or not the number has an account, so
+  /// this returns nothing to act on — the screen moves to the code step either
+  /// way. [forPasswordReset] only changes the wording of the text message.
+  Future<void> requestSignInCode({
+    required String phone,
+    bool forPasswordReset = false,
+  }) async {
+    final path =
+        forPasswordReset ? '/auth/password/reset/request' : '/auth/otp/request';
+    await _send(
+      'POST $path',
+      () => _http
+          .post(_uri(path),
+              headers: _headers(auth: false, json: true),
+              body: jsonEncode({'phone': phone.trim()}))
+          .timeout(_timeout),
+    );
+  }
+
+  /// Signs in with a texted code — no password.
+  Future<({Map<String, dynamic> user, String sessionToken})> verifySignInCode({
+    required String phone,
+    required String code,
+  }) {
+    return _sessionAuthPost(
+      '/auth/otp/verify',
+      {'phone': phone.trim(), 'code': code.trim()},
+      invalidCredentialsMessage: 'That code is wrong or has expired.',
+    );
+  }
+
+  /// Sets a new password using a texted code, and signs in.
+  Future<({Map<String, dynamic> user, String sessionToken})> resetPassword({
+    required String phone,
+    required String code,
+    required String newPassword,
+  }) {
+    return _sessionAuthPost(
+      '/auth/password/reset',
+      {'phone': phone.trim(), 'code': code.trim(), 'newPassword': newPassword},
+      invalidCredentialsMessage: 'That code is wrong or has expired.',
+    );
+  }
+
   /// POST to an auth endpoint that responds with a `Set-Cookie` session.
   Future<({Map<String, dynamic> user, String sessionToken})> _sessionAuthPost(
     String path,

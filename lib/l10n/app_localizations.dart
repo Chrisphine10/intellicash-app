@@ -3270,6 +3270,102 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Share a link or QR code so people can ask to join'**
   String get inviteTileSubtitle;
+
+  /// No description provided for @signInWithCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with a code'**
+  String get signInWithCode;
+
+  /// No description provided for @forgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get forgotPassword;
+
+  /// No description provided for @resetPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset password'**
+  String get resetPasswordTitle;
+
+  /// No description provided for @codeSignInIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll text a code to this number. No password needed.'**
+  String get codeSignInIntro;
+
+  /// No description provided for @resetPasswordIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll text a code to this number, then you choose a new password.'**
+  String get resetPasswordIntro;
+
+  /// No description provided for @sendMeACode.
+  ///
+  /// In en, this message translates to:
+  /// **'Send me a code'**
+  String get sendMeACode;
+
+  /// No description provided for @sendCodeAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Send the code again'**
+  String get sendCodeAgain;
+
+  /// No description provided for @codeMaybeSent.
+  ///
+  /// In en, this message translates to:
+  /// **'If this number has an account, a 6-digit code is on its way by SMS. It expires in 10 minutes.'**
+  String get codeMaybeSent;
+
+  /// No description provided for @smsCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'6-digit code from the SMS'**
+  String get smsCodeLabel;
+
+  /// No description provided for @enterSixDigitCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the 6-digit code'**
+  String get enterSixDigitCode;
+
+  /// No description provided for @newPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New password (at least 8 characters)'**
+  String get newPasswordLabel;
+
+  /// No description provided for @passwordTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Use at least 8 characters'**
+  String get passwordTooShort;
+
+  /// No description provided for @setPasswordAndSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Set password and sign in'**
+  String get setPasswordAndSignIn;
+
+  /// No description provided for @enterPhoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your phone number'**
+  String get enterPhoneNumber;
+
+  /// No description provided for @accountExistsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This number already has an account'**
+  String get accountExistsTitle;
+
+  /// No description provided for @accountExistsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t create a new one. Sign in with a code sent to this number — it opens the account that already exists.'**
+  String get accountExistsBody;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

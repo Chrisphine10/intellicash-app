@@ -1774,4 +1774,56 @@ class L10nLuo extends L10n {
   @override
   String get inviteTileSubtitle =>
       'Pog link kata QR mondo ji onyal kwayo donjo';
+
+  @override
+  String get signInWithCode => 'Sign in with a code';
+
+  @override
+  String get forgotPassword => 'Forgot password?';
+
+  @override
+  String get resetPasswordTitle => 'Reset password';
+
+  @override
+  String get codeSignInIntro =>
+      'We\'ll text a code to this number. No password needed.';
+
+  @override
+  String get resetPasswordIntro =>
+      'We\'ll text a code to this number, then you choose a new password.';
+
+  @override
+  String get sendMeACode => 'Send me a code';
+
+  @override
+  String get sendCodeAgain => 'Send the code again';
+
+  @override
+  String get codeMaybeSent =>
+      'If this number has an account, a 6-digit code is on its way by SMS. It expires in 10 minutes.';
+
+  @override
+  String get smsCodeLabel => '6-digit code from the SMS';
+
+  @override
+  String get enterSixDigitCode => 'Enter the 6-digit code';
+
+  @override
+  String get newPasswordLabel => 'New password (at least 8 characters)';
+
+  @override
+  String get passwordTooShort => 'Use at least 8 characters';
+
+  @override
+  String get setPasswordAndSignIn => 'Set password and sign in';
+
+  @override
+  String get enterPhoneNumber => 'Enter your phone number';
+
+  @override
+  String get accountExistsTitle => 'This number already has an account';
+
+  @override
+  String get accountExistsBody =>
+      'Don\'t create a new one. Sign in with a code sent to this number — it opens the account that already exists.';
 }

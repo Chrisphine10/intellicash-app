@@ -528,5 +528,21 @@
   "inviteNewLinkBody": "Link kod QR ma isepogo biro chungo tich sani, kaachiel gi kalatas moro amora mogo. Tim ma mana ka machon nodhi kama ok owinjore.",
   "inviteNewLinkConfirm": "Ee, loke",
   "inviteNewLinkDone": "Link manyien oikore. Machon ok ti kendo.",
-  "inviteTileSubtitle": "Pog link kata QR mondo ji onyal kwayo donjo"
+  "inviteTileSubtitle": "Pog link kata QR mondo ji onyal kwayo donjo",
+  "signInWithCode": "Sign in with a code",
+  "forgotPassword": "Forgot password?",
+  "resetPasswordTitle": "Reset password",
+  "codeSignInIntro": "We'll text a code to this number. No password needed.",
+  "resetPasswordIntro": "We'll text a code to this number, then you choose a new password.",
+  "sendMeACode": "Send me a code",
+  "sendCodeAgain": "Send the code again",
+  "codeMaybeSent": "If this number has an account, a 6-digit code is on its way by SMS. It expires in 10 minutes.",
+  "smsCodeLabel": "6-digit code from the SMS",
+  "enterSixDigitCode": "Enter the 6-digit code",
+  "newPasswordLabel": "New password (at least 8 characters)",
+  "passwordTooShort": "Use at least 8 characters",
+  "setPasswordAndSignIn": "Set password and sign in",
+  "enterPhoneNumber": "Enter your phone number",
+  "accountExistsTitle": "This number already has an account",
+  "accountExistsBody": "Don't create a new one. Sign in with a code sent to this number — it opens the account that already exists."
 }

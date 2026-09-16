@@ -1779,4 +1779,56 @@ class L10nSw extends L10n {
   @override
   String get inviteTileSubtitle =>
       'Shiriki kiungo au msimbo wa QR ili watu waweze kuomba kujiunga';
+
+  @override
+  String get signInWithCode => 'Ingia kwa nambari ya siri';
+
+  @override
+  String get forgotPassword => 'Umesahau nenosiri?';
+
+  @override
+  String get resetPasswordTitle => 'Weka nenosiri jipya';
+
+  @override
+  String get codeSignInIntro =>
+      'Tutatuma nambari ya siri kwa SMS kwa nambari hii. Hakuna haja ya nenosiri.';
+
+  @override
+  String get resetPasswordIntro =>
+      'Tutatuma nambari ya siri kwa SMS kwa nambari hii, kisha uchague nenosiri jipya.';
+
+  @override
+  String get sendMeACode => 'Nitumie nambari ya siri';
+
+  @override
+  String get sendCodeAgain => 'Tuma nambari tena';
+
+  @override
+  String get codeMaybeSent =>
+      'Ikiwa nambari hii ina akaunti, nambari ya tarakimu 6 inakuja kwa SMS. Itaisha baada ya dakika 10.';
+
+  @override
+  String get smsCodeLabel => 'Nambari ya tarakimu 6 kutoka kwa SMS';
+
+  @override
+  String get enterSixDigitCode => 'Weka nambari ya tarakimu 6';
+
+  @override
+  String get newPasswordLabel => 'Nenosiri jipya (angalau herufi 8)';
+
+  @override
+  String get passwordTooShort => 'Tumia angalau herufi 8';
+
+  @override
+  String get setPasswordAndSignIn => 'Weka nenosiri na uingie';
+
+  @override
+  String get enterPhoneNumber => 'Weka nambari yako ya simu';
+
+  @override
+  String get accountExistsTitle => 'Nambari hii tayari ina akaunti';
+
+  @override
+  String get accountExistsBody =>
+      'Usifungue nyingine. Ingia kwa nambari ya siri itakayotumwa kwa nambari hii — itafungua akaunti iliyopo.';
 }

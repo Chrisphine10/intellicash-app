@@ -61,6 +61,25 @@ class RemoteApi {
     return (user: RemoteUser.fromJson(result.user), token: result.sessionToken);
   }
 
+  /// Texts a sign-in (or password reset) code to [phone].
+  Future<void> requestSignInCode(String phone, {bool forPasswordReset = false}) =>
+      _client.requestSignInCode(phone: phone, forPasswordReset: forPasswordReset);
+
+  /// Signs in with a texted code.
+  Future<({RemoteUser user, String token})> verifySignInCode(
+      String phone, String code) async {
+    final result = await _client.verifySignInCode(phone: phone, code: code);
+    return (user: RemoteUser.fromJson(result.user), token: result.sessionToken);
+  }
+
+  /// Sets a new password with a texted code, and signs in.
+  Future<({RemoteUser user, String token})> resetPassword(
+      String phone, String code, String newPassword) async {
+    final result = await _client.resetPassword(
+        phone: phone, code: code, newPassword: newPassword);
+    return (user: RemoteUser.fromJson(result.user), token: result.sessionToken);
+  }
+
   /// `POST /auth/logout` — ends the session on the SERVER.
   ///
   /// Clearing the token on the handset is not enough: without this the session

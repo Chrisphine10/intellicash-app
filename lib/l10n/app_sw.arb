@@ -527,5 +527,21 @@
   "inviteNewLinkBody": "Kiungo na msimbo wa QR ulioshiriki tayari vitaacha kufanya kazi mara moja, pamoja na bango lolote lililochapishwa. Fanya hivi tu ikiwa cha zamani kilifika mahali pasipofaa.",
   "inviteNewLinkConfirm": "Ndiyo, badilisha",
   "inviteNewLinkDone": "Kiungo kipya kiko tayari. Cha zamani hakifanyi kazi tena.",
-  "inviteTileSubtitle": "Shiriki kiungo au msimbo wa QR ili watu waweze kuomba kujiunga"
+  "inviteTileSubtitle": "Shiriki kiungo au msimbo wa QR ili watu waweze kuomba kujiunga",
+  "signInWithCode": "Ingia kwa nambari ya siri",
+  "forgotPassword": "Umesahau nenosiri?",
+  "resetPasswordTitle": "Weka nenosiri jipya",
+  "codeSignInIntro": "Tutatuma nambari ya siri kwa SMS kwa nambari hii. Hakuna haja ya nenosiri.",
+  "resetPasswordIntro": "Tutatuma nambari ya siri kwa SMS kwa nambari hii, kisha uchague nenosiri jipya.",
+  "sendMeACode": "Nitumie nambari ya siri",
+  "sendCodeAgain": "Tuma nambari tena",
+  "codeMaybeSent": "Ikiwa nambari hii ina akaunti, nambari ya tarakimu 6 inakuja kwa SMS. Itaisha baada ya dakika 10.",
+  "smsCodeLabel": "Nambari ya tarakimu 6 kutoka kwa SMS",
+  "enterSixDigitCode": "Weka nambari ya tarakimu 6",
+  "newPasswordLabel": "Nenosiri jipya (angalau herufi 8)",
+  "passwordTooShort": "Tumia angalau herufi 8",
+  "setPasswordAndSignIn": "Weka nenosiri na uingie",
+  "enterPhoneNumber": "Weka nambari yako ya simu",
+  "accountExistsTitle": "Nambari hii tayari ina akaunti",
+  "accountExistsBody": "Usifungue nyingine. Ingia kwa nambari ya siri itakayotumwa kwa nambari hii — itafungua akaunti iliyopo."
 }

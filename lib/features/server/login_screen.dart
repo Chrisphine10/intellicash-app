@@ -6,6 +6,7 @@ import '../../l10n/app_localizations.dart';
 import '../../providers/connection_provider.dart';
 import '../../providers/locale_controller.dart';
 import '../../shared/widgets/common.dart';
+import 'code_sign_in_screen.dart';
 
 /// The kind of account someone said they were on the previous screen. It
 /// only tailors the copy — the backend remains the authority on the real
@@ -154,7 +155,25 @@ class _LoginScreenState extends State<LoginScreen> {
                   : const Icon(Icons.login, size: 18),
               label: Text(connection.busy ? l10n.signingIn : l10n.signIn),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 4),
+            // The ways in without a password. Most group accounts were created
+            // for the group, so the champion never had a password to type.
+            Wrap(
+              alignment: WrapAlignment.center,
+              children: [
+                TextButton(
+                  onPressed: connection.busy ? null : () => _openCodeScreen(),
+                  child: Text(l10n.signInWithCode),
+                ),
+                TextButton(
+                  onPressed: connection.busy
+                      ? null
+                      : () => _openCodeScreen(resetPassword: true),
+                  child: Text(l10n.forgotPassword),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
             Text(
               l10n.sessionNote,
               style: Theme.of(context).textTheme.bodySmall,
@@ -163,6 +182,17 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  void _openCodeScreen({bool resetPassword = false}) {
+    final typed = _idCtrl.text.trim();
+    Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (_) => CodeSignInScreen(
+        // Carry a typed number across; an email is no use to a code screen.
+        initialPhone: typed.contains('@') ? null : typed,
+        resetPassword: resetPassword,
+      ),
+    ));
   }
 
   Future<void> _submit() async {

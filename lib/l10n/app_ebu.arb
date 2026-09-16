@@ -528,5 +528,21 @@
   "inviteNewLinkBody": "Kiohanio na QR iria ugairite niigutiga kuruta wira o riu, hamwe na karatathi karia gothe gaacapitwo. Ika uu o ria kiria kia tene giathii handu hataagiriire.",
   "inviteNewLinkConfirm": "Ii, gikuuranie",
   "inviteNewLinkDone": "Kiohanio kieru nikihaaririe. Kiria kia tene gitirutaga wira ringi.",
-  "inviteTileSubtitle": "Gaira kiohanio kana QR niguo andu mahote kuhoya kwiyongerera"
+  "inviteTileSubtitle": "Gaira kiohanio kana QR niguo andu mahote kuhoya kwiyongerera",
+  "signInWithCode": "Sign in with a code",
+  "forgotPassword": "Forgot password?",
+  "resetPasswordTitle": "Reset password",
+  "codeSignInIntro": "We'll text a code to this number. No password needed.",
+  "resetPasswordIntro": "We'll text a code to this number, then you choose a new password.",
+  "sendMeACode": "Send me a code",
+  "sendCodeAgain": "Send the code again",
+  "codeMaybeSent": "If this number has an account, a 6-digit code is on its way by SMS. It expires in 10 minutes.",
+  "smsCodeLabel": "6-digit code from the SMS",
+  "enterSixDigitCode": "Enter the 6-digit code",
+  "newPasswordLabel": "New password (at least 8 characters)",
+  "passwordTooShort": "Use at least 8 characters",
+  "setPasswordAndSignIn": "Set password and sign in",
+  "enterPhoneNumber": "Enter your phone number",
+  "accountExistsTitle": "This number already has an account",
+  "accountExistsBody": "Don't create a new one. Sign in with a code sent to this number — it opens the account that already exists."
 }
