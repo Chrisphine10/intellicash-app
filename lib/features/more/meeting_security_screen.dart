@@ -7,6 +7,8 @@ import '../../data/models/enums.dart';
 import '../../data/models/member.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/app_state.dart';
+import '../../providers/connection_provider.dart';
+import '../../providers/sync_provider.dart';
 import '../../providers/member_provider.dart';
 import '../../shared/widgets/common.dart';
 
@@ -91,6 +93,8 @@ class _MeetingSecurityScreenState extends State<MeetingSecurityScreen> {
               ),
             ),
           ],
+          SectionLabel(l10n.digitalChampion),
+          _DigitalChampionCard(localGroupId: group.id),
           const SectionLabel('Members, roles & PINs'),
           for (final entry in members)
             _MemberSecurityTile(member: entry.member),
@@ -196,5 +200,147 @@ class _MemberSecurityTile extends StatelessWidget {
     if (context.mounted) {
       showAppSnack(context, '${member.name}\'s PIN was reset.');
     }
+  }
+}
+
+/// The group's digital champion: the member whose phone opens the group's
+/// account on the server.
+///
+/// The champion lives on the SERVER (it decides whose number can sign in to
+/// the group with a texted code), so this reads and sets it there. It needs the
+/// group linked and a signal; offline it says so rather than pretending.
+class _DigitalChampionCard extends StatefulWidget {
+  const _DigitalChampionCard({required this.localGroupId});
+
+  final String localGroupId;
+
+  @override
+  State<_DigitalChampionCard> createState() => _DigitalChampionCardState();
+}
+
+class _DigitalChampionCardState extends State<_DigitalChampionCard> {
+  bool _loading = true;
+  String? _remoteGroupId;
+  String? _championName;
+  String? _championPhone;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
+  }
+
+  Future<void> _load() async {
+    final sync = context.read<SyncProvider>();
+    final connection = context.read<ConnectionProvider>();
+    await sync.loadStatus(widget.localGroupId);
+    final remoteId = sync.remoteGroupId;
+    final remote = remoteId == null ? null : await connection.fetchGroup(remoteId);
+    if (!mounted) return;
+    setState(() {
+      _remoteGroupId = remote == null ? null : remoteId;
+      _championName = remote?.championName;
+      _championPhone = remote?.championPhone;
+      _loading = false;
+    });
+  }
+
+  Future<void> _choose() async {
+    final l10n = L10n.of(context);
+    final members = context
+        .read<MemberProvider>()
+        .members
+        .map((entry) => entry.member)
+        .where((m) => (m.phone ?? '').trim().isNotEmpty)
+        .toList();
+
+    final picked = await showModalBottomSheet<Member>(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            ListTile(
+              title: Text(l10n.digitalChampionChoose,
+                  style: const TextStyle(fontWeight: FontWeight.w700)),
+              subtitle: Text(l10n.digitalChampionNeedsPhone),
+            ),
+            for (final member in members)
+              ListTile(
+                leading: const Icon(Icons.person_outline),
+                title: Text(member.name),
+                subtitle: Text('${member.phone} · ${member.role.label}'),
+                onTap: () => Navigator.of(sheetContext).pop(member),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (picked == null || !mounted) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(picked.name, style: const TextStyle(fontSize: 17)),
+        content: Text(l10n.digitalChampionConfirm, style: const TextStyle(fontSize: 13.5)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(l10n.digitalChampionMake),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    final connection = context.read<ConnectionProvider>();
+    final ok = await connection.setGroupChampion(
+      remoteGroupId: _remoteGroupId!,
+      name: picked.name,
+      phone: picked.phone!,
+    );
+    if (!mounted) return;
+    showAppSnack(context, ok ? l10n.digitalChampionSet : (connection.error ?? l10n.digitalChampionFailed),
+        error: !ok);
+    if (ok) await _load();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
+    final theme = Theme.of(context);
+    if (_loading) {
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(16),
+          child: Center(child: SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))),
+        ),
+      );
+    }
+    if (_remoteGroupId == null) {
+      return Card(
+        child: ListTile(
+          leading: const Icon(Icons.cloud_off_outlined, size: 20),
+          title: Text(l10n.digitalChampion, style: const TextStyle(fontSize: 14)),
+          subtitle: Text(l10n.digitalChampionOffline, style: theme.textTheme.bodySmall),
+        ),
+      );
+    }
+    return Card(
+      child: ListTile(
+        leading: const Icon(Icons.verified_user_outlined, size: 20),
+        title: Text(_championName ?? l10n.digitalChampionNotSet, style: const TextStyle(fontSize: 14)),
+        subtitle: Text(
+          _championPhone == null ? l10n.digitalChampionIntro : '$_championPhone\n${l10n.digitalChampionIntro}',
+          style: theme.textTheme.bodySmall,
+        ),
+        isThreeLine: _championPhone != null,
+        trailing: TextButton(onPressed: _choose, child: Text(l10n.change)),
+      ),
+    );
   }
 }

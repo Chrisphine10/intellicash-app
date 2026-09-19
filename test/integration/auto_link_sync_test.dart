@@ -219,4 +219,47 @@ void main() {
     expect(await sync.bindOwnGroupIfClear(), isFalse);
     expect(await idMap.remoteId(MapEntity.group, group.id), isNull);
   });
+
+  test('a role changed on the phone reaches the server once, and only that one', () async {
+    final group = await seedGroup('Tsunami SHG');
+    final roster = await members.membersForGroup(group.id);
+    await idMap.put(MapEntity.group, group.id, 'remote-group-9', groupId: 'remote-group-9');
+    for (final m in roster) {
+      await idMap.put(MapEntity.member, m.id, 'srv-${m.id}', groupId: 'remote-group-9');
+    }
+
+    var watermark = 0;
+    final pushedRoles = <String>[];
+    final sync = AutoSyncCoordinator(
+      idMap: idMap,
+      meetings: meetings,
+      writeSync: WriteSyncService(db: db, idMap: idMap, writeApi: backend),
+      linkSupport: GroupLinkSupport(
+        currentGroup: groups.currentGroup,
+        membersForGroup: (id) => members.membersForGroup(id),
+        ownRemoteGroupId: () async => 'remote-group-9',
+        remoteGroup: (_) async => remote('Tsunami SHG'),
+        pushMember: (_, m) async => 'srv-${m.id}',
+        editedMembersSince: members.editedSince,
+        roleWatermark: () async => watermark,
+        saveRoleWatermark: (value) async => watermark = value,
+        pushRole: (remoteGroupId, remoteMemberId, role) async =>
+            pushedRoles.add('$remoteMemberId=${role.serverName}'),
+      ),
+    );
+
+    // Everything already on the phone at install time is not a "change".
+    await sync.syncBoundGroups();
+    pushedRoles.clear();
+
+    final ian = roster.firstWhere((m) => m.name == 'Ian Kamau');
+    await members.updateMember(ian.copyWith(role: MemberRole.keyHolder));
+    await sync.syncBoundGroups();
+    expect(pushedRoles, ['srv-${ian.id}=KEY_HOLDER']);
+
+    // Nothing new changed: nothing is sent again.
+    pushedRoles.clear();
+    await sync.syncBoundGroups();
+    expect(pushedRoles, isEmpty);
+  });
 }

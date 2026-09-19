@@ -3468,6 +3468,66 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Don\'t create a second copy. Sign in with a code sent to the group\'s number — it opens the group\'s existing book. If the group uses a different number, ask your programme officer to link you.'**
   String get groupExistsBody;
+
+  /// No description provided for @digitalChampion.
+  ///
+  /// In en, this message translates to:
+  /// **'Digital champion'**
+  String get digitalChampion;
+
+  /// No description provided for @digitalChampionIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'The member whose phone opens this group\'s account. They can sign in with a code sent to their number.'**
+  String get digitalChampionIntro;
+
+  /// No description provided for @digitalChampionNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'No digital champion yet'**
+  String get digitalChampionNotSet;
+
+  /// No description provided for @digitalChampionChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the digital champion'**
+  String get digitalChampionChoose;
+
+  /// No description provided for @digitalChampionNeedsPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Only members with a phone number are listed.'**
+  String get digitalChampionNeedsPhone;
+
+  /// No description provided for @digitalChampionConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Their phone number will be able to open this group\'s account with a code sent by SMS, and they will get a text saying so.'**
+  String get digitalChampionConfirm;
+
+  /// No description provided for @digitalChampionMake.
+  ///
+  /// In en, this message translates to:
+  /// **'Make champion'**
+  String get digitalChampionMake;
+
+  /// No description provided for @digitalChampionSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Digital champion updated.'**
+  String get digitalChampionSet;
+
+  /// No description provided for @digitalChampionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The digital champion could not be changed. Please try again.'**
+  String get digitalChampionFailed;
+
+  /// No description provided for @digitalChampionOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to the internet with the group\'s account signed in to see or change the champion.'**
+  String get digitalChampionOffline;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

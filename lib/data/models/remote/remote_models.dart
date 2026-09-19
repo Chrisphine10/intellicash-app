@@ -52,6 +52,8 @@ class RemoteGroup {
     this.creditScore,
     this.memberCount,
     this.meetingCount,
+    this.championName,
+    this.championPhone,
   });
 
   final String id;
@@ -71,6 +73,11 @@ class RemoteGroup {
   final int? creditScore;
   final int? memberCount;
   final int? meetingCount;
+
+  /// The group's digital champion — the person whose phone opens the group's
+  /// account — as recorded on the server.
+  final String? championName;
+  final String? championPhone;
 
   double _fund(String type) => funds
       .where((f) => f.type == type)
@@ -105,6 +112,12 @@ class RemoteGroup {
       creditScore: (scores != null && scores.isNotEmpty)
           ? _toInt((scores.first as Map)['score'])
           : null,
+      championName: (j['contactPersonName'] as String?)?.trim().isEmpty ?? true
+          ? null
+          : (j['contactPersonName'] as String).trim(),
+      championPhone: (j['contactPhone'] as String?)?.trim().isEmpty ?? true
+          ? null
+          : (j['contactPhone'] as String).trim(),
       memberCount: count == null ? null : _toInt(count['members']),
       meetingCount: count == null ? null : _toInt(count['meetings']),
     );

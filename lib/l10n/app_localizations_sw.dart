@@ -1888,4 +1888,39 @@ class L10nSw extends L10n {
   @override
   String get groupExistsBody =>
       'Usifungue nakala ya pili. Ingia kwa msimbo unaotumwa kwa nambari ya kikundi — utafungua kitabu kilichopo cha kikundi. Ikiwa kikundi kinatumia nambari nyingine, mwombe afisa wa programu akuunganishe.';
+
+  @override
+  String get digitalChampion => 'Bingwa wa kidijitali';
+
+  @override
+  String get digitalChampionIntro =>
+      'Mwanachama ambaye simu yake hufungua akaunti ya kikundi hiki. Anaweza kuingia kwa msimbo unaotumwa kwa nambari yake.';
+
+  @override
+  String get digitalChampionNotSet => 'Hakuna bingwa wa kidijitali bado';
+
+  @override
+  String get digitalChampionChoose => 'Chagua bingwa wa kidijitali';
+
+  @override
+  String get digitalChampionNeedsPhone =>
+      'Wanachama wenye nambari ya simu pekee ndio wameorodheshwa.';
+
+  @override
+  String get digitalChampionConfirm =>
+      'Nambari yake ya simu itaweza kufungua akaunti ya kikundi hiki kwa msimbo unaotumwa kwa SMS, na atapokea ujumbe kuhusu hilo.';
+
+  @override
+  String get digitalChampionMake => 'Mfanye bingwa';
+
+  @override
+  String get digitalChampionSet => 'Bingwa wa kidijitali amebadilishwa.';
+
+  @override
+  String get digitalChampionFailed =>
+      'Bingwa wa kidijitali hakuweza kubadilishwa. Tafadhali jaribu tena.';
+
+  @override
+  String get digitalChampionOffline =>
+      'Unganisha kwenye intaneti ukiwa umeingia kwa akaunti ya kikundi ili kuona au kubadilisha bingwa.';
 }

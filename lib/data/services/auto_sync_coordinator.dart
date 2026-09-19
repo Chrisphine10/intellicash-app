@@ -1,4 +1,5 @@
 import '../../core/utils/app_logger.dart';
+import '../models/enums.dart';
 import '../models/group.dart';
 import '../models/meeting.dart';
 import '../models/member.dart';
@@ -30,6 +31,10 @@ class GroupLinkSupport {
     required this.ownRemoteGroupId,
     required this.remoteGroup,
     required this.pushMember,
+    this.editedMembersSince,
+    this.roleWatermark,
+    this.saveRoleWatermark,
+    this.pushRole,
   });
 
   /// The group this phone keeps (a group's phone keeps one).
@@ -43,6 +48,16 @@ class GroupLinkSupport {
 
   /// Sends one member up and returns their server id (retry-safe server-side).
   final Future<String> Function(String remoteGroupId, Member member) pushMember;
+
+  /// Role changes made on this phone. Optional: without them roles set on the
+  /// phone stay on the phone.
+  final Future<({List<Member> members, int watermark})> Function(int after)? editedMembersSince;
+  final Future<int> Function()? roleWatermark;
+  final Future<void> Function(int watermark)? saveRoleWatermark;
+
+  /// Sets one member's office on the server. Must treat "already holds it" as
+  /// success — a retried sync meets its own earlier write.
+  final Future<void> Function(String remoteGroupId, String remoteMemberId, MemberRole role)? pushRole;
 }
 
 class AutoSyncCoordinator {
@@ -133,6 +148,42 @@ class AutoSyncCoordinator {
     return linked;
   }
 
+  /// Sends roles changed on this phone since the last push — and only those, so
+  /// an office changed on the web is not overwritten by a phone that never
+  /// touched it. Advances the watermark only when every change landed; a
+  /// failure is retried next time, which is safe because the server treats a
+  /// repeat as "already holds it".
+  Future<int> pushRoleChanges(Map<String, String> boundGroups) async {
+    final support = linkSupport;
+    final since = support?.editedMembersSince;
+    final pushRole = support?.pushRole;
+    if (support == null || since == null || pushRole == null) return 0;
+
+    final after = await support.roleWatermark?.call() ?? 0;
+    final changes = await since(after);
+    if (changes.members.isEmpty) return 0;
+
+    final memberMap = await _idMap.mappings(MapEntity.member);
+    var pushed = 0;
+    var allLanded = true;
+    for (final member in changes.members) {
+      final remoteGroupId = boundGroups[member.groupId];
+      final remoteMemberId = memberMap[member.id];
+      // Not linked yet: the member push sends the role with the member.
+      if (remoteGroupId == null || remoteMemberId == null) continue;
+      try {
+        await pushRole(remoteGroupId, remoteMemberId, member.role);
+        pushed++;
+      } catch (e) {
+        allLanded = false;
+        log.warn('autosync', 'Role for ${member.name} did not sync: $e');
+      }
+    }
+    if (allLanded) await support.saveRoleWatermark?.call(changes.watermark);
+    if (pushed > 0) log.info('autosync', 'Synced $pushed role change(s)');
+    return pushed;
+  }
+
   static String _nameKey(String name) =>
       name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), ' ').trim();
 
@@ -216,6 +267,13 @@ class AutoSyncCoordinator {
       } catch (e) {
         log.warn('autosync', 'Group $localGroupId did not sync: $e');
       }
+    }
+    // After every group's members are linked, so each role has a member to
+    // land on. Its own try: a role that fails must not undo the rest.
+    try {
+      records += await pushRoleChanges(boundGroups);
+    } catch (e) {
+      log.warn('autosync', 'Role changes did not sync: $e');
     }
     if (records > 0) {
       log.info('autosync', 'Auto-synced $records record(s) on reconnect');

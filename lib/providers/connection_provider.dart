@@ -231,6 +231,43 @@ class ConnectionProvider extends ChangeNotifier {
     }
   }
 
+  /// The server's record of a group, or null when it cannot be reached.
+  Future<RemoteGroup?> fetchGroup(String remoteGroupId) async {
+    try {
+      return await _api.groupDetail(remoteGroupId);
+    } on ApiException catch (e) {
+      _error = e.message;
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Makes a member the group's digital champion on the server. Returns true on
+  /// success; on failure [error] holds the server's reason (for example, the
+  /// number already opens someone else's account).
+  Future<bool> setGroupChampion({
+    required String remoteGroupId,
+    required String name,
+    required String phone,
+  }) async {
+    _busy = true;
+    _error = null;
+    _errorCode = null;
+    notifyListeners();
+    try {
+      await _api.setGroupChampion(remoteGroupId, name, phone);
+      return true;
+    } on ApiException catch (e) {
+      _error = e.message;
+      _errorCode = e.code;
+      return false;
+    } finally {
+      _busy = false;
+      notifyListeners();
+    }
+  }
+
   /// Changes the signed-in account's password. Returns the number of other
   /// devices signed out, or null on failure with [error] set to the server's
   /// own words ("that current password is not right…").

@@ -14,7 +14,13 @@ class AppState extends ChangeNotifier {
     required SyncService syncService,
   })  : _groupRepository = groupRepository,
         _syncService = syncService {
-    _syncService.onQueueChanged = refreshPendingSync;
+    _syncService.onQueueChanged = () {
+      // Bumped on every finished sync so screens showing local figures (the
+      // dashboard) know to reload: a sync can pull records down as well as
+      // push them, and a screen left as it was reads as "nothing happened".
+      _syncRevision++;
+      refreshPendingSync();
+    };
   }
 
   final GroupRepository _groupRepository;
@@ -23,10 +29,14 @@ class AppState extends ChangeNotifier {
   AppStatus _status = AppStatus.loading;
   Group? _group;
   int _pendingSync = 0;
+  int _syncRevision = 0;
 
   AppStatus get status => _status;
   Group? get group => _group;
   int get pendingSync => _pendingSync;
+
+  /// Increases after every completed sync.
+  int get syncRevision => _syncRevision;
   SyncService get syncService => _syncService;
 
   Future<void> bootstrap() async {

@@ -40,6 +40,18 @@ class MemberProvider extends ChangeNotifier {
   }
 
   Future<void> updateMember(Member member) async {
+    // One chairperson, one secretary, one treasurer: handing an office over
+    // steps the previous holder down, as the server does when it syncs. Left
+    // alone, the phone would show two chairpeople and count both towards the
+    // meeting unlock.
+    if (member.role.isSingleHolder) {
+      final current = await _repository.membersForGroup(member.groupId);
+      for (final other in current) {
+        if (other.id != member.id && other.role == member.role) {
+          await _repository.updateMember(other.copyWith(role: MemberRole.member));
+        }
+      }
+    }
     await _repository.updateMember(member);
     await load(member.groupId);
   }

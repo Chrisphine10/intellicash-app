@@ -51,6 +51,38 @@ class MemberRepository {
     return member;
   }
 
+  /// Members edited on this phone after write-log entry [afterQueueId], in the
+  /// order they were last edited, with the newest entry id as the next
+  /// watermark.
+  ///
+  /// Read from the local write log rather than a "dirty" flag: every edit is
+  /// already logged there atomically with the edit itself, so nothing new has
+  /// to be remembered, and only changes MADE ON THIS PHONE are sent — a role
+  /// changed on the web is not overwritten by a phone that never touched it.
+  Future<({List<Member> members, int watermark})> editedSince(int afterQueueId) async {
+    final db = await _db.database;
+    final rows = await db.query(
+      'sync_queue',
+      columns: ['id', 'entity_id'],
+      where: "entity_type = 'member' AND operation = 'update' AND id > ?",
+      whereArgs: [afterQueueId],
+      orderBy: 'id ASC',
+    );
+    if (rows.isEmpty) return (members: const <Member>[], watermark: afterQueueId);
+
+    final lastEdit = <String, int>{};
+    for (final row in rows) {
+      lastEdit[row['entity_id'] as String] = row['id'] as int;
+    }
+    final ordered = lastEdit.entries.toList()..sort((a, b) => a.value.compareTo(b.value));
+    final members = <Member>[];
+    for (final entry in ordered) {
+      final found = await db.query('members', where: 'id = ?', whereArgs: [entry.key], limit: 1);
+      if (found.isNotEmpty) members.add(Member.fromMap(found.first));
+    }
+    return (members: members, watermark: rows.last['id'] as int);
+  }
+
   Future<void> updateMember(Member member) async {
     final db = await _db.database;
     await db.transaction((txn) async {

@@ -61,6 +61,17 @@ class RemoteApi {
     return (user: RemoteUser.fromJson(result.user), token: result.sessionToken);
   }
 
+  /// `PUT /groups/:id/champion` — makes [name] (on [phone]) the group's digital
+  /// champion: their number can then open the group's account with a texted
+  /// code, and the server texts them to say so. Returns the server's outcome.
+  Future<String> setGroupChampion(String groupId, String name, String phone) async {
+    final data = await _client.putData('/groups/$groupId/champion', body: {
+      'championName': name,
+      'phone': phone,
+    });
+    return data is Map ? '${data['outcome'] ?? ''}' : '';
+  }
+
   /// `POST /auth/me/password` — changes the signed-in account's password.
   ///
   /// Returns how many OTHER devices were signed out: the server keeps this

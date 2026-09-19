@@ -1891,4 +1891,39 @@ class L10nEn extends L10n {
   @override
   String get groupExistsBody =>
       'Don\'t create a second copy. Sign in with a code sent to the group\'s number — it opens the group\'s existing book. If the group uses a different number, ask your programme officer to link you.';
+
+  @override
+  String get digitalChampion => 'Digital champion';
+
+  @override
+  String get digitalChampionIntro =>
+      'The member whose phone opens this group\'s account. They can sign in with a code sent to their number.';
+
+  @override
+  String get digitalChampionNotSet => 'No digital champion yet';
+
+  @override
+  String get digitalChampionChoose => 'Choose the digital champion';
+
+  @override
+  String get digitalChampionNeedsPhone =>
+      'Only members with a phone number are listed.';
+
+  @override
+  String get digitalChampionConfirm =>
+      'Their phone number will be able to open this group\'s account with a code sent by SMS, and they will get a text saying so.';
+
+  @override
+  String get digitalChampionMake => 'Make champion';
+
+  @override
+  String get digitalChampionSet => 'Digital champion updated.';
+
+  @override
+  String get digitalChampionFailed =>
+      'The digital champion could not be changed. Please try again.';
+
+  @override
+  String get digitalChampionOffline =>
+      'Connect to the internet with the group\'s account signed in to see or change the champion.';
 }

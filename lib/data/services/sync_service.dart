@@ -90,7 +90,10 @@ class SyncService {
     _syncing = true;
     try {
       final synced = onSync != null ? await _pushViaCallback() : await _pushViaQueue();
-      if (synced > 0) onQueueChanged?.call();
+      // After every run, not only when something was pushed: the run may have
+      // pulled records down (welfare spending), bound the group, or cleared
+      // conflicts, and the badge and dashboard should reflect that.
+      onQueueChanged?.call();
       return synced;
     } finally {
       _syncing = false;

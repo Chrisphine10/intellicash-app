@@ -44,14 +44,29 @@ enum LoanStatus {
   final String label;
 }
 
+/// A member's office in the group. Officials (everything but [member]) count
+/// towards the 3-key meeting unlock — the same set the server counts.
+///
+/// Stored on the phone by enum NAME, so adding offices is backward compatible;
+/// never rename an existing value.
 enum MemberRole {
-  chairperson('Chairperson'),
-  secretary('Secretary'),
-  treasurer('Treasurer'),
-  member('Member');
+  chairperson('Chairperson', 'CHAIRPERSON'),
+  secretary('Secretary', 'SECRETARY'),
+  treasurer('Treasurer', 'TREASURER'),
+  keyHolder('Key holder', 'KEY_HOLDER'),
+  moneyCounter('Money counter', 'MONEY_COUNTER'),
+  member('Member', 'MEMBER');
 
-  const MemberRole(this.label);
+  const MemberRole(this.label, this.serverName);
   final String label;
+
+  /// The server's name for this office.
+  final String serverName;
+
+  /// Offices only one member may hold at a time. Giving it to someone steps
+  /// the previous holder down to [member] — the server's rule too.
+  bool get isSingleHolder =>
+      this == chairperson || this == secretary || this == treasurer;
 }
 
 /// How a member paid for a share purchase (or other contribution).

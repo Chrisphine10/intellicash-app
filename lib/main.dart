@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app.dart';
 import 'core/utils/app_logger.dart';
@@ -39,7 +40,7 @@ import 'data/services/remote_polls_api.dart';
 import 'data/services/remote_store_api.dart';
 import 'data/services/remote_write_api.dart';
 import 'data/services/sync_service.dart';
-import 'data/models/enums.dart';
+import 'core/network/api_exception.dart';
 import 'data/services/auto_sync_coordinator.dart';
 import 'data/services/write_sync_service.dart';
 import 'providers/app_state.dart';
@@ -125,13 +126,25 @@ Future<void> main() async {
         groupId: remoteGroupId,
         fullName: member.name,
         phone: member.phone,
-        role: switch (member.role) {
-          MemberRole.chairperson => 'CHAIRPERSON',
-          MemberRole.secretary => 'SECRETARY',
-          MemberRole.treasurer => 'TREASURER',
-          MemberRole.member => 'MEMBER',
-        },
+        role: member.role.serverName,
       ),
+      editedMembersSince: (after) => MemberRepository(db).editedSince(after),
+      roleWatermark: () async =>
+          (await SharedPreferences.getInstance()).getInt('role_sync_watermark') ?? 0,
+      saveRoleWatermark: (value) async =>
+          (await SharedPreferences.getInstance()).setInt('role_sync_watermark', value),
+      pushRole: (remoteGroupId, remoteMemberId, role) async {
+        try {
+          await writeApi.assignRole(
+            groupId: remoteGroupId,
+            memberId: remoteMemberId,
+            role: role.serverName,
+          );
+        } on ApiException catch (e) {
+          // The server already has this office for this member: done.
+          if (e.code != 'ALREADY_HOLDS_ROLE') rethrow;
+        }
+      },
     ),
     // Mirrors server-recorded welfare spending down, so share-out subtracts
     // what the group has actually spent rather than gross contributions.

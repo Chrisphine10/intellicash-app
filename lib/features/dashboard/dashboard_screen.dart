@@ -21,11 +21,8 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
-  }
+  // -1 so the first build loads; after that, each finished sync reloads.
+  int _loadedRevision = -1;
 
   Future<void> _load() async {
     final group = context.read<AppState>().group;
@@ -41,6 +38,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final l10n = L10n.of(context);
     final appState = context.watch<AppState>();
     final provider = context.watch<DashboardProvider>();
+    // Reload after each sync — including the one that runs at sign-in — so the
+    // figures shown are the ones the phone now holds.
+    if (appState.syncRevision != _loadedRevision) {
+      _loadedRevision = appState.syncRevision;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _load();
+      });
+    }
     final group = appState.group;
     if (group == null) return const SizedBox.shrink();
     final summary = provider.summary;

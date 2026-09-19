@@ -560,5 +560,15 @@
   "passwordChangedOthersSignedOut": "Nenosiri limebadilishwa. Simu nyingine zilizoingia kwenye akaunti hii zimetolewa.",
   "changePasswordFailed": "Nenosiri halikuweza kubadilishwa. Tafadhali jaribu tena.",
   "groupExistsTitle": "Kikundi hiki tayari kimesajiliwa",
-  "groupExistsBody": "Usifungue nakala ya pili. Ingia kwa msimbo unaotumwa kwa nambari ya kikundi — utafungua kitabu kilichopo cha kikundi. Ikiwa kikundi kinatumia nambari nyingine, mwombe afisa wa programu akuunganishe."
+  "groupExistsBody": "Usifungue nakala ya pili. Ingia kwa msimbo unaotumwa kwa nambari ya kikundi — utafungua kitabu kilichopo cha kikundi. Ikiwa kikundi kinatumia nambari nyingine, mwombe afisa wa programu akuunganishe.",
+  "digitalChampion": "Bingwa wa kidijitali",
+  "digitalChampionIntro": "Mwanachama ambaye simu yake hufungua akaunti ya kikundi hiki. Anaweza kuingia kwa msimbo unaotumwa kwa nambari yake.",
+  "digitalChampionNotSet": "Hakuna bingwa wa kidijitali bado",
+  "digitalChampionChoose": "Chagua bingwa wa kidijitali",
+  "digitalChampionNeedsPhone": "Wanachama wenye nambari ya simu pekee ndio wameorodheshwa.",
+  "digitalChampionConfirm": "Nambari yake ya simu itaweza kufungua akaunti ya kikundi hiki kwa msimbo unaotumwa kwa SMS, na atapokea ujumbe kuhusu hilo.",
+  "digitalChampionMake": "Mfanye bingwa",
+  "digitalChampionSet": "Bingwa wa kidijitali amebadilishwa.",
+  "digitalChampionFailed": "Bingwa wa kidijitali hakuweza kubadilishwa. Tafadhali jaribu tena.",
+  "digitalChampionOffline": "Unganisha kwenye intaneti ukiwa umeingia kwa akaunti ya kikundi ili kuona au kubadilisha bingwa."
 }

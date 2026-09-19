@@ -44,6 +44,20 @@ class RemoteWriteApi {
     return (data as Map<String, dynamic>)['id'] as String;
   }
 
+  /// `POST /groups/:groupId/role-assignments` — sets a member's office on the
+  /// server, keeping the office history. An answer of ALREADY_HOLDS_ROLE means
+  /// the server already agrees, which the caller treats as done.
+  Future<void> assignRole({
+    required String groupId,
+    required String memberId,
+    required String role,
+  }) async {
+    await _client.postData('/groups/$groupId/role-assignments', body: {
+      'memberId': memberId,
+      'role': role,
+    });
+  }
+
   /// `POST /groups/:groupId/meetings/:meetingId/attendance` (upsert).
   Future<void> putAttendance({
     required String groupId,
