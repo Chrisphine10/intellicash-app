@@ -22,12 +22,14 @@ void main() {
     themeLabel: 'Follow the phone',
   );
 
-  Widget host(AccountSummary summary, {VoidCallback? onSignOut}) => localizedApp(home: AccountScreen(
+  Widget host(AccountSummary summary, {VoidCallback? onSignOut, VoidCallback? onChangePassword}) =>
+      localizedApp(home: AccountScreen(
           summary: summary,
           onSignOut: onSignOut ?? () {},
           onLanguage: () {},
           onTheme: () {},
           onServer: () {},
+          onChangePassword: onChangePassword,
         ),
       );
 
@@ -104,5 +106,28 @@ void main() {
     await tester.pumpWidget(host(agent));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('a signed-in person can reach Change password', (tester) async {
+    tester.view.physicalSize = const Size(400, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    var opened = false;
+    await tester.pumpWidget(host(agent, onChangePassword: () => opened = true));
+    final row = find.text('Change password');
+    expect(row, findsOneWidget);
+    // It says how to get in without the current password, too.
+    expect(find.text('Or reset it with a code sent to your phone'), findsOneWidget);
+    await tester.ensureVisible(row);
+    await tester.tap(row);
+    expect(opened, isTrue);
+  });
+
+  testWidgets('no Security section when nobody is signed in', (tester) async {
+    await tester.pumpWidget(host(agent));
+    expect(find.text('Change password'), findsNothing);
+    expect(find.text('Security'), findsNothing);
   });
 }

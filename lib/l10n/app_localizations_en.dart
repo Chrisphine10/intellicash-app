@@ -1833,4 +1833,55 @@ class L10nEn extends L10n {
   @override
   String get accountExistsBody =>
       'Don\'t create a new one. Sign in with a code sent to this number — it opens the account that already exists.';
+
+  @override
+  String get accountSecurity => 'Security';
+
+  @override
+  String get changePassword => 'Change password';
+
+  @override
+  String get changePasswordSubtitle =>
+      'Or reset it with a code sent to your phone';
+
+  @override
+  String get changePasswordIntro =>
+      'Anyone signed in to this account on another phone will be signed out. This phone stays signed in.';
+
+  @override
+  String get currentPasswordLabel => 'Current password';
+
+  @override
+  String get enterCurrentPassword => 'Enter your current password';
+
+  @override
+  String get confirmNewPasswordLabel => 'Type the new password again';
+
+  @override
+  String get passwordsDoNotMatch => 'The two new passwords do not match';
+
+  @override
+  String get newPasswordSameAsOld =>
+      'Choose a password different from the current one';
+
+  @override
+  String get savePassword => 'Save new password';
+
+  @override
+  String get forgotCurrentPassword => 'Forgot your current password?';
+
+  @override
+  String get forgotCurrentPasswordNote =>
+      'We will text a code to your phone so you can set a new one.';
+
+  @override
+  String get passwordChanged => 'Password changed.';
+
+  @override
+  String get passwordChangedOthersSignedOut =>
+      'Password changed. Other phones signed in to this account have been signed out.';
+
+  @override
+  String get changePasswordFailed =>
+      'The password could not be changed. Please try again.';
 }

@@ -10,6 +10,7 @@ import '../more/language_screen.dart';
 import '../server/server_settings_screen.dart';
 import 'account_screen.dart';
 import 'appearance_screen.dart';
+import 'change_password_screen.dart';
 
 /// Binds [AccountScreen] to the app's providers.
 ///
@@ -22,7 +23,7 @@ class AccountRoute extends StatelessWidget {
 
   /// Kept in step with `pubspec.yaml` by the release checklist. Reading it at
   /// runtime would mean adding `package_info_plus` for one line of text.
-  static const appVersion = '2.4.2 (14)';
+  static const appVersion = '2.6.1 (22)';
 
   @override
   Widget build(BuildContext context) {
@@ -66,6 +67,11 @@ class AccountRoute extends StatelessWidget {
           ? null
           : () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const ServerSettingsScreen()),
+              ),
+      onChangePassword: user == null
+          ? null
+          : () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => ChangePasswordScreen(phone: user.phone)),
               ),
       onSignOut: () => _confirmSignOut(context),
     );

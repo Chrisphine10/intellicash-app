@@ -543,5 +543,20 @@
   "setPasswordAndSignIn": "Weka nenosiri na uingie",
   "enterPhoneNumber": "Weka nambari yako ya simu",
   "accountExistsTitle": "Nambari hii tayari ina akaunti",
-  "accountExistsBody": "Usifungue nyingine. Ingia kwa nambari ya siri itakayotumwa kwa nambari hii — itafungua akaunti iliyopo."
+  "accountExistsBody": "Usifungue nyingine. Ingia kwa nambari ya siri itakayotumwa kwa nambari hii — itafungua akaunti iliyopo.",
+  "accountSecurity": "Usalama",
+  "changePassword": "Badilisha nenosiri",
+  "changePasswordSubtitle": "Au liweke upya kwa msimbo unaotumwa kwa simu yako",
+  "changePasswordIntro": "Yeyote aliyeingia kwenye akaunti hii kwa simu nyingine atatolewa. Simu hii itabaki imeingia.",
+  "currentPasswordLabel": "Nenosiri la sasa",
+  "enterCurrentPassword": "Weka nenosiri lako la sasa",
+  "confirmNewPasswordLabel": "Andika nenosiri jipya tena",
+  "passwordsDoNotMatch": "Manenosiri mawili mapya hayalingani",
+  "newPasswordSameAsOld": "Chagua nenosiri tofauti na la sasa",
+  "savePassword": "Hifadhi nenosiri jipya",
+  "forgotCurrentPassword": "Umesahau nenosiri la sasa?",
+  "forgotCurrentPasswordNote": "Tutatuma msimbo kwa simu yako ili uweke jipya.",
+  "passwordChanged": "Nenosiri limebadilishwa.",
+  "passwordChangedOthersSignedOut": "Nenosiri limebadilishwa. Simu nyingine zilizoingia kwenye akaunti hii zimetolewa.",
+  "changePasswordFailed": "Nenosiri halikuweza kubadilishwa. Tafadhali jaribu tena."
 }

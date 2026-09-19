@@ -231,6 +231,29 @@ class ConnectionProvider extends ChangeNotifier {
     }
   }
 
+  /// Changes the signed-in account's password. Returns the number of other
+  /// devices signed out, or null on failure with [error] set to the server's
+  /// own words ("that current password is not right…").
+  Future<int?> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    _busy = true;
+    _error = null;
+    _errorCode = null;
+    notifyListeners();
+    try {
+      return await _api.changePassword(currentPassword, newPassword);
+    } on ApiException catch (e) {
+      _error = e.message;
+      _errorCode = e.code;
+      return null;
+    } finally {
+      _busy = false;
+      notifyListeners();
+    }
+  }
+
   /// Texts a 6-digit code to [phone]. Returns false only when the request
   /// itself failed (offline, rate limited) — never to say the number has no
   /// account, which the server deliberately does not reveal.

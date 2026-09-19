@@ -653,5 +653,20 @@
   "setPasswordAndSignIn": "Set password and sign in",
   "enterPhoneNumber": "Enter your phone number",
   "accountExistsTitle": "This number already has an account",
-  "accountExistsBody": "Don't create a new one. Sign in with a code sent to this number — it opens the account that already exists."
+  "accountExistsBody": "Don't create a new one. Sign in with a code sent to this number — it opens the account that already exists.",
+  "accountSecurity": "Security",
+  "changePassword": "Change password",
+  "changePasswordSubtitle": "Or reset it with a code sent to your phone",
+  "changePasswordIntro": "Anyone signed in to this account on another phone will be signed out. This phone stays signed in.",
+  "currentPasswordLabel": "Current password",
+  "enterCurrentPassword": "Enter your current password",
+  "confirmNewPasswordLabel": "Type the new password again",
+  "passwordsDoNotMatch": "The two new passwords do not match",
+  "newPasswordSameAsOld": "Choose a password different from the current one",
+  "savePassword": "Save new password",
+  "forgotCurrentPassword": "Forgot your current password?",
+  "forgotCurrentPasswordNote": "We will text a code to your phone so you can set a new one.",
+  "passwordChanged": "Password changed.",
+  "passwordChangedOthersSignedOut": "Password changed. Other phones signed in to this account have been signed out.",
+  "changePasswordFailed": "The password could not be changed. Please try again."
 }

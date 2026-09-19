@@ -60,6 +60,7 @@ class AccountScreen extends StatelessWidget {
     this.onLanguage,
     this.onTheme,
     this.onServer,
+    this.onChangePassword,
   });
 
   final AccountSummary summary;
@@ -71,6 +72,9 @@ class AccountScreen extends StatelessWidget {
   final VoidCallback? onLanguage;
   final VoidCallback? onTheme;
   final VoidCallback? onServer;
+
+  /// Null when no one is signed in: there is no password to change.
+  final VoidCallback? onChangePassword;
 
   bool get _hasContacts =>
       (summary.phone?.isNotEmpty ?? false) || (summary.email?.isNotEmpty ?? false);
@@ -118,6 +122,18 @@ class AccountScreen extends StatelessWidget {
           if (_hasPreferences) ...[
             const SectionLabel('Preferences'),
             Card(child: Column(children: _preferenceRows(theme, l10n))),
+          ],
+          if (onChangePassword != null) ...[
+            SectionLabel(l10n.accountSecurity),
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.lock_outline, size: 20),
+                title: Text(l10n.changePassword, style: const TextStyle(fontSize: 14)),
+                subtitle: Text(l10n.changePasswordSubtitle, style: theme.textTheme.bodySmall),
+                trailing: const Icon(Icons.chevron_right, size: 20),
+                onTap: onChangePassword,
+              ),
+            ),
           ],
           if (_hasPhoneInfo) ...[
             const SectionLabel('This phone'),

@@ -1831,4 +1831,54 @@ class L10nSw extends L10n {
   @override
   String get accountExistsBody =>
       'Usifungue nyingine. Ingia kwa nambari ya siri itakayotumwa kwa nambari hii — itafungua akaunti iliyopo.';
+
+  @override
+  String get accountSecurity => 'Usalama';
+
+  @override
+  String get changePassword => 'Badilisha nenosiri';
+
+  @override
+  String get changePasswordSubtitle =>
+      'Au liweke upya kwa msimbo unaotumwa kwa simu yako';
+
+  @override
+  String get changePasswordIntro =>
+      'Yeyote aliyeingia kwenye akaunti hii kwa simu nyingine atatolewa. Simu hii itabaki imeingia.';
+
+  @override
+  String get currentPasswordLabel => 'Nenosiri la sasa';
+
+  @override
+  String get enterCurrentPassword => 'Weka nenosiri lako la sasa';
+
+  @override
+  String get confirmNewPasswordLabel => 'Andika nenosiri jipya tena';
+
+  @override
+  String get passwordsDoNotMatch => 'Manenosiri mawili mapya hayalingani';
+
+  @override
+  String get newPasswordSameAsOld => 'Chagua nenosiri tofauti na la sasa';
+
+  @override
+  String get savePassword => 'Hifadhi nenosiri jipya';
+
+  @override
+  String get forgotCurrentPassword => 'Umesahau nenosiri la sasa?';
+
+  @override
+  String get forgotCurrentPasswordNote =>
+      'Tutatuma msimbo kwa simu yako ili uweke jipya.';
+
+  @override
+  String get passwordChanged => 'Nenosiri limebadilishwa.';
+
+  @override
+  String get passwordChangedOthersSignedOut =>
+      'Nenosiri limebadilishwa. Simu nyingine zilizoingia kwenye akaunti hii zimetolewa.';
+
+  @override
+  String get changePasswordFailed =>
+      'Nenosiri halikuweza kubadilishwa. Tafadhali jaribu tena.';
 }

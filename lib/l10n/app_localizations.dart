@@ -3366,6 +3366,96 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Don\'t create a new one. Sign in with a code sent to this number — it opens the account that already exists.'**
   String get accountExistsBody;
+
+  /// No description provided for @accountSecurity.
+  ///
+  /// In en, this message translates to:
+  /// **'Security'**
+  String get accountSecurity;
+
+  /// No description provided for @changePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Change password'**
+  String get changePassword;
+
+  /// No description provided for @changePasswordSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Or reset it with a code sent to your phone'**
+  String get changePasswordSubtitle;
+
+  /// No description provided for @changePasswordIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone signed in to this account on another phone will be signed out. This phone stays signed in.'**
+  String get changePasswordIntro;
+
+  /// No description provided for @currentPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current password'**
+  String get currentPasswordLabel;
+
+  /// No description provided for @enterCurrentPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your current password'**
+  String get enterCurrentPassword;
+
+  /// No description provided for @confirmNewPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Type the new password again'**
+  String get confirmNewPasswordLabel;
+
+  /// No description provided for @passwordsDoNotMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The two new passwords do not match'**
+  String get passwordsDoNotMatch;
+
+  /// No description provided for @newPasswordSameAsOld.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a password different from the current one'**
+  String get newPasswordSameAsOld;
+
+  /// No description provided for @savePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Save new password'**
+  String get savePassword;
+
+  /// No description provided for @forgotCurrentPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot your current password?'**
+  String get forgotCurrentPassword;
+
+  /// No description provided for @forgotCurrentPasswordNote.
+  ///
+  /// In en, this message translates to:
+  /// **'We will text a code to your phone so you can set a new one.'**
+  String get forgotCurrentPasswordNote;
+
+  /// No description provided for @passwordChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed.'**
+  String get passwordChanged;
+
+  /// No description provided for @passwordChangedOthersSignedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed. Other phones signed in to this account have been signed out.'**
+  String get passwordChangedOthersSignedOut;
+
+  /// No description provided for @changePasswordFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The password could not be changed. Please try again.'**
+  String get changePasswordFailed;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

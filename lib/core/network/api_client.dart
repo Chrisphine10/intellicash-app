@@ -342,8 +342,8 @@ class ApiClient {
     } catch (e) {
       log.warn('api', '$label -> transport failure', e);
       throw const ApiException(
-        'Could not reach the server. Confirm the base URL and that the '
-        'backend is running.',
+        'Could not reach IntelliCash. Check your internet connection and try '
+        'again.',
       );
     }
 
@@ -353,7 +353,7 @@ class ApiClient {
       decoded = parsed is Map<String, dynamic> ? parsed : {'data': parsed};
     } on FormatException {
       throw ApiException(
-        'The server returned an unexpected response (${response.statusCode}).',
+        'Something went wrong on our side. Please try again in a moment.',
         statusCode: response.statusCode,
       );
     }
@@ -391,16 +391,35 @@ class ApiClient {
       );
     }
 
+    // The server now writes its messages for people (which field, what to do
+    // next), so they win. The fallbacks here cover a response with no text, and
+    // older servers whose wording was written for developers.
+    final serverText = rawMessage != null &&
+            !const {
+              'Invalid credentials.',
+              'Request validation failed.',
+              'An unexpected server error occurred.',
+            }.contains(rawMessage)
+        ? rawMessage
+        : null;
+
     final message = switch (status) {
+      // A refused sign-in is also a 401, and telling someone who just typed a
+      // wrong password that their "session has ended" sent them in circles.
+      401 when code == 'INVALID_CREDENTIALS' => serverText ??
+          'That phone number (or email) and password do not match an account. '
+              'Check them and try again, or sign in with a code sent by SMS.',
       401 => 'Your session has ended. Please sign in again.',
-      403 => rawMessage ??
-          'This API key lacks permission for that action (code: $code).',
-      404 => rawMessage ?? 'Not found on the server.',
-      400 => details?.values.firstOrNull?.firstOrNull ??
-          rawMessage ??
-          'The server rejected the request.',
-      429 => 'Rate limit reached. Wait a moment and try again.',
-      _ => rawMessage ?? 'Server error ($status).',
+      403 => serverText ??
+          'Your account does not have access to this. Ask an administrator if you need it.',
+      404 => serverText ??
+          'We could not find that. It may have been removed.',
+      400 => serverText ??
+          details?.values.firstOrNull?.firstOrNull ??
+          'Some details are missing or not valid. Check them and try again.',
+      429 => serverText ?? 'Too many attempts. Wait a few minutes and try again.',
+      >= 500 => 'Something went wrong on our side. Please try again in a moment.',
+      _ => serverText ?? 'That did not work. Please try again.',
     };
     return ApiException(message, statusCode: status, details: details, code: code);
   }

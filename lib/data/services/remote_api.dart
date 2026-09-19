@@ -61,6 +61,19 @@ class RemoteApi {
     return (user: RemoteUser.fromJson(result.user), token: result.sessionToken);
   }
 
+  /// `POST /auth/me/password` — changes the signed-in account's password.
+  ///
+  /// Returns how many OTHER devices were signed out: the server keeps this
+  /// phone's session and ends the rest, so a password changed because someone
+  /// else had it actually locks them out.
+  Future<int> changePassword(String currentPassword, String newPassword) async {
+    final data = await _client.postData('/auth/me/password', body: {
+      'currentPassword': currentPassword,
+      'newPassword': newPassword,
+    });
+    return data is Map ? (data['endedSessions'] as num?)?.toInt() ?? 0 : 0;
+  }
+
   /// Texts a sign-in (or password reset) code to [phone].
   Future<void> requestSignInCode(String phone, {bool forPasswordReset = false}) =>
       _client.requestSignInCode(phone: phone, forPasswordReset: forPasswordReset);
