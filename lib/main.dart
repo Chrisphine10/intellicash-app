@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
@@ -37,6 +39,7 @@ import 'data/services/remote_polls_api.dart';
 import 'data/services/remote_store_api.dart';
 import 'data/services/remote_write_api.dart';
 import 'data/services/sync_service.dart';
+import 'data/models/enums.dart';
 import 'data/services/auto_sync_coordinator.dart';
 import 'data/services/write_sync_service.dart';
 import 'providers/app_state.dart';
@@ -100,10 +103,36 @@ Future<void> main() async {
   // Automatic sync: when connectivity returns, push every bound group's
   // closed meetings through the proven idempotent write-sync — not the old
   // generic-queue endpoint, which never existed on the backend.
+  // Set once the ConnectionProvider exists (below); read lazily at sync time.
+  ConnectionProvider? connectionRef;
+  final writeApi = RemoteWriteApi(apiClient);
   final autoSync = AutoSyncCoordinator(
     idMap: idMap,
     meetings: MeetingRepository(db),
     writeSync: writeSyncService,
+    // Binds a group's own phone to its server group and sends up members made
+    // on the phone, so its records reach the console without anyone opening
+    // the manual Sync screen.
+    linkSupport: GroupLinkSupport(
+      currentGroup: GroupRepository(db).currentGroup,
+      membersForGroup: (localGroupId) => MemberRepository(db).membersForGroup(localGroupId),
+      ownRemoteGroupId: () async {
+        final user = connectionRef?.signedInUser;
+        return user?.role == 'GROUP_ACCOUNT' ? user?.groupId : null;
+      },
+      remoteGroup: remoteApi.groupDetail,
+      pushMember: (remoteGroupId, member) => writeApi.syncMember(
+        groupId: remoteGroupId,
+        fullName: member.name,
+        phone: member.phone,
+        role: switch (member.role) {
+          MemberRole.chairperson => 'CHAIRPERSON',
+          MemberRole.secretary => 'SECRETARY',
+          MemberRole.treasurer => 'TREASURER',
+          MemberRole.member => 'MEMBER',
+        },
+      ),
+    ),
     // Mirrors server-recorded welfare spending down, so share-out subtracts
     // what the group has actually spent rather than gross contributions.
     welfareSync: WelfareExpenseSync(db, apiClient),
@@ -125,6 +154,14 @@ Future<void> main() async {
     assessmentsApi: assessmentsApi,
     assessments: assessments,
   );
+  // A phone with steady signal never "reconnects", so a meeting closed in the
+  // middle of a session would wait for the next app start. Every ten minutes,
+  // while someone is signed in, push what is waiting. pushNow() already
+  // refuses to stack runs, and a quiet run sends nothing.
+  Timer.periodic(const Duration(minutes: 10), (_) {
+    if (connectionRef?.hasSession ?? false) unawaited(syncService.pushNow());
+  });
+
   syncService.onSync = () async {
     final meetings = await autoSync.syncBoundGroups();
 
@@ -223,6 +260,16 @@ Future<void> main() async {
             // A 401 on an authenticated call means this session is dead. Sign
             // out rather than leaving the phone believing otherwise.
             apiClient.onSessionExpired = connection.handleSessionExpired;
+            connectionRef = connection;
+            // Sync the moment someone signs in (including the silent sign-in
+            // at app start), not only when the network comes back: a phone
+            // that never loses signal would otherwise never push.
+            var wasSignedIn = false;
+            connection.addListener(() {
+              final signedIn = connection.hasSession;
+              if (signedIn && !wasSignedIn) unawaited(syncService.pushNow());
+              wasSignedIn = signedIn;
+            });
             return connection..bootstrap();
           },
         ),

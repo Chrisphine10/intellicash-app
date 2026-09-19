@@ -24,6 +24,26 @@ class RemoteWriteApi {
     return (data as Map<String, dynamic>)['id'] as String;
   }
 
+  /// `POST /groups/:groupId/members/sync` — sends a member this phone knows
+  /// about and returns their id on the server.
+  ///
+  /// Retry-safe: the server finds the member it already has (by phone, else by
+  /// name in the group) rather than making a second. [phone] may be null — a
+  /// group set up on the phone often enters members by name alone.
+  Future<String> syncMember({
+    required String groupId,
+    required String fullName,
+    String? phone,
+    String? role,
+  }) async {
+    final data = await _client.postData('/groups/$groupId/members/sync', body: {
+      'fullName': fullName,
+      if (phone != null && phone.trim().isNotEmpty) 'phone': phone.trim(),
+      if (role != null) 'role': role,
+    });
+    return (data as Map<String, dynamic>)['id'] as String;
+  }
+
   /// `POST /groups/:groupId/meetings/:meetingId/attendance` (upsert).
   Future<void> putAttendance({
     required String groupId,
