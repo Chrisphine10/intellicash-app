@@ -3456,6 +3456,18 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'The password could not be changed. Please try again.'**
   String get changePasswordFailed;
+
+  /// No description provided for @groupExistsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This group is already registered'**
+  String get groupExistsTitle;
+
+  /// No description provided for @groupExistsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t create a second copy. Sign in with a code sent to the group\'s number — it opens the group\'s existing book. If the group uses a different number, ask your programme officer to link you.'**
+  String get groupExistsBody;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

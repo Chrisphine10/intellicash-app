@@ -558,5 +558,7 @@
   "forgotCurrentPasswordNote": "Tutatuma msimbo kwa simu yako ili uweke jipya.",
   "passwordChanged": "Nenosiri limebadilishwa.",
   "passwordChangedOthersSignedOut": "Nenosiri limebadilishwa. Simu nyingine zilizoingia kwenye akaunti hii zimetolewa.",
-  "changePasswordFailed": "Nenosiri halikuweza kubadilishwa. Tafadhali jaribu tena."
+  "changePasswordFailed": "Nenosiri halikuweza kubadilishwa. Tafadhali jaribu tena.",
+  "groupExistsTitle": "Kikundi hiki tayari kimesajiliwa",
+  "groupExistsBody": "Usifungue nakala ya pili. Ingia kwa msimbo unaotumwa kwa nambari ya kikundi — utafungua kitabu kilichopo cha kikundi. Ikiwa kikundi kinatumia nambari nyingine, mwombe afisa wa programu akuunganishe."
 }

@@ -1877,4 +1877,11 @@ class L10nLuo extends L10n {
   @override
   String get changePasswordFailed =>
       'The password could not be changed. Please try again.';
+
+  @override
+  String get groupExistsTitle => 'This group is already registered';
+
+  @override
+  String get groupExistsBody =>
+      'Don\'t create a second copy. Sign in with a code sent to the group\'s number — it opens the group\'s existing book. If the group uses a different number, ask your programme officer to link you.';
 }

@@ -1881,4 +1881,11 @@ class L10nSw extends L10n {
   @override
   String get changePasswordFailed =>
       'Nenosiri halikuweza kubadilishwa. Tafadhali jaribu tena.';
+
+  @override
+  String get groupExistsTitle => 'Kikundi hiki tayari kimesajiliwa';
+
+  @override
+  String get groupExistsBody =>
+      'Usifungue nakala ya pili. Ingia kwa msimbo unaotumwa kwa nambari ya kikundi — utafungua kitabu kilichopo cha kikundi. Ikiwa kikundi kinatumia nambari nyingine, mwombe afisa wa programu akuunganishe.';
 }

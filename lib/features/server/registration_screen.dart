@@ -264,13 +264,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     );
   }
 
-  Future<void> _offerExistingAccount(String phone) async {
+  Future<void> _offerExistingAccount(String phone, {bool groupExists = false}) async {
     final l10n = L10n.of(context);
     final signIn = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.accountExistsTitle),
-        content: Text(l10n.accountExistsBody),
+        title: Text(groupExists ? l10n.groupExistsTitle : l10n.accountExistsTitle),
+        content: Text(groupExists ? l10n.groupExistsBody : l10n.accountExistsBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
@@ -308,6 +308,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       // account already exists. A snackbar saying so left them nowhere to go.
       // Offer the way in to THAT account instead of a second, empty one.
       await _offerExistingAccount(_phoneCtrl.text);
+      return;
+    }
+    if (!ok && connection.errorCode == 'GROUP_EXISTS') {
+      // Signing up a group now creates the group itself, so the server first
+      // checks it is not already registered — by the champion's number, or by
+      // name in the county. A match is the same wall as above: offer the way
+      // into the group that exists rather than a duplicate.
+      await _offerExistingAccount(_phoneCtrl.text, groupExists: true);
       return;
     }
     if (!ok) {
