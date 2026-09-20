@@ -1942,4 +1942,12 @@ class L10nEbu extends L10n {
   @override
   String get groupSyncNothingToBackUp =>
       'This phone does not keep a group record, so there is nothing to back up. Your groups live online.';
+
+  @override
+  String get wrongBookTitle => 'This phone holds another group\'s records';
+
+  @override
+  String wrongBookBody(String groupName) {
+    return 'These are the records of $groupName. To keep them private, only that group\'s own account can open them. Sign in with that group\'s account, or sign out and use a phone of your own.';
+  }
 }

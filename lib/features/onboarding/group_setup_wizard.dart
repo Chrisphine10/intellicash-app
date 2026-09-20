@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -27,6 +29,11 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
 
   final _formKeys = List.generate(4, (_) => GlobalKey<FormState>());
   int _step = 0;
+
+  /// Shown under the member field. It was a snack bar, which appeared behind the
+  /// Next button at the foot of the screen - the person pressed Next and, as far
+  /// as they could tell, nothing happened.
+  String? _membersError;
   bool _saving = false;
 
   // Step 1 — Basics
@@ -218,6 +225,17 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
             ),
           ],
         ),
+        if (_membersError != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 8, left: 4),
+            child: Text(
+              _membersError!,
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context).colorScheme.error,
+              ),
+            ),
+          ),
         const SizedBox(height: 12),
         for (final (i, name) in _memberNames.indexed)
           Card(
@@ -460,12 +478,13 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
     final exists =
         _memberNames.any((n) => n.toLowerCase() == name.toLowerCase());
     if (exists) {
-      showAppSnack(context, '$name is already on the list.', error: true);
+      setState(() => _membersError = '$name is already on the list.');
       return;
     }
     setState(() {
       _memberNames.add(name);
       _memberCtrl.clear();
+      _membersError = null;
     });
   }
 
@@ -478,7 +497,7 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
   Future<void> _next() async {
     if (!(_formKeys[_step].currentState?.validate() ?? false)) return;
     if (_step == 0 && !_isEdit && _memberNames.isEmpty) {
-      showAppSnack(context, 'Add at least one founding member.', error: true);
+      setState(() => _membersError = 'Add at least one founding member.');
       return;
     }
     if (_step < 3) {
@@ -527,6 +546,10 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
           meetingDays: _meetingDays.toList()..sort(),
           memberNames: _memberNames,
         );
+        // Link the new group and send its founding members up straight away,
+        // rather than after the next reconnect or the ten-minute timer: the
+        // console showed a group with no members for up to ten minutes.
+        unawaited(appState.syncNow());
         // When the wizard was pushed (from the welcome screen), pop back so
         // the root can show the main shell — the app state is now `ready`.
         if (mounted && Navigator.of(context).canPop()) {

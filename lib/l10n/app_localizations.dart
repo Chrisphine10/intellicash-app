@@ -3552,6 +3552,18 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'This phone does not keep a group record, so there is nothing to back up. Your groups live online.'**
   String get groupSyncNothingToBackUp;
+
+  /// No description provided for @wrongBookTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone holds another group\'s records'**
+  String get wrongBookTitle;
+
+  /// No description provided for @wrongBookBody.
+  ///
+  /// In en, this message translates to:
+  /// **'These are the records of {groupName}. To keep them private, only that group\'s own account can open them. Sign in with that group\'s account, or sign out and use a phone of your own.'**
+  String wrongBookBody(String groupName);
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

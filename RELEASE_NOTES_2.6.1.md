@@ -36,6 +36,11 @@ record afterwards. The ones that matter most:
   but the scorecard was refused every time and retried in silence (needs the
   matching server update, below). Phones already in the field start working as
   soon as the server is updated - no app update needed for that part.
+- **A group's records stay shut to other groups' accounts.** After a group signed
+  out, anyone holding the phone could create a brand new group account and be
+  shown the previous group's members, savings and loans. A group account now
+  opens only the book that belongs to its own group; any other group account
+  sees "This phone holds another group's records" and can only sign out.
 - **Choosing a digital champion no longer changes the sign-in number of the
   login the group registered with.**
 - Members added on the console now reach the phone; members without a phone
@@ -49,6 +54,10 @@ record afterwards. The ones that matter most:
   corrected; the group-business form no longer overlaps its labels; amounts on
   the business card and group-rules summary keep their cents and thousands
   separators.
+- Setting up a group: the "Add at least one founding member" and "already on the
+  list" messages now show under the member field (they appeared behind the Next
+  button and could not be read), and a new group - or a member added later -
+  is sent to the server at once instead of at the next reconnect.
 - The share-out confirmation now says plainly that payouts are recorded on this
   phone and are not sent to the online record.
 
@@ -137,13 +146,17 @@ Already live:
 
 New strings are translated into Swahili. Gikuyu, Dholuo and Kiembu show them in
 English until a speaker has reviewed them, as with the 2.6.0 strings (this build
-adds three: the Online Loan Rules title, the social-fund-is-zero message and the
-"nothing to back up" message; "Try again" reuses each language's existing word).
+adds five: the Online Loan Rules title, the social-fund-is-zero message, the
+"nothing to back up" message and the two on the new "another group's records"
+screen; "Try again" reuses each language's existing word).
 
 ## Build
 
 - `flutter clean`, then `flutter build appbundle --release`.
 - Verified in the built bundle: version 2.6.1 (22), and the compiled Dart
   contains the new Change password screen and endpoint.
-- Tests: 440 passed (full suite), including an end-to-end test of a group set
-  up on the phone syncing with no manual linking.
+- Tests: 458 passed, 2 skipped (full suite, `dart analyze lib test` clean),
+  including an end-to-end test of a group set up on the phone syncing with no
+  manual linking.
+- Also driven on an Android emulator (profile build, QA server) through every
+  screen listed in docs/QA_REPORT_2026-09-19.md in the admin repo.

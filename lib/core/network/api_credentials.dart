@@ -39,6 +39,7 @@ class StoredAccount {
     required this.role,
     required this.name,
     required this.identifier,
+    this.groupId,
   });
 
   /// The backend's authoritative role: GROUP_ACCOUNT | MEMBER | VILLAGE_AGENT.
@@ -48,6 +49,12 @@ class StoredAccount {
   /// The phone or email typed at sign-in. Kept so the login form can be
   /// pre-filled after a sign-out.
   final String identifier;
+
+  /// The server group this account belongs to (a group account only). It is
+  /// what ties the record book on the phone to whoever may open it: a phone
+  /// that holds one group's book must not open it for another group's account.
+  /// Null for other roles, and for accounts remembered before this was kept.
+  final String? groupId;
 
   /// Village Agent, VA and CBT are the same role: `VILLAGE_AGENT`.
   bool get isAgent => role == 'VILLAGE_AGENT';
@@ -67,6 +74,7 @@ class CredentialStore {
   static const _kRole = 'account_role';
   static const _kName = 'account_name';
   static const _kIdentifier = 'account_identifier';
+  static const _kGroupId = 'account_group_id';
 
   /// Deliberately NOT cleared on sign-out: the next person to sign in on a
   /// group's phone is almost always the same group, and retyping a phone
@@ -124,6 +132,7 @@ class CredentialStore {
         role: role,
         name: await _storage.read(key: _kName) ?? '',
         identifier: await _storage.read(key: _kIdentifier) ?? '',
+        groupId: await _storage.read(key: _kGroupId),
       );
     } catch (_) {
       // Secure storage unavailable — treat as signed out rather than crashing
@@ -136,6 +145,11 @@ class CredentialStore {
     await _storage.write(key: _kRole, value: account.role);
     await _storage.write(key: _kName, value: account.name);
     await _storage.write(key: _kIdentifier, value: account.identifier);
+    if (account.groupId != null && account.groupId!.isNotEmpty) {
+      await _storage.write(key: _kGroupId, value: account.groupId);
+    } else {
+      await _storage.delete(key: _kGroupId);
+    }
     if (account.identifier.isNotEmpty) {
       await _storage.write(key: _kLastIdentifier, value: account.identifier);
       await _storage.write(key: _kLastRole, value: account.role);
@@ -148,6 +162,7 @@ class CredentialStore {
     await _storage.delete(key: _kRole);
     await _storage.delete(key: _kName);
     await _storage.delete(key: _kIdentifier);
+    await _storage.delete(key: _kGroupId);
   }
 
   Future<String?> lastIdentifier() async {

@@ -575,5 +575,7 @@
   "commonTryAgain": "Geria ringi",
   "groupPolicyOnlineLoanRules": "Online Loan Rules",
   "socialFundZeroCannotCollect": "The social fund amount is KSh 0, so there is nothing to collect. Set the amount in Group Settings (Savings step) first.",
-  "groupSyncNothingToBackUp": "This phone does not keep a group record, so there is nothing to back up. Your groups live online."
+  "groupSyncNothingToBackUp": "This phone does not keep a group record, so there is nothing to back up. Your groups live online.",
+  "wrongBookTitle": "This phone holds another group's records",
+  "wrongBookBody": "These are the records of {groupName}. To keep them private, only that group's own account can open them. Sign in with that group's account, or sign out and use a phone of your own."
 }

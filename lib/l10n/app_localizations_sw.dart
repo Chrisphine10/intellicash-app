@@ -1937,4 +1937,12 @@ class L10nSw extends L10n {
   @override
   String get groupSyncNothingToBackUp =>
       'Simu hii haihifadhi rekodi ya kikundi, kwa hivyo hakuna cha kuhifadhi. Vikundi vyako viko mtandaoni.';
+
+  @override
+  String get wrongBookTitle => 'Simu hii ina rekodi za kikundi kingine';
+
+  @override
+  String wrongBookBody(String groupName) {
+    return 'Hizi ni rekodi za $groupName. Ili ziwe za siri, ni akaunti ya kikundi hicho pekee inayoweza kuzifungua. Ingia kwa akaunti ya kikundi hicho, au toka na utumie simu yako mwenyewe.';
+  }
 }

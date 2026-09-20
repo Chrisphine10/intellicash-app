@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -131,6 +133,10 @@ class _AddMemberSheetState extends State<AddMemberSheet> {
         role: _role,
       );
       await appState.refreshPendingSync();
+      // Send the new member up now, while there is signal: a member the server
+      // has not heard of cannot be marked present or credited at the next
+      // meeting. A no-op offline or when the group is not linked yet.
+      unawaited(appState.syncNow());
       if (!mounted) return;
       Navigator.of(context).pop();
       showAppSnack(context, '${member.name} registered.');

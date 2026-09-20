@@ -387,6 +387,14 @@ class ConnectionProvider extends ChangeNotifier {
       final user = _signedInUser;
       if (_account == null && user != null) {
         await _rememberAccount(user, _lastIdentifier ?? '');
+      } else if (_account != null &&
+          user != null &&
+          user.isGroupAccount &&
+          user.groupId != null &&
+          _account!.groupId != user.groupId) {
+        // A session from before the group was remembered: learn it now, so the
+        // book on this phone can be tied to it without a fresh sign-in.
+        await _rememberAccount(user, _account!.identifier);
       }
       _status = ConnectionStatus.connected;
       _error = null;
@@ -526,6 +534,7 @@ class ConnectionProvider extends ChangeNotifier {
       role: user.role,
       name: user.name,
       identifier: identifier.trim(),
+      groupId: user.isGroupAccount ? user.groupId : null,
     );
     try {
       await _store.saveAccount(account);

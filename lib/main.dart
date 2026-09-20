@@ -295,6 +295,8 @@ Future<void> main() async {
           create: (_) => AppState(
             groupRepository: GroupRepository(db),
             syncService: syncService,
+            remoteGroupIdFor: (localGroupId) =>
+                idMap.remoteId(MapEntity.group, localGroupId),
           )..bootstrap(),
         ),
         ChangeNotifierProvider(

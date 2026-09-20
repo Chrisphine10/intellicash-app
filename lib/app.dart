@@ -8,6 +8,7 @@ import 'core/theme/app_theme.dart';
 import 'features/agent/agent_home_screen.dart';
 import 'features/member/member_passbook_screen.dart';
 import 'features/onboarding/welcome_screen.dart';
+import 'features/onboarding/wrong_book_screen.dart';
 import 'features/server/sign_in_options_screen.dart';
 import 'features/shell/main_shell.dart';
 import 'l10n/app_localizations.dart';
@@ -67,6 +68,9 @@ enum RootDestination {
   agentHome,
   memberPassbook,
   groupShell,
+
+  /// A group account signed in on a phone whose book belongs to another group.
+  wrongBook,
 }
 
 /// The whole routing rule, as a pure function so it can be tested directly.
@@ -81,6 +85,9 @@ RootDestination rootDestinationFor({
   required AppStatus status,
   required StoredAccount? account,
   bool hasSignedInBefore = false,
+
+  /// The server group the book on this phone is linked to, when it is.
+  String? boundRemoteGroupId,
 }) {
   if (!themeReady || !localeReady) return RootDestination.splash;
   if (status == AppStatus.loading || !sessionReady) {
@@ -105,9 +112,20 @@ RootDestination rootDestinationFor({
   // backend gains roles over time; an old app meeting a new role must fail
   // closed, not guess.
   if (!account.isGroupAccount) return RootDestination.welcome;
-  return status == AppStatus.ready
-      ? RootDestination.groupShell
-      : RootDestination.welcome;
+  if (status != AppStatus.ready) return RootDestination.welcome;
+  // The book belongs to the group it is linked to. A group account may open it
+  // only if it is that group's account; another group's account is stopped.
+  // Only a definite mismatch stops anyone: an unlinked book, or an account whose
+  // group is not yet known (an older session, or offline), opens as before.
+  final owner = account.groupId;
+  if (owner != null &&
+      owner.isNotEmpty &&
+      boundRemoteGroupId != null &&
+      boundRemoteGroupId.isNotEmpty &&
+      owner != boundRemoteGroupId) {
+    return RootDestination.wrongBook;
+  }
+  return RootDestination.groupShell;
 }
 
 /// Decides which app this person sees.
@@ -142,6 +160,8 @@ class _Bootstrapper extends StatelessWidget {
       ),
       hasSignedInBefore:
           context.select<ConnectionProvider, bool>((c) => c.hasSignedInBefore),
+      boundRemoteGroupId:
+          context.select<AppState, String?>((s) => s.boundRemoteGroupId),
     );
     return switch (destination) {
       RootDestination.splash => const _SplashScreen(),
@@ -150,6 +170,7 @@ class _Bootstrapper extends StatelessWidget {
       RootDestination.agentHome => const AgentHomeScreen(),
       RootDestination.memberPassbook => const MemberPassbookScreen(),
       RootDestination.groupShell => const MainShell(),
+      RootDestination.wrongBook => const WrongBookScreen(),
     };
   }
 }

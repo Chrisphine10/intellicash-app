@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../data/models/enums.dart';
@@ -12,15 +14,45 @@ class AppState extends ChangeNotifier {
   AppState({
     required GroupRepository groupRepository,
     required SyncService syncService,
+    Future<String?> Function(String localGroupId)? remoteGroupIdFor,
   })  : _groupRepository = groupRepository,
-        _syncService = syncService {
+        _syncService = syncService,
+        _remoteGroupIdFor = remoteGroupIdFor {
     _syncService.onQueueChanged = () {
       // Bumped on every finished sync so screens showing local figures (the
       // dashboard) know to reload: a sync can pull records down as well as
       // push them, and a screen left as it was reads as "nothing happened".
       _syncRevision++;
       refreshPendingSync();
+      unawaited(refreshBoundRemoteGroup());
     };
+  }
+
+  /// Which server group a local group is linked to, from the id map. Optional
+  /// so the many tests that build an AppState need not supply one.
+  final Future<String?> Function(String localGroupId)? _remoteGroupIdFor;
+  String? _boundRemoteGroupId;
+
+  /// The server group the book on this phone is linked to, or null when it has
+  /// never been linked. The root uses it to keep one group's book from opening
+  /// for another group's account.
+  String? get boundRemoteGroupId => _boundRemoteGroupId;
+
+  Future<void> refreshBoundRemoteGroup() async {
+    final lookup = _remoteGroupIdFor;
+    final group = _group;
+    String? next;
+    if (lookup != null && group != null) {
+      try {
+        next = await lookup(group.id);
+      } catch (_) {
+        next = _boundRemoteGroupId;
+      }
+    }
+    if (next != _boundRemoteGroupId) {
+      _boundRemoteGroupId = next;
+      notifyListeners();
+    }
   }
 
   final GroupRepository _groupRepository;
@@ -42,6 +74,7 @@ class AppState extends ChangeNotifier {
   Future<void> bootstrap() async {
     _group = await _groupRepository.currentGroup();
     _status = _group == null ? AppStatus.needsSetup : AppStatus.ready;
+    await refreshBoundRemoteGroup();
     await refreshPendingSync();
     _syncService.startWatchingConnectivity();
     notifyListeners();
@@ -86,6 +119,7 @@ class AppState extends ChangeNotifier {
   Future<void> completeSetup() async {
     _group = await _groupRepository.currentGroup();
     _status = AppStatus.ready;
+    await refreshBoundRemoteGroup();
     await refreshPendingSync();
     notifyListeners();
   }
@@ -107,6 +141,7 @@ class AppState extends ChangeNotifier {
     // phone) left the app in needsSetup, so the root router kept showing
     // "set up your group" over a group that was now sitting in the database.
     _status = _group == null ? AppStatus.needsSetup : AppStatus.ready;
+    await refreshBoundRemoteGroup();
     await refreshPendingSync();
     notifyListeners();
   }

@@ -29,6 +29,18 @@ const _group = StoredAccount(
   name: 'Demo Group Account',
   identifier: '254720100100',
 );
+const _groupA = StoredAccount(
+  role: 'GROUP_ACCOUNT',
+  name: 'Umoja Group Account',
+  identifier: '254720100100',
+  groupId: 'remote-group-a',
+);
+const _groupB = StoredAccount(
+  role: 'GROUP_ACCOUNT',
+  name: 'Tujenge Group Account',
+  identifier: '254720100200',
+  groupId: 'remote-group-b',
+);
 
 RootDestination destinationFor({
   required AppStatus status,
@@ -37,6 +49,7 @@ RootDestination destinationFor({
   bool localeReady = true,
   bool sessionReady = true,
   bool hasSignedInBefore = false,
+  String? boundRemoteGroupId,
 }) =>
     rootDestinationFor(
       themeReady: themeReady,
@@ -45,6 +58,7 @@ RootDestination destinationFor({
       status: status,
       account: account,
       hasSignedInBefore: hasSignedInBefore,
+      boundRemoteGroupId: boundRemoteGroupId,
     );
 
 void main() {
@@ -94,6 +108,72 @@ void main() {
       expect(
         destinationFor(status: AppStatus.needsSetup, account: _group),
         RootDestination.welcome,
+      );
+    });
+  });
+
+  group('the book of one group does not open for the account of another', () {
+    // Found on a phone: after group A signed out, creating a brand new group
+    // account (free, needs only a network) opened A's dashboard - members,
+    // savings and loans included - because the book was tied to nobody.
+    test('the account of the linked group opens it', () {
+      expect(
+        destinationFor(
+          status: AppStatus.ready,
+          account: _groupA,
+          boundRemoteGroupId: 'remote-group-a',
+        ),
+        RootDestination.groupShell,
+      );
+    });
+
+    test('the account of another group is stopped', () {
+      expect(
+        destinationFor(
+          status: AppStatus.ready,
+          account: _groupB,
+          boundRemoteGroupId: 'remote-group-a',
+        ),
+        RootDestination.wrongBook,
+      );
+    });
+
+    test('a book that was never linked opens as before', () {
+      expect(
+        destinationFor(status: AppStatus.ready, account: _groupB),
+        RootDestination.groupShell,
+      );
+    });
+
+    test('an account whose group is not known yet opens as before', () {
+      // An older session, or one that has not reached the server: never lock
+      // a treasurer out of their own book on a guess.
+      expect(
+        destinationFor(
+          status: AppStatus.ready,
+          account: _group,
+          boundRemoteGroupId: 'remote-group-a',
+        ),
+        RootDestination.groupShell,
+      );
+    });
+
+    test('does not change what a member or an agent sees', () {
+      expect(
+        destinationFor(
+          status: AppStatus.ready,
+          account: _member,
+          boundRemoteGroupId: 'remote-group-a',
+        ),
+        RootDestination.memberPassbook,
+      );
+      expect(
+        destinationFor(
+          status: AppStatus.ready,
+          account: _agent,
+          boundRemoteGroupId: 'remote-group-a',
+        ),
+        RootDestination.agentHome,
       );
     });
   });
