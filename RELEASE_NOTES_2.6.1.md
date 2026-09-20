@@ -207,11 +207,29 @@ a group's history, the offline message and the wizard's loan note).
 
 ## Build
 
-- `flutter clean`, then `flutter build appbundle --release`.
-- Verified in the built bundle: version 2.6.1 (22), and the compiled Dart
-  contains the new Change password screen and endpoint.
-- Tests: 458 passed, 2 skipped (full suite, `dart analyze lib test` clean),
-  including an end-to-end test of a group set up on the phone syncing with no
-  manual linking.
-- Also driven on an Android emulator (profile build, QA server) through every
-  screen listed in docs/QA_REPORT_2026-09-19.md in the admin repo.
+- `flutter clean`, then `flutter build appbundle --release` (49.0 MB,
+  `build/app/outputs/bundle/release/app-release.aab`). The build itself checks
+  "backend is https and no API key is bundled".
+- Verified in the built bundle: version 2.6.1 (23); the `.env` asset holds the
+  production address and no development address (`10.0.2.2:4100` and the QA
+  database name are absent; `10.0.2.2` appears only as the release guard's own
+  list of refused hosts); the compiled Dart contains the share-out route, the
+  restore route, the new screens' strings and the v11 markers.
+- Tests: 507 passed, 3 skipped (full suite, `dart analyze lib test` clean) - 49
+  new: share-out sync and ordering, the v11 upgrade, the history importer and
+  "Load my group", linking, the share-out screen rendered against a real
+  database at 360 px, and theme / offline / link widgets. The 3 skipped are
+  live tests that need a running server.
+- **Live, against the QA server** (`test/integration/live_restore_share_out_test.dart`,
+  `--tags live`): a phone loaded a group, recorded a meeting, shared out, and a
+  second fresh phone loaded it again; the server ended with the payouts
+  (6,052.17 / 3,530.44 / 2,017.39), the loan settlement (800.00), cycle 1 closed
+  and cycle 2 open - the figures worked out by hand beforehand.
+- The first audit pass drove the app on an Android emulator (profile build, QA
+  server) through every screen listed in docs/QA_REPORT_2026-09-19.md in the
+  admin repo. The second pass could not: the host was saturated by unrelated
+  desktop apps and the emulator's system process stopped responding, so the new
+  screens are covered by the widget and live tests above instead. Worth a look on
+  a real phone: a group's first share-out (the share-out screen should read
+  "Recorded online" a moment after it) and the first "Load my group" on a group
+  with history.
