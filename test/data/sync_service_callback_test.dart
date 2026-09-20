@@ -68,17 +68,76 @@ void main() {
     expect(results.where((r) => r == 0), hasLength(1));
   });
 
-  test('notifies listeners only when something actually synced', () async {
+  test('notifies listeners after every run, not only when something was pushed', () async {
+    // A run may pull records down, bind the group or clear conflicts without
+    // pushing a single row, and the badge and dashboard should reflect that.
     var notified = 0;
     service.onQueueChanged = () => notified++;
 
     service.onSync = () async => 0;
     await service.pushNow();
-    expect(notified, 0, reason: 'nothing synced, no reason to refresh');
+    expect(notified, 1);
 
     service.onSync = () async => 3;
     await service.pushNow();
-    expect(notified, 1);
+    expect(notified, 2);
+  });
+
+  group('retrying sooner when a run leaves changes waiting', () {
+    test('is off unless the app asks for it', () async {
+      var runs = 0;
+      service.pendingProbe = () async => 1;
+      service.onSync = () async {
+        runs++;
+        return 0;
+      };
+      await service.pushNow();
+      await Future<void>.delayed(const Duration(milliseconds: 80));
+      expect(runs, 1);
+    });
+
+    test('tries again after the pause while something is still waiting', () async {
+      var runs = 0;
+      var waiting = 1;
+      service.retryDelays = const [Duration(milliseconds: 20)];
+      service.pendingProbe = () async => waiting;
+      service.onSync = () async {
+        runs++;
+        // The second attempt gets through.
+        if (runs >= 2) waiting = 0;
+        return runs >= 2 ? 1 : 0;
+      };
+      await service.pushNow();
+      await Future<void>.delayed(const Duration(milliseconds: 120));
+      expect(runs, 2);
+    });
+
+    test('stops after the last delay rather than hammering a dead server', () async {
+      var runs = 0;
+      service.retryDelays = const [Duration(milliseconds: 15), Duration(milliseconds: 15)];
+      service.pendingProbe = () async => 1;
+      service.onSync = () async {
+        runs++;
+        return 0;
+      };
+      await service.pushNow();
+      await Future<void>.delayed(const Duration(milliseconds: 250));
+      // The first run plus one retry per delay - and no more.
+      expect(runs, 3);
+    });
+
+    test('does not schedule anything when nothing is waiting', () async {
+      var runs = 0;
+      service.retryDelays = const [Duration(milliseconds: 15)];
+      service.pendingProbe = () async => 0;
+      service.onSync = () async {
+        runs++;
+        return 2;
+      };
+      await service.pushNow();
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+      expect(runs, 1);
+    });
   });
 
   test('without a callback it falls back to draining the queue', () async {

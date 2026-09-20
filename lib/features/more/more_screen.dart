@@ -113,11 +113,11 @@ class MoreScreen extends StatelessWidget {
                   title: Text(l10n.groupRules,
                       style: const TextStyle(fontSize: 14)),
                   subtitle: Text(
-                    'KSh ${group.shareValue.toStringAsFixed(0)} per share · '
+                    '${Formatters.moneyCompact(group.shareValue)} per share · '
                     'up to ${group.maxSharesPerMeeting} shares a meeting\n'
-                    'KSh ${group.socialFundAmount.toStringAsFixed(0)} social fund · '
-                    '${group.interestRate.toStringAsFixed(0)}% interest · '
-                    'borrow up to ${group.loanMultiplier.toStringAsFixed(0)}× savings',
+                    '${Formatters.moneyCompact(group.socialFundAmount)} social fund · '
+                    '${_plainNumber(group.interestRate)}% interest · '
+                    'borrow up to ${_plainNumber(group.loanMultiplier)}× savings',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ),
@@ -190,8 +190,8 @@ class MoreScreen extends StatelessWidget {
               children: [
                 _connectionTile(context),
                 _paymentProvidersTile(context),
-                _governanceTile(context, 'Group Rules', Icons.rule_outlined,
-                    'Loan term and where expenses come from', const GroupPolicyScreen()),
+                _governanceTile(context, l10n.groupPolicyOnlineLoanRules, Icons.rule_outlined,
+                    'Loan term, interest and where expenses come from', const GroupPolicyScreen()),
                 _governanceTile(context, 'Saving Cycles', Icons.event_repeat_outlined,
                     'Close a cycle and start the next', const CyclesScreen()),
                 const Divider(indent: 16, endIndent: 16),
@@ -367,7 +367,11 @@ class MoreScreen extends StatelessWidget {
     final connection = context.watch<ConnectionProvider>();
     final (String subtitle, Widget? trailing) = switch (connection.status) {
       ConnectionStatus.connected => (
-          'Connected · ${connection.members.length} members',
+          // The roster is fetched when the online records are opened; before
+          // that "0 members" was shown for a group with people in it.
+          connection.selectedGroup == null
+              ? 'Connected'
+              : 'Connected · ${connection.members.length} members',
           StatusChip.synced(),
         ),
       ConnectionStatus.error => (
@@ -618,4 +622,13 @@ class _MemberAccountsToggleState extends State<_MemberAccountsToggle> {
             },
     );
   }
+}
+
+/// `10` for 10, `2.5` for 2.5. Rounding to a whole number would show a group
+/// that lends at 2.5% as "3%" and one that lets members borrow 1.5x as "2x".
+String _plainNumber(num value) {
+  final text = value.toStringAsFixed(2);
+  return text
+      .replaceFirst(RegExp(r'0+$'), '')
+      .replaceFirst(RegExp(r'\.$'), '');
 }

@@ -5,6 +5,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/meeting_unlock.dart';
 import '../../data/models/enums.dart';
 import '../../data/models/member.dart';
+import '../../data/services/member_matching.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/app_state.dart';
 import '../../providers/connection_provider.dart';
@@ -251,7 +252,9 @@ class _DigitalChampionCardState extends State<_DigitalChampionCard> {
         .read<MemberProvider>()
         .members
         .map((entry) => entry.member)
-        .where((m) => (m.phone ?? '').trim().isNotEmpty)
+        // A number nobody can text ("12345") cannot be the champion: the
+        // sign-in code would go nowhere.
+        .where((m) => looksLikePhone(m.phone))
         .toList();
 
     final picked = await showModalBottomSheet<Member>(

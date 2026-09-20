@@ -149,6 +149,7 @@ class MemberRepository {
                SUM(amount) AS total_savings,
                SUM(shares) AS total_shares
         FROM share_purchases
+        WHERE created_at > (SELECT cycle_start_date FROM groups WHERE id = ?1)
         GROUP BY member_id
       ) s ON s.member_id = m.id
       LEFT JOIN (
@@ -166,7 +167,7 @@ class MemberRepository {
         ) r ON r.loan_id = ln.id
         GROUP BY ln.member_id
       ) l ON l.member_id = m.id
-      WHERE m.group_id = ? AND m.is_active = 1
+      WHERE m.group_id = ?1 AND m.is_active = 1
       ORDER BY m.name COLLATE NOCASE ASC
     ''', [groupId]);
 

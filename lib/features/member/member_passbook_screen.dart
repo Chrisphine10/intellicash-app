@@ -281,10 +281,18 @@ class _MemberPassbookScreenState extends State<MemberPassbookScreen> {
             else if (_error != null)
               Padding(
                 padding: const EdgeInsets.only(top: 40),
-                child: EmptyState(
-                  icon: Icons.error_outline,
-                  title: 'Couldn\'t load',
-                  message: _error!,
+                child: Column(
+                  children: [
+                    EmptyState(
+                      icon: Icons.error_outline,
+                      title: 'Couldn\'t load',
+                      message: _error!,
+                    ),
+                    // A failed first load right after signing in (server busy, weak
+                    // signal) recovered only by pulling down — a gesture nobody is
+                    // told about. Offer the obvious button.
+                    FilledButton(onPressed: _load, child: Text(l10n.commonTryAgain)),
+                  ],
                 ),
               )
             else if (group == null) ...[

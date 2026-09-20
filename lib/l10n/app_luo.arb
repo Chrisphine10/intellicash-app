@@ -571,5 +571,9 @@
   "digitalChampionMake": "Make champion",
   "digitalChampionSet": "Digital champion updated.",
   "digitalChampionFailed": "The digital champion could not be changed. Please try again.",
-  "digitalChampionOffline": "Connect to the internet with the group's account signed in to see or change the champion."
+  "digitalChampionOffline": "Connect to the internet with the group's account signed in to see or change the champion.",
+  "commonTryAgain": "Tem kendo",
+  "groupPolicyOnlineLoanRules": "Online Loan Rules",
+  "socialFundZeroCannotCollect": "The social fund amount is KSh 0, so there is nothing to collect. Set the amount in Group Settings (Savings step) first.",
+  "groupSyncNothingToBackUp": "This phone does not keep a group record, so there is nothing to back up. Your groups live online."
 }

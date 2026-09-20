@@ -48,6 +48,37 @@ class SyncService {
   /// each other and double-submit.
   bool _syncing = false;
 
+  /// How long to wait before trying again when a run leaves changes waiting.
+  ///
+  /// Empty (the default) means no automatic retry, which is what the tests want.
+  /// The app sets it. Without it, a server that is down for a few minutes while
+  /// the phone itself keeps its signal is only noticed by the ten-minute timer:
+  /// no connectivity event ever fires, so a treasurer who closed a meeting
+  /// during a deploy sees "1 pending" until then. Each entry is one more try
+  /// after a longer pause; after the last, the ten-minute timer carries on.
+  List<Duration> retryDelays = const [];
+  Timer? _retryTimer;
+  int _retryAttempt = 0;
+
+  Future<void> _scheduleRetryIfWaiting() async {
+    if (retryDelays.isEmpty) return;
+    try {
+      if (await pendingCount() <= 0) {
+        _retryAttempt = 0;
+        _retryTimer?.cancel();
+        _retryTimer = null;
+        return;
+      }
+    } catch (_) {
+      return;
+    }
+    if (_retryTimer != null || _retryAttempt >= retryDelays.length) return;
+    _retryTimer = Timer(retryDelays[_retryAttempt++], () {
+      _retryTimer = null;
+      unawaited(pushNow());
+    });
+  }
+
   void startWatchingConnectivity() {
     if (_connectivitySub != null) return;
     try {
@@ -94,6 +125,7 @@ class SyncService {
       // pulled records down (welfare spending), bound the group, or cleared
       // conflicts, and the badge and dashboard should reflect that.
       onQueueChanged?.call();
+      await _scheduleRetryIfWaiting();
       return synced;
     } finally {
       _syncing = false;
@@ -131,6 +163,7 @@ class SyncService {
   }
 
   void dispose() {
+    _retryTimer?.cancel();
     _connectivitySub?.cancel();
     _http.close();
   }

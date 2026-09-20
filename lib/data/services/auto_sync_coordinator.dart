@@ -6,6 +6,7 @@ import '../models/member.dart';
 import '../models/remote/remote_models.dart';
 import '../repositories/id_map_repository.dart';
 import '../repositories/meeting_repository.dart';
+import 'member_matching.dart';
 import 'write_sync_service.dart';
 import 'welfare_expense_sync.dart';
 
@@ -35,6 +36,10 @@ class GroupLinkSupport {
     this.roleWatermark,
     this.saveRoleWatermark,
     this.pushRole,
+    this.remoteMembers,
+    this.addLocalMember,
+    this.policyIsConfigured,
+    this.pushPolicy,
   });
 
   /// The group this phone keeps (a group's phone keeps one).
@@ -58,6 +63,21 @@ class GroupLinkSupport {
   /// Sets one member's office on the server. Must treat "already holds it" as
   /// success — a retried sync meets its own earlier write.
   final Future<void> Function(String remoteGroupId, String remoteMemberId, MemberRole role)? pushRole;
+
+  /// The server's roster for a group, and a way to add one of those people to
+  /// this phone's roster. Optional: without them the phone only ever sends
+  /// members UP, and someone the server admitted (an approved join request, a
+  /// member added on the web) never appears in the phone's list.
+  final Future<List<RemoteMember>> Function(String remoteGroupId)? remoteMembers;
+  final Future<Member> Function(String localGroupId, RemoteMember remote)? addLocalMember;
+
+  /// Whether the server group already has loan rules of its own, and a way to
+  /// give it this phone's. Optional. Without them a group that never opened the
+  /// server-side "Group Rules" is charged nothing on the server (the platform
+  /// default is interest-free) while its phone shows 10 %, so the two report
+  /// different balances for the same loan.
+  final Future<bool> Function(String remoteGroupId)? policyIsConfigured;
+  final Future<void> Function(String remoteGroupId, {required int rateBps, required int termMonths})? pushPolicy;
 }
 
 class AutoSyncCoordinator {
@@ -146,6 +166,91 @@ class AutoSyncCoordinator {
     }
     if (linked > 0) log.info('autosync', 'Linked $linked member(s) to the server');
     return linked;
+  }
+
+  /// Brings members the SERVER admitted down onto this phone, and records their
+  /// server ids. Returns how many were added.
+  ///
+  /// Approving a join request, or adding a member on the web console, creates a
+  /// member only on the server. Until this existed the phone's list simply
+  /// never showed them — they could not be marked present or take part in a
+  /// meeting — and the only remedy was to reinstall.
+  ///
+  /// Add-only and strict, like the restore: it never edits or removes anything
+  /// on the phone. A server member is matched to a local one only by the same
+  /// canonical phone number (or, for two people with no number at all, the same
+  /// name); anything less would fuse two people, and an unmatched member is
+  /// added rather than guessed at.
+  Future<int> pullNewMembers(String localGroupId, String remoteGroupId) async {
+    final support = linkSupport;
+    final fetch = support?.remoteMembers;
+    final add = support?.addLocalMember;
+    if (support == null || fetch == null || add == null) return 0;
+
+    final remote = (await fetch(remoteGroupId)).where((member) => member.isActive).toList();
+    final mappings = await _idMap.mappings(MapEntity.member);
+    final knownRemote = mappings.values.toSet();
+    final mappedLocal = mappings.keys.toSet();
+    final locals = await support.membersForGroup(localGroupId);
+
+    var pulled = 0;
+    for (final person in remote) {
+      if (knownRemote.contains(person.id)) continue;
+
+      final wantedPhone = normalisePhone(person.phone);
+      Member? twin;
+      for (final local in locals) {
+        if (mappedLocal.contains(local.id)) continue;
+        final localPhone = normalisePhone(local.phone);
+        final samePerson = wantedPhone.isNotEmpty
+            ? localPhone == wantedPhone
+            : localPhone.isEmpty && _nameKey(local.name) == _nameKey(person.fullName);
+        if (samePerson) {
+          twin = local;
+          break;
+        }
+      }
+
+      try {
+        final local = twin ?? await add(localGroupId, person);
+        await _idMap.put(MapEntity.member, local.id, person.id, groupId: remoteGroupId);
+        mappedLocal.add(local.id);
+        knownRemote.add(person.id);
+        if (twin == null) pulled++;
+      } catch (e) {
+        log.warn('autosync', 'Could not add ${person.fullName} from the server: $e');
+      }
+    }
+    if (pulled > 0) log.info('autosync', 'Added $pulled member(s) from the server');
+    return pulled;
+  }
+
+  /// Gives the server the loan rules this phone already uses, but ONLY when the
+  /// server has none. Returns true if it did.
+  ///
+  /// Never overwrites a policy the server holds — one set on the web console, or
+  /// in the server-side "Group Rules", is the group's decision. Flat monthly
+  /// interest is the only model the server can express, so a phone set to
+  /// reducing balance sends nothing rather than a rate that means something
+  /// different there.
+  Future<bool> pushPolicyIfUnset(String localGroupId, String remoteGroupId) async {
+    final support = linkSupport;
+    final configured = support?.policyIsConfigured;
+    final push = support?.pushPolicy;
+    if (support == null || configured == null || push == null) return false;
+
+    final local = await support.currentGroup();
+    if (local == null || local.id != localGroupId) return false;
+    if (local.interestType != InterestType.flat) return false;
+    if (await configured(remoteGroupId)) return false;
+
+    await push(
+      remoteGroupId,
+      rateBps: (local.interestRate * 100).round(),
+      termMonths: local.defaultLoanTermMonths < 1 ? 1 : local.defaultLoanTermMonths,
+    );
+    log.info('autosync', "Gave the server this group's loan rules (${local.interestRate}% a month)");
+    return true;
   }
 
   /// Sends roles changed on this phone since the last push — and only those, so
@@ -252,6 +357,21 @@ class AutoSyncCoordinator {
         final remoteGroupId = boundGroups[localGroupId];
         if (remoteGroupId != null) {
           records += await pushUnmappedMembers(localGroupId, remoteGroupId);
+          // Then the other direction, so the two rosters converge. After the
+          // push on purpose: a member made here is matched to the server's copy
+          // of them first, and only the genuinely new arrive as additions.
+          try {
+            records += await pullNewMembers(localGroupId, remoteGroupId);
+          } catch (e) {
+            log.warn('autosync', 'Server members did not pull: $e');
+          }
+          // Before any loan is pushed, so the server prices it at the rate the
+          // phone quoted the borrower.
+          try {
+            await pushPolicyIfUnset(localGroupId, remoteGroupId);
+          } catch (e) {
+            log.warn('autosync', 'Loan rules did not sync: $e');
+          }
         }
         final items = await _meetings.meetingsForGroup(localGroupId);
         for (final item in items) {

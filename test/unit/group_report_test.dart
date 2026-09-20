@@ -31,9 +31,11 @@ void main() {
       expect(r.loansRepaid, 4000);
     });
 
-    test('savings is shares plus the social fund', () {
+    test('savings is shares only, the same as the dashboard and the offline report', () {
       final r = GroupReport.fromJson(_payload());
-      expect(r.totalSavings, 11500 + 2500);
+      expect(r.totalSavings, 11500);
+      // The social fund is reported on its own line, not folded into savings.
+      expect(r.socialFund, 2500);
     });
 
     test('adds up a type that appears under both directions', () {
@@ -73,7 +75,7 @@ void main() {
   });
 
   group('ReportMemberRow.fromJson', () {
-    test('totals what a member put in and what they still owe', () {
+    test("a member's savings are their shares; what they still owe is separate", () {
       final r = ReportMemberRow.fromJson(const {
         'fullName': 'Mary Njeri',
         'role': 'MEMBER',
@@ -83,7 +85,7 @@ void main() {
         'loanRepaymentsCents': 200000,
       });
       expect(r.name, 'Mary Njeri');
-      expect(r.savings, 3500);
+      expect(r.savings, 3000); // shares only; the 500 social fund is not savings
       expect(r.owes, 3000);
     });
 

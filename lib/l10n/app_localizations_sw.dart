@@ -1923,4 +1923,18 @@ class L10nSw extends L10n {
   @override
   String get digitalChampionOffline =>
       'Unganisha kwenye intaneti ukiwa umeingia kwa akaunti ya kikundi ili kuona au kubadilisha bingwa.';
+
+  @override
+  String get commonTryAgain => 'Jaribu tena';
+
+  @override
+  String get groupPolicyOnlineLoanRules => 'Kanuni za Mikopo Mtandaoni';
+
+  @override
+  String get socialFundZeroCannotCollect =>
+      'Kiasi cha mfuko wa jamii ni KSh 0, kwa hivyo hakuna cha kukusanya. Weka kiasi katika Mipangilio ya Kikundi (hatua ya Akiba) kwanza.';
+
+  @override
+  String get groupSyncNothingToBackUp =>
+      'Simu hii haihifadhi rekodi ya kikundi, kwa hivyo hakuna cha kuhifadhi. Vikundi vyako viko mtandaoni.';
 }

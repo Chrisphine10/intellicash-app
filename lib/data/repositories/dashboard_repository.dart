@@ -6,25 +6,39 @@ class DashboardRepository {
 
   final AppDatabase _db;
 
+  /// Every money figure here belongs to the group's CURRENT cycle - anything
+  /// recorded after `cycle_start_date`, the same rule the share-out uses to
+  /// decide what it distributes. After a share-out the dashboard therefore
+  /// starts again from nothing instead of still showing savings that were paid
+  /// out to members.
   Future<DashboardSummary> summary(String groupId) async {
     final db = await _db.database;
     final statRows = await db.rawQuery('''
       SELECT
         (SELECT COALESCE(SUM(sp.amount), 0) FROM share_purchases sp
           JOIN meetings m ON m.id = sp.meeting_id
-          WHERE m.group_id = ?1) AS total_savings,
+          WHERE m.group_id = ?1
+            AND sp.created_at > (SELECT cycle_start_date FROM groups WHERE id = ?1))
+          AS total_savings,
         (SELECT COUNT(*) FROM loans
           WHERE group_id = ?1 AND status IN ('active', 'defaulted'))
           AS active_loans,
         (SELECT COUNT(*) FROM members
           WHERE group_id = ?1 AND is_active = 1) AS member_count,
-        (SELECT COUNT(*) FROM meetings WHERE group_id = ?1) AS meeting_count,
+        (SELECT COUNT(*) FROM meetings
+          WHERE group_id = ?1
+            AND date > (SELECT cycle_start_date FROM groups WHERE id = ?1))
+          AS meeting_count,
         (SELECT COALESCE(SUM(f.amount), 0) FROM fines f
           JOIN meetings m ON m.id = f.meeting_id
-          WHERE m.group_id = ?1) AS fines_collected,
+          WHERE m.group_id = ?1
+            AND f.created_at > (SELECT cycle_start_date FROM groups WHERE id = ?1))
+          AS fines_collected,
         (SELECT COALESCE(SUM(sf.amount), 0) FROM social_fund_entries sf
           JOIN meetings m ON m.id = sf.meeting_id
-          WHERE m.group_id = ?1) AS social_fund
+          WHERE m.group_id = ?1
+            AND sf.created_at > (SELECT cycle_start_date FROM groups WHERE id = ?1))
+          AS social_fund
     ''', [groupId]);
 
     final trendRows = await db.rawQuery('''
@@ -33,9 +47,12 @@ class DashboardRepository {
                OVER (ORDER BY m.number) AS cumulative
       FROM meetings m
       LEFT JOIN (SELECT meeting_id, SUM(amount) AS total
-                 FROM share_purchases GROUP BY meeting_id) sp
+                 FROM share_purchases
+                 WHERE created_at > (SELECT cycle_start_date FROM groups WHERE id = ?1)
+                 GROUP BY meeting_id) sp
         ON sp.meeting_id = m.id
-      WHERE m.group_id = ?
+      WHERE m.group_id = ?1
+        AND m.date > (SELECT cycle_start_date FROM groups WHERE id = ?1)
       ORDER BY m.number ASC
     ''', [groupId]);
 

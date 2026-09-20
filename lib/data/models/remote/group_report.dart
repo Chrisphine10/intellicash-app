@@ -44,8 +44,9 @@ class ReportMemberRow {
     final role = '${json['role'] ?? 'MEMBER'}';
     return ReportMemberRow(
       name: '${json['fullName'] ?? 'Member'}',
-      // What they have put in: shares plus the social fund.
-      savings: cents('sharesCents') + cents('socialCents'),
+      // Their savings are their shares, as on the Members tab. The social fund
+      // is not savings — it is paid out as welfare, not shared back.
+      savings: cents('sharesCents'),
       // Overpayment must never read as a negative debt.
       owes: borrowed - repaid < 0 ? 0 : borrowed - repaid,
       roleLabel: role == 'MEMBER' ? null : _titleCase(role),
@@ -116,7 +117,11 @@ class GroupReport {
 
     return GroupReport(
       generatedAt: DateTime.tryParse('${json['generatedAt']}'),
-      totalSavings: shares + social,
+      // Shares only — the same meaning as the dashboard, the member list and
+      // the offline version of this very screen. It was shares PLUS the social
+      // fund, so the report said 2,700 online and 2,500 offline, and listed the
+      // social fund again on the next line as though it were extra.
+      totalSavings: shares,
       socialFund: social,
       fines: totalFor('FINE_COLLECTION'),
       loansGivenOut: borrowed,

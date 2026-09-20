@@ -11,6 +11,7 @@ import 'package:intellicash_mobile/data/repositories/id_map_repository.dart';
 import 'package:intellicash_mobile/data/repositories/loan_repository.dart';
 import 'package:intellicash_mobile/data/repositories/meeting_repository.dart';
 import 'package:intellicash_mobile/data/repositories/member_repository.dart';
+import 'package:intellicash_mobile/data/services/auto_sync_coordinator.dart';
 import 'package:intellicash_mobile/data/services/remote_write_api.dart';
 import 'package:intellicash_mobile/data/services/write_sync_service.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -53,6 +54,23 @@ class FakeRemoteWriteApi extends RemoteWriteApi {
     required LedgerEntryInput entry,
   }) async {
     ledger.add(entry);
+  }
+}
+
+/// Fails the way a dropped signal does - with something that is not an
+/// [ApiException] - until told to stop.
+class _FlakyWriteApi extends FakeRemoteWriteApi {
+  bool failing = true;
+
+  @override
+  Future<void> postLedgerEntry({
+    required String groupId,
+    required String meetingId,
+    required LedgerEntryInput entry,
+  }) async {
+    if (failing) throw const SocketException('connection lost');
+    await super.postLedgerEntry(
+        groupId: groupId, meetingId: meetingId, entry: entry);
   }
 }
 
@@ -249,6 +267,78 @@ void main() {
       final service = WriteSyncService(
           db: db, idMap: idMap, writeApi: FakeRemoteWriteApi());
       expect(() => service.syncMeeting(meeting), throwsA(anything));
+    });
+  });
+
+  group('a server twin made while the meeting is still open', () {
+    // Found on a phone: opening Welfare during a meeting gave it a server twin,
+    // that twin was recorded as "this meeting has been pushed", and when the
+    // meeting closed the sync (and its badge) decided there was nothing to send.
+    // The shares, loan and repayment it held never reached the server.
+    test('does not make a closed meeting look backed up', () async {
+      final group = await seedGroup();
+      final roster = await members.membersForGroup(group.id);
+      final meeting = await meetings.startMeeting(group);
+      await idMap.put(MapEntity.group, group.id, 'remote-group-1',
+          groupId: 'remote-group-1');
+      for (final member in roster) {
+        // Everyone linked, so no attendance row is left as a conflict.
+        await idMap.put(MapEntity.member, member.id, 'r-${member.id}',
+            groupId: 'remote-group-1');
+      }
+
+      final fake = FakeRemoteWriteApi();
+      final service = WriteSyncService(db: db, idMap: idMap, writeApi: fake);
+      final coordinator =
+          AutoSyncCoordinator(idMap: idMap, meetings: meetings, writeSync: service);
+
+      await service.ensureRemoteMeeting(meeting); // what the Welfare screen does
+      expect(fake.createMeetingCalls, 1);
+      await meetings.recordSharePurchase(
+          meeting: meeting, group: group, memberId: roster.first.id, shares: 2);
+      await meetings.closeMeeting(meeting);
+
+      // Closed, and nothing has been sent to its twin: it is waiting.
+      expect(await coordinator.pendingMeetings(), 1);
+
+      await coordinator.syncBoundGroups();
+
+      expect(fake.ledger.where((e) => e.type == 'SHARE_PURCHASE'), hasLength(1));
+      expect(fake.createMeetingCalls, 1,
+          reason: 'the twin is reused, not created a second time');
+      expect(await coordinator.pendingMeetings(), 0);
+    });
+
+    test('a push that stops part-way is tried again, not counted as done', () async {
+      final group = await seedGroup();
+      final roster = await members.membersForGroup(group.id);
+      final meeting = await meetings.startMeeting(group);
+      await meetings.recordSharePurchase(
+          meeting: meeting, group: group, memberId: roster.first.id, shares: 1);
+      await meetings.closeMeeting(meeting);
+      await idMap.put(MapEntity.group, group.id, 'remote-group-1',
+          groupId: 'remote-group-1');
+      for (final member in roster) {
+        await idMap.put(MapEntity.member, member.id, 'r-${member.id}',
+            groupId: 'remote-group-1');
+      }
+
+      final fake = _FlakyWriteApi();
+      final service = WriteSyncService(db: db, idMap: idMap, writeApi: fake);
+      final coordinator =
+          AutoSyncCoordinator(idMap: idMap, meetings: meetings, writeSync: service);
+
+      // The signal goes after the meeting was created on the server but before
+      // its money was sent. It used to be mapped by then, so it looked finished.
+      await coordinator.syncBoundGroups();
+      expect(fake.ledger, isEmpty);
+      expect(await coordinator.pendingMeetings(), 1);
+
+      fake.failing = false;
+      await coordinator.syncBoundGroups();
+      expect(fake.ledger, hasLength(1));
+      expect(fake.createMeetingCalls, 1);
+      expect(await coordinator.pendingMeetings(), 0);
     });
   });
 

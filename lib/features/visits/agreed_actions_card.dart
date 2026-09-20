@@ -330,6 +330,7 @@ class _AgreeActionSheetState extends State<_AgreeActionSheet> {
                   labelText: l10n.agreedActionsWhatWasAgreed,
                   hintText: l10n.agreedActionsWhatWasAgreedHint,
                 ),
+                autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (value) => (value ?? '').trim().isEmpty
                     ? l10n.agreedActionsNeedTitle
                     : null,

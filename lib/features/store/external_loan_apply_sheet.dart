@@ -123,6 +123,7 @@ class _ExternalLoanApplySheetState extends State<ExternalLoanApplySheet> {
                 helperText: 'Between ${Formatters.moneyCompact(product.minAmount)} '
                     'and ${Formatters.moneyCompact(product.maxAmount)}',
               ),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: _validateAmount,
             ),
             const SizedBox(height: 16),
@@ -134,6 +135,7 @@ class _ExternalLoanApplySheetState extends State<ExternalLoanApplySheet> {
                 labelText: l10n.externalLoanApplyWhatIsTheLoanFor,
                 hintText: l10n.externalLoanApplyEGBuyingMaizeSeed,
               ),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (v) => (v == null || v.trim().length < 5)
                   ? 'Tell us what the loan is for (at least 5 characters)'
                   : null,

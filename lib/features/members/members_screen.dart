@@ -33,6 +33,10 @@ class _MembersScreenState extends State<MembersScreen> {
   /// shows a number, not whether the way in exists at all.
   int? _pendingJoins;
 
+  /// The sync this list was last loaded after — a sync can add members the
+  /// server admitted, so the list reloads when one finishes.
+  int _loadedRevision = -1;
+
   @override
   void initState() {
     super.initState();
@@ -75,8 +79,19 @@ class _MembersScreenState extends State<MembersScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = L10n.of(context);
-    final group = context.watch<AppState>().group;
+    final appState = context.watch<AppState>();
+    final group = appState.group;
     final provider = context.watch<MemberProvider>();
+    if (appState.syncRevision != _loadedRevision) {
+      final first = _loadedRevision == -1;
+      _loadedRevision = appState.syncRevision;
+      // The first build already loads in initState.
+      if (!first) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _load();
+        });
+      }
+    }
     // The persisted role, so this is right at cold start with no coverage.
     final isGroupAccount =
         context.watch<ConnectionProvider>().account?.isGroupAccount == true;
@@ -98,16 +113,23 @@ class _MembersScreenState extends State<MembersScreen> {
             IconButton(
               tooltip: l10n.membersRequestsToJoin,
               onPressed: _openJoinRequests,
+              // The badge's own text ("2") used to replace the button's spoken
+              // name, so a screen reader said just "2".
               icon: (_pendingJoins ?? 0) > 0
-                  ? Badge(
-                      label: Text('$_pendingJoins'),
-                      child: const Icon(Icons.person_add_alt, size: 20),
+                  ? Semantics(
+                      label: '${l10n.membersRequestsToJoin}: $_pendingJoins',
+                      excludeSemantics: true,
+                      child: Badge(
+                        label: Text('$_pendingJoins'),
+                        child: const Icon(Icons.person_add_alt, size: 20),
+                      ),
                     )
                   : const Icon(Icons.person_add_alt, size: 20),
             ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        tooltip: l10n.addMemberAddMember,
         onPressed: () async {
           await showModalBottomSheet<void>(
             context: context,
@@ -118,7 +140,14 @@ class _MembersScreenState extends State<MembersScreen> {
         child: const Icon(Icons.add),
       ),
       body: RefreshIndicator(
-        onRefresh: _load,
+        // Pull to refresh does the same run as reconnecting: send this phone's
+        // members up, bring the server's down, then show the result.
+        onRefresh: () async {
+          if (context.read<ConnectionProvider>().hasSession) {
+            await appState.syncService.pushNow();
+          }
+          await _load();
+        },
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.fromLTRB(20, 4, 20, 90),
@@ -143,7 +172,10 @@ class _MembersScreenState extends State<MembersScreen> {
               EmptyState(
                 icon: Icons.people_outline,
                 title: l10n.membersNoMembersFound,
-                message: l10n.membersAddMembersWithTheButtonBelow,
+                // Searching and finding nothing is not "you have no members".
+                message: _query.isEmpty
+                    ? l10n.membersAddMembersWithTheButtonBelow
+                    : 'Nobody matches "$_query". Check the spelling, or clear the search.',
               ),
             for (final financials in members)
               Card(

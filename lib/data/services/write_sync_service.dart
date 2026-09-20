@@ -48,6 +48,43 @@ class WriteSyncService {
 
   static int _cents(num shillings) => (shillings * 100).round();
 
+  /// The backend counterpart of a local meeting — created and mapped if it does
+  /// not exist yet. Idempotent: a meeting that is already mapped is reused, so
+  /// calling this while the meeting is still open and again when it syncs
+  /// produces ONE backend meeting.
+  ///
+  /// Welfare is recorded on the server against a meeting, and a meeting kept on
+  /// this phone has no server twin until it syncs — which used to make welfare
+  /// say "no meeting is open" while the phone showed one.
+  Future<String> ensureRemoteMeeting(Meeting meeting) async {
+    final remoteGroupId = await _idMap.remoteId(MapEntity.group, meeting.groupId);
+    if (remoteGroupId == null) {
+      throw const ApiException(
+        'This group is not linked to the backend yet. Link it in Server → '
+        'Sync before pushing meetings.',
+      );
+    }
+    var remoteMeetingId = await _idMap.remoteId(MapEntity.meeting, meeting.id) ??
+        await _idMap.remoteId(MapEntity.meetingTwin, meeting.id);
+    if (remoteMeetingId == null) {
+      remoteMeetingId = await _writeApi.createMeeting(
+        groupId: remoteGroupId,
+        title: 'Meeting #${meeting.number}',
+        scheduledAt: meeting.date,
+      );
+      // Recorded as a TWIN, not as a pushed meeting: nothing has been sent to it
+      // yet. `MapEntity.meeting` is written by [syncMeeting] once a full pass has
+      // run, because that mapping is what the sync (and its badge) reads as
+      // "backed up". Writing it here made a meeting given a twin while open look
+      // finished the moment it closed, and its shares, loans and repayments never
+      // reached the server.
+      await _idMap.put(MapEntity.meetingTwin, meeting.id, remoteMeetingId,
+          groupId: remoteGroupId);
+      log.info('sync', 'Created backend meeting $remoteMeetingId');
+    }
+    return remoteMeetingId;
+  }
+
   Future<MeetingSyncResult> syncMeeting(Meeting meeting) async {
     final remoteGroupId = await _idMap.remoteId(MapEntity.group, meeting.groupId);
     if (remoteGroupId == null) {
@@ -59,17 +96,7 @@ class WriteSyncService {
     log.info('sync', 'Syncing meeting ${meeting.number} (${meeting.id})');
 
     // 1. Ensure a backend meeting exists and is mapped.
-    var remoteMeetingId = await _idMap.remoteId(MapEntity.meeting, meeting.id);
-    if (remoteMeetingId == null) {
-      remoteMeetingId = await _writeApi.createMeeting(
-        groupId: remoteGroupId,
-        title: 'Meeting #${meeting.number}',
-        scheduledAt: meeting.date,
-      );
-      await _idMap.put(MapEntity.meeting, meeting.id, remoteMeetingId,
-          groupId: remoteGroupId);
-      log.info('sync', 'Created backend meeting $remoteMeetingId');
-    }
+    final remoteMeetingId = await ensureRemoteMeeting(meeting);
 
     final memberMap = await _idMap.mappings(MapEntity.member);
     final conflicts = <SyncConflict>[];
@@ -134,6 +161,12 @@ class WriteSyncService {
     const skippedFines = 0;
 
     await _idMap.replaceConflicts(meeting.id, conflicts);
+    // Only now: a pass that stopped part-way (the signal went, the app was
+    // closed) leaves the meeting unmapped, so it is tried again rather than
+    // being counted as backed up. Anything that did not go through is a
+    // recorded conflict, which keeps it pending too.
+    await _idMap.put(MapEntity.meeting, meeting.id, remoteMeetingId,
+        groupId: remoteGroupId);
     log.info('sync',
         'Meeting ${meeting.number}: synced=$synced conflicts=${conflicts.length} skippedFines=$skippedFines');
 
@@ -244,6 +277,12 @@ class WriteSyncService {
         clientRequestId: crid,
       ));
     }
+
+    // A zero-value entry (a "paid KSh 0" social fund tick made while the amount
+    // was unset) carries no money, and the server refuses anything below one
+    // cent. Sent, it would sit as a permanent conflict and keep the meeting on
+    // "waiting to back up" for ever; dropped, nothing is lost.
+    result.removeWhere((entry) => entry.amountCents <= 0);
 
     return result;
   }

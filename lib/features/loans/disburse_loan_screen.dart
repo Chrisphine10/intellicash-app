@@ -91,6 +91,7 @@ class _DisburseLoanScreenState extends State<DisburseLoanScreen> {
               initialValue: _memberId,
               decoration: InputDecoration(labelText: l10n.disburseLoanSelectMember),
               dropdownColor: AppColors.surfaceRaised,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (v) => v == null ? 'Pick a member' : null,
               items: [
                 for (final financials in members)
@@ -168,6 +169,7 @@ class _DisburseLoanScreenState extends State<DisburseLoanScreen> {
                   const TextInputType.numberWithOptions(decimal: true),
               decoration:
                   InputDecoration(labelText: l10n.disburseLoanPrincipalAmountKsh),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (v) {
                 final amount = double.tryParse(v ?? '') ?? 0;
                 if (amount <= 0) return 'Enter an amount above zero';
@@ -208,7 +210,7 @@ class _DisburseLoanScreenState extends State<DisburseLoanScreen> {
             ),
             const SizedBox(height: 6),
             Text(
-              'Default term · ${group.defaultLoanTermMonths} months · '
+              'Default term · ${group.defaultLoanTermMonths} ${group.defaultLoanTermMonths == 1 ? 'month' : 'months'} · '
               '${_trimNum(group.interestRate)}% '
               '${group.interestType.label.toLowerCase()}',
               style: Theme.of(context).textTheme.bodySmall,

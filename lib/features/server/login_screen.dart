@@ -116,6 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 labelText: l10n.phoneOrEmail,
                 hintText: '07XX XXX XXX',
               ),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (v) => (v == null || v.trim().isEmpty)
                   ? 'Enter your phone number or email'
                   : null,
@@ -133,6 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: () => setState(() => _obscure = !_obscure),
                 ),
               ),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (v) =>
                   (v == null || v.isEmpty) ? 'Enter your password' : null,
             ),

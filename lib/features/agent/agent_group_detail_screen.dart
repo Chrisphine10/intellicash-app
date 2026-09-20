@@ -121,7 +121,11 @@ class _AgentGroupDetailScreenState extends State<AgentGroupDetailScreen> {
             ),
 
           if (_report != null) ...[
-            const SectionLabel('Where the money stands'),
+            // These are running totals since the group began, not this cycle's
+            // position: after a share-out the savings here still read what was
+            // put in over the years. Said in the heading so nobody mistakes
+            // them for what the group holds today.
+            const SectionLabel('Totals since the group began'),
             Card(
               child: Padding(
                 padding:

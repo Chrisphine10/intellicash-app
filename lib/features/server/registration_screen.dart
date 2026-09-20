@@ -145,6 +145,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             )
           : Form(
               key: _formKey,
+              // Once a field has been touched it re-checks as the person types,
+              // so "Passwords don't match" clears when they are made to match.
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
                 children: [

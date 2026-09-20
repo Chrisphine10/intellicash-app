@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../data/models/enums.dart';
+import '../../data/services/member_matching.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/app_state.dart';
 import '../../providers/member_provider.dart';
@@ -63,6 +64,14 @@ class _AddMemberSheetState extends State<AddMemberSheet> {
                 labelText: l10n.addMemberPhoneOptional,
                 hintText: '07XX XXX XXX',
               ),
+              // Optional, but if it is typed it must look like a number. The
+              // same rule as the server's, so a member saved here is never
+              // turned away when the phone sends it up: "12345" used to be
+              // accepted and then refused at sync, leaving the member on this
+              // phone only.
+              validator: (v) => (v == null || v.trim().isEmpty || looksLikePhone(v))
+                  ? null
+                  : 'Enter a valid phone number, or leave it empty',
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<MemberRole>(
@@ -93,9 +102,27 @@ class _AddMemberSheetState extends State<AddMemberSheet> {
 
   Future<void> _save() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    setState(() => _saving = true);
     final appState = context.read<AppState>();
     final memberProvider = context.read<MemberProvider>();
+
+    // Two members of one group cannot share a number — the server refuses the
+    // second at sync, which would leave that member on this phone only. Say so
+    // now, at the table, with no signal needed.
+    final typed = _phoneCtrl.text.trim();
+    if (typed.isNotEmpty) {
+      final canonical = normalisePhone(typed);
+      for (final row in memberProvider.members) {
+        if (normalisePhone(row.member.phone) == canonical) {
+          showAppSnack(
+            context,
+            '${row.member.name} already uses that number. Two members cannot share one — it is how the group tells them apart.',
+            error: true,
+          );
+          return;
+        }
+      }
+    }
+    setState(() => _saving = true);
     try {
       final member = await memberProvider.addMember(
         groupId: appState.group!.id,

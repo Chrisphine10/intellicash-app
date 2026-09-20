@@ -3528,6 +3528,30 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Connect to the internet with the group\'s account signed in to see or change the champion.'**
   String get digitalChampionOffline;
+
+  /// No description provided for @commonTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get commonTryAgain;
+
+  /// No description provided for @groupPolicyOnlineLoanRules.
+  ///
+  /// In en, this message translates to:
+  /// **'Online Loan Rules'**
+  String get groupPolicyOnlineLoanRules;
+
+  /// No description provided for @socialFundZeroCannotCollect.
+  ///
+  /// In en, this message translates to:
+  /// **'The social fund amount is KSh 0, so there is nothing to collect. Set the amount in Group Settings (Savings step) first.'**
+  String get socialFundZeroCannotCollect;
+
+  /// No description provided for @groupSyncNothingToBackUp.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone does not keep a group record, so there is nothing to back up. Your groups live online.'**
+  String get groupSyncNothingToBackUp;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

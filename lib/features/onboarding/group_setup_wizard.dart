@@ -177,6 +177,7 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
         controller: _nameCtrl,
         textCapitalization: TextCapitalization.words,
         decoration: InputDecoration(labelText: l10n.groupSetupWizardGroupName),
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         validator: (v) =>
             (v == null || v.trim().isEmpty) ? 'Enter the group name' : null,
       ),
@@ -188,6 +189,7 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
           labelText: l10n.groupSetupWizardCycleNumber,
           helperText: l10n.groupSetupWizardWhichSavingsCycleIsThis,
         ),
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         validator: (v) =>
             (int.tryParse(v ?? '') ?? 0) < 1 ? 'Enter a cycle of 1 or more' : null,
       ),
@@ -264,6 +266,7 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
         controller: _shareValueCtrl,
         keyboardType: TextInputType.number,
         decoration: InputDecoration(labelText: l10n.groupSetupWizardShareValueKsh),
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         validator: _positiveAmount,
       ),
       const SizedBox(height: 16),
@@ -272,6 +275,7 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
         keyboardType: TextInputType.number,
         decoration:
             InputDecoration(labelText: l10n.groupSetupWizardMaxSharesPerMeeting),
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         validator: (v) =>
             (int.tryParse(v ?? '') ?? 0) < 1 ? 'Enter 1 or more' : null,
       ),
@@ -283,6 +287,7 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
           labelText: l10n.groupSetupWizardSocialFundPerMeetingKsh,
           helperText: l10n.groupSetupWizardTrackedSeparatelyFromSavings,
         ),
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         validator: _nonNegativeAmount,
       ),
       const SizedBox(height: 8),
@@ -304,6 +309,7 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
         decoration: InputDecoration(
           labelText: l10n.groupSetupWizardInterestRatePerMonth,
         ),
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         validator: _nonNegativeAmount,
       ),
       const SizedBox(height: 8),
@@ -332,6 +338,7 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
         decoration: InputDecoration(
           labelText: l10n.groupSetupWizardMaxLoanMultiplierSavings,
         ),
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         validator: _positiveAmount,
       ),
       const SizedBox(height: 16),
@@ -341,6 +348,7 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
         decoration: InputDecoration(
           labelText: l10n.groupSetupWizardDefaultLoanTermMonths,
         ),
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         validator: (v) =>
             (int.tryParse(v ?? '') ?? 0) < 1 ? 'Enter 1 or more' : null,
       ),

@@ -96,18 +96,34 @@ class RemoteGroupPolicy {
 
 /// A meeting, reduced to what a picker needs.
 class RemoteOpenMeeting {
-  const RemoteOpenMeeting({required this.id, required this.title, required this.status});
+  const RemoteOpenMeeting({
+    required this.id,
+    required this.title,
+    required this.status,
+    this.scheduledAt,
+  });
 
   final String id;
   final String title;
   final String status;
+  final DateTime? scheduledAt;
 
-  bool get isOpen => status == 'IN_PROGRESS';
+  /// Open on the server — or the twin of a meeting being held on a phone, which
+  /// the server only ever sees as SCHEDULED, dated today. Mirrors the server's
+  /// own rule (within a day and a half), so the two never disagree about which
+  /// meeting welfare may be paid in.
+  bool get isOpen {
+    if (status == 'IN_PROGRESS') return true;
+    final when = scheduledAt;
+    if (status != 'SCHEDULED' || when == null) return false;
+    return DateTime.now().difference(when).abs() <= const Duration(hours: 36);
+  }
 
   factory RemoteOpenMeeting.fromJson(Map<String, dynamic> j) => RemoteOpenMeeting(
         id: '${j['id']}',
         title: '${j['title'] ?? 'Meeting'}',
         status: '${j['status'] ?? ''}',
+        scheduledAt: DateTime.tryParse('${j['scheduledAt'] ?? ''}'),
       );
 }
 

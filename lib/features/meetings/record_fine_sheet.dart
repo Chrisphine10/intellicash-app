@@ -69,6 +69,7 @@ class _RecordFineSheetState extends State<RecordFineSheet> {
               initialValue: _memberId,
               decoration: InputDecoration(labelText: l10n.disburseLoanSelectMember),
               dropdownColor: AppColors.surfaceRaised,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (v) => v == null ? 'Pick a member' : null,
               items: [
                 for (final financials in members)
@@ -86,6 +87,7 @@ class _RecordFineSheetState extends State<RecordFineSheet> {
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
               decoration: InputDecoration(labelText: l10n.welfareAmountKsh),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (v) => (double.tryParse(v ?? '') ?? 0) <= 0
                   ? 'Enter an amount above zero'
                   : null,
@@ -96,6 +98,7 @@ class _RecordFineSheetState extends State<RecordFineSheet> {
               decoration: InputDecoration(labelText: l10n.recordFineReason),
               dropdownColor: AppColors.surfaceRaised,
               isExpanded: true,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (v) => v == null ? 'Pick a reason' : null,
               items: [
                 for (final r in kFineReasons)
@@ -112,6 +115,7 @@ class _RecordFineSheetState extends State<RecordFineSheet> {
                 controller: _reasonCtrl,
                 textCapitalization: TextCapitalization.sentences,
                 decoration: InputDecoration(labelText: l10n.recordFineSpecifyReason),
+                autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (v) => (v == null || v.trim().isEmpty)
                     ? 'Describe the reason'
                     : null,

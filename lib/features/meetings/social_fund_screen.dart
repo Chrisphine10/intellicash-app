@@ -124,6 +124,26 @@ class _SocialFundScreenState extends State<SocialFundScreen> {
                     ),
                   ),
                 ),
+                if (amount <= 0) ...[
+                  const SizedBox(height: 10),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: Row(
+                        children: [
+                          Icon(Icons.info_outline, size: 18, color: AppColors.pending),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              l10n.socialFundZeroCannotCollect,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
                 if (!isOpen) ...[
                   const SizedBox(height: 10),
                   Text(
@@ -160,7 +180,7 @@ class _SocialFundScreenState extends State<SocialFundScreen> {
                         ),
                       ),
                       value: _paid.contains(f.member.id),
-                      onChanged: (isOpen && !_busy.contains(f.member.id))
+                      onChanged: (isOpen && amount > 0 && !_busy.contains(f.member.id))
                           ? (v) => _toggle(f.member.id, v)
                           : null,
                     ),

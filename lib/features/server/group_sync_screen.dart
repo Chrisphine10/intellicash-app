@@ -40,7 +40,23 @@ class _GroupSyncScreenState extends State<GroupSyncScreen> {
     final connection = context.watch<ConnectionProvider>();
     final sync = context.watch<SyncProvider>();
     final group = context.watch<AppState>().group;
-    if (group == null) return const SizedBox.shrink();
+    if (group == null) {
+      // An agent, a partner or an individual member keeps no group on this
+      // phone, so there is nothing to back up. An empty widget here left a
+      // black screen with no title and no way back but the system button.
+      return Scaffold(
+        appBar: AppBar(title: Text(l10n.groupSyncBackUpToCloud)),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Text(
+              l10n.groupSyncNothingToBackUp,
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.groupSyncBackUpToCloud)),

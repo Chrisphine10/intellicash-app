@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../l10n/app_localizations.dart';
+import '../../providers/app_state.dart';
 import '../../providers/connection_provider.dart';
 import '../../shared/widgets/common.dart';
 import 'cloud_dashboard_screen.dart';
@@ -149,18 +150,22 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen> {
                 icon: const Icon(Icons.cloud_outlined, size: 18),
                 label: Text(l10n.serverSettingsViewOnlineRecords),
               ),
-              const SizedBox(height: 12),
-              OutlinedButton.icon(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const GroupSyncScreen(),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.sync, size: 18),
-                label: Text(l10n.serverSettingsBackUpThisGroup),
-              ),
+              // Only for a phone that keeps a group. An agent, a partner or an
+              // individual member has nothing here to back up.
+              if (context.watch<AppState>().group != null) ...[
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const GroupSyncScreen(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.sync, size: 18),
+                  label: Text(l10n.serverSettingsBackUpThisGroup),
+                ),
+              ],
               const SizedBox(height: 12),
               OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(
@@ -171,12 +176,19 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen> {
                 onPressed: () async {
                   final l10n = L10n.of(context);
                   final connection = context.read<ConnectionProvider>();
+                  final navigator = Navigator.of(context);
+                  // Same wording and same ending as Account -> Sign out: the
+                  // agent's note is not the group's, and signing out from here
+                  // used to leave this screen (and Account) stacked up saying
+                  // "Not connected" over the sign-in choice.
+                  final isAgent = connection.signedInUser?.isAgent ?? false;
                   final confirmed = await showDialog<bool>(
                     context: context,
                     builder: (dialogContext) => AlertDialog(
                       title: Text(l10n.signOut,
                           style: const TextStyle(fontSize: 17)),
-                      content: Text(l10n.signOutKeepsRecords,
+                      content: Text(
+                          isAgent ? l10n.signOutAgentNote : l10n.signOutKeepsRecords,
                           style: const TextStyle(fontSize: 13.5)),
                       actions: [
                         TextButton(
@@ -200,10 +212,8 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen> {
                   );
                   if (confirmed != true) return;
                   await connection.disconnect();
-                  if (context.mounted) {
-                    _keyCtrl.clear();
-                    showAppSnack(context, l10n.signedOut);
-                  }
+                  _keyCtrl.clear();
+                  navigator.popUntil((route) => route.isFirst);
                 },
                 icon: const Icon(Icons.logout, size: 18),
                 label: Text(L10n.of(context).signOut),

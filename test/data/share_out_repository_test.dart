@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intellicash_mobile/core/database/app_database.dart';
 import 'package:intellicash_mobile/data/models/enums.dart';
 import 'package:intellicash_mobile/data/models/group.dart';
+import 'package:intellicash_mobile/data/repositories/dashboard_repository.dart';
 import 'package:intellicash_mobile/data/repositories/group_repository.dart';
 import 'package:intellicash_mobile/data/repositories/loan_repository.dart';
 import 'package:intellicash_mobile/data/repositories/meeting_repository.dart';
@@ -166,6 +167,82 @@ void main() {
     // The new cycle starts empty — nothing to share out again.
     final freshPreview = await shareOut.preview(reloaded);
     expect(freshPreview.shareCapitalCents, 0);
+  });
+
+  test("after a share-out the phone's own balances start again", () async {
+    // Found on a phone: after sharing out, the dashboard still said "Total
+    // savings 1,500", the Members tab still showed each member's savings, the
+    // next meeting opened with the old cycle's money "in the box", and the
+    // group could lend - and members borrow - against cash that had gone home.
+    final group = await seedGroup();
+    final roster = await members.membersForGroup(group.id);
+    final ann = roster.firstWhere((m) => m.name == 'Ann');
+    final ben = roster.firstWhere((m) => m.name == 'Ben');
+    final cara = roster.firstWhere((m) => m.name == 'Cara');
+
+    final meeting = await meetings.startMeeting(group);
+    await meetings.recordSharePurchase(
+        meeting: meeting, group: group, memberId: ann.id, shares: 10);
+    await meetings.recordSharePurchase(
+        meeting: meeting, group: group, memberId: ben.id, shares: 6);
+    await meetings.recordSharePurchase(
+        meeting: meeting, group: group, memberId: cara.id, shares: 4);
+    await meetings.recordFine(
+        meeting: meeting, memberId: ann.id, amount: 90, reason: 'Late');
+    // Ben is still paying a loan when the cycle ends.
+    await loans.disburse(
+      group: group,
+      memberId: ben.id,
+      principal: 200,
+      dueDate: DateTime.now().add(const Duration(days: 90)),
+      meetingId: meeting.id,
+    );
+
+    await meetings.closeMeeting(meeting);
+
+    final dashboard = DashboardRepository(db);
+    final before = await dashboard.summary(group.id);
+    expect(before.totalSavings, 2000);
+    expect(before.meetingCount, 1);
+    expect(await loans.loanFundBalance(group.id), 1800);
+
+    final next = await shareOut.commit(group, await shareOut.preview(group));
+
+    // Nothing is left in the loan fund: every shilling of it was paid out or
+    // netted against a loan the payout settled.
+    expect(await loans.loanFundBalance(group.id), 0);
+    // The 90 of fines is welfare the group chose to keep, and it is still in
+    // the box - the only thing that is.
+    expect(await meetings.cashBoxBalance(group.id), 90);
+
+    final rows = await members.financialsForGroup(group.id);
+    expect(rows.every((row) => row.totalSavings == 0), isTrue,
+        reason: 'they were paid their savings');
+    expect(rows.every((row) => row.activeLoanBalance == 0), isTrue);
+
+    final after = await dashboard.summary(group.id);
+    expect(after.totalSavings, 0);
+    expect(after.meetingCount, 0);
+    expect(after.finesCollected, 0);
+    expect(after.trend, isEmpty);
+
+    // A member cannot borrow against savings that were paid out...
+    final headroom = await loans.eligibility(group: next, memberId: ann.id);
+    expect(headroom.totalSavings, 0);
+    expect(headroom.availableAmount, 0);
+
+    // ...and the next meeting opens with the box as it really is.
+    final second = await meetings.startMeeting(next);
+    expect(second.number, 2);
+    expect(second.openingBalance, 90);
+
+    // New savings count again from the first shilling.
+    await meetings.recordSharePurchase(
+        meeting: second, group: next, memberId: ann.id, shares: 2);
+    expect((await dashboard.summary(group.id)).totalSavings, 200);
+    expect(await loans.loanFundBalance(group.id), 200);
+    expect((await loans.eligibility(group: next, memberId: ann.id)).availableAmount,
+        400);
   });
 
   test('refuses to share out a cycle with no contributions', () async {

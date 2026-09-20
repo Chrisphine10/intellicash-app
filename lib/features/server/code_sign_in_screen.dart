@@ -125,6 +125,7 @@ class _CodeSignInScreenState extends State<CodeSignInScreen> {
                 labelText: l10n.phoneNumber,
                 hintText: '07XX XXX XXX',
               ),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (value) => (value == null || value.trim().length < 9)
                   ? l10n.enterPhoneNumber
                   : null,
@@ -147,6 +148,7 @@ class _CodeSignInScreenState extends State<CodeSignInScreen> {
                   LengthLimitingTextInputFormatter(6),
                 ],
                 decoration: InputDecoration(labelText: l10n.smsCodeLabel),
+                autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (value) => (value == null || value.length != 6)
                     ? l10n.enterSixDigitCode
                     : null,
@@ -165,6 +167,7 @@ class _CodeSignInScreenState extends State<CodeSignInScreen> {
                       onPressed: () => setState(() => _obscure = !_obscure),
                     ),
                   ),
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   validator: (value) => (value == null || value.length < 8)
                       ? l10n.passwordTooShort
                       : null,

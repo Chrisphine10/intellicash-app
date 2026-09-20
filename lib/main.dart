@@ -16,6 +16,7 @@ import 'data/repositories/group_repository.dart';
 import 'data/repositories/id_map_repository.dart';
 import 'data/repositories/loan_repository.dart';
 import 'data/repositories/meeting_repository.dart';
+import 'data/models/enums.dart';
 import 'data/repositories/member_repository.dart';
 import 'data/repositories/share_out_repository.dart';
 import 'data/repositories/sync_repository.dart';
@@ -107,6 +108,7 @@ Future<void> main() async {
   // Set once the ConnectionProvider exists (below); read lazily at sync time.
   ConnectionProvider? connectionRef;
   final writeApi = RemoteWriteApi(apiClient);
+  final governanceApi = RemoteGovernanceApi(apiClient);
   final autoSync = AutoSyncCoordinator(
     idMap: idMap,
     meetings: MeetingRepository(db),
@@ -127,6 +129,25 @@ Future<void> main() async {
         fullName: member.name,
         phone: member.phone,
         role: member.role.serverName,
+      ),
+      policyIsConfigured: (remoteGroupId) async =>
+          (await governanceApi.policy(remoteGroupId)).configured,
+      pushPolicy: (remoteGroupId, {required rateBps, required termMonths}) async {
+        await governanceApi.savePolicy(
+          remoteGroupId,
+          loanInterestRateBps: rateBps,
+          defaultLoanTermMonths: termMonths,
+        );
+      },
+      remoteMembers: remoteApi.groupMembers,
+      addLocalMember: (localGroupId, remote) => MemberRepository(db).addMember(
+        groupId: localGroupId,
+        name: remote.fullName,
+        phone: remote.phone,
+        role: MemberRole.values.firstWhere(
+          (role) => role.serverName == remote.role,
+          orElse: () => MemberRole.member,
+        ),
       ),
       editedMembersSince: (after) => MemberRepository(db).editedSince(after),
       roleWatermark: () async =>
@@ -174,8 +195,33 @@ Future<void> main() async {
   Timer.periodic(const Duration(minutes: 10), (_) {
     if (connectionRef?.hasSession ?? false) unawaited(syncService.pushNow());
   });
+  // And sooner than that when a run leaves something behind - a server that is
+  // briefly down does not change the phone's connectivity, so nothing else
+  // would prompt a retry.
+  syncService.retryDelays = const [
+    Duration(minutes: 1),
+    Duration(minutes: 3),
+    Duration(minutes: 7),
+  ];
 
   syncService.onSync = () async {
+    // A phone that started without signal has a session but no group loaded, so
+    // every screen that talks to the server (welfare, voting, invitations, join
+    // requests) told a signed-in treasurer to "choose your group first". A sync
+    // only runs when there is signal, so this is the moment to load it.
+    final connection = connectionRef;
+    if (connection != null &&
+        connection.credentials.isConfigured &&
+        (!connection.isConnected || connection.selectedGroup == null)) {
+      try {
+        // The full check, not just a refresh: it also re-reads who is signed
+        // in, which a phone that started offline never learnt.
+        await connection.testConnection(silent: true);
+      } catch (_) {
+        // Still no signal to the server; the next sync tries again.
+      }
+    }
+
     final meetings = await autoSync.syncBoundGroups();
 
     // Refresh the cached scorecard while there is signal. Guarded on the
@@ -313,6 +359,7 @@ Future<void> main() async {
         Provider<RemotePaymentProvidersApi>(
           create: (_) => RemotePaymentProvidersApi(apiClient),
         ),
+        Provider<WriteSyncService>.value(value: writeSyncService),
         Provider<RemoteGovernanceApi>(
           create: (_) => RemoteGovernanceApi(apiClient),
         ),

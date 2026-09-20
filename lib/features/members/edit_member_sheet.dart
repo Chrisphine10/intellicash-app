@@ -58,8 +58,16 @@ class _EditMemberSheetState extends State<EditMemberSheet> {
       setState(() => _error = 'Enter the member\'s name.');
       return;
     }
-    if (phone.isEmpty) {
+    // A member who never had a number (the group only knew their name) can be
+    // corrected without inventing one; a member who HAS one cannot have it
+    // blanked, because the number is how the server recognises them.
+    final hadPhone = (widget.member.phone ?? '').trim().isNotEmpty;
+    if (phone.isEmpty && hadPhone) {
       setState(() => _error = 'A member needs a phone number — it is how they are recognised.');
+      return;
+    }
+    if (phone.isNotEmpty && !looksLikePhone(phone)) {
+      setState(() => _error = 'Enter a valid phone number, like 0712 345 678.');
       return;
     }
 
@@ -70,6 +78,7 @@ class _EditMemberSheetState extends State<EditMemberSheet> {
     // signal fails at the table rather than silently at the next sync.
     Member? clash;
     for (final row in provider.members) {
+      if (phone.isEmpty) break;
       if (row.member.id == widget.member.id) continue;
       if (normalisePhone(row.member.phone) == canonical) {
         clash = row.member;

@@ -215,6 +215,7 @@ class _CreditRequestSheetState extends State<_CreditRequestSheet> {
                 isExpanded: true,
                 decoration: InputDecoration(labelText: l10n.productDetailProgramme),
                 dropdownColor: AppColors.surfaceRaised,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (v) => v == null ? 'Pick a programme' : null,
                 items: [
                   for (final p in _programmes)
@@ -231,6 +232,7 @@ class _CreditRequestSheetState extends State<_CreditRequestSheet> {
               controller: _nameCtrl,
               textCapitalization: TextCapitalization.words,
               decoration: InputDecoration(labelText: l10n.productDetailCustomerName),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (v) =>
                   (v == null || v.trim().length < 2) ? 'Enter a name' : null,
             ),
@@ -239,6 +241,7 @@ class _CreditRequestSheetState extends State<_CreditRequestSheet> {
               controller: _emailCtrl,
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(labelText: l10n.productDetailEmail),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (v) =>
                   (v == null || !v.contains('@')) ? 'Enter a valid email' : null,
             ),
@@ -247,6 +250,7 @@ class _CreditRequestSheetState extends State<_CreditRequestSheet> {
               controller: _phoneCtrl,
               keyboardType: TextInputType.phone,
               decoration: InputDecoration(labelText: l10n.phoneNumber),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (v) =>
                   (v == null || v.trim().length < 7) ? 'Enter a phone' : null,
             ),

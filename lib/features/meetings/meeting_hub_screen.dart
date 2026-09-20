@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -340,6 +342,11 @@ class _MeetingHubScreenState extends State<MeetingHubScreen> {
     try {
       await provider.closeMeeting(meeting.groupId);
       await appState.refreshPendingSync();
+      // Send it now, while there is signal, rather than waiting for the next
+      // reconnect or the ten-minute timer. Safe to fire and forget: it does
+      // nothing offline or when the group is not linked, and a failure leaves
+      // the meeting on the "pending" badge to be retried.
+      unawaited(appState.syncNow());
       if (!mounted) return;
       showAppSnack(context, 'Meeting #${meeting.number} closed and locked.');
       Navigator.of(context).pop();

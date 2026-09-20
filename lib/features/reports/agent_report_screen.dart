@@ -99,7 +99,12 @@ class _AgentReportScreenState extends State<AgentReportScreen> {
     for (final row in _report?.groups ?? const <AgentReportGroup>[]) {
       if (row.id == groupId) return row.rated ? row.band : null;
     }
-    return _ratings[groupId]?.band;
+    // Only a group that HAS been rated has a band to show. An unrated one
+    // comes back with the placeholder band "UNRATED", which used to be handed
+    // straight to the chip as "Band UNRATED · 52" - a raw enum and a score
+    // that does not mean anything yet.
+    final rating = _ratings[groupId];
+    return rating != null && rating.rated ? rating.band : null;
   }
 
   String _buildReportText(String agentName, List<RemoteGroup> groups) {

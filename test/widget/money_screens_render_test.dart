@@ -189,7 +189,7 @@ _FakeConnection _connection(RemoteApi api,
 
 void main() {
   group("Agent's view of a group on their caseload", () {
-    testWidgets('shows where the money stands, not just the credit band',
+    testWidgets('shows the money totals, not just the credit band',
         (tester) async {
       await _pump(
         tester,
@@ -208,9 +208,9 @@ void main() {
       // The credit card is tall, so the money panel sits below the fold on a
       // small phone — scrolling to it also proves the page scrolls cleanly.
       await tester.scrollUntilVisible(
-          find.text('WHERE THE MONEY STANDS'), 200,
+          find.text('TOTALS SINCE THE GROUP BEGAN'), 200,
           scrollable: find.byType(Scrollable).first);
-      expect(find.text('WHERE THE MONEY STANDS'), findsOneWidget);
+      expect(find.text('TOTALS SINCE THE GROUP BEGAN'), findsOneWidget);
       // The figures an agent needs before visiting a struggling group.
       expect(find.text('Total savings'), findsOneWidget);
       expect(find.text('Still owed'), findsOneWidget);
@@ -238,7 +238,7 @@ void main() {
         _connection(_FakeApi(rating: _rating(), report: null)),
         AgentGroupDetailScreen(group: _group()),
       );
-      expect(find.text('WHERE THE MONEY STANDS'), findsNothing);
+      expect(find.text('TOTALS SINCE THE GROUP BEGAN'), findsNothing);
       expect(find.text('CREDIT RATING'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });

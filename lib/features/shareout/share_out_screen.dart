@@ -124,7 +124,8 @@ class _ShareOutScreenState extends State<ShareOutScreen> {
           '${result.lines.length} member(s)'
           '${result.totalOutstandingCents > 0 ? ', settling ${_money(result.totalOutstandingCents)} in outstanding loans' : ''}, '
           'and start Cycle ${group.cycleNumber + 1}.\n\n'
-          'This is permanent.',
+          'This is permanent. The payouts are recorded on this phone; they '
+          'are not sent to the online record.',
           style: const TextStyle(fontSize: 13.5),
         ),
         actions: [

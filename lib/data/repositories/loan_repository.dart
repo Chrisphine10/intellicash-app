@@ -77,6 +77,8 @@ class LoanRepository {
           JOIN loans l ON l.id = r.loan_id WHERE l.group_id = ?1)
       - (SELECT COALESCE(SUM(l.principal), 0) FROM loans l
           WHERE l.group_id = ?1)
+      - (SELECT COALESCE(SUM(p.gross_payout), 0)
+          FROM share_out_payouts p WHERE p.group_id = ?1)
       AS balance
     ''', [groupId]);
     final balance = ((rows.first['balance'] ?? 0) as num).toDouble();
@@ -93,7 +95,7 @@ class LoanRepository {
     final rows = await db.rawQuery('''
       SELECT
         (SELECT COALESCE(SUM(amount), 0) FROM share_purchases
-          WHERE member_id = ?1) AS savings,
+          WHERE member_id = ?1 AND created_at > ?2) AS savings,
         (SELECT COALESCE(SUM(l.total_due), 0) -
                 COALESCE(SUM(r.repaid), 0)
          FROM loans l
@@ -102,7 +104,7 @@ class LoanRepository {
            ON r.loan_id = l.id
          WHERE l.member_id = ?1 AND l.status IN ('active', 'defaulted'))
           AS active_balance
-    ''', [memberId]);
+    ''', [memberId, group.cycleStartDate.toIso8601String()]);
 
     final savings = (rows.first['savings'] as num).toDouble();
     final activeBalance =

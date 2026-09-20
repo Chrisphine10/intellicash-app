@@ -23,6 +23,10 @@ class _PaymentProvidersScreenState extends State<PaymentProvidersScreen> {
   GroupPaymentProviders? _data;
   String? _error;
   bool _loading = true;
+
+  /// The group a load was last attempted for: the screen retries by itself when
+  /// the group appears after it opened (signal returned), but never loops.
+  String? _triedGroupId;
   String? _busyProvider;
 
   static const _fieldLabels = <String, String>{
@@ -57,10 +61,11 @@ class _PaymentProvidersScreenState extends State<PaymentProvidersScreen> {
     if (groupId == null) {
       setState(() {
         _loading = false;
-        _error = 'Choose your group under Cloud Account first.';
+        _error = 'Your group has not loaded yet. It needs a connection and loads by itself when signal returns — or pull down to try again.';
       });
       return;
     }
+    _triedGroupId = groupId;
     setState(() {
       _loading = true;
       _error = null;
@@ -207,6 +212,13 @@ class _PaymentProvidersScreenState extends State<PaymentProvidersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final groupNow = context.watch<ConnectionProvider>().selectedGroup?.id;
+    if (groupNow != null && groupNow != _triedGroupId && !_loading) {
+      _triedGroupId = groupNow;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _load();
+      });
+    }
     final l10n = L10n.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(l10n.paymentProvidersPaymentProviders)),

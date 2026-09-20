@@ -93,7 +93,10 @@ class _MemberReportLocalScreenState extends State<MemberReportLocalScreen> {
   /// otherwise what this phone holds. One source per figure, used everywhere.
   double _savingsOf(MemberFinancials f) {
     final book = _passbook;
-    return book != null ? book.shares + book.social : f.totalSavings;
+    // Shares only, whichever source: the social fund is shown on its own line
+    // below. Adding it here made the same statement say 1,100 online and 1,000
+    // offline, and count the social fund twice on the page.
+    return book != null ? book.shares : f.totalSavings;
   }
 
   double get _socialOf => _passbook?.social ?? _social;

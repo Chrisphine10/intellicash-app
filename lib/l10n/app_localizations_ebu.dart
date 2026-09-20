@@ -1928,4 +1928,18 @@ class L10nEbu extends L10n {
   @override
   String get digitalChampionOffline =>
       'Connect to the internet with the group\'s account signed in to see or change the champion.';
+
+  @override
+  String get commonTryAgain => 'Geria ringi';
+
+  @override
+  String get groupPolicyOnlineLoanRules => 'Online Loan Rules';
+
+  @override
+  String get socialFundZeroCannotCollect =>
+      'The social fund amount is KSh 0, so there is nothing to collect. Set the amount in Group Settings (Savings step) first.';
+
+  @override
+  String get groupSyncNothingToBackUp =>
+      'This phone does not keep a group record, so there is nothing to back up. Your groups live online.';
 }

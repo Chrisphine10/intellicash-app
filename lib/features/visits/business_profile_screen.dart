@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/network/api_client.dart';
 import '../../core/network/api_exception.dart';
+import '../../core/utils/formatters.dart';
 import '../../l10n/app_localizations.dart';
 
 /// The businesses a group runs, recorded during a visit.
@@ -472,7 +473,7 @@ class _EnterpriseCard extends StatelessWidget {
 
   static String _money(L10n l10n, int? cents) {
     if (cents == null) return l10n.enterpriseNotRecorded;
-    return 'KSh ${(cents / 100).round()}';
+    return Formatters.moneyCompact(cents / 100);
   }
 }
 
@@ -667,11 +668,15 @@ class _EnterpriseEditorState extends State<_EnterpriseEditor> {
             keyboardType: TextInputType.number,
             decoration: InputDecoration(labelText: l10n.businessProfileMoneyInEachMonthKes),
           ),
+          // These fields carry no character counter, so nothing separates them:
+          // without a gap each floating label sits on the border of the field above.
+          const SizedBox(height: 16),
           TextField(
             controller: _costs,
             keyboardType: TextInputType.number,
             decoration: InputDecoration(labelText: l10n.businessProfileCostsEachMonthKes),
           ),
+          const SizedBox(height: 16),
           TextField(
             controller: _employs,
             keyboardType: TextInputType.number,
@@ -704,6 +709,7 @@ class _EnterpriseEditorState extends State<_EnterpriseEditor> {
             ],
             onChanged: (value) => setState(() => _reach = value),
           ),
+          const SizedBox(height: 16),
           TextField(
             controller: _buyers,
             keyboardType: TextInputType.number,

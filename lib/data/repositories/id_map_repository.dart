@@ -6,7 +6,17 @@ import '../../core/database/app_database.dart';
 abstract final class MapEntity {
   static const group = 'group';
   static const member = 'member';
+
+  /// A meeting has been PUSHED: a full pass of its attendance and money has
+  /// run. The sync badge, and the sync itself, read this as "backed up".
   static const meeting = 'meeting';
+
+  /// The server-side twin of a meeting, created before anything was pushed -
+  /// welfare is recorded against a server meeting, so one is made while the
+  /// meeting is still open. It only says WHERE the meeting will go. Mapping it
+  /// as [meeting] instead made a meeting that had merely been given a twin look
+  /// backed up, so once closed it was never sent.
+  static const meetingTwin = 'meeting_twin';
 }
 
 /// A conflict the backend reported for a synced record.
@@ -101,8 +111,9 @@ class IdMapRepository {
 
   Future<void> removeMeetingMappings() async {
     final db = await _db.database;
-    await db.delete('id_map', where: 'entity_type = ?',
-        whereArgs: [MapEntity.meeting]);
+    await db.delete('id_map',
+        where: 'entity_type IN (?, ?)',
+        whereArgs: [MapEntity.meeting, MapEntity.meetingTwin]);
   }
 
   Future<void> clearAll() async {

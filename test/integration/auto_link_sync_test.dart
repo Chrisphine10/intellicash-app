@@ -14,10 +14,8 @@ import 'package:intellicash_mobile/data/repositories/group_repository.dart';
 import 'package:intellicash_mobile/data/repositories/id_map_repository.dart';
 import 'package:intellicash_mobile/data/repositories/member_repository.dart';
 import 'package:intellicash_mobile/data/repositories/meeting_repository.dart';
-import 'package:intellicash_mobile/data/repositories/sync_repository.dart';
 import 'package:intellicash_mobile/data/services/auto_sync_coordinator.dart';
 import 'package:intellicash_mobile/data/services/remote_write_api.dart';
-import 'package:intellicash_mobile/data/services/sync_service.dart';
 import 'package:intellicash_mobile/data/services/write_sync_service.dart';
 
 /// A backend that accepts everything, without a network. Its `online` flag
@@ -261,5 +259,118 @@ void main() {
     pushedRoles.clear();
     await sync.syncBoundGroups();
     expect(pushedRoles, isEmpty);
+  });
+
+  /// A coordinator with the pull/policy hooks, over a server roster and policy
+  /// the test controls.
+  AutoSyncCoordinator twoWay({
+    required List<RemoteMember> serverRoster,
+    required List<String> added,
+    bool policyConfigured = false,
+    List<String>? policySent,
+  }) =>
+      AutoSyncCoordinator(
+        idMap: idMap,
+        meetings: meetings,
+        writeSync: WriteSyncService(db: db, idMap: idMap, writeApi: backend),
+        linkSupport: GroupLinkSupport(
+          currentGroup: groups.currentGroup,
+          membersForGroup: (id) => members.membersForGroup(id),
+          ownRemoteGroupId: () async => 'remote-group-9',
+          remoteGroup: (_) async => remote('Tsunami SHG'),
+          pushMember: (remoteGroupId, Member member) async => 'srv-${member.id}',
+          remoteMembers: (_) async => serverRoster,
+          addLocalMember: (localGroupId, person) async {
+            added.add(person.fullName);
+            return members.addMember(
+              groupId: localGroupId,
+              name: person.fullName,
+              phone: person.phone,
+            );
+          },
+          policyIsConfigured: (_) async => policyConfigured,
+          pushPolicy: (remoteGroupId, {required rateBps, required termMonths}) async =>
+              policySent?.add('$rateBps/$termMonths'),
+        ),
+      );
+
+  RemoteMember serverMember(String id, String name, {String? phone, String status = 'ACTIVE'}) =>
+      RemoteMember(id: id, fullName: name, phone: phone, role: 'MEMBER', kycStatus: 'PENDING', status: status);
+
+  test('a member the server admitted arrives on the phone, once', () async {
+    final group = await seedGroup('Tsunami SHG');
+    final added = <String>[];
+    final roster = [
+      serverMember('srv-new', 'Newcomer Njeri', phone: '254733020287'),
+      serverMember('srv-gone', 'Left The Group', status: 'INACTIVE'),
+    ];
+    final sync = twoWay(serverRoster: roster, added: added);
+
+    await sync.syncBoundGroups();
+    final names = (await members.membersForGroup(group.id)).map((m) => m.name).toList();
+    expect(names, contains('Newcomer Njeri'));
+    expect(names, isNot(contains('Left The Group'))); // inactive: not brought down
+    expect(added, ['Newcomer Njeri']);
+
+    // A second run does not add them again — they are mapped now.
+    await sync.syncBoundGroups();
+    expect(added, ['Newcomer Njeri']);
+    expect((await members.membersForGroup(group.id)).where((m) => m.name == 'Newcomer Njeri'), hasLength(1));
+  });
+
+  test('a server member who is already on the phone is linked, not duplicated', () async {
+    final group = await seedGroup('Tsunami SHG');
+    // Same person, number written differently on the phone and the server.
+    final local = await members.addMember(groupId: group.id, name: 'Achieng O', phone: '0722100011');
+    final added = <String>[];
+    final sync = twoWay(
+      serverRoster: [serverMember('srv-achieng', 'Achieng Otieno', phone: '254722100011')],
+      added: added,
+    );
+
+    // Make the push not claim them first, so the pull has to recognise them.
+    await idMap.put(MapEntity.group, group.id, 'remote-group-9', groupId: 'remote-group-9');
+    for (final m in await members.membersForGroup(group.id)) {
+      if (m.id != local.id) await idMap.put(MapEntity.member, m.id, 'srv-${m.id}', groupId: 'remote-group-9');
+    }
+    await sync.pullNewMembers(group.id, 'remote-group-9');
+
+    expect(added, isEmpty);
+    expect(await idMap.remoteId(MapEntity.member, local.id), 'srv-achieng');
+  });
+
+  test('two people with the same name but different numbers are never fused', () async {
+    final group = await seedGroup('Tsunami SHG');
+    await members.addMember(groupId: group.id, name: 'Mary Wanjiku', phone: '0711000001');
+    final added = <String>[];
+    final sync = twoWay(
+      serverRoster: [serverMember('srv-mary2', 'Mary Wanjiku', phone: '254722000002')],
+      added: added,
+    );
+    await idMap.put(MapEntity.group, group.id, 'remote-group-9', groupId: 'remote-group-9');
+    await sync.pullNewMembers(group.id, 'remote-group-9');
+    expect(added, ['Mary Wanjiku']);
+    expect((await members.membersForGroup(group.id)).where((m) => m.name == 'Mary Wanjiku'), hasLength(2));
+  });
+
+  test('the phone gives the server its loan rules only when the server has none', () async {
+    final group = await seedGroup('Tsunami SHG');
+    // seedGroup uses reducing balance, which the server cannot express: nothing sent.
+    var sent = <String>[];
+    var sync = twoWay(serverRoster: const [], added: <String>[], policySent: sent);
+    expect(await sync.pushPolicyIfUnset(group.id, 'remote-group-9'), isFalse);
+    expect(sent, isEmpty);
+
+    // A flat-rate group with an unconfigured server: 10% a month, 3 months.
+    await groups.updateGroup(group.copyWith(interestType: InterestType.flat, interestRate: 10, defaultLoanTermMonths: 3));
+    sync = twoWay(serverRoster: const [], added: <String>[], policySent: sent);
+    expect(await sync.pushPolicyIfUnset(group.id, 'remote-group-9'), isTrue);
+    expect(sent, ['1000/3']);
+
+    // A server that already has rules of its own is never overwritten.
+    sent = <String>[];
+    sync = twoWay(serverRoster: const [], added: <String>[], policyConfigured: true, policySent: sent);
+    expect(await sync.pushPolicyIfUnset(group.id, 'remote-group-9'), isFalse);
+    expect(sent, isEmpty);
   });
 }

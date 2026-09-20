@@ -68,8 +68,16 @@ class MeetingRepository {
     return Meeting.fromMap(rows.first);
   }
 
-  /// The group's cash box: everything collected minus everything lent out.
-  /// Becomes the next meeting's opening balance.
+  /// The group's cash box: everything collected minus everything lent out and
+  /// everything paid out at a share-out. Becomes the next meeting's opening
+  /// balance.
+  ///
+  /// The payouts matter. Without them a group that had shared out a cycle
+  /// opened its next meeting with the whole of the old cycle's money "in the
+  /// box" - an opening balance for cash that had gone home in members' hands.
+  /// What is subtracted is the whole entitlement (the share plus the welfare
+  /// that was distributed), because the loans netted against it come back in as
+  /// repayments; the welfare fund a group chose to keep stays in the box.
   Future<double> cashBoxBalance(String groupId) async {
     final db = await _db.database;
     final rows = await db.rawQuery('''
@@ -84,6 +92,8 @@ class MeetingRepository {
           JOIN loans l ON l.id = r.loan_id WHERE l.group_id = ?1)
       - (SELECT COALESCE(SUM(l.principal), 0) FROM loans l
           WHERE l.group_id = ?1)
+      - (SELECT COALESCE(SUM(p.gross_payout + p.welfare_payout), 0)
+          FROM share_out_payouts p WHERE p.group_id = ?1)
       AS balance
     ''', [groupId]);
     return ((rows.first['balance'] ?? 0) as num).toDouble();
@@ -343,6 +353,13 @@ class MeetingRepository {
     _requireOpen(meeting);
     final db = await _db.database;
     if (paid) {
+      // A zero contribution is not a contribution: it would show a member as
+      // "paid" for nothing, and the server refuses a zero-value entry when the
+      // meeting syncs.
+      if (group.socialFundAmount <= 0) {
+        throw const DomainException(
+            'The social fund amount is KSh 0. Set it in Group Settings (Savings step) before collecting.');
+      }
       final existing = await db.query('social_fund_entries',
           where: 'meeting_id = ? AND member_id = ?',
           whereArgs: [meeting.id, memberId],

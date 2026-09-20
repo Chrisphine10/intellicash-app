@@ -80,6 +80,7 @@ class _RepaymentSheetState extends State<RepaymentSheet> {
                 isExpanded: true,
                 decoration: InputDecoration(labelText: l10n.repaymentSelectLoan),
                 dropdownColor: AppColors.surfaceRaised,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (v) => v == null ? 'Pick a loan' : null,
                 items: [
                   for (final loan in outstandingLoans)
@@ -122,6 +123,7 @@ class _RepaymentSheetState extends State<RepaymentSheet> {
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
                 decoration: InputDecoration(labelText: l10n.welfareAmountKsh),
+                autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (v) {
                   final amount = double.tryParse(v ?? '') ?? 0;
                   if (amount <= 0) return 'Enter an amount above zero';

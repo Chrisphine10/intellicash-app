@@ -192,6 +192,7 @@ class _CreatePollSheetState extends State<CreatePollSheet> {
                     labelText: l10n.createPollWhatIsTheQuestion,
                     hintText: l10n.createPollShouldWeBuyAGroup,
                   ),
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
                   validator: (v) => (v == null || v.trim().length < 3)
                       ? 'Write the question'
                       : null,
@@ -208,6 +209,7 @@ class _CreatePollSheetState extends State<CreatePollSheet> {
                             textCapitalization: TextCapitalization.sentences,
                             decoration: InputDecoration(
                                 labelText: 'Answer ${i + 1}'),
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
                             validator: (v) => (v == null || v.trim().isEmpty)
                                 ? 'Write an answer or remove it'
                                 : null,

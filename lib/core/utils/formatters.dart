@@ -12,8 +12,15 @@ abstract final class Formatters {
   static String money(double amount) => 'KSh ${_money.format(amount)}';
 
   /// `KSh 52,300` — for stat cards where cents add noise.
-  static String moneyCompact(double amount) =>
-      'KSh ${_moneyCompact.format(amount)}';
+  ///
+  /// Only while there ARE no cents: `KSh 50.50` stays `KSh 50.50`. It used to
+  /// round to the shilling, so the dashboard showed a fine of 50.50 as
+  /// "KSh 51" while the meeting summary said 50.50 — two answers to one
+  /// question on the same phone.
+  static String moneyCompact(double amount) {
+    final wholeShillings = (amount * 100).round() % 100 == 0;
+    return 'KSh ${(wholeShillings ? _moneyCompact : _money).format(amount)}';
+  }
 
   /// `Sun, 12 Jul 2026`
   static String fullDate(DateTime date) => _fullDate.format(date);

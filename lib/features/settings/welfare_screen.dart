@@ -5,7 +5,9 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/services/remote_governance_api.dart';
 import '../../l10n/app_localizations.dart';
+import '../../data/services/write_sync_service.dart';
 import '../../providers/connection_provider.dart';
+import '../../providers/meeting_provider.dart';
 import '../../shared/widgets/common.dart';
 
 /// The welfare (social) fund — what has been paid out, and what is left.
@@ -49,6 +51,11 @@ class _WelfareScreenState extends State<WelfareScreen> {
 
   String? get _groupId => context.read<ConnectionProvider>().selectedGroup?.id;
 
+  /// The group a load was last attempted for, so the screen retries by itself
+  /// when the group appears (the phone got signal after opening this screen)
+  /// but never loops.
+  String? _triedGroupId;
+
   @override
   void initState() {
     super.initState();
@@ -68,10 +75,12 @@ class _WelfareScreenState extends State<WelfareScreen> {
     if (groupId == null) {
       setState(() {
         _loading = false;
-        _error = 'Choose your group under Cloud Account first.';
+        _error = 'Your group has not loaded yet — welfare needs a connection. '
+            'It loads by itself when signal returns, or tap Try again.';
       });
       return;
     }
+    _triedGroupId = groupId;
     setState(() {
       _loading = true;
       _error = null;
@@ -80,7 +89,20 @@ class _WelfareScreenState extends State<WelfareScreen> {
       // Both read BEFORE the first await: reading context after an async gap
       // is how a popped screen throws on return.
       final governance = context.read<RemoteGovernanceApi>();
+      final writeSync = context.read<WriteSyncService>();
+      final localMeeting = context.read<MeetingProvider>().activeMeeting;
       final data = await governance.welfare(groupId);
+      // A meeting held on this phone has no server twin until it syncs, and
+      // welfare is recorded against one. Make sure the open one has a twin, or
+      // this screen says "no meeting is open" beside a meeting that is.
+      if (localMeeting != null && localMeeting.isOpen) {
+        try {
+          await writeSync.ensureRemoteMeeting(localMeeting);
+        } catch (_) {
+          // Not linked yet, or no signal for this one call: the list below will
+          // simply not include it, and the screen says so.
+        }
+      }
       final open = await governance.openMeetings(groupId);
       if (!mounted) return;
       setState(() {
@@ -185,6 +207,13 @@ class _WelfareScreenState extends State<WelfareScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = L10n.of(context);
+    final groupNow = context.watch<ConnectionProvider>().selectedGroup?.id;
+    if (groupNow != null && groupNow != _triedGroupId && !_loading) {
+      _triedGroupId = groupNow;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _load();
+      });
+    }
     return Scaffold(
       appBar: AppBar(title: Text(l10n.welfareWelfareFund)),
       body: RefreshIndicator(onRefresh: _load, child: _body()),
@@ -197,7 +226,11 @@ class _WelfareScreenState extends State<WelfareScreen> {
     if (_error != null) {
       return ListView(
         padding: const EdgeInsets.all(16),
-        children: [Text(_error!, style: TextStyle(color: AppColors.defaulted))],
+        children: [
+          Text(_error!, style: TextStyle(color: AppColors.defaulted)),
+          const SizedBox(height: 14),
+          FilledButton(onPressed: _load, child: Text(l10n.welfareTryAgain)),
+        ],
       );
     }
     final data = _data;
