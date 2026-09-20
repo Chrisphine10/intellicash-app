@@ -1,9 +1,11 @@
 import '../models/enums.dart';
 import '../models/group.dart';
 import '../models/remote/remote_models.dart';
+import '../models/remote/restore_bundle.dart';
 import '../repositories/group_repository.dart';
 import '../repositories/id_map_repository.dart';
 import '../repositories/member_repository.dart';
+import 'group_history_importer.dart';
 import 'remote_api.dart';
 
 /// Brings a group that already exists on the server down onto this phone.
@@ -23,15 +25,21 @@ class GroupRestoreService {
     required GroupRepository groups,
     required MemberRepository members,
     required IdMapRepository idMap,
+    GroupHistoryImporter? history,
   })  : _api = api,
         _groups = groups,
         _members = members,
-        _idMap = idMap;
+        _idMap = idMap,
+        _history = history;
 
   final RemoteApiLike _api;
   final GroupRepository _groups;
   final MemberRepository _members;
   final IdMapRepository _idMap;
+
+  /// Optional: without it a restore brings the roster and settings only, which
+  /// is what it did before the history could be loaded.
+  final GroupHistoryImporter? _history;
 
   /// Whether this remote group is already on the phone.
   ///
@@ -116,11 +124,81 @@ class GroupRestoreService {
       // restore here would leave the treasurer back at "Set up group".
     }
 
+    // The record book itself: meetings, savings, loans, past share-outs.
+    final historyResult = _history == null
+        ? null
+        : await _restoreHistory(group.id, remote.id);
+
     return GroupRestoreResult(
-      group: group,
+      group: await _groups.currentGroup() ?? group,
       alreadyPresent: false,
       membersRestored: membersRestored,
+      history: historyResult,
+      historyPending: _history != null && historyResult == null,
     );
+  }
+
+  /// Brings the group's history across, or marks it to be tried again.
+  ///
+  /// Null means "not yet": the signal went, or there are no members on the phone
+  /// to attach the records to. Either way nothing was written, and the next sync
+  /// ([completePendingHistory]) tries again. A result with `notImportedBecause`
+  /// set is final - the phone already holds meetings of its own.
+  Future<HistoryImportResult?> _restoreHistory(
+      String localGroupId, String remoteGroupId) async {
+    try {
+      final bundle = await _api.restoreBundle(remoteGroupId);
+      if (bundle == null) {
+        // The server cannot give it (an older server, or this account may not
+        // load it). Not an error, and not worth retrying.
+        await _idMap.put(MapEntity.groupHistory, localGroupId, 'skipped',
+            groupId: remoteGroupId);
+        return const HistoryImportResult(
+            notImportedBecause: 'The online record could not provide the history.');
+      }
+      final memberMap = await _remoteToLocalMembers();
+      if (memberMap.isEmpty && bundle.entries.isNotEmpty) {
+        await _idMap.put(MapEntity.groupHistory, localGroupId, 'pending',
+            groupId: remoteGroupId);
+        return null;
+      }
+      final result = await _history!.import(
+        localGroupId: localGroupId,
+        remoteGroupId: remoteGroupId,
+        bundle: bundle,
+        localMemberFor: memberMap,
+      );
+      await _idMap.put(MapEntity.groupHistory, localGroupId,
+          result.imported ? 'done' : 'skipped',
+          groupId: remoteGroupId);
+      return result;
+    } catch (_) {
+      await _idMap.put(MapEntity.groupHistory, localGroupId, 'pending',
+          groupId: remoteGroupId);
+      return null;
+    }
+  }
+
+  Future<Map<String, String>> _remoteToLocalMembers() async {
+    final mapped = await _idMap.mappings(MapEntity.member);
+    return {for (final entry in mapped.entries) entry.value: entry.key};
+  }
+
+  /// Finishes any restore whose history did not come across the first time. Safe
+  /// to call on every sync: it does nothing when nothing is pending. Never throws.
+  Future<void> completePendingHistory() async {
+    if (_history == null) return;
+    try {
+      final groups = await _idMap.mappings(MapEntity.groupHistory);
+      for (final entry in groups.entries) {
+        if (entry.value != 'pending') continue;
+        final remoteGroupId = await _idMap.remoteId(MapEntity.group, entry.key);
+        if (remoteGroupId == null) continue;
+        await _restoreHistory(entry.key, remoteGroupId);
+      }
+    } catch (_) {
+      // Tried again at the next sync.
+    }
   }
 }
 
@@ -129,6 +207,7 @@ class GroupRestoreService {
 abstract class RemoteApiLike {
   Future<RemoteGroup> groupDetail(String groupId);
   Future<List<RemoteMember>> groupMembers(String groupId);
+  Future<RestoreBundle?> restoreBundle(String groupId);
 }
 
 /// Adapts the real client to the two calls this service makes, so the service
@@ -144,6 +223,10 @@ class RemoteApiRestoreAdapter implements RemoteApiLike {
   @override
   Future<List<RemoteMember>> groupMembers(String groupId) =>
       _api.groupMembers(groupId);
+
+  @override
+  Future<RestoreBundle?> restoreBundle(String groupId) =>
+      _api.restoreBundle(groupId);
 }
 
 class GroupRestoreResult {
@@ -151,7 +234,15 @@ class GroupRestoreResult {
     required this.group,
     required this.alreadyPresent,
     required this.membersRestored,
+    this.history,
+    this.historyPending = false,
   });
+
+  /// What came across of the record book, when it did.
+  final HistoryImportResult? history;
+
+  /// The history has not come across yet (no signal); it follows at the next sync.
+  final bool historyPending;
 
   final Group? group;
 

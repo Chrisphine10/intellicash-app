@@ -145,6 +145,9 @@ void main() {
     });
 
     // --- Commit ---
+    // A cycle is shared out once its meetings are closed: a meeting still being
+    // recorded has savings and loans on both sides of the line.
+    await meetings.closeMeeting(meeting);
     final next = await shareOut.commit(group, preview);
     expect(next.cycleNumber, 2);
     expect(next.cycleStartDate.isAfter(group.cycleStartDate), isTrue);
@@ -243,6 +246,31 @@ void main() {
     expect(await loans.loanFundBalance(group.id), 200);
     expect((await loans.eligibility(group: next, memberId: ann.id)).availableAmount,
         400);
+  });
+
+  test('will not share out while a meeting is still open, and says which', () async {
+    final group = await seedGroup();
+    final roster = await members.membersForGroup(group.id);
+    final meeting = await meetings.startMeeting(group);
+    await meetings.recordSharePurchase(
+        meeting: meeting, group: group, memberId: roster.first.id, shares: 5);
+
+    expect(await shareOut.openMeetingNumber(group.id), meeting.number);
+    final preview = await shareOut.preview(group);
+    await expectLater(
+      () => shareOut.commit(group, preview),
+      throwsA(predicate(
+          (e) => e.toString().contains('Close Meeting #${meeting.number}'))),
+    );
+    // Nothing was recorded, and the cycle did not move.
+    expect(await shareOut.history(group.id), isEmpty);
+    expect((await groups.currentGroup())!.cycleNumber, 1);
+
+    // Once the meeting is closed the same share-out goes through.
+    await meetings.closeMeeting(meeting);
+    expect(await shareOut.openMeetingNumber(group.id), isNull);
+    final next = await shareOut.commit(group, preview);
+    expect(next.cycleNumber, 2);
   });
 
   test('refuses to share out a cycle with no contributions', () async {

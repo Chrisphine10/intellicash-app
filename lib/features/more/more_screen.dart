@@ -7,7 +7,6 @@ import '../../core/utils/formatters.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/app_state.dart';
 import '../../providers/connection_provider.dart';
-import '../../providers/theme_controller.dart';
 import '../../shared/widgets/common.dart';
 import '../../shared/widgets/status_chip.dart';
 import '../account/account_route.dart';
@@ -365,7 +364,19 @@ class MoreScreen extends StatelessWidget {
   Widget _connectionTile(BuildContext context) {
     final l10n = L10n.of(context);
     final connection = context.watch<ConnectionProvider>();
+    final online = context.select<AppState, bool>((s) => s.isOnline);
     final (String subtitle, Widget? trailing) = switch (connection.status) {
+      // The last check succeeded, but that was then: with no network now,
+      // "Connected" and a green tick would be a false comfort.
+      ConnectionStatus.connected when !online => (
+          l10n.cloudOfflineSubtitle,
+          StatusChip(
+            label: 'offline',
+            color: AppColors.pending,
+            tint: AppColors.pendingTint,
+            icon: Icons.cloud_off_outlined,
+          ),
+        ),
       ConnectionStatus.connected => (
           // The roster is fetched when the online records are opened; before
           // that "0 members" was shown for a group with people in it.
@@ -408,12 +419,18 @@ class MoreScreen extends StatelessWidget {
       leading: const Icon(Icons.cloud_upload_outlined, size: 20),
       title: Text(l10n.syncBackup, style: TextStyle(fontSize: 14)),
       subtitle: Text(
-        appState.pendingSync == 0
-            ? 'Everything is backed up'
-            : '${appState.pendingSync} '
-                '${appState.pendingSync == 1 ? 'meeting' : 'meetings'} '
-                'waiting to back up',
-        style: Theme.of(context).textTheme.bodySmall,
+        // A refused share-out is said in words: a bare "1 waiting" would leave
+        // the treasurer to guess that money paid out at the table is not on
+        // the online record.
+        appState.syncAttention ??
+            (appState.pendingSync == 0
+                ? 'Everything is backed up'
+                : '${appState.pendingSync} '
+                    '${appState.pendingSync == 1 ? 'item' : 'items'} '
+                    'waiting to back up'),
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: appState.syncAttention == null ? null : AppColors.defaulted,
+            ),
       ),
       trailing: appState.pendingSync > 0
           ? StatusChip.pendingSync(appState.pendingSync)
@@ -440,9 +457,6 @@ class MoreScreen extends StatelessWidget {
   }
 }
 
-/// Light / Dark / System picker for [ThemeController]. Applying a change
-/// re-keys the app content (see [ThemeController]'s doc comment), so this
-/// screen closes and the app returns to its root screen right after.
 /// Optional: let this group create sign-in accounts for its members, so each
 /// member can check their own savings on their own phone.
 /// Sharing the group's invite link and QR code.

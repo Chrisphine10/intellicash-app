@@ -7,6 +7,7 @@ import '../models/remote/member_overview.dart';
 import '../models/remote/member_passbook.dart';
 import '../models/remote/membership.dart';
 import '../models/remote/remote_models.dart';
+import '../models/remote/restore_bundle.dart';
 
 /// Typed wrapper over the IntelliCash backend endpoints a `MOBILE_CORE` API
 /// key is allowed to consume.
@@ -380,6 +381,22 @@ class RemoteApi {
     return list
         .map((e) => RemoteMeeting.fromJson(e as Map<String, dynamic>))
         .toList();
+  }
+
+  // --- Restore (a group's whole book, for a new phone) ---
+
+  /// `GET /groups/:id/restore-bundle` - everything needed to rebuild the group's
+  /// record book on this phone. Null when the server has no such route (an older
+  /// server) or the signed-in account may not load it, so a restore still brings
+  /// the roster and settings across rather than failing altogether.
+  Future<RestoreBundle?> restoreBundle(String groupId) async {
+    try {
+      final data = await _client.getData('/groups/$groupId/restore-bundle');
+      return RestoreBundle.fromJson(data as Map<String, dynamic>);
+    } on ApiException catch (e) {
+      if (e.statusCode == 404 || e.statusCode == 403) return null;
+      rethrow;
+    }
   }
 
   // --- Credit rating (groups:read) ---

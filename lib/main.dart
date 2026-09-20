@@ -43,6 +43,8 @@ import 'data/services/remote_write_api.dart';
 import 'data/services/sync_service.dart';
 import 'core/network/api_exception.dart';
 import 'data/services/auto_sync_coordinator.dart';
+import 'data/services/group_history_importer.dart';
+import 'data/services/share_out_sync_service.dart';
 import 'data/services/write_sync_service.dart';
 import 'providers/app_state.dart';
 import 'providers/connection_provider.dart';
@@ -109,10 +111,23 @@ Future<void> main() async {
   ConnectionProvider? connectionRef;
   final writeApi = RemoteWriteApi(apiClient);
   final governanceApi = RemoteGovernanceApi(apiClient);
+  // Sends the share-outs this phone has made, in step with the meetings.
+  final shareOutSync = ShareOutSyncService(db: db, idMap: idMap, writeApi: writeApi);
+  // Loads a group that already exists online onto this phone, history and all.
+  // Shared with the sync below, which finishes a restore whose history was cut
+  // short by a dropped signal.
+  final groupRestore = GroupRestoreService(
+    api: RemoteApiRestoreAdapter(remoteApi),
+    groups: GroupRepository(db),
+    members: MemberRepository(db),
+    idMap: idMap,
+    history: GroupHistoryImporter(db: db),
+  );
   final autoSync = AutoSyncCoordinator(
     idMap: idMap,
     meetings: MeetingRepository(db),
     writeSync: writeSyncService,
+    shareOutSync: shareOutSync,
     // Binds a group's own phone to its server group and sends up members made
     // on the phone, so its records reach the console without anyone opening
     // the manual Sync screen.
@@ -149,6 +164,19 @@ Future<void> main() async {
           orElse: () => MemberRole.member,
         ),
       ),
+      // A "not now" to linking this book to that group is remembered, so the
+      // question is not asked at every start.
+      linkDismissed: (localGroupId, remoteGroupId) async =>
+          ((await SharedPreferences.getInstance())
+                      .getStringList('link_proposal_dismissed') ??
+                  const <String>[])
+              .contains('$localGroupId|$remoteGroupId'),
+      saveLinkDismissed: (localGroupId, remoteGroupId) async {
+        final prefs = await SharedPreferences.getInstance();
+        final asked = prefs.getStringList('link_proposal_dismissed') ?? <String>[];
+        await prefs.setStringList(
+            'link_proposal_dismissed', [...asked, '$localGroupId|$remoteGroupId']);
+      },
       editedMembersSince: (after) => MemberRepository(db).editedSince(after),
       roleWatermark: () async =>
           (await SharedPreferences.getInstance()).getInt('role_sync_watermark') ?? 0,
@@ -222,6 +250,9 @@ Future<void> main() async {
       }
     }
 
+    // A group loaded onto this phone whose history did not arrive comes first,
+    // before anything is sent: the meetings it brings are numbered from one.
+    await groupRestore.completePendingHistory();
     final meetings = await autoSync.syncBoundGroups();
 
     // Refresh the cached scorecard while there is signal. Guarded on the
@@ -284,9 +315,14 @@ Future<void> main() async {
   // tracks the sync it can see and clears as meetings back up.
   syncService.pendingProbe = () async =>
       await autoSync.pendingMeetings() +
+      await autoSync.pendingShareOuts() +
       await visitSync.pendingCount() +
       await attachmentSync.pendingCount() +
       await mentorshipSync.pendingCount();
+
+  // What the sync screen says when the server has refused a share-out, so the
+  // person can see WHY it is still waiting rather than a bare count.
+  syncService.attentionProbe = autoSync.shareOutAttention;
 
   runApp(
     MultiProvider(
@@ -297,6 +333,7 @@ Future<void> main() async {
             syncService: syncService,
             remoteGroupIdFor: (localGroupId) =>
                 idMap.remoteId(MapEntity.group, localGroupId),
+            linkSource: autoSync,
           )..bootstrap(),
         ),
         ChangeNotifierProvider(
@@ -379,14 +416,7 @@ Future<void> main() async {
         Provider<VisitSyncService>.value(value: visitSync),
         // Lets a group that already exists on the server be pulled onto this
         // phone, instead of the treasurer creating a duplicate one.
-        Provider<GroupRestoreService>(
-          create: (_) => GroupRestoreService(
-            api: RemoteApiRestoreAdapter(remoteApi),
-            groups: GroupRepository(AppDatabase.instance),
-            members: MemberRepository(AppDatabase.instance),
-            idMap: IdMapRepository(AppDatabase.instance),
-          ),
-        ),
+        Provider<GroupRestoreService>.value(value: groupRestore),
         Provider<AssessmentRepository>.value(value: assessments),
         Provider<AttachmentRepository>.value(value: attachments),
         Provider<AttachmentSyncService>.value(value: attachmentSync),
@@ -398,7 +428,11 @@ Future<void> main() async {
         // and has no local mirror to go through.
         Provider<ApiClient>.value(value: apiClient),
         ChangeNotifierProvider(
-          create: (_) => ShareOutProvider(ShareOutRepository(db)),
+          create: (_) => ShareOutProvider(
+            ShareOutRepository(db),
+            sync: shareOutSync,
+            onSendNow: syncService.pushNow,
+          ),
         ),
         ChangeNotifierProvider(
           create: (_) => ThemeController()..bootstrap(),

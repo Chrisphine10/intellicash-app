@@ -17,6 +17,16 @@ abstract final class MapEntity {
   /// as [meeting] instead made a meeting that had merely been given a twin look
   /// backed up, so once closed it was never sent.
   static const meetingTwin = 'meeting_twin';
+
+  /// A share-out done on this phone has been dealt with online. The local id is
+  /// `<local group id>#<cycle number>`; the remote id is the server cycle it
+  /// closed, or one of the markers in `ShareOutSyncService` when it needed none.
+  static const shareOut = 'share_out';
+
+  /// Whether a restored group's history has been brought onto this phone yet:
+  /// `pending` (the signal went first; tried again on the next sync), `done`, or
+  /// `skipped` (the phone had already recorded meetings of its own).
+  static const groupHistory = 'group_history';
 }
 
 /// A conflict the backend reported for a synced record.

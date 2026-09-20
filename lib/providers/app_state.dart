@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import '../data/models/enums.dart';
 import '../data/models/group.dart';
 import '../data/repositories/group_repository.dart';
+import '../data/services/auto_sync_coordinator.dart';
 import '../data/services/sync_service.dart';
 
 enum AppStatus { loading, needsSetup, ready }
@@ -15,9 +16,15 @@ class AppState extends ChangeNotifier {
     required GroupRepository groupRepository,
     required SyncService syncService,
     Future<String?> Function(String localGroupId)? remoteGroupIdFor,
+    LinkProposalSource? linkSource,
   })  : _groupRepository = groupRepository,
         _syncService = syncService,
-        _remoteGroupIdFor = remoteGroupIdFor {
+        _remoteGroupIdFor = remoteGroupIdFor,
+        _linkSource = linkSource {
+    _syncService.onOnlineChanged = (online) {
+      _isOnline = online;
+      notifyListeners();
+    };
     _syncService.onQueueChanged = () {
       // Bumped on every finished sync so screens showing local figures (the
       // dashboard) know to reload: a sync can pull records down as well as
@@ -26,6 +33,28 @@ class AppState extends ChangeNotifier {
       refreshPendingSync();
       unawaited(refreshBoundRemoteGroup());
     };
+  }
+
+  /// Asks the person whether this phone's book belongs to the group they signed
+  /// in as, when that cannot be told from the names. Optional, like the rest.
+  final LinkProposalSource? _linkSource;
+
+  /// A book on this phone that may belong to the signed-in group account, put to
+  /// the person to confirm, or null.
+  LinkProposal? get linkProposal => _linkSource?.linkProposal;
+
+  /// The person confirmed: link the book, then send what it holds.
+  Future<void> confirmLink() async {
+    final linked = await _linkSource?.confirmLinkProposal() ?? false;
+    await refreshBoundRemoteGroup();
+    notifyListeners();
+    if (linked) unawaited(syncNow());
+  }
+
+  /// The person said "not now".
+  Future<void> dismissLink() async {
+    await _linkSource?.dismissLinkProposal();
+    notifyListeners();
   }
 
   /// Which server group a local group is linked to, from the id map. Optional
@@ -61,11 +90,20 @@ class AppState extends ChangeNotifier {
   AppStatus _status = AppStatus.loading;
   Group? _group;
   int _pendingSync = 0;
+  bool _isOnline = true;
+  String? _syncAttention;
   int _syncRevision = 0;
 
   AppStatus get status => _status;
   Group? get group => _group;
   int get pendingSync => _pendingSync;
+
+  /// Whether the phone has a network right now. False in airplane mode or out of
+  /// range; screens that describe the connection say so instead of "connected".
+  bool get isOnline => _isOnline;
+
+  /// Words about something the online record refused (a share-out), or null.
+  String? get syncAttention => _syncAttention;
 
   /// Increases after every completed sync.
   int get syncRevision => _syncRevision;
@@ -148,6 +186,7 @@ class AppState extends ChangeNotifier {
 
   Future<void> refreshPendingSync() async {
     _pendingSync = await _syncService.pendingCount();
+    _syncAttention = await _syncService.attention();
     notifyListeners();
   }
 

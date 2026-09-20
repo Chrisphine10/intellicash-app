@@ -156,6 +156,25 @@ class ShareOutRepository {
     );
   }
 
+  /// The number of a meeting that is still open in this group, or null.
+  ///
+  /// A share-out draws a line under the cycle. A meeting still being recorded
+  /// has savings and loans on both sides of that line, so the cycle cannot be
+  /// shared out until it is closed. It also keeps the records that reach the
+  /// online record in order: a cycle's meetings first, then its share-out.
+  Future<int?> openMeetingNumber(String groupId) async {
+    final db = await _db.database;
+    final rows = await db.query(
+      'meetings',
+      columns: ['number'],
+      where: 'group_id = ? AND status = ?',
+      whereArgs: [groupId, MeetingStatus.open.name],
+      orderBy: 'number DESC',
+      limit: 1,
+    );
+    return rows.isEmpty ? null : rows.first['number'] as int;
+  }
+
   /// Commits the share-out: writes the payout records, settles the cycle's
   /// outstanding loans (netted into the payouts), and advances the group to
   /// the next cycle. Returns the group with its bumped cycle.
@@ -163,6 +182,12 @@ class ShareOutRepository {
     if (result.shareCapitalCents <= 0) {
       throw const DomainException(
           'There are no share contributions in this cycle to share out.');
+    }
+    final openMeeting = await openMeetingNumber(group.id);
+    if (openMeeting != null) {
+      throw DomainException(
+          'Close Meeting #$openMeeting before sharing out. Its savings and '
+          'loans belong to this cycle.');
     }
     final db = await _db.database;
     final now = DateTime.now();

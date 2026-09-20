@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intellicash_mobile/core/database/app_database.dart';
 import 'package:intellicash_mobile/data/models/remote/remote_models.dart';
+import 'package:intellicash_mobile/data/models/remote/restore_bundle.dart';
 import 'package:intellicash_mobile/data/repositories/group_repository.dart';
 import 'package:intellicash_mobile/data/repositories/id_map_repository.dart';
 import 'package:intellicash_mobile/data/repositories/member_repository.dart';
@@ -125,6 +126,10 @@ void main() {
 
 class _FakeApi implements RemoteApiLike {
   bool membersThrow = false;
+
+  /// This suite is about the roster and settings; the history has its own.
+  @override
+  Future<RestoreBundle?> restoreBundle(String groupId) async => null;
 
   @override
   Future<RemoteGroup> groupDetail(String groupId) async {

@@ -77,13 +77,17 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
         TextEditingController(text: '${g?.maxSharesPerMeeting ?? 10}');
     _socialFundCtrl =
         TextEditingController(text: _trimNum(g?.socialFundAmount ?? 50));
-    _interestType = g?.interestType ?? InterestType.reducingBalance;
+    // A new group starts on the platform's own loan model: flat monthly interest
+    // on the amount borrowed, 10% a month, up to 3x savings, for 1 month. It is
+    // the only model the online record can express, so a group that keeps these
+    // sees the same loan totals on the phone and on the console.
+    _interestType = g?.interestType ?? InterestType.flat;
     _interestRateCtrl =
-        TextEditingController(text: _trimNum(g?.interestRate ?? 5));
+        TextEditingController(text: _trimNum(g?.interestRate ?? 10));
     _multiplierCtrl =
-        TextEditingController(text: _trimNum(g?.loanMultiplier ?? 2));
+        TextEditingController(text: _trimNum(g?.loanMultiplier ?? 3));
     _termCtrl =
-        TextEditingController(text: '${g?.defaultLoanTermMonths ?? 3}');
+        TextEditingController(text: '${g?.defaultLoanTermMonths ?? 1}');
     _frequency = g?.meetingFrequency ?? MeetingFrequency.weekly;
     _meetingDays.addAll(g?.meetingDays ?? const [DateTime.sunday]);
   }
@@ -349,6 +353,16 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
           ],
         ),
       ),
+      // Said where the choice is made, not discovered later as two different
+      // loan totals for the same loan.
+      if (_interestType == InterestType.reducingBalance)
+        Padding(
+          padding: const EdgeInsets.only(bottom: 4),
+          child: Text(
+            l10n.groupSetupWizardReducingNote,
+            style: TextStyle(fontSize: 12, color: AppColors.pending),
+          ),
+        ),
       const SizedBox(height: 12),
       TextFormField(
         controller: _multiplierCtrl,

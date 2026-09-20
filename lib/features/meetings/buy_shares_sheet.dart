@@ -66,6 +66,7 @@ class _BuySharesSheetState extends State<BuySharesSheet> {
     final l10n = L10n.of(context);
     final group = context.watch<AppState>().group!;
     final members = context.watch<MemberProvider>().members;
+    final attendance = context.watch<MeetingProvider>().attendance;
     final total = _shares * group.shareValue;
 
     return Padding(
@@ -88,8 +89,16 @@ class _BuySharesSheetState extends State<BuySharesSheet> {
               for (final financials in members)
                 DropdownMenuItem(
                   value: financials.member.id,
-                  child: Text(financials.member.name,
-                      style: const TextStyle(fontSize: 14)),
+                  // A member marked absent may still pay (by M-Pesa, or through
+                  // someone), so they are not hidden - but the treasurer sees
+                  // it before recording, rather than finding out from the
+                  // attendance list afterwards.
+                  child: Text(
+                    (attendance[financials.member.id] ?? false)
+                        ? financials.member.name
+                        : '${financials.member.name} · ${l10n.buySharesAbsentTag}',
+                    style: const TextStyle(fontSize: 14),
+                  ),
                 ),
             ],
             onChanged: (v) => setState(() => _memberId = v),

@@ -88,6 +88,39 @@ class RemoteWriteApi {
     );
   }
 
+  /// `POST /groups/:groupId/share-outs` — sends a share-out done on this phone
+  /// and lets the server close the cycle it ended, in one step. The server
+  /// records what was paid as it was; it does not work it out again.
+  ///
+  /// Retry-safe: [shareOutId] is the phone's own id for this share-out, and
+  /// sending it again answers with what was already recorded ([RecordedShareOut.replayed]).
+  ///
+  /// Refusals arrive as an [ApiException] whose `code` says why:
+  /// `SHARE_OUT_CYCLE_CLOSED` (the server already closed that cycle - it was
+  /// shared out elsewhere), `SHARE_OUT_CYCLE_AHEAD` (an earlier cycle has not
+  /// arrived), `SHARE_OUT_OUT_OF_STEP` (the server's share purchases are not the
+  /// phone's), `SHARE_OUT_FUND_SHORT`, `CYCLE_HAS_OPEN_MEETINGS`, or a plain 403
+  /// for an account that may not end a cycle.
+  Future<RecordedShareOut> recordShareOut({
+    required String groupId,
+    required String shareOutId,
+    required int cycleNumber,
+    required List<ShareOutLineInput> lines,
+    bool force = false,
+  }) async {
+    final data = await _client.postData('/groups/$groupId/share-outs', body: {
+      'shareOutId': shareOutId,
+      'cycleNumber': cycleNumber,
+      if (force) 'force': true,
+      'lines': [for (final line in lines) line.toJson()],
+    });
+    final map = data as Map<String, dynamic>;
+    return RecordedShareOut(
+      replayed: map['replayed'] == true,
+      closedCycleId: (map['closed'] as Map<String, dynamic>)['id'] as String,
+    );
+  }
+
   /// `POST /groups/:groupId/members` — push a locally-created member.
   /// Requires a phone (backend min 7 chars). Returns the new backend id.
   Future<String> createMember({
@@ -136,4 +169,47 @@ class LedgerEntryInput {
           'externalReference': externalReference,
         'clientRequestId': clientRequestId,
       };
+}
+
+
+/// One member's line of a share-out, in backend vocabulary (cents).
+class ShareOutLineInput {
+  const ShareOutLineInput({
+    required this.memberId,
+    required this.shareCents,
+    required this.grossPayoutCents,
+    required this.welfarePayoutCents,
+    required this.loanOffsetCents,
+    required this.netPayoutCents,
+  });
+
+  final String memberId;
+  final int shareCents;
+  final int grossPayoutCents;
+  final int welfarePayoutCents;
+  final int loanOffsetCents;
+
+  /// Negative when the member owes the group more than they are owed.
+  final int netPayoutCents;
+
+  Map<String, dynamic> toJson() => {
+        'memberId': memberId,
+        'shareCents': shareCents,
+        'grossPayoutCents': grossPayoutCents,
+        'welfarePayoutCents': welfarePayoutCents,
+        'loanOffsetCents': loanOffsetCents,
+        'netPayoutCents': netPayoutCents,
+      };
+}
+
+/// What the server says about a share-out it accepted.
+class RecordedShareOut {
+  const RecordedShareOut({required this.replayed, required this.closedCycleId});
+
+  /// True when this exact share-out had been recorded before and nothing new was
+  /// written now.
+  final bool replayed;
+
+  /// The server cycle that the share-out closed.
+  final String closedCycleId;
 }

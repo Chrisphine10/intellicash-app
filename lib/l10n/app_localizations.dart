@@ -3564,6 +3564,144 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'These are the records of {groupName}. To keep them private, only that group\'s own account can open them. Sign in with that group\'s account, or sign out and use a phone of your own.'**
   String wrongBookBody(String groupName);
+
+  /// No description provided for @shareOutCloseMeetingFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Close Meeting #{number} before sharing out. Its savings and loans belong to this cycle.'**
+  String shareOutCloseMeetingFirst(int number);
+
+  /// No description provided for @shareOutPermanentOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'This is permanent. The payouts are recorded on this phone and sent to the online record when there is a signal. Cycle {cycle} is closed there too.'**
+  String shareOutPermanentOnline(int cycle);
+
+  /// No description provided for @shareOutPermanentPhoneOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'This is permanent. The payouts are recorded on this phone. This group is not linked to the online record, so they are not sent.'**
+  String get shareOutPermanentPhoneOnly;
+
+  /// No description provided for @shareOutStatusSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorded online'**
+  String get shareOutStatusSent;
+
+  /// No description provided for @shareOutStatusAlreadyOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Already shared out online, so this copy was not sent'**
+  String get shareOutStatusAlreadyOnline;
+
+  /// No description provided for @shareOutStatusBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'Made before share-outs could be sent online'**
+  String get shareOutStatusBefore;
+
+  /// No description provided for @shareOutStatusWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting to be sent online'**
+  String get shareOutStatusWaiting;
+
+  /// No description provided for @shareOutStatusBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Not sent online'**
+  String get shareOutStatusBlocked;
+
+  /// No description provided for @shareOutSendNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Send now'**
+  String get shareOutSendNow;
+
+  /// No description provided for @shareOutSendAnyway.
+  ///
+  /// In en, this message translates to:
+  /// **'Send anyway'**
+  String get shareOutSendAnyway;
+
+  /// No description provided for @shareOutSendAnywayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Send this share-out anyway?'**
+  String get shareOutSendAnywayTitle;
+
+  /// No description provided for @shareOutSendAnywayBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The online record does not hold the same share purchases as this phone for this cycle. Sending anyway records the payouts exactly as they were paid on this phone and closes the cycle online. Do this only if you understand the difference.'**
+  String get shareOutSendAnywayBody;
+
+  /// No description provided for @shareOutSentOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Share-out recorded online.'**
+  String get shareOutSentOnline;
+
+  /// No description provided for @groupSetupWizardReducingNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The online record charges flat interest. Loans on this phone will show different totals from the online record.'**
+  String get groupSetupWizardReducingNote;
+
+  /// No description provided for @linkProposalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Link these records to {remoteName}?'**
+  String linkProposalTitle(String remoteName);
+
+  /// No description provided for @linkProposalBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone holds the records of “{localName}”, and you are signed in as “{remoteName}”. If they are the same group, link them so its members and meetings are sent online. If they are not, choose Not now.'**
+  String linkProposalBody(String localName, String remoteName);
+
+  /// No description provided for @linkProposalConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Link them'**
+  String get linkProposalConfirm;
+
+  /// No description provided for @linkProposalDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get linkProposalDismiss;
+
+  /// No description provided for @cloudOfflineSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet. Showing what is saved on this phone.'**
+  String get cloudOfflineSubtitle;
+
+  /// No description provided for @restoreLoadedWithHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Loaded {groupName}: {members} members and {meetings} meetings.'**
+  String restoreLoadedWithHistory(String groupName, int members, int meetings);
+
+  /// No description provided for @restoreHistoryPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Loaded {groupName} with {members} members. Its meetings and savings will follow when there is a signal.'**
+  String restoreHistoryPending(String groupName, int members);
+
+  /// No description provided for @restoreHistoryNotLoaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Loaded {groupName} with {members} members. Its earlier meetings and savings could not be loaded from the online record.'**
+  String restoreHistoryNotLoaded(String groupName, int members);
+
+  /// No description provided for @buySharesAbsentTag.
+  ///
+  /// In en, this message translates to:
+  /// **'not marked present'**
+  String get buySharesAbsentTag;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

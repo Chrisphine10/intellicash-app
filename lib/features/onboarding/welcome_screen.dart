@@ -325,12 +325,22 @@ class _RestoreGroupCardState extends State<_RestoreGroupCard> {
       // Reload so the root router sees the group and opens the record book.
       await appState.reloadGroup();
       if (!mounted) return;
+      final l10n = L10n.of(context);
+      final name = result.group?.name ?? 'your group';
+      final history = result.history;
       messenger.showSnackBar(
         SnackBar(
           content: Text(result.alreadyPresent
               ? 'This group is already on this phone.'
-              : 'Loaded ${result.group?.name ?? 'your group'} with '
-                  '${result.membersRestored} members.'),
+              : history != null && history.imported
+                  ? l10n.restoreLoadedWithHistory(
+                      name, result.membersRestored, history.meetings)
+                  : result.historyPending
+                      ? l10n.restoreHistoryPending(name, result.membersRestored)
+                      : history != null
+                          ? l10n.restoreHistoryNotLoaded(
+                              name, result.membersRestored)
+                          : 'Loaded $name with ${result.membersRestored} members.'),
         ),
       );
     } catch (error) {

@@ -1948,4 +1948,93 @@ class L10nEn extends L10n {
   String wrongBookBody(String groupName) {
     return 'These are the records of $groupName. To keep them private, only that group\'s own account can open them. Sign in with that group\'s account, or sign out and use a phone of your own.';
   }
+
+  @override
+  String shareOutCloseMeetingFirst(int number) {
+    return 'Close Meeting #$number before sharing out. Its savings and loans belong to this cycle.';
+  }
+
+  @override
+  String shareOutPermanentOnline(int cycle) {
+    return 'This is permanent. The payouts are recorded on this phone and sent to the online record when there is a signal. Cycle $cycle is closed there too.';
+  }
+
+  @override
+  String get shareOutPermanentPhoneOnly =>
+      'This is permanent. The payouts are recorded on this phone. This group is not linked to the online record, so they are not sent.';
+
+  @override
+  String get shareOutStatusSent => 'Recorded online';
+
+  @override
+  String get shareOutStatusAlreadyOnline =>
+      'Already shared out online, so this copy was not sent';
+
+  @override
+  String get shareOutStatusBefore =>
+      'Made before share-outs could be sent online';
+
+  @override
+  String get shareOutStatusWaiting => 'Waiting to be sent online';
+
+  @override
+  String get shareOutStatusBlocked => 'Not sent online';
+
+  @override
+  String get shareOutSendNow => 'Send now';
+
+  @override
+  String get shareOutSendAnyway => 'Send anyway';
+
+  @override
+  String get shareOutSendAnywayTitle => 'Send this share-out anyway?';
+
+  @override
+  String get shareOutSendAnywayBody =>
+      'The online record does not hold the same share purchases as this phone for this cycle. Sending anyway records the payouts exactly as they were paid on this phone and closes the cycle online. Do this only if you understand the difference.';
+
+  @override
+  String get shareOutSentOnline => 'Share-out recorded online.';
+
+  @override
+  String get groupSetupWizardReducingNote =>
+      'The online record charges flat interest. Loans on this phone will show different totals from the online record.';
+
+  @override
+  String linkProposalTitle(String remoteName) {
+    return 'Link these records to $remoteName?';
+  }
+
+  @override
+  String linkProposalBody(String localName, String remoteName) {
+    return 'This phone holds the records of “$localName”, and you are signed in as “$remoteName”. If they are the same group, link them so its members and meetings are sent online. If they are not, choose Not now.';
+  }
+
+  @override
+  String get linkProposalConfirm => 'Link them';
+
+  @override
+  String get linkProposalDismiss => 'Not now';
+
+  @override
+  String get cloudOfflineSubtitle =>
+      'No internet. Showing what is saved on this phone.';
+
+  @override
+  String restoreLoadedWithHistory(String groupName, int members, int meetings) {
+    return 'Loaded $groupName: $members members and $meetings meetings.';
+  }
+
+  @override
+  String restoreHistoryPending(String groupName, int members) {
+    return 'Loaded $groupName with $members members. Its meetings and savings will follow when there is a signal.';
+  }
+
+  @override
+  String restoreHistoryNotLoaded(String groupName, int members) {
+    return 'Loaded $groupName with $members members. Its earlier meetings and savings could not be loaded from the online record.';
+  }
+
+  @override
+  String get buySharesAbsentTag => 'not marked present';
 }

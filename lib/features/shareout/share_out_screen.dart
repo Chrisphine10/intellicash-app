@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../core/utils/share_out_calculator.dart';
+import '../../data/models/group.dart';
 import '../../data/repositories/share_out_repository.dart';
+import '../../data/services/share_out_sync_service.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/app_state.dart';
 import '../../providers/share_out_provider.dart';
@@ -67,6 +69,8 @@ class _ShareOutScreenState extends State<ShareOutScreen> {
                         ),
                       )
                     else ...[
+                      if (provider.openMeeting != null)
+                        _OpenMeetingNotice(number: provider.openMeeting!),
                       _PoolCard(result: result, money: _money),
                       _WelfareToggle(
                         result: result,
@@ -85,7 +89,7 @@ class _ShareOutScreenState extends State<ShareOutScreen> {
                         style: FilledButton.styleFrom(
                           minimumSize: const Size.fromHeight(50),
                         ),
-                        onPressed: provider.busy
+                        onPressed: provider.busy || provider.openMeeting != null
                             ? null
                             : () => _confirmDistribute(group, result),
                         icon: const Icon(Icons.account_balance_wallet_outlined,
@@ -103,7 +107,13 @@ class _ShareOutScreenState extends State<ShareOutScreen> {
                     if (provider.history.isNotEmpty) ...[
                       const SectionLabel('Past share-outs'),
                       for (final record in provider.history)
-                        _HistoryTile(record: record),
+                        _HistoryTile(
+                          record: record,
+                          status: provider.statuses[record.cycleNumber],
+                          busy: provider.busy,
+                          onSendNow: () => provider.sendNow(group),
+                          onSendAnyway: () => _confirmSendAnyway(group, record),
+                        ),
                     ],
                   ],
                 ),
@@ -124,8 +134,7 @@ class _ShareOutScreenState extends State<ShareOutScreen> {
           '${result.lines.length} member(s)'
           '${result.totalOutstandingCents > 0 ? ', settling ${_money(result.totalOutstandingCents)} in outstanding loans' : ''}, '
           'and start Cycle ${group.cycleNumber + 1}.\n\n'
-          'This is permanent. The payouts are recorded on this phone; they '
-          'are not sent to the online record.',
+          '${provider.linked ? l10n.shareOutPermanentOnline(group.cycleNumber) : l10n.shareOutPermanentPhoneOnly}',
           style: const TextStyle(fontSize: 13.5),
         ),
         actions: [
@@ -153,6 +162,76 @@ class _ShareOutScreenState extends State<ShareOutScreen> {
     if (!mounted) return;
     showAppSnack(context,
         'Cycle ${group.cycleNumber} shared out. Now in Cycle ${next.cycleNumber}.');
+  }
+
+  /// The one override a person may make: the online record holds different
+  /// share purchases from this phone's, and they know why. Recording it closes
+  /// the cycle online, so it is asked in words, not assumed.
+  Future<void> _confirmSendAnyway(Group group, ShareOutRecord record) async {
+    final l10n = L10n.of(context);
+    final provider = context.read<ShareOutProvider>();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.shareOutSendAnywayTitle,
+            style: const TextStyle(fontSize: 17)),
+        content: Text(l10n.shareOutSendAnywayBody,
+            style: const TextStyle(fontSize: 13.5)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(l10n.shareOutSendAnyway),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    final result = await provider.sendAnyway(group, record.cycleNumber);
+    if (!mounted) return;
+    showAppSnack(
+      context,
+      result?.done == true
+          ? l10n.shareOutSentOnline
+          : (result?.message ?? l10n.shareOutStatusWaiting),
+      error: result?.done != true,
+    );
+  }
+}
+
+/// Why the share-out button is off: a meeting is still being recorded.
+class _OpenMeetingNotice extends StatelessWidget {
+  const _OpenMeetingNotice({required this.number});
+  final int number;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
+    return Container(
+      margin: const EdgeInsets.only(top: 10),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.pendingTint,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.info_outline_rounded, size: 18, color: AppColors.pending),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              l10n.shareOutCloseMeetingFirst(number),
+              style: TextStyle(fontSize: 12, color: AppColors.textPrimary),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -374,48 +453,144 @@ class _OwingNotice extends StatelessWidget {
 }
 
 class _HistoryTile extends StatelessWidget {
-  const _HistoryTile({required this.record});
+  const _HistoryTile({
+    required this.record,
+    required this.status,
+    required this.busy,
+    required this.onSendNow,
+    required this.onSendAnyway,
+  });
   final ShareOutRecord record;
+
+  /// Null when this phone does not track it (no online record to send to).
+  final ShareOutSyncStatus? status;
+  final bool busy;
+  final VoidCallback onSendNow;
+  final VoidCallback onSendAnyway;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
+    final status = this.status;
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
-      child: ExpansionTile(
-        tilePadding: const EdgeInsets.symmetric(horizontal: 14),
-        title: Text('Cycle ${record.cycleNumber} share-out',
-            style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600)),
-        subtitle: Text(
-          '${Formatters.shortDate(record.date)} · '
-          '${Formatters.money(record.totalNet)} to ${record.payouts.length} member(s)',
-          style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
-        ),
-        childrenPadding: const EdgeInsets.fromLTRB(14, 0, 14, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          for (final p in record.payouts)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 3),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Member names are free text and payouts run large at
-                  // share-out. The name gives way; the amount someone is
-                  // about to be handed never does.
-                  Flexible(
-                    child: Text(p.memberName,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                            fontSize: 12, color: AppColors.textSecondary)),
+          ExpansionTile(
+            tilePadding: const EdgeInsets.symmetric(horizontal: 14),
+            title: Text('Cycle ${record.cycleNumber} share-out',
+                style: const TextStyle(
+                    fontSize: 13.5, fontWeight: FontWeight.w600)),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${Formatters.shortDate(record.date)} · '
+                  '${Formatters.money(record.totalNet)} to ${record.payouts.length} member(s)',
+                  style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                ),
+                if (status != null) _StatusLine(status: status),
+              ],
+            ),
+            childrenPadding: const EdgeInsets.fromLTRB(14, 0, 14, 8),
+            children: [
+              for (final p in record.payouts)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 3),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Member names are free text and payouts run large at
+                      // share-out. The name gives way; the amount someone is
+                      // about to be handed never does.
+                      Flexible(
+                        child: Text(p.memberName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                fontSize: 12, color: AppColors.textSecondary)),
+                      ),
+                      const SizedBox(width: 10),
+                      Text(Formatters.money(p.netPayout),
+                          style: const TextStyle(
+                              fontSize: 12,
+                              fontFeatures: [FontFeature.tabularFigures()])),
+                    ],
                   ),
-                  const SizedBox(width: 10),
-                  Text(Formatters.money(p.netPayout),
-                      style: const TextStyle(
-                          fontSize: 12,
-                          fontFeatures: [FontFeature.tabularFigures()])),
+                ),
+            ],
+          ),
+          if (status != null && status.canSend)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 0, 14, 10),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: [
+                  OutlinedButton(
+                    onPressed: busy ? null : onSendNow,
+                    child: Text(l10n.shareOutSendNow),
+                  ),
+                  if (status.canSendAnyway)
+                    TextButton(
+                      onPressed: busy ? null : onSendAnyway,
+                      child: Text(l10n.shareOutSendAnyway),
+                    ),
                 ],
               ),
             ),
+        ],
+      ),
+    );
+  }
+}
+
+/// One line saying where a share-out stands with the online record.
+class _StatusLine extends StatelessWidget {
+  const _StatusLine({required this.status});
+  final ShareOutSyncStatus status;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
+    final (icon, color, text) = switch (status.state) {
+      ShareOutSyncState.sent => (
+          Icons.cloud_done_outlined,
+          AppColors.primary,
+          l10n.shareOutStatusSent
+        ),
+      ShareOutSyncState.alreadyOnline => (
+          Icons.info_outline_rounded,
+          AppColors.textSecondary,
+          l10n.shareOutStatusAlreadyOnline
+        ),
+      ShareOutSyncState.beforeOnlineRecording => (
+          Icons.history_rounded,
+          AppColors.textSecondary,
+          l10n.shareOutStatusBefore
+        ),
+      ShareOutSyncState.waiting => (
+          Icons.cloud_upload_outlined,
+          AppColors.pending,
+          l10n.shareOutStatusWaiting
+        ),
+      ShareOutSyncState.blocked => (
+          Icons.error_outline_rounded,
+          AppColors.defaulted,
+          status.message ?? l10n.shareOutStatusBlocked
+        ),
+    };
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(text, style: TextStyle(fontSize: 11, color: color)),
+          ),
         ],
       ),
     );

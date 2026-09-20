@@ -7,9 +7,10 @@ import '../core/theme/app_colors.dart';
 ///
 /// [AppColors] is a set of plain static getters (not `Theme.of(context)`
 /// consumers), so a screen already on-screen won't repaint just because this
-/// notifies — [IntelliCashApp] re-keys its content on [mode] changes to force
-/// a full rebuild, which is why switching appearance returns to the app's
-/// root screen. "System" is resolved once, at [bootstrap] — this app doesn't
+/// notifies — [IntelliCashApp] marks every widget for rebuilding when [mode]
+/// changes, so each screen picks up the new palette while staying exactly where
+/// it is (the Appearance screen is still open afterwards). "System" is resolved
+/// once, at [bootstrap] — this app doesn't
 /// live-track OS theme changes mid-session, so an appearance change is always
 /// a deliberate action from the Appearance setting, never a surprise reset.
 class ThemeController extends ChangeNotifier {

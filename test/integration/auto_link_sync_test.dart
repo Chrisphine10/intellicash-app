@@ -134,6 +134,7 @@ void main() {
     required String? ownGroup,
     required RemoteGroup remoteGroup,
     required List<String> pushed,
+    Set<String>? declined,
   }) =>
       AutoSyncCoordinator(
         idMap: idMap,
@@ -148,6 +149,13 @@ void main() {
             pushed.add(member.name);
             return 'srv-${member.id}';
           },
+          // A stand-in for the phone's stored "not now" answers.
+          linkDismissed: declined == null
+              ? null
+              : (local, remoteId) async => declined.contains('$local|$remoteId'),
+          saveLinkDismissed: declined == null
+              ? null
+              : (local, remoteId) async => declined.add('$local|$remoteId'),
         ),
       );
 
@@ -165,8 +173,9 @@ void main() {
     await recordClosedMeeting(group);
     final pushed = <String>[];
 
-    // The server group made at sign-up: no members, no meetings yet.
-    final sync = coordinator(ownGroup: 'remote-group-9', remoteGroup: remote('Tsunami Self Help'), pushed: pushed);
+    // The server group made at sign-up: no members, no meetings yet, and the
+    // same name (however it is spaced or capitalised).
+    final sync = coordinator(ownGroup: 'remote-group-9', remoteGroup: remote('tsunami  shg'), pushed: pushed);
     await sync.syncBoundGroups();
 
     expect(await idMap.remoteId(MapEntity.group, group.id), 'remote-group-9');
@@ -181,6 +190,105 @@ void main() {
     await sync.syncBoundGroups();
     expect(pushed, isEmpty);
     expect(backend.accepted, before);
+  });
+
+  group('a different name on a group that is still empty', () {
+    // Found in QA: a book built offline as "Tsunami SHG" and a brand-new server
+    // group called something else look exactly the same whether they are one
+    // group with two spellings or two groups that share a handset. Linking sends
+    // the book's members and money into that record, so it is asked, not assumed.
+    test('is put to the person, and nothing moves until they say yes', () async {
+      final group = await seedGroup('Tsunami SHG');
+      await recordClosedMeeting(group);
+      final pushed = <String>[];
+      final sync = coordinator(
+          ownGroup: 'remote-group-9',
+          remoteGroup: remote('Marui Women Group'),
+          pushed: pushed);
+
+      await sync.syncBoundGroups();
+
+      expect(await idMap.remoteId(MapEntity.group, group.id), isNull);
+      expect(pushed, isEmpty);
+      expect(backend.accepted, 0);
+      final proposal = sync.linkProposal!;
+      expect(proposal.localName, 'Tsunami SHG');
+      expect(proposal.remoteName, 'Marui Women Group');
+      expect(proposal.remoteGroupId, 'remote-group-9');
+    });
+
+    test('yes links it, and the next sync sends the members and the meeting', () async {
+      final group = await seedGroup('Tsunami SHG');
+      await recordClosedMeeting(group);
+      final pushed = <String>[];
+      final sync = coordinator(
+          ownGroup: 'remote-group-9',
+          remoteGroup: remote('Marui Women Group'),
+          pushed: pushed);
+      await sync.syncBoundGroups();
+
+      expect(await sync.confirmLinkProposal(), isTrue);
+      expect(sync.linkProposal, isNull);
+      expect(await idMap.remoteId(MapEntity.group, group.id), 'remote-group-9');
+
+      await sync.syncBoundGroups();
+      expect(pushed, containsAll(['Ian Kamau', 'Wanjiku Kamau']));
+      expect(await sync.pendingMeetings(), 0);
+    });
+
+    test('"not now" is remembered, so it is not asked at every start', () async {
+      final group = await seedGroup('Tsunami SHG');
+      final declined = <String>{};
+      final sync = coordinator(
+          ownGroup: 'remote-group-9',
+          remoteGroup: remote('Marui Women Group'),
+          pushed: <String>[],
+          declined: declined);
+      await sync.bindOwnGroupIfClear();
+      expect(sync.linkProposal, isNotNull);
+
+      await sync.dismissLinkProposal();
+      expect(sync.linkProposal, isNull);
+      expect(declined, {'${group.id}|remote-group-9'});
+
+      // A later start: the same two names, already answered.
+      await sync.bindOwnGroupIfClear();
+      expect(sync.linkProposal, isNull);
+      expect(await idMap.remoteId(MapEntity.group, group.id), isNull);
+    });
+
+    test('is never offered when the other group already has records', () async {
+      await seedGroup('Tsunami SHG');
+      final sync = coordinator(
+          ownGroup: 'remote-group-9',
+          remoteGroup: remote('Marui Women Group', members: 12, meetings: 30),
+          pushed: <String>[]);
+      await sync.bindOwnGroupIfClear();
+      expect(sync.linkProposal, isNull);
+    });
+
+    test('is dropped once the phone is signed in as someone else', () async {
+      await seedGroup('Tsunami SHG');
+      final own = <String?>['remote-group-9'];
+      final sync = AutoSyncCoordinator(
+        idMap: idMap,
+        meetings: meetings,
+        writeSync: WriteSyncService(db: db, idMap: idMap, writeApi: backend),
+        linkSupport: GroupLinkSupport(
+          currentGroup: groups.currentGroup,
+          membersForGroup: (id) => members.membersForGroup(id),
+          ownRemoteGroupId: () async => own.first,
+          remoteGroup: (_) async => remote('Marui Women Group'),
+          pushMember: (_, member) async => 'srv-${member.id}',
+        ),
+      );
+      await sync.bindOwnGroupIfClear();
+      expect(sync.linkProposal, isNotNull);
+
+      own[0] = null; // signed out
+      await sync.bindOwnGroupIfClear();
+      expect(sync.linkProposal, isNull);
+    });
   });
 
   test('never binds the phone to a different group that already has records', () async {

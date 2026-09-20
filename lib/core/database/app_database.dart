@@ -10,7 +10,7 @@ class AppDatabase {
   AppDatabase._();
   static final AppDatabase instance = AppDatabase._();
 
-  static const int _version = 10;
+  static const int _version = 11;
   Database? _db;
 
   /// Test hook: lets tests inject an in-memory/ffi database factory.
@@ -614,6 +614,24 @@ class AppDatabase {
           'CREATE INDEX IF NOT EXISTS idx_actions_group ON visit_action_items(remote_group_id, status)');
       await db.execute(
           'CREATE INDEX IF NOT EXISTS idx_actions_dirty ON visit_action_items(is_dirty)');
+    }
+
+    if (oldVersion < 11) {
+      // Share-outs can now be sent to the online record. Ones made BEFORE that
+      // are settled history: their cycle's records went up long ago, mixed in
+      // with the next cycle's, so the server could never match them up. Marking
+      // them handled keeps them from being sent, and from holding back the
+      // meetings that follow them.
+      //
+      // Insert-or-ignore, and the marker is the same word the sync service
+      // reads (`ShareOutSyncService.beforeOnlineRecordingMarker`).
+      await db.execute('''
+        INSERT OR IGNORE INTO id_map (entity_type, local_id, remote_id, group_id, synced_at)
+        SELECT 'share_out', group_id || '#' || cycle_number, 'before-online-recording', NULL,
+               datetime('now')
+        FROM share_out_payouts
+        GROUP BY group_id, cycle_number
+      ''');
     }
   }
 }

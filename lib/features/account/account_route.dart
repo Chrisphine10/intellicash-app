@@ -23,7 +23,7 @@ class AccountRoute extends StatelessWidget {
 
   /// Kept in step with `pubspec.yaml` by the release checklist. Reading it at
   /// runtime would mean adding `package_info_plus` for one line of text.
-  static const appVersion = '2.6.1 (22)';
+  static const appVersion = '2.6.1 (23)';
 
   @override
   Widget build(BuildContext context) {

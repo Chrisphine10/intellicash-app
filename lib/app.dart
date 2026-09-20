@@ -17,20 +17,45 @@ import 'providers/connection_provider.dart';
 import 'providers/locale_controller.dart';
 import 'providers/theme_controller.dart';
 
-class IntelliCashApp extends StatelessWidget {
+class IntelliCashApp extends StatefulWidget {
   const IntelliCashApp({super.key});
+
+  @override
+  State<IntelliCashApp> createState() => _IntelliCashAppState();
+}
+
+class _IntelliCashAppState extends State<IntelliCashApp> {
+  ThemeMode? _paintedMode;
+
+  /// Marks every widget on screen for rebuilding, keeping all of them (and so
+  /// the navigation stack and anything half-typed) exactly where they are.
+  void _repaintEverything() {
+    void mark(Element element) {
+      element.markNeedsBuild();
+      element.visitChildren(mark);
+    }
+
+    (context as Element).visitChildren(mark);
+  }
 
   @override
   Widget build(BuildContext context) {
     // AppColors is a plain static holder, not an InheritedWidget consumer, so
-    // an appearance change alone won't repaint already-built screens. Keying
-    // on the mode forces Flutter to tear down and rebuild the whole app
-    // content below MaterialApp, which is how every screen picks up the new
-    // palette — see ThemeController's doc comment.
+    // an appearance change alone won't repaint already-built screens. Every
+    // screen has to build again to read the new palette. This used to be done by
+    // keying the MaterialApp on the mode, which throws the whole app away and
+    // starts it again - so picking a theme dropped the person back on the first
+    // screen. Marking the widgets for rebuild instead repaints them where they
+    // stand, so the Appearance screen is still there showing the new look.
     final mode = context.watch<ThemeController>().mode;
     final locale = context.watch<LocaleController>().locale;
+    if (_paintedMode != null && _paintedMode != mode) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _repaintEverything();
+      });
+    }
+    _paintedMode = mode;
     return MaterialApp(
-      key: ValueKey('appearance-$mode'),
       // A literal, not a lookup. This widget builds the MaterialApp that
       // *installs* the localisation delegates, so `L10n.of(context)` here
       // reads a scope that does not exist yet and throws on the first frame.

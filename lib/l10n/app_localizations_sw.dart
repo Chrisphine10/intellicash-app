@@ -1945,4 +1945,93 @@ class L10nSw extends L10n {
   String wrongBookBody(String groupName) {
     return 'Hizi ni rekodi za $groupName. Ili ziwe za siri, ni akaunti ya kikundi hicho pekee inayoweza kuzifungua. Ingia kwa akaunti ya kikundi hicho, au toka na utumie simu yako mwenyewe.';
   }
+
+  @override
+  String shareOutCloseMeetingFirst(int number) {
+    return 'Funga Mkutano #$number kabla ya kugawana. Akiba na mikopo yake ni ya mzunguko huu.';
+  }
+
+  @override
+  String shareOutPermanentOnline(int cycle) {
+    return 'Hili haliwezi kubatilishwa. Malipo yanahifadhiwa kwenye simu hii na kutumwa kwenye rekodi ya mtandaoni kunapokuwa na mtandao. Mzunguko $cycle unafungwa huko pia.';
+  }
+
+  @override
+  String get shareOutPermanentPhoneOnly =>
+      'Hili haliwezi kubatilishwa. Malipo yanahifadhiwa kwenye simu hii. Kikundi hiki hakijaunganishwa na rekodi ya mtandaoni, kwa hivyo hayatatumwa.';
+
+  @override
+  String get shareOutStatusSent => 'Imehifadhiwa mtandaoni';
+
+  @override
+  String get shareOutStatusAlreadyOnline =>
+      'Tayari imegawanywa mtandaoni, kwa hivyo nakala hii haikutumwa';
+
+  @override
+  String get shareOutStatusBefore =>
+      'Ilifanyika kabla ugawaji kuweza kutumwa mtandaoni';
+
+  @override
+  String get shareOutStatusWaiting => 'Inasubiri kutumwa mtandaoni';
+
+  @override
+  String get shareOutStatusBlocked => 'Haikutumwa mtandaoni';
+
+  @override
+  String get shareOutSendNow => 'Tuma sasa';
+
+  @override
+  String get shareOutSendAnyway => 'Tuma hata hivyo';
+
+  @override
+  String get shareOutSendAnywayTitle => 'Tuma ugawaji huu hata hivyo?';
+
+  @override
+  String get shareOutSendAnywayBody =>
+      'Rekodi ya mtandaoni haina ununuzi wa hisa ule ule kama simu hii kwa mzunguko huu. Kutuma hata hivyo kunarekodi malipo kama yalivyolipwa kwenye simu hii na kufunga mzunguko mtandaoni. Fanya hivi tu ikiwa unaelewa tofauti.';
+
+  @override
+  String get shareOutSentOnline => 'Ugawaji umehifadhiwa mtandaoni.';
+
+  @override
+  String get groupSetupWizardReducingNote =>
+      'Rekodi ya mtandaoni hutoza riba ya kudumu. Mikopo kwenye simu hii itaonyesha jumla tofauti na rekodi ya mtandaoni.';
+
+  @override
+  String linkProposalTitle(String remoteName) {
+    return 'Unganisha rekodi hizi na $remoteName?';
+  }
+
+  @override
+  String linkProposalBody(String localName, String remoteName) {
+    return 'Simu hii ina rekodi za “$localName”, na umeingia kama “$remoteName”. Ikiwa ni kikundi kimoja, viunganishe ili wanachama na mikutano yake itumwe mtandaoni. Ikiwa sivyo, chagua Si sasa.';
+  }
+
+  @override
+  String get linkProposalConfirm => 'Viunganishe';
+
+  @override
+  String get linkProposalDismiss => 'Si sasa';
+
+  @override
+  String get cloudOfflineSubtitle =>
+      'Hakuna mtandao. Inaonyesha kilichohifadhiwa kwenye simu hii.';
+
+  @override
+  String restoreLoadedWithHistory(String groupName, int members, int meetings) {
+    return '$groupName imepakiwa: wanachama $members na mikutano $meetings.';
+  }
+
+  @override
+  String restoreHistoryPending(String groupName, int members) {
+    return '$groupName imepakiwa na wanachama $members. Mikutano na akiba yake vitafuata kunapokuwa na mtandao.';
+  }
+
+  @override
+  String restoreHistoryNotLoaded(String groupName, int members) {
+    return '$groupName imepakiwa na wanachama $members. Mikutano na akiba yake ya awali haikuweza kupakiwa kutoka rekodi ya mtandaoni.';
+  }
+
+  @override
+  String get buySharesAbsentTag => 'hajahudhuria';
 }

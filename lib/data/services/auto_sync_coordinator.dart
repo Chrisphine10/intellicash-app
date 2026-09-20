@@ -7,6 +7,7 @@ import '../models/remote/remote_models.dart';
 import '../repositories/id_map_repository.dart';
 import '../repositories/meeting_repository.dart';
 import 'member_matching.dart';
+import 'share_out_sync_service.dart';
 import 'write_sync_service.dart';
 import 'welfare_expense_sync.dart';
 
@@ -40,6 +41,8 @@ class GroupLinkSupport {
     this.addLocalMember,
     this.policyIsConfigured,
     this.pushPolicy,
+    this.linkDismissed,
+    this.saveLinkDismissed,
   });
 
   /// The group this phone keeps (a group's phone keeps one).
@@ -78,15 +81,48 @@ class GroupLinkSupport {
   /// different balances for the same loan.
   final Future<bool> Function(String remoteGroupId)? policyIsConfigured;
   final Future<void> Function(String remoteGroupId, {required int rateBps, required int termMonths})? pushPolicy;
+
+  /// Whether the person already answered "not now" to linking this phone's book
+  /// to this server group, and a way to remember that answer. Optional: without
+  /// them the question is simply asked again on the next start.
+  final Future<bool> Function(String localGroupId, String remoteGroupId)? linkDismissed;
+  final Future<void> Function(String localGroupId, String remoteGroupId)? saveLinkDismissed;
 }
 
-class AutoSyncCoordinator {
+/// A book on this phone that COULD belong to the signed-in group account, but
+/// whose name does not say so. Linking sends the book's members and meetings
+/// into that group, so it is put to the person rather than done for them.
+class LinkProposal {
+  const LinkProposal({
+    required this.localGroupId,
+    required this.localName,
+    required this.remoteGroupId,
+    required this.remoteName,
+  });
+
+  final String localGroupId;
+  final String localName;
+  final String remoteGroupId;
+  final String remoteName;
+}
+
+/// What the app needs to ask the person about linking a book to a group. The
+/// coordinator is the only implementation; the interface lets [AppState] hold it
+/// without depending on the whole sync machinery.
+abstract interface class LinkProposalSource {
+  LinkProposal? get linkProposal;
+  Future<bool> confirmLinkProposal();
+  Future<void> dismissLinkProposal();
+}
+
+class AutoSyncCoordinator implements LinkProposalSource {
   AutoSyncCoordinator({
     required IdMapRepository idMap,
     required MeetingRepository meetings,
     required WriteSyncService writeSync,
     this.welfareSync,
     this.linkSupport,
+    this.shareOutSync,
   })  : _idMap = idMap,
         _meetings = meetings,
         _writeSync = writeSync;
@@ -106,17 +142,62 @@ class AutoSyncCoordinator {
   /// which a group's records could be full on the phone and empty on the server.
   final GroupLinkSupport? linkSupport;
 
+  /// Optional, like the others: without it a share-out stays on the phone (the
+  /// behaviour before share-outs could be sent), and meetings are pushed in no
+  /// particular order relative to it.
+  final ShareOutSyncService? shareOutSync;
+
+  LinkProposal? _proposal;
+
+  /// A link waiting for the person's yes, or null. Set by
+  /// [bindOwnGroupIfClear]; answered with [confirmLinkProposal] or
+  /// [dismissLinkProposal].
+  @override
+  LinkProposal? get linkProposal => _proposal;
+
+  /// The person said yes: link the book to the group. Returns true if it linked.
+  @override
+  Future<bool> confirmLinkProposal() async {
+    final proposal = _proposal;
+    if (proposal == null) return false;
+    _proposal = null;
+    await _idMap.put(MapEntity.group, proposal.localGroupId, proposal.remoteGroupId,
+        groupId: proposal.remoteGroupId);
+    log.info('autosync', 'Linked "${proposal.localName}" to "${proposal.remoteName}" after the person confirmed');
+    return true;
+  }
+
+  /// The person said "not now". Remembered, so they are not asked every start.
+  @override
+  Future<void> dismissLinkProposal() async {
+    final proposal = _proposal;
+    if (proposal == null) return;
+    _proposal = null;
+    try {
+      await linkSupport?.saveLinkDismissed?.call(proposal.localGroupId, proposal.remoteGroupId);
+    } catch (_) {
+      // Asked again next time; nothing worse.
+    }
+  }
+
   /// Binds this phone's group to the signed-in group account's server group,
   /// when that is unambiguous. Returns true if a binding was made.
   ///
   /// Phones are shared and handed on, so this never attaches one group's book
-  /// to another group's account. It binds only when the phone keeps exactly
-  /// one group, that group is not bound yet, the server group is not already
-  /// bound to a different phone group, and EITHER the names match OR the
-  /// server group is a fresh shell (no members, no meetings) — which is what a
-  /// group created by sign-up or by the server's repair looks like.
+  /// to another group's account on its own authority. It binds by itself only
+  /// when the phone keeps exactly one group, that group is not bound yet, the
+  /// server group is not already bound to a different phone group, and the
+  /// NAMES MATCH.
+  ///
+  /// When the names differ but the server group is a fresh shell (no members,
+  /// no meetings - what a group created by sign-up looks like) it may well be
+  /// the same group under a slightly different name, or someone else's group
+  /// entirely. The two cannot be told apart from here, and a wrong link sends
+  /// one group's members and money into another's record. So it becomes a
+  /// [linkProposal]: put to the person, with both names, before anything moves.
   Future<bool> bindOwnGroupIfClear() async {
     final support = linkSupport;
+    _proposal = null;
     if (support == null) return false;
     try {
       final remoteGroupId = await support.ownRemoteGroupId();
@@ -130,9 +211,20 @@ class AutoSyncCoordinator {
       final remote = await support.remoteGroup(remoteGroupId);
       final sameName = _nameKey(remote.name) == _nameKey(local.name);
       final freshShell = (remote.memberCount ?? 0) == 0 && (remote.meetingCount ?? 0) == 0;
-      if (!sameName && !freshShell) {
+      if (!sameName) {
+        if (freshShell) {
+          final declined = await support.linkDismissed?.call(local.id, remoteGroupId) ?? false;
+          if (!declined) {
+            _proposal = LinkProposal(
+              localGroupId: local.id,
+              localName: local.name,
+              remoteGroupId: remoteGroupId,
+              remoteName: remote.name,
+            );
+          }
+        }
         log.warn('autosync',
-            'Not binding "${local.name}" to "${remote.name}" automatically: names differ and the server group already has records.');
+            'Not binding "${local.name}" to "${remote.name}" automatically: the names differ.');
         return false;
       }
 
@@ -374,16 +466,8 @@ class AutoSyncCoordinator {
           }
         }
         final items = await _meetings.meetingsForGroup(localGroupId);
-        for (final item in items) {
-          if (!await _needsSync(item.meeting)) continue;
-          try {
-            final result = await _writeSync.syncMeeting(item.meeting);
-            records += result.syncedCount;
-          } catch (e) {
-            log.warn('autosync',
-                'Meeting ${item.meeting.number} did not sync: $e');
-          }
-        }
+        records += await _pushMeetingsAndShareOuts(
+            localGroupId, [for (final item in items) item.meeting]);
       } catch (e) {
         log.warn('autosync', 'Group $localGroupId did not sync: $e');
       }
@@ -399,6 +483,100 @@ class AutoSyncCoordinator {
       log.info('autosync', 'Auto-synced $records record(s) on reconnect');
     }
     return records;
+  }
+
+  /// When a meeting happened, for ordering it against a share-out: the moment it
+  /// closed, or its date if it never recorded one.
+  static DateTime _timeOf(Meeting meeting) => meeting.closedAt ?? meeting.date;
+
+  /// Pushes a group's meetings and share-outs in the order they happened.
+  ///
+  /// The server files every record under the cycle that is open WHEN IT ARRIVES,
+  /// so a cycle's meetings must be there before its share-out (which closes it),
+  /// and the next cycle's after. Otherwise the second cycle's savings would be
+  /// filed under the first and the share-out could never be matched to them.
+  ///
+  /// A share-out that cannot be sent holds back what follows it - and a meeting
+  /// that has not gone up holds back the share-out after it. Nothing is lost: it
+  /// all still counts as waiting, and goes as soon as what is in front of it does.
+  ///
+  /// Returns how many records the backend accepted.
+  Future<int> _pushMeetingsAndShareOuts(
+      String localGroupId, List<Meeting> meetings) async {
+    var records = 0;
+    final ordered = [...meetings]
+      ..sort((a, b) => _timeOf(a).compareTo(_timeOf(b)));
+    final unsent =
+        await shareOutSync?.unsent(localGroupId) ?? const <ShareOutBatch>[];
+    var cursor = 0;
+
+    /// Pushes every meeting up to [limit] (all of them when null). True when
+    /// every one of those is now backed up.
+    Future<bool> pushUpTo(DateTime? limit) async {
+      var allBackedUp = true;
+      while (cursor < ordered.length) {
+        final meeting = ordered[cursor];
+        if (limit != null && _timeOf(meeting).isAfter(limit)) break;
+        cursor++;
+        if (!await _needsSync(meeting)) continue;
+        try {
+          records += (await _writeSync.syncMeeting(meeting)).syncedCount;
+        } catch (e) {
+          log.warn('autosync', 'Meeting ${meeting.number} did not sync: $e');
+        }
+        if (await _needsSync(meeting)) allBackedUp = false;
+      }
+      return allBackedUp;
+    }
+
+    for (final batch in unsent) {
+      if (!await pushUpTo(batch.createdAt)) return records;
+      final result = await shareOutSync!.send(batch);
+      if (!result.done) return records;
+      if (result.outcome == ShareOutSendOutcome.sent) records++;
+    }
+    await pushUpTo(null);
+    return records;
+  }
+
+  /// How many share-outs are still to be sent, across every bound group. Added
+  /// to the "waiting to back up" count so "Everything is backed up" is not shown
+  /// while a share-out has not reached the online record.
+  Future<int> pendingShareOuts() async {
+    final sync = shareOutSync;
+    if (sync == null) return 0;
+    var pending = 0;
+    for (final localGroupId in (await _idMap.mappings(MapEntity.group)).keys) {
+      pending += (await sync.unsent(localGroupId)).length;
+    }
+    return pending;
+  }
+
+  /// Something the person should read about the share-outs, if the server has
+  /// refused one; null when there is nothing wrong.
+  Future<String?> shareOutAttention() async {
+    final sync = shareOutSync;
+    if (sync == null) return null;
+    for (final localGroupId in (await _idMap.mappings(MapEntity.group)).keys) {
+      final note = await sync.attention(localGroupId);
+      if (note != null) return note;
+
+      // Not refused, but stuck behind a meeting from before it that the online
+      // record did not fully accept: without saying so the person sees only a
+      // count of things waiting, and cannot tell why it never goes down.
+      final unsent = await sync.unsent(localGroupId);
+      if (unsent.isEmpty) continue;
+      final first = unsent.first;
+      for (final item in await _meetings.meetingsForGroup(localGroupId)) {
+        if (_timeOf(item.meeting).isAfter(first.createdAt)) continue;
+        if ((await _idMap.conflictsForMeeting(item.meeting.id)).isNotEmpty) {
+          return 'Meeting #${item.meeting.number} has records the online record '
+              'did not accept, so the Cycle ${first.cycleNumber} share-out is '
+              'waiting for it.';
+        }
+      }
+    }
+    return null;
   }
 
   /// Whether a meeting is still waiting to reach the backend.

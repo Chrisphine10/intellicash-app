@@ -81,8 +81,12 @@ class _LoanDetailScreenState extends State<LoanDetailScreen> {
                           '${loan.interestRate == loan.interestRate.roundToDouble() ? loan.interestRate.toInt() : loan.interestRate}% '
                           '${loan.interestType.label.toLowerCase()}',
                         ),
+                        // The whole term's interest, not what has built up so far:
+                        // the label says which, so the figure is not read as
+                        // "owed today".
                         KeyValueRow(
-                            'Total due', Formatters.money(loan.totalDue)),
+                            'Total due by ${Formatters.shortDate(loan.dueDate)}',
+                            Formatters.money(loan.totalDue)),
                         KeyValueRow('Repaid so far',
                             Formatters.money(loan.amountRepaid)),
                         const Divider(height: 16),

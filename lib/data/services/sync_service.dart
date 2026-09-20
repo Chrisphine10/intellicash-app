@@ -43,6 +43,18 @@ class SyncService {
   /// service falls back to the raw queue count for the low-level tests.
   Future<int> Function()? pendingProbe;
 
+  /// Something the person should be told about the work that is waiting - a
+  /// share-out the server refused, for one. Null when there is nothing to say.
+  Future<String?> Function()? attentionProbe;
+
+  Future<String?> attention() async {
+    try {
+      return await attentionProbe?.call();
+    } catch (_) {
+      return null;
+    }
+  }
+
   /// True whenever a sync is in flight, so a burst of connectivity events
   /// (a flaky signal reconnecting repeatedly) cannot stack pushes on top of
   /// each other and double-submit.
@@ -79,12 +91,37 @@ class SyncService {
     });
   }
 
+  bool _online = true;
+
+  /// Whether the phone has a network right now, as far as the system says. Not a
+  /// promise that the server is reachable: only that the phone is not in
+  /// airplane mode or out of range.
+  bool get online => _online;
+
+  /// Told when [online] changes, so a screen can say so instead of going on
+  /// showing "connected" for a phone that has lost its signal.
+  void Function(bool online)? onOnlineChanged;
+
+  void _setOnline(bool value) {
+    if (_online == value) return;
+    _online = value;
+    onOnlineChanged?.call(value);
+  }
+
   void startWatchingConnectivity() {
     if (_connectivitySub != null) return;
     try {
+      // The first answer, before any change: a phone that starts with no signal
+      // never gets a "changed" event to tell it so.
+      unawaited(Connectivity().checkConnectivity().then(
+            (results) =>
+                _setOnline(results.any((r) => r != ConnectivityResult.none)),
+            onError: (Object _) {},
+          ));
       _connectivitySub = Connectivity().onConnectivityChanged.listen(
         (results) {
           final online = results.any((r) => r != ConnectivityResult.none);
+          _setOnline(online);
           if (online) {
             unawaited(pushNow());
           }

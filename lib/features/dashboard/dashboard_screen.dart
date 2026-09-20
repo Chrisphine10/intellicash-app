@@ -8,6 +8,7 @@ import '../../providers/app_state.dart';
 import '../../providers/dashboard_provider.dart';
 import '../../shared/widgets/common.dart';
 import '../../shared/widgets/status_chip.dart';
+import 'widgets/link_proposal_card.dart';
 import 'widgets/savings_trend_chart.dart';
 import 'widgets/stat_card.dart';
 
@@ -70,6 +71,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
           children: [
+            // Only when the phone's book might belong to the group signed in as;
+            // asked, never assumed.
+            const LinkProposalCard(),
             Text(l10n.dashboardHello, style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 2),
             Text(
