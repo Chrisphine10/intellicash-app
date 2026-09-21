@@ -1,10 +1,17 @@
-# Intelli-Cash 2.6.1 (build 23)
+# Intelli-Cash 2.6.1 (build 24)
 
 First built 19 September 2026, rebuilt the same day after a full audit (see
 "Fixes from the audit") and again on the evening of 20 September once the issues
 that audit left open were fixed (see "Also fixed, later that day"). Builds 21
 and 22 may not have been uploaded to Play - if they were not, upload this one
 instead; it contains everything in them.
+
+**Why build 24 and not 23.** Google Play refused the first upload of this release
+("Version code 23 has already been used"), so the same source was rebuilt with
+the next version code. Nothing else changed: the version code in `pubspec.yaml`
+(`2.6.1+24`) and the version label on the Account page (`2.6.1 (24)`) are the only
+differences from the build 23 commit (`v2.6.1-build23`). If a build 23 is already
+on a Play track, this one supersedes it.
 
 **The server this build needs is live** (21 September 2026, commit `8e97915`): it has the
 new share-out route and the restore route. Upload this build to Play now.
@@ -209,7 +216,7 @@ a group's history, the offline message and the wizard's loan note).
 - `flutter clean`, then `flutter build appbundle --release` (49.0 MB,
   `build/app/outputs/bundle/release/app-release.aab`). The build itself checks
   "backend is https and no API key is bundled".
-- Verified in the built bundle: version 2.6.1 (23); the `.env` asset holds the
+- Verified in the built bundle: version 2.6.1 (24); the `.env` asset holds the
   production address and no development address (`10.0.2.2:4100` and the QA
   database name are absent; `10.0.2.2` appears only as the release guard's own
   list of refused hosts); the compiled Dart contains the share-out route, the
