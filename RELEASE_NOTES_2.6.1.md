@@ -6,10 +6,8 @@ that audit left open were fixed (see "Also fixed, later that day"). Builds 21
 and 22 may not have been uploaded to Play - if they were not, upload this one
 instead; it contains everything in them.
 
-**Deploy the server first.** This build sends share-outs to a new server route and
-loads a group's history from another; both arrive with the server update
-(below). An older server simply does not have them, and the phone carries on as
-it did before.
+**The server this build needs is live** (21 September 2026, commit `8e97915`): it has the
+new share-out route and the restore route. Upload this build to Play now.
 
 ## For the Play Store listing
 
@@ -174,8 +172,9 @@ linked automatically the next time they sign in.
 
 ## Server changes this build relies on
 
-Not yet live at the time of writing - they are on the branch `feat/qa-full-audit-2026-09`
-and deploy when it is merged to main:
+Live on production since 21 September 2026 (deployed with a before-and-after check of
+the production database: no data lost - see docs/QA_REPORT_2026-09-19.md section K in
+the admin repo):
 
 - `POST /groups/:id/share-outs` records a share-out done on a phone and closes
   the cycle in one transaction; `GET /groups/:id/restore-bundle` returns a
