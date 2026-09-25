@@ -10,6 +10,7 @@ import '../more/language_screen.dart';
 import '../server/server_settings_screen.dart';
 import 'account_screen.dart';
 import 'appearance_screen.dart';
+import 'sign_out_flow.dart';
 import 'change_password_screen.dart';
 
 /// Binds [AccountScreen] to the app's providers.
@@ -102,35 +103,7 @@ class AccountRoute extends StatelessWidget {
   /// depends on the role, and a mis-tap should not end a session.
   static Future<void> _confirmSignOut(BuildContext context) async {
     final l10n = L10n.of(context);
-    final connection = context.read<ConnectionProvider>();
-    final navigator = Navigator.of(context);
-    final isAgent = connection.signedInUser?.isAgent ?? false;
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.signOut, style: const TextStyle(fontSize: 17)),
-        content: Text(
-          isAgent ? l10n.signOutAgentNote : l10n.signOutKeepsRecords,
-          style: const TextStyle(fontSize: 13.5),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(l10n.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(l10n.signOut),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true) return;
-
-    await connection.disconnect();
-    // Back to "who is signing in?" — a shared phone often changes hands here.
-    // The root renders that itself once the account is cleared.
-    navigator.popUntil((route) => route.isFirst);
+    final isAgent = context.read<ConnectionProvider>().signedInUser?.isAgent ?? false;
+    await confirmAndSignOut(context, note: isAgent ? l10n.signOutAgentNote : null);
   }
 }

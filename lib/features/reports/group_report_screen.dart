@@ -45,6 +45,9 @@ class _GroupReportScreenState extends State<GroupReportScreen> {
   double _loansRepaid = 0;
   double _loansStillOwed = 0;
   double _cashBox = 0;
+  // From the server's statement only; null offline.
+  double? _groupValue;
+  double? _interestEarned;
 
   // People & meetings
   List<ReportMemberRow> _members = const [];
@@ -94,6 +97,8 @@ class _GroupReportScreenState extends State<GroupReportScreen> {
         _members = report.members;
         _meetingsThisCycle = report.meetingCount;
         _serverGeneratedAt = report.generatedAt;
+        _groupValue = report.groupValue;
+        _interestEarned = report.interestEarned;
         _loading = false;
       });
       return;
@@ -105,15 +110,22 @@ class _GroupReportScreenState extends State<GroupReportScreen> {
     final loans = await _loanRepository.loansForGroup(group.id);
     final meetings = await _meetingRepository.meetingsForGroup(group.id);
 
+    // The same period as the savings above: loans given out and repaid THIS
+    // cycle, and what is still owed on any loan, whenever it was taken - the
+    // way the server's statement counts them. Loans used to be every cycle
+    // ever, next to savings for this cycle only.
     double givenOut = 0, repaid = 0, stillOwed = 0;
     for (final loan in loans) {
-      givenOut += loan.principal;
-      repaid += loan.amountRepaid;
+      if (loan.disbursedAt.isAfter(group.cycleStartDate)) {
+        givenOut += loan.principal;
+        repaid += loan.amountRepaid;
+      }
       stillOwed += loan.outstanding;
     }
 
+    // "After the cycle started", as the dashboard counts it.
     final meetingsThisCycle = meetings
-        .where((m) => !m.meeting.date.isBefore(group.cycleStartDate))
+        .where((m) => m.meeting.date.isAfter(group.cycleStartDate))
         .length;
 
     if (!mounted) return;
@@ -128,6 +140,8 @@ class _GroupReportScreenState extends State<GroupReportScreen> {
       _members = members.map(ReportMemberRow.fromLocal).toList();
       _meetingsThisCycle = meetingsThisCycle;
       _serverGeneratedAt = null;
+      _groupValue = null;
+      _interestEarned = null;
       _loading = false;
     });
   }
@@ -151,6 +165,10 @@ class _GroupReportScreenState extends State<GroupReportScreen> {
       reportLine('Loans given out', Formatters.money(_loansGivenOut)),
       reportLine('Loans repaid', Formatters.money(_loansRepaid)),
       reportLine('Loans still owed', Formatters.money(_loansStillOwed)),
+      if (_interestEarned != null)
+        reportLine('Interest earned', Formatters.money(_interestEarned!)),
+      if (_groupValue != null)
+        reportLine('Group value (to share out)', Formatters.money(_groupValue!)),
       reportLine('Money in the box', Formatters.money(_cashBox)),
       '',
       'MEMBERS (${_members.length})',
@@ -193,6 +211,9 @@ class _GroupReportScreenState extends State<GroupReportScreen> {
         cashBox: _cashBox,
         members: _members,
         meetingsThisCycle: _meetingsThisCycle,
+        groupValue: _groupValue,
+        interestEarned: _interestEarned,
+        confirmedAt: _serverGeneratedAt,
       );
     } catch (_) {
       if (mounted) {
@@ -246,6 +267,12 @@ class _GroupReportScreenState extends State<GroupReportScreen> {
                                   Formatters.money(_loansRepaid)),
                               KeyValueRow('Loans still owed',
                                   Formatters.money(_loansStillOwed)),
+                              if (_interestEarned != null)
+                                KeyValueRow('Interest earned',
+                                    Formatters.money(_interestEarned!)),
+                              if (_groupValue != null)
+                                KeyValueRow('Group value (to share out)',
+                                    Formatters.money(_groupValue!)),
                               const Divider(height: 16),
                               KeyValueRow('Money in the box',
                                   Formatters.money(_cashBox),

@@ -1,7 +1,7 @@
 name: intellicash_mobile
 description: "Intelli-Cash - Digital VSLA platform. Paperless, transparent, connected."
 publish_to: 'none'
-version: 2.6.1+24
+version: 2.6.2+25
 
 environment:
   sdk: ^3.9.2
@@ -41,6 +41,9 @@ dependencies:
   share_plus: ^10.0.0
   pdf: ^3.11.0
   qr_flutter: ^4.1.0
+  flutter_local_notifications: ^20.1.0
+  timezone: ^0.10.1
+  flutter_timezone: ^5.1.0
 
 dev_dependencies:
   flutter_test:

@@ -1,7 +1,9 @@
+import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/database/app_database.dart';
 import '../../core/utils/domain_exception.dart';
+import '../../core/utils/loan_accrual.dart';
 import '../../core/utils/loan_calculator.dart';
 import '../models/enums.dart';
 import '../models/group.dart';
@@ -35,7 +37,42 @@ class LoanRepository {
       '$_loanSelect $where ORDER BY l.disbursed_at DESC',
       [groupId],
     );
-    return rows.map(Loan.fromMap).toList();
+    return withRepayments(db, rows.map(Loan.fromMap).toList());
+  }
+
+  /// Every loan of [groupId] that still owes something, from ANY cycle, with
+  /// its repayments. Share-out nets and settles all of them: a loan is never
+  /// carried into the next cycle.
+  static Future<List<Loan>> openLoans(DatabaseExecutor db, String groupId) async {
+    final rows = await db.rawQuery(
+      "$_loanSelect WHERE l.group_id = ? AND l.status IN ('active', 'defaulted') ORDER BY l.disbursed_at ASC",
+      [groupId],
+    );
+    return withRepayments(db, rows.map(Loan.fromMap).toList());
+  }
+
+  /// Attaches each loan's repayments (amount and date). Balances depend on
+  /// when money was repaid, so a loan is not complete without them.
+  static Future<List<Loan>> withRepayments(DatabaseExecutor db, List<Loan> loans) async {
+    if (loans.isEmpty) return loans;
+    final ids = loans.map((loan) => loan.id).toList();
+    final byLoan = <String, List<LoanMoney>>{};
+    // Chunked: SQLite limits how many values one IN (...) may hold.
+    for (var i = 0; i < ids.length; i += 500) {
+      final chunk = ids.sublist(i, i + 500 > ids.length ? ids.length : i + 500);
+      final rows = await db.rawQuery(
+        'SELECT loan_id, amount, paid_at FROM loan_repayments '
+        'WHERE loan_id IN (${List.filled(chunk.length, '?').join(',')}) ORDER BY paid_at ASC',
+        chunk,
+      );
+      for (final row in rows) {
+        byLoan.putIfAbsent(row['loan_id'] as String, () => []).add(LoanMoney(
+              DateTime.parse(row['paid_at'] as String),
+              ((row['amount'] as num).toDouble() * 100).round(),
+            ));
+      }
+    }
+    return [for (final loan in loans) loan.copyWith(repayments: byLoan[loan.id] ?? const [])];
   }
 
   Future<List<Loan>> loansForMember(String memberId) async {
@@ -44,7 +81,7 @@ class LoanRepository {
       '$_loanSelect WHERE l.member_id = ? ORDER BY l.disbursed_at DESC',
       [memberId],
     );
-    return rows.map(Loan.fromMap).toList();
+    return withRepayments(db, rows.map(Loan.fromMap).toList());
   }
 
   Future<Loan?> loanById(String loanId) async {
@@ -52,7 +89,7 @@ class LoanRepository {
     final rows =
         await db.rawQuery('$_loanSelect WHERE l.id = ?', [loanId]);
     if (rows.isEmpty) return null;
-    return Loan.fromMap(rows.first);
+    return (await withRepayments(db, [Loan.fromMap(rows.first)])).first;
   }
 
   /// Instant eligibility check — computed from savings before the
@@ -93,22 +130,18 @@ class LoanRepository {
   }) async {
     final db = await _db.database;
     final rows = await db.rawQuery('''
-      SELECT
-        (SELECT COALESCE(SUM(amount), 0) FROM share_purchases
-          WHERE member_id = ?1 AND created_at > ?2) AS savings,
-        (SELECT COALESCE(SUM(l.total_due), 0) -
-                COALESCE(SUM(r.repaid), 0)
-         FROM loans l
-         LEFT JOIN (SELECT loan_id, SUM(amount) AS repaid
-                    FROM loan_repayments GROUP BY loan_id) r
-           ON r.loan_id = l.id
-         WHERE l.member_id = ?1 AND l.status IN ('active', 'defaulted'))
-          AS active_balance
+      SELECT COALESCE(SUM(amount), 0) AS savings FROM share_purchases
+        WHERE member_id = ?1 AND created_at > ?2
     ''', [memberId, group.cycleStartDate.toIso8601String()]);
 
     final savings = (rows.first['savings'] as num).toDouble();
+    // What the member owes today on loans still open — interest so far, not
+    // the full-term maximum (the same figure the server holds).
+    final now = DateTime.now();
+    final open = (await loansForMember(memberId))
+        .where((loan) => loan.status == LoanStatus.active || loan.status == LoanStatus.defaulted);
     final activeBalance =
-        ((rows.first['active_balance'] ?? 0) as num).toDouble();
+        open.fold<int>(0, (sum, loan) => sum + loan.positionAsOf(now).outstandingCents) / 100;
     final maxLoan = savings * group.loanMultiplier;
 
     return LoanEligibility(
@@ -194,15 +227,20 @@ class LoanRepository {
           'Repayment exceeds the outstanding balance of this loan.');
     }
 
+    final paidAt = DateTime.now();
     final repayment = LoanRepayment(
       id: _uuid.v4(),
       loanId: loan.id,
       meetingId: meetingId,
       amount: amount,
-      paidAt: DateTime.now(),
+      paidAt: paidAt,
     );
 
-    final fullyRepaid = loan.outstanding - amount <= 0.005;
+    final after = loan.copyWith(
+      amountRepaid: loan.amountRepaid + amount,
+      repayments: [...loan.repayments, LoanMoney(paidAt, (amount * 100).round())],
+    );
+    final fullyRepaid = after.positionAsOf(paidAt).settled;
     final db = await _db.database;
     await db.transaction((txn) async {
       await txn.insert('loan_repayments', repayment.toMap());
@@ -223,10 +261,7 @@ class LoanRepository {
       );
     });
 
-    return loan.copyWith(
-      status: fullyRepaid ? LoanStatus.repaid : loan.status,
-      amountRepaid: loan.amountRepaid + amount,
-    );
+    return after.copyWith(status: fullyRepaid ? LoanStatus.repaid : loan.status);
   }
 
   Future<List<LoanRepayment>> repaymentsForLoan(String loanId) async {

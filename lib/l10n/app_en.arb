@@ -53,8 +53,6 @@
   "signingIn": "Signing in…",
   "sessionNote": "Your session lasts 8 hours. The group's record book keeps working offline once you are signed in.",
   "sectionGroup": "Group",
-  "sectionReports": "Reports",
-  "sectionEndOfCycle": "End of cycle",
   "sectionCloudBackup": "Cloud & backup",
   "sectionAppearance": "Appearance",
   "sectionLanguage": "Language",
@@ -62,8 +60,6 @@
   "groupSettings": "Group Settings",
   "groupSettingsSubtitle": "Savings, loans and meeting days",
   "meetingSecurity": "Meeting Security",
-  "memberAccounts": "Member Accounts",
-  "memberAccountsSubtitle": "Let members get their own sign-in to see their savings",
   "groupRules": "Group Rules",
   "groupReport": "Group Report",
   "groupReportSubtitle": "Money, members and meetings — share text or PDF",
@@ -114,11 +110,9 @@
   "meetingHubShareRecords": "Share Records",
   "meetingHubVoting": "Voting",
   "meetingHubWelfare": "Welfare",
-  "meetingHubIntelliStore": "Intelli-Store",
   "meetingHubExternalLoans": "External Loans",
   "groupSetupWizardAddTheMembersJoiningThis": "Add the members joining this cycle. You can always add more later.",
   "groupSetupWizardEveryoneBuysSharesAtOne": "Everyone buys shares at one fixed price",
-  "groupSetupWizardMembersSaveWhatTheyCan": "Members save what they can each meeting",
   "groupSetupWizardGroupName": "Group Name",
   "groupSetupWizardCycleNumber": "Cycle Number",
   "groupSetupWizardWhichSavingsCycleIsThis": "Which savings cycle is this group on?",
@@ -780,5 +774,182 @@
       }
     }
   },
-  "buySharesAbsentTag": "not marked present"
+  "buySharesAbsentTag": "not marked present",
+  "localVaultTitle": "Old local data",
+  "localVaultEmpty": "No saved local archives.",
+  "localVaultNote": "These compressed copies stay on this phone. They are not cloud backups.",
+  "localVaultRecoverTitle": "Recover this data?",
+  "localVaultRecoverBody": "Recovery replaces the current local book. It does not upload data and should only be used while signed out.",
+  "localVaultRecovered": "Local data recovered.",
+  "localVaultDeleteTitle": "Delete this archive?",
+  "localVaultDeleteBody": "This copy will be permanently removed from this phone.",
+  "signInRecoverLocalData": "Recover or delete old local data",
+  "welcomeSomeRecordsNotLoaded": "Some records could not be loaded. Check your connection and try again.",
+  "meetingsUpcomingTitle": "Upcoming meetings",
+  "meetingsScheduleAction": "Schedule a meeting",
+  "meetingsFromGroupSchedule": "From the group's meeting days",
+  "meetingsRemindersNote": "Members are reminded the day before and two hours before. A meeting starts only when you tap Start Meeting.",
+  "meetingsDidntHappenTitle": "Didn't happen?",
+  "meetingsDidntHappenBody": "This meeting was planned but nobody started it. Cancel it so members stop being reminded.",
+  "meetingsCancelMeeting": "Cancel meeting",
+  "meetingsCancelReasonTitle": "Why didn't it take place?",
+  "meetingsCancelReasonHint": "For example: rain, public holiday",
+  "meetingsCancelledNotice": "Meeting cancelled. No more reminders will be sent for it.",
+  "meetingsScheduledNotice": "Meeting planned. Members will be reminded.",
+  "meetingsNotStarted": "Not started",
+  "meetingsStartNow": "Start now",
+  "meetingsMeetingTime": "Meeting time",
+  "meetingsSendReminders": "Remind members of meetings",
+  "meetingHubShopAndFinance": "Shop & outside finance",
+  "signOutSendingFirst": "Sending this phone's records before signing out…",
+  "signOutNotYetTitle": "Not signed out yet",
+  "signOutBlockedOffline": "This phone has {count} item(s) not sent yet. Connect to the internet so they can be sent, then sign out.",
+  "@signOutBlockedOffline": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "signOutBlockedUnsent": "{count} item(s) could not be sent, so you are still signed in. Close any open meeting, check the connection and try again.",
+  "@signOutBlockedUnsent": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "signOutUnderstood": "OK",
+  "moreLockedChooseGroup": "Choose your group under Cloud account to use this",
+  "moreLockedSignIn": "Sign in under Cloud account to use this",
+  "moreStatusOffline": "offline",
+  "moreCloudConnected": "Connected",
+  "moreCloudConnectedMembers": "Connected · {count} members",
+  "@moreCloudConnectedMembers": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "moreCloudCouldNotConnect": "Could not connect. Tap to try again.",
+  "moreCloudNotConnected": "Connect this phone to your group online",
+  "moreSectionOnThisPhone": "On this phone",
+  "moreSectionOnline": "Online",
+  "moreEditSetUp": "Edit group set-up",
+  "moreMeetingSecurityOn": "3-key unlock is on · roles and PINs",
+  "moreMeetingSecurityOff": "3-key unlock is off · roles and PINs",
+  "moreGroupRulesSummary": "{share} per share · up to {maxShares} shares a meeting · {social} social fund · {interest}% interest · borrow up to {multiplier}× savings",
+  "@moreGroupRulesSummary": {
+    "placeholders": {
+      "share": {
+        "type": "String"
+      },
+      "maxShares": {
+        "type": "int"
+      },
+      "social": {
+        "type": "String"
+      },
+      "interest": {
+        "type": "String"
+      },
+      "multiplier": {
+        "type": "String"
+      }
+    }
+  },
+  "moreLoanRulesSubtitle": "Loan term, interest and where expenses come from",
+  "moreSavingCycles": "Saving cycles",
+  "moreSavingCyclesSubtitle": "Close a cycle and start the next",
+  "moreCloudAndAdvanced": "Cloud & advanced",
+  "moreCloudAndAdvancedSubtitle": "Cloud account, payment providers, old local data",
+  "morePaymentProviders": "Payment providers",
+  "morePaymentProvidersSubtitle": "Where money from members is received",
+  "moreInviteAndRequests": "Invite & join requests",
+  "moreCycleStarted": "Cycle {cycle} · started {date}",
+  "@moreCycleStarted": {
+    "placeholders": {
+      "cycle": {
+        "type": "int"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "moreGroupSettingsHubSubtitle": "Set-up, meeting security, rules, loans and cycles",
+  "moreSectionReportsShareOut": "Reports & share-out",
+  "moreSectionAccountSync": "Account & sync",
+  "moreEverythingBackedUp": "Everything is backed up",
+  "moreItemsWaiting": "{count} item(s) waiting to back up",
+  "@moreItemsWaiting": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "moreBackedUpCount": "Backed up {count} record(s).",
+  "@moreBackedUpCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "moreAlreadyBackedUp": "Everything is already backed up.",
+  "memberSignInsTitle": "Member sign-ins",
+  "memberSignInsSubtitle": "Members can sign in on their own phones to see their savings and loans.",
+  "memberSignInsNeedsConnection": "Connect to the internet to change this.",
+  "memberSignInsNowOn": "Members can now sign in to see their savings.",
+  "memberSignInsNowOff": "Member sign-ins are off for this group.",
+  "memberDetailSignInSection": "Sign-in account",
+  "memberDetailSignInExplain": "Give {name} their own sign-in so they can see their savings and loans on their own phone.",
+  "@memberDetailSignInExplain": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "memberDetailCreateSignIn": "Create sign-in",
+  "memberDetailCreatingSignIn": "Creating…",
+  "memberDetailResetSignIn": "Reset password",
+  "memberDetailSignInCreated": "{name} can now sign in with their phone number.",
+  "@memberDetailSignInCreated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "memberDetailSignInLinked": "{name} already signs in for another group, so this group is now linked to that sign-in. Their password stays the same.",
+  "@memberDetailSignInLinked": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "memberDetailPasswordReset": "{name}'s new password is set. Hand it over in person.",
+  "@memberDetailPasswordReset": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "localVaultExport": "Export",
+  "localVaultRecover": "Recover",
+  "localVaultDelete": "Delete",
+  "localVaultExportSubject": "IntelliCash records backup ({label})",
+  "@localVaultExportSubject": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "localVaultExportFailed": "This copy could not be exported. Try again."
 }

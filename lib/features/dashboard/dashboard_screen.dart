@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/database/app_database.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
+import '../../data/models/remote/remote_models.dart';
+import '../../data/repositories/id_map_repository.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/app_state.dart';
+import '../../providers/connection_provider.dart';
 import '../../providers/dashboard_provider.dart';
 import '../../shared/widgets/common.dart';
 import '../../shared/widgets/status_chip.dart';
@@ -26,11 +30,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int _loadedRevision = -1;
 
   Future<void> _load() async {
-    final group = context.read<AppState>().group;
+    final appState = context.read<AppState>();
+    final group = appState.group;
     if (group == null) return;
-    await context.read<DashboardProvider>().load(group.id);
+    final connection = context.read<ConnectionProvider>();
+    final dashboardProvider = context.read<DashboardProvider>();
+    // Server figures only for THIS book's own server group. A book not linked
+    // yet gets none: the group selected online may be a different group (an
+    // agent's caseload), and its money must never appear on this dashboard.
+    RemoteGroup? remoteGroup;
+    try {
+      final remoteGroupId =
+          await IdMapRepository(AppDatabase.instance).remoteId(MapEntity.group, group.id);
+      if (remoteGroupId != null) {
+        final selected = connection.selectedGroup;
+        if (selected?.id == remoteGroupId) {
+          remoteGroup = selected;
+        } else if (connection.isConnected) {
+          remoteGroup = await connection.api.groupDetail(remoteGroupId);
+        }
+      }
+    } catch (_) {
+      // Offline or refused: the dashboard shows the phone's own book.
+    }
+    await dashboardProvider.load(group.id, remoteGroup: remoteGroup);
     if (mounted) {
-      await context.read<AppState>().refreshPendingSync();
+      await appState.refreshPendingSync();
     }
   }
 

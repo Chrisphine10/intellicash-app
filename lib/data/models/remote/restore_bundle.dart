@@ -14,6 +14,15 @@ class RestoreBundle {
     required this.attendance,
     required this.entries,
     required this.loans,
+    this.members = const [],
+    this.interestType = 'FLAT',
+    this.shareValueCents,
+    this.maxSharesPerMeeting,
+    this.socialFundCents,
+    this.loanMultiplierBps,
+    this.meetingFrequency,
+    this.meetingDays,
+    this.meetingTime,
   });
 
   final int cycleNumber;
@@ -26,10 +35,24 @@ class RestoreBundle {
   final int loanInterestRateBps;
   final int defaultLoanTermMonths;
 
+  /// The group's own rules as the server holds them (null = never set), so a
+  /// restored phone computes what the old one did instead of using defaults.
+  final String interestType;
+  final int? shareValueCents;
+  final int? maxSharesPerMeeting;
+  final int? socialFundCents;
+  final int? loanMultiplierBps;
+
+  /// The group's schedule, as set online.
+  final String? meetingFrequency;
+  final String? meetingDays;
+  final String? meetingTime;
+
   final List<RestoreMeeting> meetings;
   final List<RestoreAttendance> attendance;
   final List<RestoreEntry> entries;
   final List<RestoreLoan> loans;
+  final List<RestoreMember> members;
 
   factory RestoreBundle.fromJson(Map<String, dynamic> json) {
     final group = json['group'] as Map<String, dynamic>;
@@ -51,6 +74,15 @@ class RestoreBundle {
       attendance: list('attendance', RestoreAttendance.fromJson),
       entries: list('entries', RestoreEntry.fromJson),
       loans: list('loans', RestoreLoan.fromJson),
+      members: list('members', RestoreMember.fromJson),
+      interestType: policy['interestType'] == 'REDUCING' ? 'REDUCING' : 'FLAT',
+      shareValueCents: (policy['shareValueCents'] as num?)?.toInt(),
+      maxSharesPerMeeting: (policy['maxSharesPerMeeting'] as num?)?.toInt(),
+      socialFundCents: (policy['socialFundCents'] as num?)?.toInt(),
+      loanMultiplierBps: (policy['loanMultiplierBps'] as num?)?.toInt(),
+      meetingFrequency: group['meetingFrequency'] as String?,
+      meetingDays: group['meetingDays'] as String?,
+      meetingTime: group['meetingTime'] as String?,
     );
   }
 }
@@ -163,10 +195,14 @@ class RestoreLoan {
     required this.dueAt,
     required this.status,
     required this.disbursementEntryId,
+    this.interestType = 'FLAT',
   });
 
   final String id;
   final String memberId;
+
+  /// FLAT or REDUCING, as the loan was lent.
+  final String interestType;
   final int? cycleNumber;
   final int principalCents;
   final int interestRateBps;
@@ -189,5 +225,27 @@ class RestoreLoan {
         dueAt: DateTime.parse(json['dueAt'] as String),
         status: (json['status'] as String?) ?? 'ACTIVE',
         disbursementEntryId: json['disbursementEntryId'] as String?,
+        interestType: json['interestType'] == 'REDUCING' ? 'REDUCING' : 'FLAT',
+      );
+}
+
+class RestoreMember {
+  const RestoreMember({
+    required this.id,
+    required this.fullName,
+    required this.phone,
+    required this.role,
+  });
+
+  final String id;
+  final String fullName;
+  final String? phone;
+  final String? role;
+
+  factory RestoreMember.fromJson(Map<String, dynamic> json) => RestoreMember(
+        id: json['id'] as String,
+        fullName: (json['fullName'] as String?) ?? '',
+        phone: json['phone'] as String?,
+        role: json['role'] as String?,
       );
 }

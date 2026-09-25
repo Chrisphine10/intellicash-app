@@ -361,18 +361,6 @@ abstract class L10n {
   /// **'Group'**
   String get sectionGroup;
 
-  /// No description provided for @sectionReports.
-  ///
-  /// In en, this message translates to:
-  /// **'Reports'**
-  String get sectionReports;
-
-  /// No description provided for @sectionEndOfCycle.
-  ///
-  /// In en, this message translates to:
-  /// **'End of cycle'**
-  String get sectionEndOfCycle;
-
   /// No description provided for @sectionCloudBackup.
   ///
   /// In en, this message translates to:
@@ -414,18 +402,6 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Meeting Security'**
   String get meetingSecurity;
-
-  /// No description provided for @memberAccounts.
-  ///
-  /// In en, this message translates to:
-  /// **'Member Accounts'**
-  String get memberAccounts;
-
-  /// No description provided for @memberAccountsSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Let members get their own sign-in to see their savings'**
-  String get memberAccountsSubtitle;
 
   /// No description provided for @groupRules.
   ///
@@ -727,12 +703,6 @@ abstract class L10n {
   /// **'Welfare'**
   String get meetingHubWelfare;
 
-  /// No description provided for @meetingHubIntelliStore.
-  ///
-  /// In en, this message translates to:
-  /// **'Intelli-Store'**
-  String get meetingHubIntelliStore;
-
   /// No description provided for @meetingHubExternalLoans.
   ///
   /// In en, this message translates to:
@@ -750,12 +720,6 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Everyone buys shares at one fixed price'**
   String get groupSetupWizardEveryoneBuysSharesAtOne;
-
-  /// No description provided for @groupSetupWizardMembersSaveWhatTheyCan.
-  ///
-  /// In en, this message translates to:
-  /// **'Members save what they can each meeting'**
-  String get groupSetupWizardMembersSaveWhatTheyCan;
 
   /// No description provided for @groupSetupWizardGroupName.
   ///
@@ -3702,6 +3666,480 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'not marked present'**
   String get buySharesAbsentTag;
+
+  /// No description provided for @localVaultTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Old local data'**
+  String get localVaultTitle;
+
+  /// No description provided for @localVaultEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved local archives.'**
+  String get localVaultEmpty;
+
+  /// No description provided for @localVaultNote.
+  ///
+  /// In en, this message translates to:
+  /// **'These compressed copies stay on this phone. They are not cloud backups.'**
+  String get localVaultNote;
+
+  /// No description provided for @localVaultRecoverTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recover this data?'**
+  String get localVaultRecoverTitle;
+
+  /// No description provided for @localVaultRecoverBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovery replaces the current local book. It does not upload data and should only be used while signed out.'**
+  String get localVaultRecoverBody;
+
+  /// No description provided for @localVaultRecovered.
+  ///
+  /// In en, this message translates to:
+  /// **'Local data recovered.'**
+  String get localVaultRecovered;
+
+  /// No description provided for @localVaultDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this archive?'**
+  String get localVaultDeleteTitle;
+
+  /// No description provided for @localVaultDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This copy will be permanently removed from this phone.'**
+  String get localVaultDeleteBody;
+
+  /// No description provided for @signInRecoverLocalData.
+  ///
+  /// In en, this message translates to:
+  /// **'Recover or delete old local data'**
+  String get signInRecoverLocalData;
+
+  /// No description provided for @welcomeSomeRecordsNotLoaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Some records could not be loaded. Check your connection and try again.'**
+  String get welcomeSomeRecordsNotLoaded;
+
+  /// No description provided for @meetingsUpcomingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming meetings'**
+  String get meetingsUpcomingTitle;
+
+  /// No description provided for @meetingsScheduleAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule a meeting'**
+  String get meetingsScheduleAction;
+
+  /// No description provided for @meetingsFromGroupSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'From the group\'s meeting days'**
+  String get meetingsFromGroupSchedule;
+
+  /// No description provided for @meetingsRemindersNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Members are reminded the day before and two hours before. A meeting starts only when you tap Start Meeting.'**
+  String get meetingsRemindersNote;
+
+  /// No description provided for @meetingsDidntHappenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Didn\'t happen?'**
+  String get meetingsDidntHappenTitle;
+
+  /// No description provided for @meetingsDidntHappenBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This meeting was planned but nobody started it. Cancel it so members stop being reminded.'**
+  String get meetingsDidntHappenBody;
+
+  /// No description provided for @meetingsCancelMeeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel meeting'**
+  String get meetingsCancelMeeting;
+
+  /// No description provided for @meetingsCancelReasonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Why didn\'t it take place?'**
+  String get meetingsCancelReasonTitle;
+
+  /// No description provided for @meetingsCancelReasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example: rain, public holiday'**
+  String get meetingsCancelReasonHint;
+
+  /// No description provided for @meetingsCancelledNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Meeting cancelled. No more reminders will be sent for it.'**
+  String get meetingsCancelledNotice;
+
+  /// No description provided for @meetingsScheduledNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Meeting planned. Members will be reminded.'**
+  String get meetingsScheduledNotice;
+
+  /// No description provided for @meetingsNotStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Not started'**
+  String get meetingsNotStarted;
+
+  /// No description provided for @meetingsStartNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Start now'**
+  String get meetingsStartNow;
+
+  /// No description provided for @meetingsMeetingTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Meeting time'**
+  String get meetingsMeetingTime;
+
+  /// No description provided for @meetingsSendReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind members of meetings'**
+  String get meetingsSendReminders;
+
+  /// No description provided for @meetingHubShopAndFinance.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop & outside finance'**
+  String get meetingHubShopAndFinance;
+
+  /// No description provided for @signOutSendingFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending this phone\'s records before signing out…'**
+  String get signOutSendingFirst;
+
+  /// No description provided for @signOutNotYetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not signed out yet'**
+  String get signOutNotYetTitle;
+
+  /// No description provided for @signOutBlockedOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone has {count} item(s) not sent yet. Connect to the internet so they can be sent, then sign out.'**
+  String signOutBlockedOffline(int count);
+
+  /// No description provided for @signOutBlockedUnsent.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} item(s) could not be sent, so you are still signed in. Close any open meeting, check the connection and try again.'**
+  String signOutBlockedUnsent(int count);
+
+  /// No description provided for @signOutUnderstood.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get signOutUnderstood;
+
+  /// No description provided for @moreLockedChooseGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your group under Cloud account to use this'**
+  String get moreLockedChooseGroup;
+
+  /// No description provided for @moreLockedSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in under Cloud account to use this'**
+  String get moreLockedSignIn;
+
+  /// No description provided for @moreStatusOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'offline'**
+  String get moreStatusOffline;
+
+  /// No description provided for @moreCloudConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get moreCloudConnected;
+
+  /// No description provided for @moreCloudConnectedMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected · {count} members'**
+  String moreCloudConnectedMembers(int count);
+
+  /// No description provided for @moreCloudCouldNotConnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not connect. Tap to try again.'**
+  String get moreCloudCouldNotConnect;
+
+  /// No description provided for @moreCloudNotConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect this phone to your group online'**
+  String get moreCloudNotConnected;
+
+  /// No description provided for @moreSectionOnThisPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'On this phone'**
+  String get moreSectionOnThisPhone;
+
+  /// No description provided for @moreSectionOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Online'**
+  String get moreSectionOnline;
+
+  /// No description provided for @moreEditSetUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit group set-up'**
+  String get moreEditSetUp;
+
+  /// No description provided for @moreMeetingSecurityOn.
+  ///
+  /// In en, this message translates to:
+  /// **'3-key unlock is on · roles and PINs'**
+  String get moreMeetingSecurityOn;
+
+  /// No description provided for @moreMeetingSecurityOff.
+  ///
+  /// In en, this message translates to:
+  /// **'3-key unlock is off · roles and PINs'**
+  String get moreMeetingSecurityOff;
+
+  /// No description provided for @moreGroupRulesSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{share} per share · up to {maxShares} shares a meeting · {social} social fund · {interest}% interest · borrow up to {multiplier}× savings'**
+  String moreGroupRulesSummary(
+    String share,
+    int maxShares,
+    String social,
+    String interest,
+    String multiplier,
+  );
+
+  /// No description provided for @moreLoanRulesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Loan term, interest and where expenses come from'**
+  String get moreLoanRulesSubtitle;
+
+  /// No description provided for @moreSavingCycles.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving cycles'**
+  String get moreSavingCycles;
+
+  /// No description provided for @moreSavingCyclesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Close a cycle and start the next'**
+  String get moreSavingCyclesSubtitle;
+
+  /// No description provided for @moreCloudAndAdvanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud & advanced'**
+  String get moreCloudAndAdvanced;
+
+  /// No description provided for @moreCloudAndAdvancedSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud account, payment providers, old local data'**
+  String get moreCloudAndAdvancedSubtitle;
+
+  /// No description provided for @morePaymentProviders.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment providers'**
+  String get morePaymentProviders;
+
+  /// No description provided for @morePaymentProvidersSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Where money from members is received'**
+  String get morePaymentProvidersSubtitle;
+
+  /// No description provided for @moreInviteAndRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite & join requests'**
+  String get moreInviteAndRequests;
+
+  /// No description provided for @moreCycleStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Cycle {cycle} · started {date}'**
+  String moreCycleStarted(int cycle, String date);
+
+  /// No description provided for @moreGroupSettingsHubSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set-up, meeting security, rules, loans and cycles'**
+  String get moreGroupSettingsHubSubtitle;
+
+  /// No description provided for @moreSectionReportsShareOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports & share-out'**
+  String get moreSectionReportsShareOut;
+
+  /// No description provided for @moreSectionAccountSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Account & sync'**
+  String get moreSectionAccountSync;
+
+  /// No description provided for @moreEverythingBackedUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything is backed up'**
+  String get moreEverythingBackedUp;
+
+  /// No description provided for @moreItemsWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} item(s) waiting to back up'**
+  String moreItemsWaiting(int count);
+
+  /// No description provided for @moreBackedUpCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Backed up {count} record(s).'**
+  String moreBackedUpCount(int count);
+
+  /// No description provided for @moreAlreadyBackedUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything is already backed up.'**
+  String get moreAlreadyBackedUp;
+
+  /// No description provided for @memberSignInsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Member sign-ins'**
+  String get memberSignInsTitle;
+
+  /// No description provided for @memberSignInsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Members can sign in on their own phones to see their savings and loans.'**
+  String get memberSignInsSubtitle;
+
+  /// No description provided for @memberSignInsNeedsConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to the internet to change this.'**
+  String get memberSignInsNeedsConnection;
+
+  /// No description provided for @memberSignInsNowOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Members can now sign in to see their savings.'**
+  String get memberSignInsNowOn;
+
+  /// No description provided for @memberSignInsNowOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Member sign-ins are off for this group.'**
+  String get memberSignInsNowOff;
+
+  /// No description provided for @memberDetailSignInSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-in account'**
+  String get memberDetailSignInSection;
+
+  /// No description provided for @memberDetailSignInExplain.
+  ///
+  /// In en, this message translates to:
+  /// **'Give {name} their own sign-in so they can see their savings and loans on their own phone.'**
+  String memberDetailSignInExplain(String name);
+
+  /// No description provided for @memberDetailCreateSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Create sign-in'**
+  String get memberDetailCreateSignIn;
+
+  /// No description provided for @memberDetailCreatingSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating…'**
+  String get memberDetailCreatingSignIn;
+
+  /// No description provided for @memberDetailResetSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset password'**
+  String get memberDetailResetSignIn;
+
+  /// No description provided for @memberDetailSignInCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} can now sign in with their phone number.'**
+  String memberDetailSignInCreated(String name);
+
+  /// No description provided for @memberDetailSignInLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} already signs in for another group, so this group is now linked to that sign-in. Their password stays the same.'**
+  String memberDetailSignInLinked(String name);
+
+  /// No description provided for @memberDetailPasswordReset.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}\'s new password is set. Hand it over in person.'**
+  String memberDetailPasswordReset(String name);
+
+  /// No description provided for @localVaultExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get localVaultExport;
+
+  /// No description provided for @localVaultRecover.
+  ///
+  /// In en, this message translates to:
+  /// **'Recover'**
+  String get localVaultRecover;
+
+  /// No description provided for @localVaultDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get localVaultDelete;
+
+  /// No description provided for @localVaultExportSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'IntelliCash records backup ({label})'**
+  String localVaultExportSubject(String label);
+
+  /// No description provided for @localVaultExportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'This copy could not be exported. Try again.'**
+  String get localVaultExportFailed;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

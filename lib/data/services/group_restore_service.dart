@@ -138,6 +138,32 @@ class GroupRestoreService {
     );
   }
 
+  /// Restores a group, verifying that an `alreadyPresent` result actually has
+  /// local data. A stale `id_map` entry (left over from a session whose
+  /// workspace was cleared) would otherwise make us skip the restore and leave
+  /// the dashboard empty. If the local data is missing, the stale mapping is
+  /// cleared and the restore is retried.
+  Future<GroupRestoreResult> restoreWithVerify(String remoteGroupId) async {
+    final result = await restore(remoteGroupId);
+    if (!result.alreadyPresent) return result;
+    final group = await _groups.currentGroup();
+    if (group == null) {
+      await _idMap.removeMeetingMappings();
+      final mappings = await _idMap.mappings(MapEntity.group);
+      if (mappings.isNotEmpty) {
+        for (final localId in mappings.keys) {
+          final remoteId = mappings[localId];
+          if (remoteId == remoteGroupId) {
+            await _idMap.clearAll();
+            break;
+          }
+        }
+      }
+      return restore(remoteGroupId);
+    }
+    return result;
+  }
+
   /// Brings the group's history across, or marks it to be tried again.
   ///
   /// Null means "not yet": the signal went, or there are no members on the phone
@@ -168,8 +194,11 @@ class GroupRestoreService {
         bundle: bundle,
         localMemberFor: memberMap,
       );
-      await _idMap.put(MapEntity.groupHistory, localGroupId,
-          result.imported ? 'done' : 'skipped',
+      final isPending = result.records == 0 && result.loans == 0 && bundle.entries.isNotEmpty;
+      final status = (!result.imported)
+          ? 'skipped'
+          : (isPending ? 'pending' : 'done');
+      await _idMap.put(MapEntity.groupHistory, localGroupId, status,
           groupId: remoteGroupId);
       return result;
     } catch (_) {
@@ -199,6 +228,13 @@ class GroupRestoreService {
     } catch (_) {
       // Tried again at the next sync.
     }
+  }
+
+  /// Manually re-triggers history import for a group regardless of current status.
+  Future<HistoryImportResult?> reImportHistory(
+      String localGroupId, String remoteGroupId) async {
+    if (_history == null) return null;
+    return _restoreHistory(localGroupId, remoteGroupId);
   }
 }
 

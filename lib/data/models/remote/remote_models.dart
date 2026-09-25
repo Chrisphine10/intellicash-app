@@ -9,6 +9,8 @@
 /// Shapes verified against the running API on 2026-07-17 (see docs/audit).
 library;
 
+import 'dart:convert';
+
 double _centsToKes(Object? v) =>
     v == null ? 0 : (v is num ? v.toDouble() : double.tryParse('$v') ?? 0) / 100;
 
@@ -35,6 +37,20 @@ class RemoteFundAccount {
 }
 
 /// `GET /groups` (list) and `GET /groups/:id` (detail, adds funds/score/counts).
+/// Which optional modules a group can use: Intelli-Store and Voting are
+/// switched on per programme by an IWL admin, and both start off.
+class GroupModules {
+  const GroupModules({this.store = false, this.voting = false});
+
+  factory GroupModules.fromJson(Map<String, dynamic> j) =>
+      GroupModules(store: j['store'] == true, voting: j['voting'] == true);
+
+  final bool store;
+  final bool voting;
+
+  Map<String, dynamic> toJson() => {'store': store, 'voting': voting};
+}
+
 class RemoteGroup {
   const RemoteGroup({
     required this.id,
@@ -44,6 +60,10 @@ class RemoteGroup {
     required this.county,
     this.subCounty,
     this.meetingDay,
+    this.meetingFrequency,
+    this.meetingDays,
+    this.meetingTime,
+    this.remindersEnabled = true,
     required this.shareValue,
     required this.maxSharesPerMeeting,
     required this.cycleNumber,
@@ -54,6 +74,9 @@ class RemoteGroup {
     this.meetingCount,
     this.championName,
     this.championPhone,
+    this.totalSavingsCents,
+    this.totalSocialFundCents,
+    this.modules,
   });
 
   final String id;
@@ -63,6 +86,14 @@ class RemoteGroup {
   final String county;
   final String? subCounty;
   final String? meetingDay;
+
+  /// The structured schedule the server reminds members by: WEEKLY, BIWEEKLY
+  /// or MONTHLY; ISO weekdays (1 = Monday); "HH:mm". Null until someone sets
+  /// one, on the console or on a phone.
+  final String? meetingFrequency;
+  final List<int>? meetingDays;
+  final String? meetingTime;
+  final bool remindersEnabled;
   final double shareValue; // KES per share
   final int maxSharesPerMeeting;
   final int cycleNumber;
@@ -79,13 +110,25 @@ class RemoteGroup {
   final String? championName;
   final String? championPhone;
 
-  double _fund(String type) => funds
-      .where((f) => f.type == type)
-      .fold(0.0, (sum, f) => sum + f.balance);
+  /// Server-computed totals (from GET /groups/:id). When present, these are the
+  /// authoritative figures and should be preferred over local calculations.
+  final double? totalSavingsCents;
+  final double? totalSocialFundCents;
 
-  double get savingsBalance => _fund('SAVINGS');
-  double get socialFundBalance => _fund('SOCIAL');
-  double get internalLoanBalance => _fund('INTERNAL_LOAN');
+  /// Optional modules switched on for this group's programmes, or null when
+  /// the server did not say (an older server, or a list row rather than the
+  /// group's own detail). Null is treated as "off" by [ModuleSwitches].
+  final GroupModules? modules;
+
+    double _fund(String type) => funds
+        .where((f) => f.type == type)
+        .fold(0.0, (sum, f) => sum + f.balance);
+
+    /// The backend uses INTERNAL_LOAN for share purchases (no SAVINGS fund type exists).
+    /// See packages/shared/src/index.ts fundTypes enum.
+    double get savingsBalance => _fund('INTERNAL_LOAN');
+    double get socialFundBalance => _fund('SOCIAL');
+    double get internalLoanBalance => _fund('INTERNAL_LOAN');
 
   factory RemoteGroup.fromJson(Map<String, dynamic> j) {
     final programme = j['programme'];
@@ -104,6 +147,10 @@ class RemoteGroup {
       county: '${j['county'] ?? ''}',
       subCounty: j['subCounty'] as String?,
       meetingDay: j['meetingDay'] as String?,
+      meetingFrequency: j['meetingFrequency'] as String?,
+      meetingDays: _scheduleDays(j['meetingDays']),
+      meetingTime: j['meetingTime'] as String?,
+      remindersEnabled: j['remindersEnabled'] as bool? ?? true,
       shareValue: _centsToKes(j['shareValueCents']),
       maxSharesPerMeeting: _toInt(j['maxSharesPerMemberPerMeeting']),
       cycleNumber: _toInt(j['cycleNumber']),
@@ -120,6 +167,11 @@ class RemoteGroup {
           : (j['contactPhone'] as String).trim(),
       memberCount: count == null ? null : _toInt(count['members']),
       meetingCount: count == null ? null : _toInt(count['meetings']),
+      totalSavingsCents: j['totalSavingsCents'] != null ? (j['totalSavingsCents'] as num).toDouble() : null,
+      totalSocialFundCents: j['totalSocialFundCents'] != null ? (j['totalSocialFundCents'] as num).toDouble() : null,
+      modules: j['modules'] is Map<String, dynamic>
+          ? GroupModules.fromJson(j['modules'] as Map<String, dynamic>)
+          : null,
     );
   }
 }
@@ -175,18 +227,33 @@ class RemoteMeeting {
     this.closedAt,
     required this.unlockStatus,
     required this.transactionTotal,
+    this.source = 'MANUAL',
+    this.cancelReason,
   });
 
   final String id;
   final String title;
-  final String status; // SCHEDULED, OPEN, CLOSED
+
+  /// SCHEDULED, KEY_UNLOCK_PENDING, IN_PROGRESS, SEALED, SYNC_CONFLICT or
+  /// CANCELLED. A person moves a meeting out of SCHEDULED; the clock never does.
+  final String status;
   final DateTime? scheduledAt;
   final DateTime? openedAt;
   final DateTime? closedAt;
   final String unlockStatus; // PENDING, UNLOCKED
   final double transactionTotal; // KES
 
-  bool get isClosed => status == 'CLOSED' || closedAt != null;
+  /// MANUAL (scheduled on the console), AUTO_SCHEDULE (planned from the
+  /// group's meeting days, for reminders) or PHONE (held on a phone).
+  final String source;
+  final String? cancelReason;
+
+  bool get isInProgress => status == 'IN_PROGRESS';
+  bool get isNotStarted =>
+      status == 'SCHEDULED' || status == 'KEY_UNLOCK_PENDING';
+  bool get isCancelled => status == 'CANCELLED';
+  bool get isClosed =>
+      status == 'SEALED' || status == 'CLOSED' || isCancelled || closedAt != null;
 
   factory RemoteMeeting.fromJson(Map<String, dynamic> j) {
     return RemoteMeeting(
@@ -198,6 +265,8 @@ class RemoteMeeting {
       closedAt: _toDate(j['closedAt']),
       unlockStatus: '${j['unlockStatus'] ?? ''}',
       transactionTotal: _centsToKes(j['transactionTotal']),
+      source: '${j['source'] ?? 'MANUAL'}',
+      cancelReason: j['cancelReason'] as String?,
     );
   }
 }
@@ -307,4 +376,21 @@ class RemoteUser {
       languagePreference: j['languagePreference'] as String?,
     );
   }
+}
+
+/// `Group.meetingDays` is stored as JSON text ("[4,5]"); some responses send
+/// the list itself.
+List<int>? _scheduleDays(Object? value) {
+  Object? raw = value;
+  if (raw is String) {
+    try {
+      raw = jsonDecode(raw);
+    } catch (_) {
+      return null;
+    }
+  }
+  if (raw is! List) return null;
+  final days = raw.whereType<num>().map((d) => d.toInt()).where((d) => d >= 1 && d <= 7).toList()
+    ..sort();
+  return days.isEmpty ? null : days;
 }

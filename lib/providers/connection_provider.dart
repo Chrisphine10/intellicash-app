@@ -1,9 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../core/network/api_config.dart';
 import '../core/network/api_credentials.dart';
 import '../core/network/api_exception.dart';
+import '../core/utils/app_logger.dart';
 import '../data/models/remote/remote_models.dart';
+import '../data/services/group_restore_service.dart';
+import '../data/services/member_matching.dart';
 import '../data/services/remote_api.dart';
 
 enum ConnectionStatus { unconfigured, connected, error }
@@ -16,15 +21,51 @@ class ConnectionProvider extends ChangeNotifier {
     required CredentialStore store,
     required RemoteApi api,
     required void Function(ApiCredentials) applyCredentials,
-  })  : _store = store,
-        _api = api,
-        _applyCredentials = applyCredentials;
+    this.pendingLocalWork,
+    this.syncPreviousAccount,
+    this.archiveLocalWorkspace,
+    this.clearLocalWorkspace,
+    this.groupRestore,
+    this.onGroupRestored,
+    this.onGroupModules,
+    this.pendingForSignOut,
+    this.syncBeforeSignOut,
+    this.deviceOnline,
+  }) : _store = store,
+       _api = api,
+       _applyCredentials = applyCredentials;
 
   final CredentialStore _store;
   final RemoteApi _api;
 
   /// Pushes freshly loaded/saved credentials into the shared ApiClient.
   final void Function(ApiCredentials) _applyCredentials;
+  final Future<int> Function()? pendingLocalWork;
+  final Future<int> Function()? syncPreviousAccount;
+  final Future<void> Function()? archiveLocalWorkspace;
+  final Future<void> Function()? clearLocalWorkspace;
+
+  /// Pulls a group's record book down from the server after sign-in.
+  final GroupRestoreService? groupRestore;
+
+  /// Notifies the app when a group's data has been restored, so routing can
+  /// re-evaluate (a phone that showed "set up" flips to the record book).
+  final void Function()? onGroupRestored;
+
+  /// Hears which optional modules (store, voting) a group has, each time its
+  /// detail is loaded, so the phone can keep the answer for offline meetings.
+  final Future<void> Function(String remoteGroupId, GroupModules modules)? onGroupModules;
+
+  /// Work on this phone that only exists here until it is sent: open meetings,
+  /// unsent meetings and share-outs of linked books, agents' visits and photos.
+  /// Sign-out waits for it, so a sync always happens first.
+  final Future<int> Function()? pendingForSignOut;
+
+  /// Sends everything waiting, with the session that is about to end.
+  final Future<void> Function()? syncBeforeSignOut;
+
+  /// Whether the device has a network at all.
+  final bool Function()? deviceOnline;
 
   ApiCredentials _credentials = ApiCredentials(
     baseUrl: ApiConfig.defaultBaseUrl(),
@@ -45,8 +86,10 @@ class ConnectionProvider extends ChangeNotifier {
   RemoteGroup? _selectedGroup;
   List<RemoteMember> _members = [];
   List<RemoteMeeting> _meetings = [];
-  RemoteNotifications _notifications =
-      const RemoteNotifications(items: [], unreadCount: 0);
+  RemoteNotifications _notifications = const RemoteNotifications(
+    items: [],
+    unreadCount: 0,
+  );
   RemoteUser? _signedInUser;
   StoredAccount? _account;
   String? _lastIdentifier;
@@ -103,10 +146,14 @@ class ConnectionProvider extends ChangeNotifier {
   /// server does not know, so the remote meeting is the only id it accepts.
   RemoteMeeting? get openRemoteMeeting {
     for (final meeting in _meetings) {
-      if (meeting.status == 'OPEN' && !meeting.isClosed) return meeting;
+      // Only a meeting someone started. A scheduled one is a plan for
+      // reminders, and anything recorded against it would land in a meeting
+      // that has not happened.
+      if (meeting.isInProgress) return meeting;
     }
     return null;
   }
+
   RemoteNotifications get notifications => _notifications;
   int get unreadNotifications => _notifications.unreadCount;
   RemoteUser? get signedInUser => _signedInUser;
@@ -151,8 +198,11 @@ class ConnectionProvider extends ChangeNotifier {
     required String identifier,
     required String password,
   }) async {
-    _credentials =
-        ApiCredentials(baseUrl: ApiConfig.normalize(baseUrl), apiKey: '');
+    if (!await _prepareAccountSwitch(identifier)) return false;
+    _credentials = ApiCredentials(
+      baseUrl: ApiConfig.normalize(baseUrl),
+      apiKey: '',
+    );
     _applyCredentials(_credentials);
     _busy = true;
     _error = null;
@@ -172,6 +222,10 @@ class ConnectionProvider extends ChangeNotifier {
       );
       _status = ConnectionStatus.connected;
       _error = null;
+      // NEW: Auto-restore group data for group accounts with no local book
+      if (result.user.isGroupAccount && result.user.groupId != null) {
+        await _autoRestoreGroup(result.user.groupId!);
+      }
       return true;
     } on ApiException catch (e) {
       _status = ConnectionStatus.error;
@@ -194,8 +248,10 @@ class ConnectionProvider extends ChangeNotifier {
     String? email,
     String? county,
   }) async {
-    _credentials =
-        ApiCredentials(baseUrl: ApiConfig.normalize(baseUrl), apiKey: '');
+    _credentials = ApiCredentials(
+      baseUrl: ApiConfig.normalize(baseUrl),
+      apiKey: '',
+    );
     _applyCredentials(_credentials);
     _busy = true;
     _error = null;
@@ -299,7 +355,9 @@ class ConnectionProvider extends ChangeNotifier {
     bool forPasswordReset = false,
   }) async {
     _credentials = ApiCredentials(
-        baseUrl: ApiConfig.normalize(_credentials.baseUrl), apiKey: '');
+      baseUrl: ApiConfig.normalize(_credentials.baseUrl),
+      apiKey: '',
+    );
     _applyCredentials(_credentials);
     _busy = true;
     _error = null;
@@ -326,6 +384,7 @@ class ConnectionProvider extends ChangeNotifier {
     required String code,
     String? newPassword,
   }) async {
+    if (!await _prepareAccountSwitch(phone)) return false;
     _busy = true;
     _error = null;
     _errorCode = null;
@@ -346,6 +405,10 @@ class ConnectionProvider extends ChangeNotifier {
         const RemoteNotifications(items: [], unreadCount: 0),
       );
       _status = ConnectionStatus.connected;
+      // NEW: Auto-restore group data for group accounts with no local book
+      if (result.user.isGroupAccount && result.user.groupId != null) {
+        await _autoRestoreGroup(result.user.groupId!);
+      }
       return true;
     } on ApiException catch (e) {
       _status = ConnectionStatus.error;
@@ -418,13 +481,11 @@ class ConnectionProvider extends ChangeNotifier {
     try {
       _groups = await _api.groups();
       final keepId = _selectedGroup?.id;
-      final next = _groups.where((g) => g.id == keepId).firstOrNull ??
+      final next =
+          _groups.where((g) => g.id == keepId).firstOrNull ??
           (_groups.isNotEmpty ? _groups.first : null);
       await _selectGroup(next);
-      _notifications = await _safe(
-        () => _api.notifications(),
-        _notifications,
-      );
+      _notifications = await _safe(() => _api.notifications(), _notifications);
       _status = ConnectionStatus.connected;
     } on ApiException catch (e) {
       _status = ConnectionStatus.error;
@@ -458,6 +519,14 @@ class ConnectionProvider extends ChangeNotifier {
     }
     // Detail carries fund balances, credit score and counts.
     _selectedGroup = await _safe(() => _api.groupDetail(group.id), group);
+    final modules = _selectedGroup?.modules;
+    if (modules != null) {
+      try {
+        await onGroupModules?.call(group.id, modules);
+      } catch (_) {
+        // Remembered next time; the tiles simply keep their last answer.
+      }
+    }
     _members = await _safe(() => _api.groupMembers(group.id), const []);
     _meetings = await _safe(() => _api.groupMeetings(group.id), const []);
   }
@@ -481,9 +550,47 @@ class ConnectionProvider extends ChangeNotifier {
   /// Idempotent — several in-flight requests can each come back 401, and only
   /// the first should do any work.
   Future<void> handleSessionExpired() async {
-    if (_status == ConnectionStatus.unconfigured && _signedInUser == null) return;
+    if (_status == ConnectionStatus.unconfigured && _signedInUser == null) {
+      return;
+    }
     await _clearSessionState();
     notifyListeners();
+  }
+
+  /// Signs out, but only once nothing is left waiting to be sent.
+  ///
+  /// Nothing waiting: signs out straight away, with or without signal (the
+  /// book stays on the phone either way). Something waiting and no signal:
+  /// refused, so the work is not stranded behind a sign-out. Something waiting
+  /// with signal: syncs first, counts again (a sync already running reports
+  /// nothing sent, so its return value is not trusted), and signs out only if
+  /// that emptied the queue.
+  Future<SignOutResult> signOut() async {
+    Future<int> count() async {
+      try {
+        return await pendingForSignOut?.call() ?? 0;
+      } catch (_) {
+        return 0;
+      }
+    }
+
+    var pending = await count();
+    if (pending > 0) {
+      if (!(deviceOnline?.call() ?? true)) {
+        return SignOutResult(SignOutOutcome.pendingOffline, pending: pending);
+      }
+      try {
+        await syncBeforeSignOut?.call();
+      } catch (e) {
+        log.warn('connection', 'Sync before sign-out failed: $e');
+      }
+      pending = await count();
+      if (pending > 0) {
+        return SignOutResult(SignOutOutcome.pendingAfterSync, pending: pending);
+      }
+    }
+    final revoked = await disconnect();
+    return SignOutResult(SignOutOutcome.signedOut, revoked: revoked);
   }
 
   /// Signs out. Returns false when the server could not be told — the local
@@ -505,6 +612,12 @@ class ConnectionProvider extends ChangeNotifier {
   /// a deliberate sign-out does, or the next person picks up a half-signed-in
   /// handset.
   Future<void> _clearSessionState() async {
+    // Ending a session never touches the local book. A 401 can arrive in the
+    // middle of an offline meeting's sync, and a group signs out and back in
+    // on the same handset; either way the book may hold work that exists
+    // nowhere else. Another account's book is kept away from the next person
+    // at the NEXT sign-in, by [_prepareAccountSwitch], which can refuse while
+    // work is unsent.
     await _store.clear();
     _credentials = ApiCredentials(
       baseUrl: ApiConfig.defaultBaseUrl(),
@@ -531,6 +644,7 @@ class ConnectionProvider extends ChangeNotifier {
   /// still complete the sign-in it just did.
   Future<void> _rememberAccount(RemoteUser user, String identifier) async {
     final account = StoredAccount(
+      userId: user.id,
       role: user.role,
       name: user.name,
       identifier: identifier.trim(),
@@ -548,5 +662,113 @@ class ConnectionProvider extends ChangeNotifier {
     }
   }
 
+  /// Prevents an account switch from reusing another account's local book.
+  ///
+  /// Signing in as the same account keeps the book. Signing in as a different
+  /// one first sends the old account's pending work while its session still
+  /// works, then refuses if anything is left unsent (an open meeting counts:
+  /// it has not been sent yet). Only then is the book archived on the phone,
+  /// and it is cleared only once that archive has been written.
+  Future<bool> _prepareAccountSwitch(String identifier) async {
+    final previous = _account;
+    final previousRaw =
+        previous?.identifier.trim() ?? _lastIdentifier?.trim() ?? '';
+    final previousKey = accountIdentityKey(previousRaw);
+    if (previousKey.isEmpty || previousKey == accountIdentityKey(identifier)) {
+      return true;
+    }
+    final who = (previous?.name.isNotEmpty ?? false) ? previous!.name : previousRaw;
+    var pending = await pendingLocalWork?.call() ?? 0;
+    if (pending > 0 && hasSession && syncPreviousAccount != null) {
+      try {
+        await syncPreviousAccount!.call();
+      } catch (e) {
+        log.warn('connection', 'Sync before account switch failed: $e');
+      }
+      pending = await pendingLocalWork?.call() ?? pending;
+    }
+    if (pending > 0) {
+      return _refuseSwitch(
+        'LOCAL_DATA_PENDING',
+        'This phone still has $pending unsent item(s) for $who, including any '
+            'meeting still open. Sign back in as that account, close the '
+            'meeting and sync before switching accounts.',
+      );
+    }
+    try {
+      await archiveLocalWorkspace?.call();
+    } catch (e) {
+      log.warn('connection', 'Archive before account switch failed: $e');
+      return _refuseSwitch(
+        'LOCAL_ARCHIVE_FAILED',
+        "This phone could not keep a copy of $who's records, so it has not "
+            'switched accounts. Free up some storage and try again.',
+      );
+    }
+    await clearLocalWorkspace?.call();
+    return true;
+  }
+
+  /// Leaves the current session exactly as it was: the switch simply did not
+  /// happen, and the sign-in form shows why.
+  bool _refuseSwitch(String code, String message) {
+    _errorCode = code;
+    _error = message;
+    notifyListeners();
+    return false;
+  }
+
+  /// Pulls a group's record book down from the server after a group account
+  /// signs in. This is what makes the dashboard, members and meetings appear
+  /// on a new phone (or after a reinstall) without the person having to find
+  /// and tap "Load my group" on the welcome screen.
+  ///
+  /// Best-effort: a failure here does not fail the sign-in. The welcome screen
+  /// still offers "Load my group" as a fallback, and the periodic sync retries
+  /// a pending restore.
+  Future<void> _autoRestoreGroup(String remoteGroupId) async {
+    final service = groupRestore;
+    if (service == null) return;
+    try {
+      final result = await service.restoreWithVerify(remoteGroupId);
+      if (result.alreadyPresent || (result.history?.imported ?? false)) {
+        log.info('connection',
+            'Group data restored for $remoteGroupId (${result.membersRestored} members)');
+        onGroupRestored?.call();
+        notifyListeners();
+      } else if (result.historyPending) {
+        log.info('connection',
+            'Group roster restored for $remoteGroupId — history follows on next sync');
+        onGroupRestored?.call();
+        notifyListeners();
+      }
+    } catch (e) {
+      log.warn('connection', 'Auto-restore failed for $remoteGroupId: $e');
+      // Do not rethrow — sign-in must succeed even if restore fails.
+    }
+  }
+
+  /// Called by AppState after a reload — re-evaluates the account/group binding.
+  Future<void> refreshAfterRestore() async {
+    notifyListeners();
+  }
+
   RemoteApi get api => _api;
+}
+
+enum SignOutOutcome { signedOut, pendingOffline, pendingAfterSync }
+
+/// What happened when someone asked to sign out.
+class SignOutResult {
+  const SignOutResult(this.outcome, {this.pending = 0, this.revoked = true});
+
+  final SignOutOutcome outcome;
+
+  /// Items still waiting to be sent, when sign-out was refused.
+  final int pending;
+
+  /// Whether the server heard about the sign-out (false: no signal).
+  final bool revoked;
+
+  bool get signedOut => outcome == SignOutOutcome.signedOut;
 }

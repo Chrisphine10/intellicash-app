@@ -36,11 +36,14 @@ class ApiCredentials {
 /// record book.
 class StoredAccount {
   const StoredAccount({
+    this.userId = '',
     required this.role,
     required this.name,
     required this.identifier,
     this.groupId,
   });
+
+  final String userId;
 
   /// The backend's authoritative role: GROUP_ACCOUNT | MEMBER | VILLAGE_AGENT.
   final String role;
@@ -65,13 +68,14 @@ class StoredAccount {
 /// Persists [ApiCredentials] in secure storage.
 class CredentialStore {
   CredentialStore({FlutterSecureStorage? storage})
-      : _storage = storage ?? const FlutterSecureStorage();
+    : _storage = storage ?? const FlutterSecureStorage();
 
   static const _kBaseUrl = 'api_base_url';
   static const _kKey = 'api_key';
   // Legacy key from the pre-Bearer scaffolding; cleared on save/clear.
   static const _kLegacySecret = 'api_secret';
   static const _kRole = 'account_role';
+  static const _kUserId = 'account_user_id';
   static const _kName = 'account_name';
   static const _kIdentifier = 'account_identifier';
   static const _kGroupId = 'account_group_id';
@@ -129,6 +133,7 @@ class CredentialStore {
       final role = await _storage.read(key: _kRole);
       if (role == null || role.isEmpty) return null;
       return StoredAccount(
+        userId: await _storage.read(key: _kUserId) ?? '',
         role: role,
         name: await _storage.read(key: _kName) ?? '',
         identifier: await _storage.read(key: _kIdentifier) ?? '',
@@ -142,6 +147,7 @@ class CredentialStore {
   }
 
   Future<void> saveAccount(StoredAccount account) async {
+    await _storage.write(key: _kUserId, value: account.userId);
     await _storage.write(key: _kRole, value: account.role);
     await _storage.write(key: _kName, value: account.name);
     await _storage.write(key: _kIdentifier, value: account.identifier);
@@ -159,6 +165,7 @@ class CredentialStore {
   /// Forgets who was signed in. Keeps [lastIdentifier] so the login form can
   /// be pre-filled.
   Future<void> clearAccount() async {
+    await _storage.delete(key: _kUserId);
     await _storage.delete(key: _kRole);
     await _storage.delete(key: _kName);
     await _storage.delete(key: _kIdentifier);

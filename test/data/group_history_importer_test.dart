@@ -112,13 +112,13 @@ void main() {
   /// Cycle 1: Alice 5,000 and Brian 3,000 in shares, 50 social, Brian borrows
   /// 2,000 and repays 500; then the group shares out. Cycle 2 (open): one meeting
   /// where Alice buys 1,000 of shares.
-  RestoreBundle bundle() => RestoreBundle(
+  RestoreBundle bundle({List<RestoreMeeting>? meetings}) => RestoreBundle(
         cycleNumber: 2,
         cycleStartedAt: t0,
         policyConfigured: true,
         loanInterestRateBps: 500,
         defaultLoanTermMonths: 2,
-        meetings: [
+        meetings: meetings ?? [
           RestoreMeeting(id: 'r-m1', title: 'Meeting #1', scheduledAt: days(-60), status: 'SEALED', closedAt: days(-60), cycleNumber: 1),
           RestoreMeeting(id: 'r-m2', title: 'Meeting #2', scheduledAt: days(10), status: 'SEALED', closedAt: days(10), cycleNumber: 2),
           // Only ever planned: nothing recorded in it, so not history.
@@ -194,6 +194,45 @@ void main() {
     final attendance = await database.query('attendance');
     expect(attendance, hasLength(3));
     expect(attendance.where((r) => r['present'] == 0), hasLength(1));
+  });
+
+  test('a restore never opens a meeting nobody started', () async {
+    // A meeting held on an older phone reaches the server SCHEDULED, with its
+    // records in it: it happened and is over. A scheduled meeting is a plan
+    // for reminders, never a meeting in progress.
+    final phone = await freshPhone();
+    await importer.import(
+      localGroupId: phone.group.id,
+      remoteGroupId: 'remote-g',
+      bundle: bundle(meetings: [
+        RestoreMeeting(id: 'r-m1', title: 'Meeting #1', scheduledAt: days(-60), status: 'SCHEDULED', closedAt: null, cycleNumber: 1),
+        RestoreMeeting(id: 'r-m2', title: 'Meeting #2', scheduledAt: days(10), status: 'SCHEDULED', closedAt: null, cycleNumber: 2),
+      ]),
+      localMemberFor: phone.memberFor,
+    );
+
+    final database = await db.database;
+    final rows = await database.query('meetings');
+    expect(rows, hasLength(2));
+    expect(rows.every((r) => r['status'] == 'closed'), isTrue);
+  });
+
+  test('only the one meeting someone started stays open, and only the latest', () async {
+    final phone = await freshPhone();
+    await importer.import(
+      localGroupId: phone.group.id,
+      remoteGroupId: 'remote-g',
+      bundle: bundle(meetings: [
+        RestoreMeeting(id: 'r-m1', title: 'Meeting #1', scheduledAt: days(-60), status: 'IN_PROGRESS', closedAt: null, cycleNumber: 1),
+        RestoreMeeting(id: 'r-m2', title: 'Meeting #2', scheduledAt: days(10), status: 'IN_PROGRESS', closedAt: null, cycleNumber: 2),
+      ]),
+      localMemberFor: phone.memberFor,
+    );
+
+    final database = await db.database;
+    final open = await database.query('meetings', where: "status = 'open'");
+    expect(open, hasLength(1));
+    expect(open.single['number'], 2);
   });
 
   test('savings, social fund, loans and repayments are placed as the phone keeps them', () async {
@@ -458,6 +497,130 @@ void main() {
       expect(again.alreadyPresent, isTrue);
       final database = await db.database;
       expect((await database.query('meetings')).length, 2);
+    });
+
+    test('history status stays pending if entries are skipped due to unmapped members', () async {
+      // Create a bundle where entries belong to 'r-unmapped-member'
+      final unmappedBundle = RestoreBundle(
+        cycleNumber: 1,
+        cycleStartedAt: t0,
+        policyConfigured: false,
+        loanInterestRateBps: 0,
+        defaultLoanTermMonths: 1,
+        meetings: [
+          RestoreMeeting(id: 'r-m10', title: 'Meeting #10', scheduledAt: days(1), status: 'SEALED', closedAt: days(1), cycleNumber: 1),
+        ],
+        attendance: const [],
+        loans: const [],
+        entries: [
+          entry('e100', 'SOCIAL_CONTRIBUTION', 5000, meeting: 'r-m10', member: 'r-unmapped-member', cycle: 1, at: days(1)),
+        ],
+      );
+      final customApi = _FakeRestoreApi(unmappedBundle);
+      final customService = GroupRestoreService(
+        api: customApi,
+        groups: groups,
+        members: members,
+        idMap: idMap,
+        history: importer,
+      );
+
+      final result = await customService.restore('remote-g-unmapped');
+      expect(result.group, isNotNull);
+      final status = await idMap.remoteId(MapEntity.groupHistory, result.group!.id);
+      expect(status, 'pending', reason: 'history import skipped records due to unmapped members so history status must stay pending');
+    });
+
+    test('DashboardRepository.summary falls back to remoteGroup totals when local tables are empty', () async {
+      final phone = await freshPhone();
+      final localSummary = await DashboardRepository(db).summary(phone.group.id);
+      expect(localSummary.totalSavings, 0.0);
+      expect(localSummary.socialFund, 0.0);
+
+      final remoteGroup = RemoteGroup.fromJson({
+        'id': 'remote-g',
+        'name': 'Umoja Women Group',
+        'code': 'IWL-KBU-0001',
+        'phase': 'ACTIVE',
+        'county': 'Kiambu',
+        'shareValueCents': 50000,
+        'maxSharesPerMemberPerMeeting': 5,
+        'cycleNumber': 2,
+        'fundAccounts': [
+          {'type': 'INTERNAL_LOAN', 'balanceCents': 4500000},
+          {'type': 'SOCIAL', 'balanceCents': 120000},
+        ],
+        '_count': {'members': 15, 'meetings': 8},
+      });
+
+      final fallbackSummary = await DashboardRepository(db).summary(
+        phone.group.id,
+        remoteGroup: remoteGroup,
+      );
+      expect(fallbackSummary.totalSavings, 45000.0);
+      expect(fallbackSummary.socialFund, 1200.0);
+      expect(fallbackSummary.memberCount, 2);
+    });
+
+    test("once the book holds meetings, the phone's own figures beat the server's", () async {
+      // The server does not yet know about a meeting recorded offline, so its
+      // figure is behind; and its loan-fund balance falls whenever a loan is
+      // paid out. Neither may overwrite what the phone's own book says.
+      final phone = await freshPhone();
+      await importer.import(
+        localGroupId: phone.group.id,
+        remoteGroupId: 'remote-g',
+        bundle: bundle(),
+        localMemberFor: phone.memberFor,
+      );
+      final local = await DashboardRepository(db).summary(phone.group.id);
+      expect(local.meetingCount, greaterThan(0));
+
+      final stale = RemoteGroup.fromJson({
+        'id': 'remote-g',
+        'name': 'Umoja Women Group',
+        'code': 'IWL-KBU-0001',
+        'phase': 'ACTIVE',
+        'county': 'Kiambu',
+        'shareValueCents': 50000,
+        'maxSharesPerMemberPerMeeting': 5,
+        'cycleNumber': 2,
+        'fundAccounts': [
+          {'type': 'INTERNAL_LOAN', 'balanceCents': 99999900},
+          {'type': 'SOCIAL', 'balanceCents': 99999900},
+        ],
+        'totalSavingsCents': 99999900,
+        'totalSocialFundCents': 99999900,
+        '_count': {'members': 40, 'meetings': 90},
+      });
+      final withServer = await DashboardRepository(db).summary(phone.group.id, remoteGroup: stale);
+      expect(withServer.totalSavings, local.totalSavings);
+      expect(withServer.socialFund, local.socialFund);
+      expect(withServer.meetingCount, local.meetingCount);
+      expect(withServer.memberCount, local.memberCount);
+    });
+
+    test("an empty book prefers the server's computed totals over raw fund balances", () async {
+      final phone = await freshPhone();
+      final remote = RemoteGroup.fromJson({
+        'id': 'remote-g',
+        'name': 'Umoja Women Group',
+        'code': 'IWL-KBU-0001',
+        'phase': 'ACTIVE',
+        'county': 'Kiambu',
+        'shareValueCents': 50000,
+        'maxSharesPerMemberPerMeeting': 5,
+        'cycleNumber': 2,
+        'fundAccounts': [
+          {'type': 'INTERNAL_LOAN', 'balanceCents': 100},
+          {'type': 'SOCIAL', 'balanceCents': 100},
+        ],
+        'totalSavingsCents': 3000000,
+        'totalSocialFundCents': 50000,
+      });
+      final summary = await DashboardRepository(db).summary(phone.group.id, remoteGroup: remote);
+      expect(summary.totalSavings, 30000.0);
+      expect(summary.socialFund, 500.0);
     });
   });
 }

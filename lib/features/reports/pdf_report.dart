@@ -118,6 +118,9 @@ Future<void> shareGroupPdf({
   required double cashBox,
   required List<ReportMemberRow> members,
   required int meetingsThisCycle,
+  double? groupValue,
+  double? interestEarned,
+  DateTime? confirmedAt,
 }) async {
   final bytes = await buildGroupPdfBytes(
     group: group,
@@ -130,6 +133,9 @@ Future<void> shareGroupPdf({
     cashBox: cashBox,
     members: members,
     meetingsThisCycle: meetingsThisCycle,
+    groupValue: groupValue,
+    interestEarned: interestEarned,
+    confirmedAt: confirmedAt,
   );
   await _sharePdf('Group_Report_${_safeFileName(group.name)}.pdf', bytes);
 }
@@ -146,6 +152,9 @@ Future<List<int>> buildGroupPdfBytes({
   required double cashBox,
   required List<ReportMemberRow> members,
   required int meetingsThisCycle,
+  double? groupValue,
+  double? interestEarned,
+  DateTime? confirmedAt,
 }) async {
   final doc = pw.Document();
   doc.addPage(
@@ -159,8 +168,12 @@ Future<List<int>> buildGroupPdfBytes({
         _kv('Max shares per meeting', '${group.maxSharesPerMeeting}'),
         _kv('Social fund per meeting',
             Formatters.money(group.socialFundAmount)),
+        // 2.5% must not print as "3%": the rate is what members agreed to.
         _kv('Interest',
-            '${group.interestRate.toStringAsFixed(0)}% ${group.interestType.label.toLowerCase()}'),
+            '${_trimRate(group.interestRate)}% a month, ${group.interestType.label.toLowerCase()}'),
+        _kv('Loan limit', '${_trimRate(group.loanMultiplier)}x savings'),
+        _kv('Usual loan term',
+            '${group.defaultLoanTermMonths} month${group.defaultLoanTermMonths == 1 ? '' : 's'}'),
         _kv('Meets',
             '${group.meetingFrequency.label.toLowerCase()} on ${group.meetingDaysLabel}'),
         _sectionHeader('Money'),
@@ -170,6 +183,10 @@ Future<List<int>> buildGroupPdfBytes({
         _kv('Loans given out', Formatters.money(loansGivenOut)),
         _kv('Loans repaid', Formatters.money(loansRepaid)),
         _kv('Loans still owed', Formatters.money(loansStillOwed)),
+        if (interestEarned != null)
+          _kv('Interest earned', Formatters.money(interestEarned)),
+        if (groupValue != null)
+          _kv('Group value (to share out)', Formatters.money(groupValue)),
         _kv('Money in the box', Formatters.money(cashBox), emphasize: true),
         _sectionHeader('Members (${members.length})'),
         if (members.isEmpty)
@@ -192,10 +209,27 @@ Future<List<int>> buildGroupPdfBytes({
           ),
         _sectionHeader('Meetings'),
         _kv('Meetings held this cycle', '$meetingsThisCycle'),
+        pw.SizedBox(height: 12),
+        // Where the figures came from, as the shared text already says. A
+        // group reads this aloud and decides on it; a phone-only total can be
+        // missing work saved on other phones. ASCII only: the PDF font has no
+        // em dash.
+        pw.Text(
+          confirmedAt != null
+              ? 'Figures confirmed by the IntelliCash server on ${Formatters.fullDate(confirmedAt)}.'
+              : 'From this phone only - work saved on other phones may not be included yet.',
+          style: pw.TextStyle(fontSize: 9, color: _muted),
+        ),
       ],
     ),
   );
   return doc.save();
+}
+
+/// 10 -> "10", 2.5 -> "2.5": never rounds a rate members agreed to.
+String _trimRate(double value) {
+  if (value == value.roundToDouble()) return value.toStringAsFixed(0);
+  return value.toStringAsFixed(2).replaceFirst(RegExp(r'0+$'), '');
 }
 
 /// One member's statement as a PDF — their position, contributions,

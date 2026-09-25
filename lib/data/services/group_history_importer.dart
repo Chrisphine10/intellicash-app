@@ -6,6 +6,7 @@ import '../../core/utils/loan_calculator.dart';
 import '../models/enums.dart';
 import '../models/remote/restore_bundle.dart';
 import '../repositories/id_map_repository.dart';
+import 'member_matching.dart';
 
 /// What came across, and what did not.
 class HistoryImportResult {
@@ -15,6 +16,7 @@ class HistoryImportResult {
     this.loans = 0,
     this.shareOuts = 0,
     this.skipped = 0,
+    this.hasUnmappedMemberSkipped = false,
     this.notImportedBecause,
   });
 
@@ -28,6 +30,9 @@ class HistoryImportResult {
   /// Online records that could not be placed on the phone: not tied to a
   /// meeting, a member the phone does not have, a repayment with no loan.
   final int skipped;
+
+  /// Set when at least one record was skipped because a member mapping was missing.
+  final bool hasUnmappedMemberSkipped;
 
   /// Set when nothing was imported on purpose (see [GroupHistoryImporter.import]).
   final String? notImportedBecause;
@@ -71,7 +76,9 @@ class GroupHistoryImporter {
     required String remoteGroupId,
     required RestoreBundle bundle,
 
-    /// Server member id -> this phone's member id.
+    /// Server member id -> this phone's member id. Pre-existing mappings
+    /// (from a prior sync) are honoured; the importer fills any gaps from
+    /// [bundle.members] so that entries never skip for want of a mapping.
     required Map<String, String> localMemberFor,
   }) async {
     final db = await _db.database;
@@ -110,8 +117,9 @@ class GroupHistoryImporter {
     final withAttendance = {for (final a in bundle.attendance) a.meetingId};
     final meetings = [
       for (final meeting in bundle.meetings)
-        if (withAttendance.contains(meeting.id) ||
-            (entriesByMeeting[meeting.id]?.isNotEmpty ?? false))
+        if (meeting.status != 'CANCELLED' &&
+            (withAttendance.contains(meeting.id) ||
+                (entriesByMeeting[meeting.id]?.isNotEmpty ?? false)))
           meeting,
     ]..sort((a, b) {
         final byTime = a.scheduledAt.compareTo(b.scheduledAt);
@@ -119,6 +127,17 @@ class GroupHistoryImporter {
       });
 
     final localMeeting = {for (final meeting in meetings) meeting.id: _uuid.v4()};
+
+    // Which imported meeting, if any, is still being held. Only one a person
+    // actually started (IN_PROGRESS on the server) - never a SCHEDULED one,
+    // however close its date: a schedule exists to remind people, and a
+    // meeting starts only when someone starts it. SCHEDULED meetings that have
+    // records were held on a phone and finished, so they come in closed. At
+    // most one is open, the latest, because the phone holds one meeting at a
+    // time.
+    final inProgress =
+        meetings.where((meeting) => meeting.status == 'IN_PROGRESS').toList();
+    final openRemoteId = inProgress.isEmpty ? null : inProgress.last.id;
     final numberOf = {
       for (var i = 0; i < meetings.length; i++) meetings[i].id: i + 1,
     };
@@ -157,6 +176,7 @@ class GroupHistoryImporter {
     var records = 0;
     var loansMade = 0;
     var skipped = 0;
+    var unmappedSkipped = 0;
     var shareOuts = 0;
 
     await db.transaction((txn) async {
@@ -169,26 +189,38 @@ class GroupHistoryImporter {
         // on every loan that nobody agreed to.
         if (bundle.policyConfigured) ...{
           'interest_rate': bundle.loanInterestRateBps / 100,
-          'interest_type': InterestType.flat.name,
+          'interest_type': (bundle.interestType == 'REDUCING'
+                  ? InterestType.reducingBalance
+                  : InterestType.flat)
+              .name,
           'default_loan_term_months': bundle.defaultLoanTermMonths < 1
               ? 1
               : bundle.defaultLoanTermMonths,
         },
+        // The rest of the group's own rules, each only if the group set it —
+        // a restored phone must compute exactly what the old one did.
+        if (bundle.shareValueCents != null) 'share_value': bundle.shareValueCents! / 100,
+        if (bundle.maxSharesPerMeeting != null) 'max_shares_per_meeting': bundle.maxSharesPerMeeting,
+        if (bundle.socialFundCents != null) 'social_fund_amount': bundle.socialFundCents! / 100,
+        if (bundle.loanMultiplierBps != null) 'loan_multiplier': bundle.loanMultiplierBps! / 10000,
       };
       await txn.update('groups', groupUpdate,
           where: 'id = ?', whereArgs: [localGroupId]);
 
-      // --- meetings and who was there ---
+      // --- PASS 1: meetings and who was there ---
       for (final meeting in meetings) {
-        final closedAt = meeting.closedAt ?? meeting.scheduledAt;
+        final isOpen = meeting.id == openRemoteId;
+        final closedAt = isOpen ? null : meeting.closedAt ?? meeting.scheduledAt;
         await txn.insert('meetings', {
           'id': localMeeting[meeting.id],
           'group_id': localGroupId,
           'number': numberOf[meeting.id],
           'date': _local(meeting.scheduledAt),
           'opening_balance': _kes(opening[meeting.id] ?? 0),
-          'status': MeetingStatus.closed.name,
-          'closed_at': _local(closedAt),
+          // Preserve the server lifecycle: only the meeting someone started
+          // and has not closed stays open here.
+          'status': isOpen ? MeetingStatus.open.name : MeetingStatus.closed.name,
+          'closed_at': closedAt == null ? null : _local(closedAt),
           'unlocked_by': null,
         });
         await txn.insert(
@@ -202,9 +234,76 @@ class GroupHistoryImporter {
             },
             conflictAlgorithm: ConflictAlgorithm.replace);
       }
+
+      // --- PASS 2: resolve members from the bundle ---
+      // Build a complete remote-member-id -> local-member-id map so that
+      // Pass 3 never skips an entry for want of a mapping. Members already
+      // in id_map (from a prior sync) are reused; the rest are de-duplicated
+      // against existing local members by phone, then created fresh.
+      final resolvedMembers = Map<String, String>.from(localMemberFor);
+      for (final remoteMember in bundle.members) {
+        final existingLocalId = resolvedMembers[remoteMember.id];
+        if (existingLocalId != null) continue;
+
+        // Try to match an existing local member by phone.
+        final match = matchLocalMember(
+          remoteMember.phone,
+          [
+            for (final row in await txn.query('members',
+                columns: ['id', 'name', 'phone'],
+                where: 'group_id = ?',
+                whereArgs: [localGroupId]))
+              LocalMember(
+                row['id'] as String,
+                row['name'] as String,
+                row['phone'] as String?,
+              ),
+          ],
+        );
+        if (match != null) {
+          resolvedMembers[remoteMember.id] = match;
+          await txn.insert(
+              'id_map',
+              {
+                'entity_type': MapEntity.member,
+                'local_id': match,
+                'remote_id': remoteMember.id,
+                'group_id': remoteGroupId,
+                'synced_at': DateTime.now().toIso8601String(),
+              },
+              conflictAlgorithm: ConflictAlgorithm.replace);
+          continue;
+        }
+
+        // No match — create a local member and map it.
+        final localId = _uuid.v4();
+        await txn.insert('members', {
+          'id': localId,
+          'group_id': localGroupId,
+          'name': remoteMember.fullName,
+          'phone': remoteMember.phone,
+          'role': remoteMember.role ?? 'member',
+          'is_active': 1,
+          'joined_at': DateTime.now().toIso8601String(),
+        });
+        await txn.insert(
+            'id_map',
+            {
+              'entity_type': MapEntity.member,
+              'local_id': localId,
+              'remote_id': remoteMember.id,
+              'group_id': remoteGroupId,
+              'synced_at': DateTime.now().toIso8601String(),
+            },
+            conflictAlgorithm: ConflictAlgorithm.replace);
+        resolvedMembers[remoteMember.id] = localId;
+        names[localId] = remoteMember.fullName;
+      }
+
+      // --- PASS 2b: attendance (now all members are resolved) ---
       for (final attendance in bundle.attendance) {
         final meeting = localMeeting[attendance.meetingId];
-        final member = localMemberFor[attendance.memberId];
+        final member = resolvedMembers[attendance.memberId];
         if (meeting == null || member == null) continue;
         await txn.insert(
             'attendance',
@@ -216,19 +315,24 @@ class GroupHistoryImporter {
             conflictAlgorithm: ConflictAlgorithm.ignore);
       }
 
-      // --- loans first, so a repayment can find its loan ---
+      // --- PASS 3: loans first, so a repayment can find its loan ---
       final localLoan = <String, String>{};
       for (final entry in entries) {
         if (entry.type != 'INTERNAL_LOAN_DISBURSEMENT') continue;
-        final member = localMemberFor[entry.memberId];
+        final member = resolvedMembers[entry.memberId];
         final meeting = localMeeting[entry.meetingId];
         if (member == null || meeting == null) {
+          if (member == null && entry.memberId != null) unmappedSkipped++;
           skipped++;
           continue;
         }
         final loan = loanByEntry[entry.id];
         final rateBps = loan?.interestRateBps ?? bundle.loanInterestRateBps;
         final term = loan?.termMonths ?? bundle.defaultLoanTermMonths;
+        // Each loan keeps the interest type it was lent under.
+        final type = (loan?.interestType ?? bundle.interestType) == 'REDUCING'
+            ? InterestType.reducingBalance
+            : InterestType.flat;
         final disbursed = loan?.disbursedAt ?? entry.createdAt;
         final due = loan?.dueAt ??
             DateTime(disbursed.year, disbursed.month + term, disbursed.day);
@@ -241,18 +345,19 @@ class GroupHistoryImporter {
           'meeting_id': meeting,
           'principal': principal,
           'interest_rate': rateBps / 100,
-          'interest_type': InterestType.flat.name,
+          'interest_type': type.name,
           'total_due': LoanCalculator.totalDue(
             principal: principal,
             monthlyRatePercent: rateBps / 100,
             termMonths: term < 1 ? 1 : term,
-            type: InterestType.flat,
+            type: type,
           ),
           'disbursed_at': _local(disbursed),
           'due_date': _local(due),
           'status': switch (loan?.status) {
             'REPAID' => LoanStatus.repaid.name,
             'WRITTEN_OFF' => LoanStatus.defaulted.name,
+            'CARRIED_FORWARD' => LoanStatus.carriedForward.name,
             _ => LoanStatus.active.name,
           },
           'created_at': _local(entry.createdAt),
@@ -261,14 +366,15 @@ class GroupHistoryImporter {
         loansMade++;
       }
 
-      // --- everything else a meeting recorded ---
+      // --- PASS 3b: everything else a meeting recorded ---
       for (final entry in entries) {
         final meeting = localMeeting[entry.meetingId];
-        final member = localMemberFor[entry.memberId];
+        final member = resolvedMembers[entry.memberId];
         final amount = _kes(entry.amountCents);
         switch (entry.type) {
           case 'SHARE_PURCHASE':
             if (meeting == null || member == null) {
+              if (member == null && entry.memberId != null) unmappedSkipped++;
               skipped++;
               break;
             }
@@ -293,6 +399,7 @@ class GroupHistoryImporter {
             records++;
           case 'SOCIAL_CONTRIBUTION':
             if (meeting == null || member == null) {
+              if (member == null && entry.memberId != null) unmappedSkipped++;
               skipped++;
               break;
             }
@@ -306,6 +413,7 @@ class GroupHistoryImporter {
             records++;
           case 'FINE_COLLECTION':
             if (meeting == null || member == null) {
+              if (member == null && entry.memberId != null) unmappedSkipped++;
               skipped++;
               break;
             }
@@ -376,7 +484,7 @@ class GroupHistoryImporter {
         final members = {...gross.keys, ...welfare.keys, ...offset.keys};
         var wrote = 0;
         for (final remoteMember in members) {
-          final local = localMemberFor[remoteMember];
+          final local = resolvedMembers[remoteMember];
           if (local == null) continue;
           final g = gross[remoteMember] ?? 0;
           final w = welfare[remoteMember] ?? 0;
@@ -418,6 +526,7 @@ class GroupHistoryImporter {
       loans: loansMade,
       shareOuts: shareOuts,
       skipped: skipped,
+      hasUnmappedMemberSkipped: unmappedSkipped > 0,
     );
   }
 }

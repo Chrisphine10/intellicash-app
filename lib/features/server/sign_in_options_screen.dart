@@ -8,6 +8,7 @@ import '../../providers/locale_controller.dart';
 import '../more/language_screen.dart';
 import 'login_screen.dart';
 import 'registration_screen.dart';
+import 'local_data_vault_screen.dart';
 
 /// "Who is signing in?" — the three kinds of account this app serves.
 ///
@@ -27,11 +28,15 @@ class SignInOptionsScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
         children: [
-          Text(l10n.whoIsSigningIn,
-              style: Theme.of(context).textTheme.titleMedium),
+          Text(
+            l10n.whoIsSigningIn,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           const SizedBox(height: 4),
-          Text(l10n.whoIsSigningInSubtitle,
-              style: Theme.of(context).textTheme.bodySmall),
+          Text(
+            l10n.whoIsSigningInSubtitle,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
           const SizedBox(height: 16),
           _RoleCard(
             role: SignInRole.member,
@@ -61,6 +66,15 @@ class SignInOptionsScreen extends StatelessWidget {
               label: Text(l10n.createAccount),
             ),
           ),
+          Center(
+            child: TextButton.icon(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const LocalDataVaultScreen()),
+              ),
+              icon: const Icon(Icons.archive_outlined, size: 18),
+              label: Text(l10n.signInRecoverLocalData),
+            ),
+          ),
           // Language belongs here, not only on the welcome screen. This is
           // where a person lands after signing out, so on a shared phone it is
           // the first thing the NEXT user sees — and if the phone is set to a
@@ -69,9 +83,9 @@ class SignInOptionsScreen extends StatelessWidget {
           // second user of the same handset does not.
           Center(
             child: TextButton.icon(
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const LanguageScreen()),
-              ),
+              onPressed: () => Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const LanguageScreen())),
               icon: const Icon(Icons.translate, size: 18),
               label: Text(
                 '${l10n.language} · '
@@ -104,9 +118,9 @@ class _RoleCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => LoginScreen(role: role)),
-        ),
+        onTap: () => Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => LoginScreen(role: role))),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
@@ -125,12 +139,18 @@ class _RoleCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title,
-                        style: const TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w700)),
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                     const SizedBox(height: 3),
-                    Text(subtitle,
-                        style: Theme.of(context).textTheme.bodySmall),
+                    Text(
+                      subtitle,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                   ],
                 ),
               ),

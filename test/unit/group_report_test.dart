@@ -38,14 +38,16 @@ void main() {
       expect(r.socialFund, 2500);
     });
 
-    test('adds up a type that appears under both directions', () {
+    test('nets a type that appears under both directions', () {
       // The server groups by type AND direction, so one type can legitimately
-      // arrive as two rows — a lookup would silently drop one of them.
+      // arrive as two rows - a lookup would drop one, and adding them both
+      // (as this once did) counted a DEBIT as more savings. 1,000 in and 400
+      // taken back out is 600.
       final r = GroupReport.fromJson(_payload(ledger: const [
         {'type': 'SHARE_PURCHASE', 'direction': 'CREDIT', 'totalCents': 100000},
         {'type': 'SHARE_PURCHASE', 'direction': 'DEBIT', 'totalCents': 40000},
       ]));
-      expect(r.totalSavings, 1400);
+      expect(r.totalSavings, 600);
     });
 
     test('never reports a negative amount still owed', () {
@@ -71,6 +73,62 @@ void main() {
       final r = GroupReport.fromJson(_payload());
       expect(r.meetingCount, 8);
       expect(r.attendanceRate, 0.75);
+    });
+  });
+
+  group('GroupReport from the server statement', () {
+    Map<String, dynamic> withStatement() => {
+          ..._payload(),
+          'statement': {
+            'loanFund': {
+              'sharesCents': 1000000,
+              'repaymentsCents': 30000,
+              'disbursedCents': 100000,
+              'closingCents': 1030000,
+            },
+            'socialFund': {'contributionsCents': 15000, 'finesCents': 10000, 'closingCents': 5000},
+            'loans': {'outstandingCents': 80000, 'interestCollectedCents': 2500},
+            'meetings': {'held': 3, 'attendanceRate': 75.0},
+            'equity': {'totalCents': 1110000},
+          },
+          'members': [
+            {
+              'fullName': 'Chege Kamau',
+              'role': 'MEMBER',
+              'sharesCents': 200000,
+              'loanDisbursementsCents': 100000,
+              'loanRepaymentsCents': 30000,
+              'loanOutstandingCents': 80000,
+            }
+          ],
+        };
+
+    test('takes every figure from the statement, nothing re-added on the phone', () {
+      final r = GroupReport.fromJson(withStatement());
+      expect(r.totalSavings, 10000);
+      expect(r.socialFund, 150);
+      expect(r.fines, 100);
+      expect(r.loansGivenOut, 1000);
+      expect(r.loansRepaid, 300);
+      // Owed WITH interest: 1,100 due less 300 repaid - not 1,000 - 300.
+      expect(r.loansStillOwed, 800);
+      expect(r.groupValue, 11100);
+      expect(r.interestEarned, 25);
+      // Held meetings, not every meeting ever; the percentage becomes 0..1.
+      expect(r.meetingCount, 3);
+      expect(r.attendanceRate, 0.75);
+    });
+
+    test("a member's debt is the server's, interest included", () {
+      final r = GroupReport.fromJson(withStatement());
+      expect(r.members.single.owes, 800);
+      expect(r.members.single.savings, 2000);
+    });
+
+    test('an older server with no statement still reads', () {
+      final r = GroupReport.fromJson(_payload());
+      expect(r.groupValue, isNull);
+      expect(r.totalSavings, 11500);
     });
   });
 

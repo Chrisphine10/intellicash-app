@@ -7,6 +7,8 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/domain_exception.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/meeting.dart';
+import '../../data/models/remote/remote_models.dart';
+import '../../data/services/module_switches.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/app_state.dart';
 import '../../providers/meeting_provider.dart';
@@ -37,13 +39,20 @@ class MeetingHubScreen extends StatefulWidget {
 }
 
 class _MeetingHubScreenState extends State<MeetingHubScreen> {
+  /// The server group this book is linked to; null while unknown or unlinked,
+  /// which keeps the switchable modules hidden.
+  String? _remoteGroupId;
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final group = context.read<AppState>().group;
       if (group != null) {
         context.read<MemberProvider>().load(group.id);
+        final lookup = context.read<ModuleSwitches>().remoteIdFor;
+        final remote = lookup == null ? null : await lookup(group.id);
+        if (mounted && remote != _remoteGroupId) setState(() => _remoteGroupId = remote);
       }
     });
   }
@@ -55,6 +64,9 @@ class _MeetingHubScreenState extends State<MeetingHubScreen> {
     final meeting = provider.activeMeeting ?? widget.meeting;
     final totals = provider.totals;
     final isOpen = meeting.isOpen;
+    // Intelli-Store and Voting are switched on per programme by an IWL admin.
+    final GroupModules modules =
+        context.watch<ModuleSwitches>().forRemoteGroup(_remoteGroupId);
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.navMeetings)),
@@ -144,17 +156,19 @@ class _MeetingHubScreenState extends State<MeetingHubScreen> {
                   );
                 },
               ),
-              // Elections and decisions are taken here, in front of everyone.
-              _ActionTile(
-                icon: Icons.how_to_vote_outlined,
-                label: l10n.meetingHubVoting,
-                enabled: true,
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const PollsScreen()),
-                  );
-                },
-              ),
+              // Elections and decisions are taken here, in front of everyone —
+              // when the group's programme has voting switched on.
+              if (modules.voting)
+                _ActionTile(
+                  icon: Icons.how_to_vote_outlined,
+                  label: l10n.meetingHubVoting,
+                  enabled: true,
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const PollsScreen()),
+                    );
+                  },
+                ),
               /*
                * Welfare sits beside Voting because it is decided the same way:
                * the group agrees a payout in the meeting, in front of everyone.
@@ -169,18 +183,6 @@ class _MeetingHubScreenState extends State<MeetingHubScreen> {
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const WelfareScreen()),
-                  );
-                },
-              ),
-              // The group's shop is a thing the meeting does, so it is reached
-              // from here rather than from settings.
-              _ActionTile(
-                icon: Icons.storefront_outlined,
-                label: l10n.meetingHubIntelliStore,
-                enabled: true,
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const StoreScreen()),
                   );
                 },
               ),
@@ -202,7 +204,7 @@ class _MeetingHubScreenState extends State<MeetingHubScreen> {
           ],
           // Shopping and outside finance are raised and agreed here, in the
           // meeting, in front of everyone — so the group decides together.
-          const SectionLabel('Shop & outside finance'),
+          SectionLabel(l10n.meetingHubShopAndFinance),
           GridView.count(
             crossAxisCount: 2,
             shrinkWrap: true,
@@ -211,16 +213,19 @@ class _MeetingHubScreenState extends State<MeetingHubScreen> {
             crossAxisSpacing: 8,
             childAspectRatio: 2.6,
             children: [
-              _ActionTile(
-                icon: Icons.storefront_outlined,
-                label: l10n.intelliStores,
-                enabled: true,
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const StoreScreen()),
-                  );
-                },
-              ),
+              // The one way into the store, and only when the group's
+              // programme has Intelli-Store switched on.
+              if (modules.store)
+                _ActionTile(
+                  icon: Icons.storefront_outlined,
+                  label: l10n.intelliStores,
+                  enabled: true,
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const StoreScreen()),
+                    );
+                  },
+                ),
               _ActionTile(
                 icon: Icons.account_balance_outlined,
                 label: l10n.meetingHubExternalLoans,

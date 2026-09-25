@@ -148,12 +148,6 @@ class L10nLuo extends L10n {
   String get sectionGroup => 'Riwruok';
 
   @override
-  String get sectionReports => 'Ripot';
-
-  @override
-  String get sectionEndOfCycle => 'Giko mar ndalo mar kano';
-
-  @override
   String get sectionCloudBackup => 'Bor kod kano';
 
   @override
@@ -174,13 +168,6 @@ class L10nLuo extends L10n {
 
   @override
   String get meetingSecurity => 'Rito mar Chokruok';
-
-  @override
-  String get memberAccounts => 'Akaunt mag Jomembe';
-
-  @override
-  String get memberAccountsSubtitle =>
-      'Yie mondo jomembe oyud akaunt mag-gi mondo one pesa mag-gi';
 
   @override
   String get groupRules => 'Chike mag Riwruok';
@@ -343,9 +330,6 @@ class L10nLuo extends L10n {
   String get meetingHubWelfare => 'Kony';
 
   @override
-  String get meetingHubIntelliStore => 'Intelli-Store';
-
-  @override
   String get meetingHubExternalLoans => 'Hola mag Oko';
 
   @override
@@ -355,10 +339,6 @@ class L10nLuo extends L10n {
   @override
   String get groupSetupWizardEveryoneBuysSharesAtOne =>
       'Ngʼato ka ngʼato ngʼiewo hisa gi nengo achiel ma ok lokre';
-
-  @override
-  String get groupSetupWizardMembersSaveWhatTheyCan =>
-      'Jomembe kano gima ginyalo e chokruok ka chokruok';
 
   @override
   String get groupSetupWizardGroupName => 'Nying Riwruok';
@@ -2030,4 +2010,286 @@ class L10nLuo extends L10n {
 
   @override
   String get buySharesAbsentTag => 'not marked present';
+
+  @override
+  String get localVaultTitle => 'Old local data';
+
+  @override
+  String get localVaultEmpty => 'No saved local archives.';
+
+  @override
+  String get localVaultNote =>
+      'These compressed copies stay on this phone. They are not cloud backups.';
+
+  @override
+  String get localVaultRecoverTitle => 'Recover this data?';
+
+  @override
+  String get localVaultRecoverBody =>
+      'Recovery replaces the current local book. It does not upload data and should only be used while signed out.';
+
+  @override
+  String get localVaultRecovered => 'Local data recovered.';
+
+  @override
+  String get localVaultDeleteTitle => 'Delete this archive?';
+
+  @override
+  String get localVaultDeleteBody =>
+      'This copy will be permanently removed from this phone.';
+
+  @override
+  String get signInRecoverLocalData => 'Recover or delete old local data';
+
+  @override
+  String get welcomeSomeRecordsNotLoaded =>
+      'Some records could not be loaded. Check your connection and try again.';
+
+  @override
+  String get meetingsUpcomingTitle => 'Chokruok mabiro';
+
+  @override
+  String get meetingsScheduleAction => 'Chan chokruok';
+
+  @override
+  String get meetingsFromGroupSchedule => 'Koa e ndalo chokruok mag grup';
+
+  @override
+  String get meetingsRemindersNote =>
+      'Jogrup iparonegi odiechieng\' achiel motelo kod sa ariyo motelo. Chokruok chakore mana ka igoyo Chak Chokruok.';
+
+  @override
+  String get meetingsDidntHappenTitle => 'Ne ok otimore?';
+
+  @override
+  String get meetingsDidntHappenBody =>
+      'Chokruogni ne ochan to onge ng\'ama ne ochake. Kwede mondo jogrup kik dhi nyime ka iparonegi.';
+
+  @override
+  String get meetingsCancelMeeting => 'Kwed chokruok';
+
+  @override
+  String get meetingsCancelReasonTitle => 'Ang\'o momiyo ne ok otimore?';
+
+  @override
+  String get meetingsCancelReasonHint => 'Kaka: koth, ndalo mar yweyo';
+
+  @override
+  String get meetingsCancelledNotice =>
+      'Chokruok okwedi. Onge siem machielo mabiro oor.';
+
+  @override
+  String get meetingsScheduledNotice =>
+      'Chokruok ochan. Jogrup ibiro paronegi.';
+
+  @override
+  String get meetingsNotStarted => 'Pok ochak';
+
+  @override
+  String get meetingsStartNow => 'Chak sani';
+
+  @override
+  String get meetingsMeetingTime => 'Sa mar chokruok';
+
+  @override
+  String get meetingsSendReminders => 'Paruo jogrup chokruok';
+
+  @override
+  String get meetingHubShopAndFinance => 'Shop & outside finance';
+
+  @override
+  String get signOutSendingFirst =>
+      'Sending this phone\'s records before signing out…';
+
+  @override
+  String get signOutNotYetTitle => 'Not signed out yet';
+
+  @override
+  String signOutBlockedOffline(int count) {
+    return 'This phone has $count item(s) not sent yet. Connect to the internet so they can be sent, then sign out.';
+  }
+
+  @override
+  String signOutBlockedUnsent(int count) {
+    return '$count item(s) could not be sent, so you are still signed in. Close any open meeting, check the connection and try again.';
+  }
+
+  @override
+  String get signOutUnderstood => 'OK';
+
+  @override
+  String get moreLockedChooseGroup =>
+      'Choose your group under Cloud account to use this';
+
+  @override
+  String get moreLockedSignIn => 'Sign in under Cloud account to use this';
+
+  @override
+  String get moreStatusOffline => 'offline';
+
+  @override
+  String get moreCloudConnected => 'Connected';
+
+  @override
+  String moreCloudConnectedMembers(int count) {
+    return 'Connected · $count members';
+  }
+
+  @override
+  String get moreCloudCouldNotConnect => 'Could not connect. Tap to try again.';
+
+  @override
+  String get moreCloudNotConnected => 'Connect this phone to your group online';
+
+  @override
+  String get moreSectionOnThisPhone => 'On this phone';
+
+  @override
+  String get moreSectionOnline => 'Online';
+
+  @override
+  String get moreEditSetUp => 'Edit group set-up';
+
+  @override
+  String get moreMeetingSecurityOn => '3-key unlock is on · roles and PINs';
+
+  @override
+  String get moreMeetingSecurityOff => '3-key unlock is off · roles and PINs';
+
+  @override
+  String moreGroupRulesSummary(
+    String share,
+    int maxShares,
+    String social,
+    String interest,
+    String multiplier,
+  ) {
+    return '$share per share · up to $maxShares shares a meeting · $social social fund · $interest% interest · borrow up to $multiplier× savings';
+  }
+
+  @override
+  String get moreLoanRulesSubtitle =>
+      'Loan term, interest and where expenses come from';
+
+  @override
+  String get moreSavingCycles => 'Saving cycles';
+
+  @override
+  String get moreSavingCyclesSubtitle => 'Close a cycle and start the next';
+
+  @override
+  String get moreCloudAndAdvanced => 'Cloud & advanced';
+
+  @override
+  String get moreCloudAndAdvancedSubtitle =>
+      'Cloud account, payment providers, old local data';
+
+  @override
+  String get morePaymentProviders => 'Payment providers';
+
+  @override
+  String get morePaymentProvidersSubtitle =>
+      'Where money from members is received';
+
+  @override
+  String get moreInviteAndRequests => 'Invite & join requests';
+
+  @override
+  String moreCycleStarted(int cycle, String date) {
+    return 'Cycle $cycle · started $date';
+  }
+
+  @override
+  String get moreGroupSettingsHubSubtitle =>
+      'Set-up, meeting security, rules, loans and cycles';
+
+  @override
+  String get moreSectionReportsShareOut => 'Reports & share-out';
+
+  @override
+  String get moreSectionAccountSync => 'Account & sync';
+
+  @override
+  String get moreEverythingBackedUp => 'Everything is backed up';
+
+  @override
+  String moreItemsWaiting(int count) {
+    return '$count item(s) waiting to back up';
+  }
+
+  @override
+  String moreBackedUpCount(int count) {
+    return 'Backed up $count record(s).';
+  }
+
+  @override
+  String get moreAlreadyBackedUp => 'Everything is already backed up.';
+
+  @override
+  String get memberSignInsTitle => 'Member sign-ins';
+
+  @override
+  String get memberSignInsSubtitle =>
+      'Members can sign in on their own phones to see their savings and loans.';
+
+  @override
+  String get memberSignInsNeedsConnection =>
+      'Connect to the internet to change this.';
+
+  @override
+  String get memberSignInsNowOn =>
+      'Members can now sign in to see their savings.';
+
+  @override
+  String get memberSignInsNowOff => 'Member sign-ins are off for this group.';
+
+  @override
+  String get memberDetailSignInSection => 'Sign-in account';
+
+  @override
+  String memberDetailSignInExplain(String name) {
+    return 'Give $name their own sign-in so they can see their savings and loans on their own phone.';
+  }
+
+  @override
+  String get memberDetailCreateSignIn => 'Create sign-in';
+
+  @override
+  String get memberDetailCreatingSignIn => 'Creating…';
+
+  @override
+  String get memberDetailResetSignIn => 'Reset password';
+
+  @override
+  String memberDetailSignInCreated(String name) {
+    return '$name can now sign in with their phone number.';
+  }
+
+  @override
+  String memberDetailSignInLinked(String name) {
+    return '$name already signs in for another group, so this group is now linked to that sign-in. Their password stays the same.';
+  }
+
+  @override
+  String memberDetailPasswordReset(String name) {
+    return '$name\'s new password is set. Hand it over in person.';
+  }
+
+  @override
+  String get localVaultExport => 'Export';
+
+  @override
+  String get localVaultRecover => 'Recover';
+
+  @override
+  String get localVaultDelete => 'Delete';
+
+  @override
+  String localVaultExportSubject(String label) {
+    return 'IntelliCash records backup ($label)';
+  }
+
+  @override
+  String get localVaultExportFailed =>
+      'This copy could not be exported. Try again.';
 }

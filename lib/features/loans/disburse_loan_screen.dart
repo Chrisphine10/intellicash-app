@@ -191,11 +191,17 @@ class _DisburseLoanScreenState extends State<DisburseLoanScreen> {
             InkWell(
               borderRadius: BorderRadius.circular(12),
               onTap: () async {
+                // Interest is charged per completed month, so a loan is lent
+                // for at least one month; the longest term is three times the
+                // group's usual term (and never under a year).
+                final group = context.read<AppState>().group!;
+                final now = DateTime.now();
+                final longest = group.defaultLoanTermMonths * 3 < 12 ? 12 : group.defaultLoanTermMonths * 3;
                 final picked = await showDatePicker(
                   context: context,
                   initialDate: _dueDate,
-                  firstDate: DateTime.now().add(const Duration(days: 7)),
-                  lastDate: DateTime.now().add(const Duration(days: 730)),
+                  firstDate: _addMonths(now, 1),
+                  lastDate: _addMonths(now, longest),
                 );
                 if (picked != null) setState(() => _dueDate = picked);
               },

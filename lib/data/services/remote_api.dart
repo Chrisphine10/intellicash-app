@@ -331,19 +331,42 @@ class RemoteApi {
 
   /// `POST /groups/:id/members/:mid/account` — the group creates a sign-in
   /// account for one of its members (optional, switched on in settings).
-  Future<void> createMemberAccount(
+  /// Gives a member a sign-in. Returns true when the member already signed in
+  /// for another group and this group was LINKED to that login (their
+  /// password stays their own) rather than a new one being made.
+  Future<bool> createMemberAccount(
     String groupId,
     String memberId, {
     required String password,
     String? email,
   }) async {
-    await _client.postData(
+    final data = await _client.postData(
       '/groups/$groupId/members/$memberId/account',
       body: {
         'password': password,
         if (email != null && email.trim().isNotEmpty) 'email': email.trim(),
       },
     );
+    return data is Map && data['linkedExistingLogin'] == true;
+  }
+
+  /// Sets a new starting password for a member who forgot theirs.
+  Future<void> resetMemberPassword(String groupId, String memberId, {required String password}) async {
+    await _client.putData('/groups/$groupId/members/$memberId/account/password', body: {'password': password});
+  }
+
+  /// Whether the group lets its members sign in to see their own savings.
+  Future<bool> memberAccountsEnabled(String groupId) async {
+    final data = await _client.getData('/groups/$groupId/policy');
+    final policy = data is Map ? data['policy'] : null;
+    return policy is Map && policy['memberAccountsEnabled'] == true;
+  }
+
+  /// Switches member sign-ins on or off for the group; returns the new state.
+  Future<bool> setMemberAccountsEnabled(String groupId, bool enabled) async {
+    final data = await _client.putData('/groups/$groupId/policy', body: {'memberAccountsEnabled': enabled});
+    final policy = data is Map ? data['policy'] : null;
+    return policy is Map && policy['memberAccountsEnabled'] == true;
   }
 
   // --- Groups (groups:read) ---

@@ -12,6 +12,7 @@ import '../../shared/widgets/common.dart';
 import '../more/language_screen.dart';
 import 'join_group_screen.dart';
 import '../reports/member_report_screen.dart';
+import '../account/sign_out_flow.dart';
 import '../reports/my_savings_screen.dart';
 
 /// A member's personal passbook: their own savings, shares, social fund,
@@ -110,35 +111,9 @@ class _MemberPassbookScreenState extends State<MemberPassbookScreen> {
   }
 
   Future<void> _signOut() async {
+    // A member has no group record book on this phone, so the note is theirs.
     final l10n = L10n.of(context);
-    final connection = context.read<ConnectionProvider>();
-    final navigator = Navigator.of(context);
-    // Confirm first — a mis-tap on a toolbar icon shouldn't end the session.
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.signOut, style: const TextStyle(fontSize: 17)),
-        // A member has no group record book on this phone — telling them their
-        // group's meetings "stay saved here" describes someone else's app.
-        content: Text(l10n.signOutMemberNote,
-            style: const TextStyle(fontSize: 13.5)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(l10n.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(l10n.signOut),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true) return;
-    await connection.disconnect();
-    // Back to "who is signing in?" — a shared phone often changes hands here.
-    // The root renders that itself once the account is cleared.
-    navigator.popUntil((route) => route.isFirst);
+    await confirmAndSignOut(context, note: l10n.signOutMemberNote);
   }
 
   double _sum(String type) => _entries

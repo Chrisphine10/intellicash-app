@@ -10,7 +10,7 @@ class AppDatabase {
   AppDatabase._();
   static final AppDatabase instance = AppDatabase._();
 
-  static const int _version = 11;
+  static const int _version = 12;
   Database? _db;
 
   /// Test hook: lets tests inject an in-memory/ffi database factory.
@@ -40,6 +40,27 @@ class AppDatabase {
     _db = null;
   }
 
+  /// Removes the previous account's local workspace after its pending writes
+  /// have been confirmed synced. Server history is restored after the next
+  /// account signs in, so no account can see another account's local book.
+  Future<void> clearLocalWorkspace() async {
+    final db = await database;
+    final tables = await db.rawQuery(
+      "SELECT name FROM sqlite_master WHERE type = 'table' "
+      "AND name NOT LIKE 'sqlite_%'",
+    );
+    await db.transaction((txn) async {
+      await txn.execute('PRAGMA foreign_keys = OFF');
+      for (final row in tables) {
+        final name = row['name'];
+        if (name is String) {
+          await txn.delete(name);
+        }
+      }
+      await txn.execute('PRAGMA foreign_keys = ON');
+    });
+  }
+
   Future<void> _createSchema(Database db, int version) async {
     final batch = db.batch();
     batch.execute('''
@@ -60,6 +81,8 @@ class AppDatabase {
         meeting_day INTEGER NOT NULL,
         meeting_days TEXT,
         require_three_key INTEGER NOT NULL DEFAULT 1,
+        meeting_time TEXT NOT NULL DEFAULT '14:00',
+        reminders_enabled INTEGER NOT NULL DEFAULT 1,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
       )
@@ -168,6 +191,7 @@ class AppDatabase {
       batch.execute(ddl);
     }
     batch.execute(_shareOutPayoutsTable);
+    batch.execute(_meetingScheduleTable);
     batch.execute(_welfareExpensesTable);
     batch.execute(_groupVisitsTable);
     batch.execute(_outboxTable);
@@ -178,34 +202,53 @@ class AppDatabase {
     batch.execute(_visitMentorshipTable);
     batch.execute(_visitRatingsTable);
     batch.execute(_actionItemsTable);
-    batch.execute('CREATE INDEX idx_visits_group ON group_visits(remote_group_id, started_at)');
-    batch.execute('CREATE INDEX idx_outbox_status ON outbox(status, next_attempt_at)');
     batch.execute(
-        'CREATE INDEX idx_snapshots_current ON assessment_snapshots(is_current, version DESC)');
+      'CREATE INDEX idx_visits_group ON group_visits(remote_group_id, started_at)',
+    );
+    batch.execute(
+      'CREATE INDEX idx_outbox_status ON outbox(status, next_attempt_at)',
+    );
+    batch.execute(
+      'CREATE INDEX idx_snapshots_current ON assessment_snapshots(is_current, version DESC)',
+    );
     batch.execute('CREATE INDEX idx_answers_visit ON visit_answers(visit_id)');
     batch.execute(
-        'CREATE INDEX idx_attachments_visit ON visit_attachments(visit_id, status)');
+      'CREATE INDEX idx_attachments_visit ON visit_attachments(visit_id, status)',
+    );
     batch.execute(
-        'CREATE INDEX idx_actions_group ON visit_action_items(remote_group_id, status)');
-    batch.execute('CREATE INDEX idx_actions_dirty ON visit_action_items(is_dirty)');
-    batch.execute('CREATE INDEX idx_welfare_group ON welfare_expenses(group_id, cycle_number)');
+      'CREATE INDEX idx_actions_group ON visit_action_items(remote_group_id, status)',
+    );
     batch.execute(
-        'CREATE INDEX idx_shareout_group ON share_out_payouts(group_id, cycle_number)');
+      'CREATE INDEX idx_actions_dirty ON visit_action_items(is_dirty)',
+    );
     batch.execute(
-        'CREATE INDEX idx_members_group ON members(group_id, is_active)');
+      'CREATE INDEX idx_welfare_group ON welfare_expenses(group_id, cycle_number)',
+    );
     batch.execute(
-        'CREATE INDEX idx_meetings_group ON meetings(group_id, number DESC)');
+      'CREATE INDEX idx_shareout_group ON share_out_payouts(group_id, cycle_number)',
+    );
     batch.execute(
-        'CREATE INDEX idx_shares_meeting ON share_purchases(meeting_id)');
+      'CREATE INDEX idx_members_group ON members(group_id, is_active)',
+    );
     batch.execute(
-        'CREATE INDEX idx_shares_member ON share_purchases(member_id)');
+      'CREATE INDEX idx_meetings_group ON meetings(group_id, number DESC)',
+    );
+    batch.execute(
+      'CREATE INDEX idx_shares_meeting ON share_purchases(meeting_id)',
+    );
+    batch.execute(
+      'CREATE INDEX idx_shares_member ON share_purchases(member_id)',
+    );
     batch.execute('CREATE INDEX idx_loans_member ON loans(member_id, status)');
     batch.execute(
-        'CREATE INDEX idx_repayments_loan ON loan_repayments(loan_id)');
+      'CREATE INDEX idx_repayments_loan ON loan_repayments(loan_id)',
+    );
     batch.execute(
-        'CREATE INDEX idx_idmap_remote ON id_map(entity_type, remote_id)');
+      'CREATE INDEX idx_idmap_remote ON id_map(entity_type, remote_id)',
+    );
     batch.execute(
-        'CREATE INDEX idx_conflicts_meeting ON sync_conflicts(meeting_id)');
+      'CREATE INDEX idx_conflicts_meeting ON sync_conflicts(meeting_id)',
+    );
     await batch.commit(noResult: true);
   }
 
@@ -490,6 +533,29 @@ class AppDatabase {
       )
     ''';
 
+  /// Meetings the group has planned, kept only to remind people.
+  ///
+  /// Separate from `meetings` on purpose: a row here is a plan, never a meeting
+  /// in progress, and nothing turns one into the other except an official
+  /// tapping Start. `meeting_id` is the meeting that was started for it;
+  /// `remote_id` is the server's SCHEDULED meeting, which that start adopts so
+  /// the server does not end up with two. Times are UTC ISO.
+  static const String _meetingScheduleTable = '''
+      CREATE TABLE meeting_schedule (
+        id TEXT PRIMARY KEY,
+        group_id TEXT NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+        remote_id TEXT,
+        scheduled_at TEXT NOT NULL,
+        title TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'scheduled',
+        meeting_id TEXT,
+        source TEXT NOT NULL DEFAULT 'phone',
+        cancel_reason TEXT,
+        is_dirty INTEGER NOT NULL DEFAULT 1,
+        updated_at TEXT NOT NULL
+      )
+    ''';
+
   static const String _shareOutPayoutsTable = '''
       CREATE TABLE share_out_payouts (
         id TEXT PRIMARY KEY,
@@ -506,38 +572,49 @@ class AppDatabase {
       )
     ''';
 
-  Future<void> _upgradeSchema(Database db, int oldVersion, int newVersion) async {
+  Future<void> _upgradeSchema(
+    Database db,
+    int oldVersion,
+    int newVersion,
+  ) async {
     if (oldVersion < 2) {
       await db.execute(
-          "ALTER TABLE share_purchases ADD COLUMN payment_method TEXT NOT NULL DEFAULT 'cash'");
+        "ALTER TABLE share_purchases ADD COLUMN payment_method TEXT NOT NULL DEFAULT 'cash'",
+      );
       await db.execute(
-          'ALTER TABLE share_purchases ADD COLUMN payment_reference TEXT');
+        'ALTER TABLE share_purchases ADD COLUMN payment_reference TEXT',
+      );
       for (final ddl in _v2Tables) {
         await db.execute(ddl);
       }
       await db.execute(
-          'CREATE INDEX idx_idmap_remote ON id_map(entity_type, remote_id)');
+        'CREATE INDEX idx_idmap_remote ON id_map(entity_type, remote_id)',
+      );
       await db.execute(
-          'CREATE INDEX idx_conflicts_meeting ON sync_conflicts(meeting_id)');
+        'CREATE INDEX idx_conflicts_meeting ON sync_conflicts(meeting_id)',
+      );
     }
     if (oldVersion < 3) {
       // Multi-day meeting schedule. Backfill from the single meeting_day.
       await db.execute('ALTER TABLE groups ADD COLUMN meeting_days TEXT');
       await db.execute(
-          'UPDATE groups SET meeting_days = CAST(meeting_day AS TEXT) '
-          'WHERE meeting_days IS NULL');
+        'UPDATE groups SET meeting_days = CAST(meeting_day AS TEXT) '
+        'WHERE meeting_days IS NULL',
+      );
     }
     if (oldVersion < 4) {
       // End-of-cycle share-out records.
       await db.execute(_shareOutPayoutsTable);
       await db.execute(
-          'CREATE INDEX idx_shareout_group ON share_out_payouts(group_id, cycle_number)');
+        'CREATE INDEX idx_shareout_group ON share_out_payouts(group_id, cycle_number)',
+      );
     }
     if (oldVersion < 5) {
       // Meeting security: the 3-key unlock gate (on by default, switchable
       // in settings), member PINs, and the record of who unlocked a meeting.
       await db.execute(
-          'ALTER TABLE groups ADD COLUMN require_three_key INTEGER NOT NULL DEFAULT 1');
+        'ALTER TABLE groups ADD COLUMN require_three_key INTEGER NOT NULL DEFAULT 1',
+      );
       await db.execute('ALTER TABLE members ADD COLUMN pin_hash TEXT');
       await db.execute('ALTER TABLE meetings ADD COLUMN unlocked_by TEXT');
     }
@@ -548,10 +625,15 @@ class AppDatabase {
       // IF NOT EXISTS: an upgrade must tolerate being re-run. A database
       // reporting v5 while already carrying the table would otherwise
       // crash on 'table already exists' and leave the install unusable.
-      await db.execute(_welfareExpensesTable
-          .replaceFirst('CREATE TABLE', 'CREATE TABLE IF NOT EXISTS'));
       await db.execute(
-          'CREATE INDEX IF NOT EXISTS idx_welfare_group ON welfare_expenses(group_id, cycle_number)');
+        _welfareExpensesTable.replaceFirst(
+          'CREATE TABLE',
+          'CREATE TABLE IF NOT EXISTS',
+        ),
+      );
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_welfare_group ON welfare_expenses(group_id, cycle_number)',
+      );
     }
     if (oldVersion < 7) {
       // Field-agent visits, and the outbox that gets them to the server.
@@ -563,14 +645,21 @@ class AppDatabase {
       // editing fifteen call sites inside the meeting and loan money paths,
       // which is its own change with its own tests. The outbox below is
       // deliberately a separate table rather than a reuse of it.
-      await db.execute(_groupVisitsTable
-          .replaceFirst('CREATE TABLE', 'CREATE TABLE IF NOT EXISTS'));
       await db.execute(
-          _outboxTable.replaceFirst('CREATE TABLE', 'CREATE TABLE IF NOT EXISTS'));
+        _groupVisitsTable.replaceFirst(
+          'CREATE TABLE',
+          'CREATE TABLE IF NOT EXISTS',
+        ),
+      );
       await db.execute(
-          'CREATE INDEX IF NOT EXISTS idx_visits_group ON group_visits(remote_group_id, started_at)');
+        _outboxTable.replaceFirst('CREATE TABLE', 'CREATE TABLE IF NOT EXISTS'),
+      );
       await db.execute(
-          'CREATE INDEX IF NOT EXISTS idx_outbox_status ON outbox(status, next_attempt_at)');
+        'CREATE INDEX IF NOT EXISTS idx_visits_group ON group_visits(remote_group_id, started_at)',
+      );
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_outbox_status ON outbox(status, next_attempt_at)',
+      );
     }
 
     if (oldVersion < 8) {
@@ -579,41 +668,74 @@ class AppDatabase {
       // Additive only. A phone mid-visit when it updates keeps its draft in
       // group_visits and simply gains somewhere to record answers; nothing
       // already queued in the outbox is disturbed.
-      await db.execute(_assessmentSnapshotsTable
-          .replaceFirst('CREATE TABLE', 'CREATE TABLE IF NOT EXISTS'));
-      await db.execute(_visitAssessmentsTable
-          .replaceFirst('CREATE TABLE', 'CREATE TABLE IF NOT EXISTS'));
-      await db.execute(_visitAnswersTable
-          .replaceFirst('CREATE TABLE', 'CREATE TABLE IF NOT EXISTS'));
       await db.execute(
-          'CREATE INDEX IF NOT EXISTS idx_snapshots_current ON assessment_snapshots(is_current, version DESC)');
+        _assessmentSnapshotsTable.replaceFirst(
+          'CREATE TABLE',
+          'CREATE TABLE IF NOT EXISTS',
+        ),
+      );
       await db.execute(
-          'CREATE INDEX IF NOT EXISTS idx_answers_visit ON visit_answers(visit_id)');
+        _visitAssessmentsTable.replaceFirst(
+          'CREATE TABLE',
+          'CREATE TABLE IF NOT EXISTS',
+        ),
+      );
+      await db.execute(
+        _visitAnswersTable.replaceFirst(
+          'CREATE TABLE',
+          'CREATE TABLE IF NOT EXISTS',
+        ),
+      );
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_snapshots_current ON assessment_snapshots(is_current, version DESC)',
+      );
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_answers_visit ON visit_answers(visit_id)',
+      );
     }
 
     if (oldVersion < 9) {
       // Field evidence. Additive only: a phone holding un-synced visits and
       // answers keeps both, and simply gains somewhere to queue photographs.
-      await db.execute(_visitAttachmentsTable
-          .replaceFirst('CREATE TABLE', 'CREATE TABLE IF NOT EXISTS'));
       await db.execute(
-          'CREATE INDEX IF NOT EXISTS idx_attachments_visit ON visit_attachments(visit_id, status)');
+        _visitAttachmentsTable.replaceFirst(
+          'CREATE TABLE',
+          'CREATE TABLE IF NOT EXISTS',
+        ),
+      );
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_attachments_visit ON visit_attachments(visit_id, status)',
+      );
     }
 
     if (oldVersion < 10) {
       // Mentorship, the group's rating of it, and the action plan.
       // Additive only: a phone mid-visit keeps its draft, its answers and
       // its queued photographs.
-      await db.execute(_visitMentorshipTable
-          .replaceFirst('CREATE TABLE', 'CREATE TABLE IF NOT EXISTS'));
-      await db.execute(_visitRatingsTable
-          .replaceFirst('CREATE TABLE', 'CREATE TABLE IF NOT EXISTS'));
-      await db.execute(_actionItemsTable
-          .replaceFirst('CREATE TABLE', 'CREATE TABLE IF NOT EXISTS'));
       await db.execute(
-          'CREATE INDEX IF NOT EXISTS idx_actions_group ON visit_action_items(remote_group_id, status)');
+        _visitMentorshipTable.replaceFirst(
+          'CREATE TABLE',
+          'CREATE TABLE IF NOT EXISTS',
+        ),
+      );
       await db.execute(
-          'CREATE INDEX IF NOT EXISTS idx_actions_dirty ON visit_action_items(is_dirty)');
+        _visitRatingsTable.replaceFirst(
+          'CREATE TABLE',
+          'CREATE TABLE IF NOT EXISTS',
+        ),
+      );
+      await db.execute(
+        _actionItemsTable.replaceFirst(
+          'CREATE TABLE',
+          'CREATE TABLE IF NOT EXISTS',
+        ),
+      );
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_actions_group ON visit_action_items(remote_group_id, status)',
+      );
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_actions_dirty ON visit_action_items(is_dirty)',
+      );
     }
 
     if (oldVersion < 11) {
@@ -632,6 +754,31 @@ class AppDatabase {
         FROM share_out_payouts
         GROUP BY group_id, cycle_number
       ''');
+    }
+
+    if (oldVersion < 12) {
+      // Meeting reminders: a meeting time for the group, a switch for the
+      // reminders, and the table of planned meetings. Existing groups get the
+      // defaults until an official sets their own time.
+      // Safe to run twice: a column already there is left alone.
+      final groupColumns = {
+        for (final row in await db.rawQuery('PRAGMA table_info(groups)'))
+          row['name'] as String,
+      };
+      if (!groupColumns.contains('meeting_time')) {
+        await db.execute(
+          "ALTER TABLE groups ADD COLUMN meeting_time TEXT NOT NULL DEFAULT '14:00'",
+        );
+      }
+      if (!groupColumns.contains('reminders_enabled')) {
+        await db.execute(
+          'ALTER TABLE groups ADD COLUMN reminders_enabled INTEGER NOT NULL DEFAULT 1',
+        );
+      }
+      await db.execute(_meetingScheduleTable.replaceFirst(
+        'CREATE TABLE',
+        'CREATE TABLE IF NOT EXISTS',
+      ));
     }
   }
 }

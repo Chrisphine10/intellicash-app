@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -13,9 +14,9 @@ import '../repositories/sync_repository.dart';
 ///
 /// The queue survives failed pushes untouched — records are only removed
 /// once the server accepts the batch.
-class SyncService {
+class SyncService with WidgetsBindingObserver {
   SyncService(this._syncRepository, {http.Client? client})
-      : _http = client ?? http.Client();
+    : _http = client ?? http.Client();
 
   static const _baseUrlPref = 'sync_base_url';
   static const defaultBaseUrl = 'https://api.intellicash.com/api/v1';
@@ -23,6 +24,7 @@ class SyncService {
   final SyncRepository _syncRepository;
   final http.Client _http;
   StreamSubscription<List<ConnectivityResult>>? _connectivitySub;
+  bool _lifecycleWatching = false;
 
   void Function()? onQueueChanged;
 
@@ -111,13 +113,19 @@ class SyncService {
   void startWatchingConnectivity() {
     if (_connectivitySub != null) return;
     try {
+      if (!_lifecycleWatching) {
+        WidgetsBinding.instance.addObserver(this);
+        _lifecycleWatching = true;
+      }
       // The first answer, before any change: a phone that starts with no signal
       // never gets a "changed" event to tell it so.
-      unawaited(Connectivity().checkConnectivity().then(
-            (results) =>
-                _setOnline(results.any((r) => r != ConnectivityResult.none)),
-            onError: (Object _) {},
-          ));
+      unawaited(
+        Connectivity().checkConnectivity().then(
+          (results) =>
+              _setOnline(results.any((r) => r != ConnectivityResult.none)),
+          onError: (Object _) {},
+        ),
+      );
       _connectivitySub = Connectivity().onConnectivityChanged.listen(
         (results) {
           final online = results.any((r) => r != ConnectivityResult.none);
@@ -134,6 +142,17 @@ class SyncService {
     }
   }
 
+  /// A connectivity event is not emitted when the phone stays online while
+  /// the app is backgrounded. Sync again when the app becomes active so work
+  /// recorded before backgrounding reaches the same cloud record shown by the
+  /// dashboard without requiring a manual tap.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      unawaited(pushNow());
+    }
+  }
+
   Future<String> baseUrl() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_baseUrlPref) ?? defaultBaseUrl;
@@ -144,8 +163,9 @@ class SyncService {
     await prefs.setString(_baseUrlPref, url.trim());
   }
 
-  Future<int> pendingCount() async =>
-      pendingProbe != null ? await pendingProbe!() : _syncRepository.pendingCount();
+  Future<int> pendingCount() async => pendingProbe != null
+      ? await pendingProbe!()
+      : _syncRepository.pendingCount();
 
   /// Attempts a push. Returns the number of records synced (0 when offline,
   /// there is nothing to send, or the server is unreachable).
@@ -157,7 +177,9 @@ class SyncService {
     if (_syncing) return 0;
     _syncing = true;
     try {
-      final synced = onSync != null ? await _pushViaCallback() : await _pushViaQueue();
+      final synced = onSync != null
+          ? await _pushViaCallback()
+          : await _pushViaQueue();
       // After every run, not only when something was pushed: the run may have
       // pulled records down (welfare spending), bound the group, or cleared
       // conflicts, and the badge and dashboard should reflect that.
@@ -202,6 +224,10 @@ class SyncService {
   void dispose() {
     _retryTimer?.cancel();
     _connectivitySub?.cancel();
+    if (_lifecycleWatching) {
+      WidgetsBinding.instance.removeObserver(this);
+      _lifecycleWatching = false;
+    }
     _http.close();
   }
 }

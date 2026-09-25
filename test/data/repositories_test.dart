@@ -151,8 +151,10 @@ void main() {
       dueDate: DateTime.now().add(const Duration(days: 92)),
       meetingId: meeting1.id,
     );
-    // 3-month reducing balance at 5%: 2000 * 0.05 * (3+1)/2 = 200
-    expect(loan.totalDue, 2200);
+    // The most it can cost: 3 months at 5% on 2,000 = 300. Interest is
+    // charged month by month, so on the day it is given out it owes 2,000.
+    expect(loan.totalDue, 2300);
+    expect(loan.outstanding, 2000);
 
     // --- Close & lock ---
     final closed = await meetings.closeMeeting(meeting1);
@@ -170,11 +172,12 @@ void main() {
     expect(meeting2.openingBalance, -250);
 
     // --- Repayment flips the loan to repaid at zero outstanding ---
+    // Repaid the same day: no month has passed, so no interest is owed.
     final partly = await loans.repay(loan: loan, amount: 1200);
     expect(partly.status, LoanStatus.active);
-    expect(partly.outstanding, 1000);
+    expect(partly.outstanding, 800);
 
-    final settled = await loans.repay(loan: partly, amount: 1000);
+    final settled = await loans.repay(loan: partly, amount: 800);
     expect(settled.status, LoanStatus.repaid);
     expect(settled.outstanding, 0);
 

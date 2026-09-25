@@ -34,6 +34,8 @@ class GroupRepository {
     required int defaultLoanTermMonths,
     required MeetingFrequency meetingFrequency,
     required List<int> meetingDays,
+    String meetingTime = '14:00',
+    bool remindersEnabled = true,
     required List<String> memberNames,
   }) async {
     final now = DateTime.now();
@@ -52,6 +54,8 @@ class GroupRepository {
       defaultLoanTermMonths: defaultLoanTermMonths,
       meetingFrequency: meetingFrequency,
       meetingDays: (meetingDays.toList()..sort()),
+      meetingTime: meetingTime,
+      remindersEnabled: remindersEnabled,
       createdAt: now,
       updatedAt: now,
     );

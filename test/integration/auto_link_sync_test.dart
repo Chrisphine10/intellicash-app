@@ -15,6 +15,7 @@ import 'package:intellicash_mobile/data/repositories/id_map_repository.dart';
 import 'package:intellicash_mobile/data/repositories/member_repository.dart';
 import 'package:intellicash_mobile/data/repositories/meeting_repository.dart';
 import 'package:intellicash_mobile/data/services/auto_sync_coordinator.dart';
+import 'package:intellicash_mobile/data/services/remote_governance_api.dart';
 import 'package:intellicash_mobile/data/services/remote_write_api.dart';
 import 'package:intellicash_mobile/data/services/write_sync_service.dart';
 
@@ -38,9 +39,21 @@ class _FakeBackend extends RemoteWriteApi {
     required String groupId,
     required String title,
     required DateTime scheduledAt,
+    bool adoptScheduled = false,
+    String? source,
   }) async {
     _guard();
     return 'remote-meeting-1';
+  }
+
+  @override
+  Future<void> reportMeetingLifecycle({
+    required String groupId,
+    required String meetingId,
+    required String event,
+    required DateTime at,
+  }) async {
+    _guard();
   }
 
   @override
@@ -374,8 +387,7 @@ void main() {
   AutoSyncCoordinator twoWay({
     required List<RemoteMember> serverRoster,
     required List<String> added,
-    bool policyConfigured = false,
-    List<String>? policySent,
+    _FakePolicyServer? policyServer,
   }) =>
       AutoSyncCoordinator(
         idMap: idMap,
@@ -396,9 +408,21 @@ void main() {
               phone: person.phone,
             );
           },
-          policyIsConfigured: (_) async => policyConfigured,
-          pushPolicy: (remoteGroupId, {required rateBps, required termMonths}) async =>
-              policySent?.add('$rateBps/$termMonths'),
+          remotePolicy: policyServer == null ? null : (_) async => policyServer.current,
+          pushRules: policyServer == null ? null : (_, rules) async => policyServer.save(rules),
+          applyRules: policyServer == null
+              ? null
+              : (localGroupId, policy) async {
+                  final local = (await groups.currentGroup())!;
+                  await groups.updateGroup(local.copyWith(
+                    interestRate: policy.loanInterestRateBps / 100,
+                    defaultLoanTermMonths: policy.defaultLoanTermMonths,
+                    interestType: policy.interestType == 'REDUCING' ? InterestType.reducingBalance : InterestType.flat,
+                    shareValue: policy.shareValueCents == null ? null : policy.shareValueCents! / 100,
+                  ));
+                },
+          rulesWatermark: policyServer == null ? null : (_) async => policyServer.mark,
+          saveRulesWatermark: policyServer == null ? null : (_, at) async => policyServer.mark = at,
         ),
       );
 
@@ -461,24 +485,99 @@ void main() {
     expect((await members.membersForGroup(group.id)).where((m) => m.name == 'Mary Wanjiku'), hasLength(2));
   });
 
-  test('the phone gives the server its loan rules only when the server has none', () async {
+  test('the group rules go up from the phone, reducing balance included', () async {
     final group = await seedGroup('Tsunami SHG');
-    // seedGroup uses reducing balance, which the server cannot express: nothing sent.
-    var sent = <String>[];
-    var sync = twoWay(serverRoster: const [], added: <String>[], policySent: sent);
-    expect(await sync.pushPolicyIfUnset(group.id, 'remote-group-9'), isFalse);
-    expect(sent, isEmpty);
+    await groups.updateGroup(group.copyWith(interestRate: 7.5, defaultLoanTermMonths: 3, shareValue: 200));
+    final server = _FakePolicyServer();
+    final sync = twoWay(serverRoster: const [], added: <String>[], policyServer: server);
 
-    // A flat-rate group with an unconfigured server: 10% a month, 3 months.
-    await groups.updateGroup(group.copyWith(interestType: InterestType.flat, interestRate: 10, defaultLoanTermMonths: 3));
-    sync = twoWay(serverRoster: const [], added: <String>[], policySent: sent);
-    expect(await sync.pushPolicyIfUnset(group.id, 'remote-group-9'), isTrue);
-    expect(sent, ['1000/3']);
+    expect(await sync.syncGroupRules(group.id, 'remote-group-9'), 'pushed');
+    expect(server.saved.single.loanInterestRateBps, 750);
+    expect(server.saved.single.defaultLoanTermMonths, 3);
+    expect(server.saved.single.interestType, 'REDUCING', reason: 'seedGroup lends on reducing balance');
+    expect(server.saved.single.shareValueCents, 20000);
 
-    // A server that already has rules of its own is never overwritten.
-    sent = <String>[];
-    sync = twoWay(serverRoster: const [], added: <String>[], policyConfigured: true, policySent: sent);
-    expect(await sync.pushPolicyIfUnset(group.id, 'remote-group-9'), isFalse);
-    expect(sent, isEmpty);
+    // Nothing changed on either side: nothing is sent again.
+    expect(await sync.syncGroupRules(group.id, 'remote-group-9'), isNull);
+    expect(server.saved, hasLength(1));
   });
+
+  test('rules changed on the web later come down to the phone', () async {
+    final group = await seedGroup('Tsunami SHG');
+    final server = _FakePolicyServer();
+    final sync = twoWay(serverRoster: const [], added: <String>[], policyServer: server);
+    await sync.syncGroupRules(group.id, 'remote-group-9');
+
+    // An admin sets 5% flat on the console, after the phone last synced.
+    server.current = _FakePolicyServer.policy(
+      rateBps: 500,
+      termMonths: 2,
+      interestType: 'FLAT',
+      shareValueCents: 15000,
+      at: DateTime.now().add(const Duration(minutes: 5)),
+    );
+    expect(await sync.syncGroupRules(group.id, 'remote-group-9'), 'pulled');
+    final local = (await groups.currentGroup())!;
+    expect(local.interestRate, 5);
+    expect(local.defaultLoanTermMonths, 2);
+    expect(local.interestType, InterestType.flat);
+    expect(local.shareValue, 150);
+
+    // And that is not bounced straight back up.
+    expect(await sync.syncGroupRules(group.id, 'remote-group-9'), isNull);
+  });
+
+  test('an edit made on the phone after the web change wins', () async {
+    final group = await seedGroup('Tsunami SHG');
+    final server = _FakePolicyServer();
+    server.current = _FakePolicyServer.policy(
+      rateBps: 500,
+      termMonths: 2,
+      interestType: 'FLAT',
+      at: DateTime.now().subtract(const Duration(days: 1)),
+    );
+    final sync = twoWay(serverRoster: const [], added: <String>[], policyServer: server);
+    await groups.updateGroup(group.copyWith(interestRate: 12));
+
+    expect(await sync.syncGroupRules(group.id, 'remote-group-9'), 'pushed');
+    expect(server.saved.single.loanInterestRateBps, 1200);
+  });
+}
+
+/// The server's copy of the group's rules.
+class _FakePolicyServer {
+  RemoteGroupPolicy current = policy(rateBps: 0, termMonths: 1, interestType: 'FLAT', configured: false);
+  final List<GroupRulesPayload> saved = [];
+  DateTime? mark;
+
+  RemoteGroupPolicy save(GroupRulesPayload rules) {
+    saved.add(rules);
+    current = policy(
+      rateBps: rules.loanInterestRateBps,
+      termMonths: rules.defaultLoanTermMonths,
+      interestType: rules.interestType,
+      shareValueCents: rules.shareValueCents,
+      at: DateTime.now().add(const Duration(seconds: 1)),
+    );
+    return current;
+  }
+
+  static RemoteGroupPolicy policy({
+    required int rateBps,
+    required int termMonths,
+    required String interestType,
+    int? shareValueCents,
+    DateTime? at,
+    bool configured = true,
+  }) =>
+      RemoteGroupPolicy(
+        defaultLoanTermMonths: termMonths,
+        expenseFundType: 'SOCIAL',
+        loanInterestRateBps: rateBps,
+        configured: configured,
+        canConfigure: true,
+        interestType: interestType,
+        shareValueCents: shareValueCents,
+        updatedAt: at,
+      );
 }

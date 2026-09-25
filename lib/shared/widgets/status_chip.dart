@@ -20,11 +20,13 @@ class StatusChip extends StatelessWidget {
       label: status.label,
       color: switch (status) {
         LoanStatus.active => AppColors.primary,
+        LoanStatus.carriedForward => AppColors.primary,
         LoanStatus.repaid => AppColors.repaid,
         LoanStatus.defaulted => AppColors.defaulted,
       },
       tint: switch (status) {
         LoanStatus.active => AppColors.primaryTint,
+        LoanStatus.carriedForward => AppColors.primaryTint,
         LoanStatus.repaid => AppColors.repaidTint,
         LoanStatus.defaulted => AppColors.defaultedTint,
       },

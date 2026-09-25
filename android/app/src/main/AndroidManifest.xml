@@ -18,6 +18,14 @@
          evidence is captured at the group, not chosen afterwards from a
          phone's photo roll. -->
     <uses-permission android:name="android.permission.CAMERA"/>
+
+    <!-- Meeting reminders on the phone itself, so a treasurer is reminded even
+         without signal: the day before and two hours before a planned meeting.
+         Only a reminder - tapping it opens Meetings, it never starts one.
+         BOOT_COMPLETED puts the reminders back after the phone restarts. No
+         exact-alarm permission: a reminder a few minutes late is fine. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-feature android:name="android.hardware.camera" android:required="false"/>
     <application
         android:label="Intelli-Cash"
@@ -46,6 +54,19 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <receiver
+            android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
+        <receiver
+            android:exported="false"
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
+            </intent-filter>
+        </receiver>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

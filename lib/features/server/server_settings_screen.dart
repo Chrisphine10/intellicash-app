@@ -9,6 +9,7 @@ import '../../providers/connection_provider.dart';
 import '../../shared/widgets/common.dart';
 import 'cloud_dashboard_screen.dart';
 import 'group_sync_screen.dart';
+import '../account/sign_out_flow.dart';
 import 'sign_in_options_screen.dart';
 
 /// The cloud account: sign in, or connect with a group access key. The
@@ -174,46 +175,15 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen> {
                       color: AppColors.defaulted.withValues(alpha: 0.4)),
                 ),
                 onPressed: () async {
-                  final l10n = L10n.of(context);
-                  final connection = context.read<ConnectionProvider>();
-                  final navigator = Navigator.of(context);
-                  // Same wording and same ending as Account -> Sign out: the
-                  // agent's note is not the group's, and signing out from here
-                  // used to leave this screen (and Account) stacked up saying
-                  // "Not connected" over the sign-in choice.
-                  final isAgent = connection.signedInUser?.isAgent ?? false;
-                  final confirmed = await showDialog<bool>(
-                    context: context,
-                    builder: (dialogContext) => AlertDialog(
-                      title: Text(l10n.signOut,
-                          style: const TextStyle(fontSize: 17)),
-                      content: Text(
-                          isAgent ? l10n.signOutAgentNote : l10n.signOutKeepsRecords,
-                          style: const TextStyle(fontSize: 13.5)),
-                      actions: [
-                        TextButton(
-                          onPressed: () =>
-                              Navigator.of(dialogContext).pop(false),
-                          child: Text(l10n.cancel),
-                        ),
-                        FilledButton(
-                          style: FilledButton.styleFrom(
-                            backgroundColor: AppColors.defaulted,
-                            minimumSize: const Size(0, 40),
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 20),
-                          ),
-                          onPressed: () =>
-                              Navigator.of(dialogContext).pop(true),
-                          child: Text(l10n.signOut),
-                        ),
-                      ],
-                    ),
+                  // Same flow as Account -> Sign out: waits for this phone's
+                  // work to be sent, and uses the agent's note for agents.
+                  final isAgent =
+                      context.read<ConnectionProvider>().signedInUser?.isAgent ?? false;
+                  final signedOut = await confirmAndSignOut(
+                    context,
+                    note: isAgent ? L10n.of(context).signOutAgentNote : null,
                   );
-                  if (confirmed != true) return;
-                  await connection.disconnect();
-                  _keyCtrl.clear();
-                  navigator.popUntil((route) => route.isFirst);
+                  if (signedOut) _keyCtrl.clear();
                 },
                 icon: const Icon(Icons.logout, size: 18),
                 label: Text(L10n.of(context).signOut),

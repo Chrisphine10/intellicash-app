@@ -1,3 +1,4 @@
+import '../../core/utils/meeting_schedule.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -215,7 +216,7 @@ class _AgentGroupDetailScreenState extends State<AgentGroupDetailScreen> {
                       fontSize: 11, color: AppColors.textSecondary),
                 ),
                 trailing: Text(
-                  mt.status.replaceAll('_', ' ').toLowerCase(),
+                  meetingStatusLabel(mt.status, scheduledAt: mt.scheduledAt),
                   style: TextStyle(
                       fontSize: 10, color: AppColors.textSecondary),
                 ),

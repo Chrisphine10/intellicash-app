@@ -2,8 +2,10 @@ import '../../core/database/app_database.dart';
 import '../../core/network/api_exception.dart';
 import '../../core/utils/app_logger.dart';
 import '../models/enums.dart';
+import '../models/loan.dart';
 import '../models/meeting.dart';
 import '../repositories/id_map_repository.dart';
+import '../repositories/meeting_schedule_repository.dart';
 import 'remote_write_api.dart';
 
 /// Outcome of syncing one local meeting to the backend.
@@ -38,13 +40,19 @@ class WriteSyncService {
     required AppDatabase db,
     required IdMapRepository idMap,
     required RemoteWriteApi writeApi,
+    MeetingScheduleRepository? schedule,
   })  : _db = db,
         _idMap = idMap,
-        _writeApi = writeApi;
+        _writeApi = writeApi,
+        _schedule = schedule;
 
   final AppDatabase _db;
   final IdMapRepository _idMap;
   final RemoteWriteApi _writeApi;
+
+  /// Optional: when present, a meeting started from a plan reuses the plan's
+  /// server meeting rather than asking the server to find it by date.
+  final MeetingScheduleRepository? _schedule;
 
   static int _cents(num shillings) => (shillings * 100).round();
 
@@ -67,11 +75,17 @@ class WriteSyncService {
     var remoteMeetingId = await _idMap.remoteId(MapEntity.meeting, meeting.id) ??
         await _idMap.remoteId(MapEntity.meetingTwin, meeting.id);
     if (remoteMeetingId == null) {
-      remoteMeetingId = await _writeApi.createMeeting(
-        groupId: remoteGroupId,
-        title: 'Meeting #${meeting.number}',
-        scheduledAt: meeting.date,
-      );
+      // The plan this meeting was started from, if the phone knows its server
+      // copy; otherwise the server adopts that day's scheduled meeting itself.
+      // Either way the scheduled meeting becomes the held one, not a twin of it.
+      remoteMeetingId = await _schedule?.remoteIdForMeeting(meeting.id) ??
+          await _writeApi.createMeeting(
+            groupId: remoteGroupId,
+            title: 'Meeting #${meeting.number}',
+            scheduledAt: meeting.date,
+            adoptScheduled: true,
+            source: 'PHONE',
+          );
       // Recorded as a TWIN, not as a pushed meeting: nothing has been sent to it
       // yet. `MapEntity.meeting` is written by [syncMeeting] once a full pass has
       // run, because that mapping is what the sync (and its badge) reads as
@@ -82,7 +96,38 @@ class WriteSyncService {
           groupId: remoteGroupId);
       log.info('sync', 'Created backend meeting $remoteMeetingId');
     }
+    // A meeting on the phone exists only because someone started it, so the
+    // server hears so. Idempotent there; sent on every call because a phone
+    // that was offline at the start still has to say it eventually.
+    await _reportLifecycle(remoteGroupId, remoteMeetingId, 'STARTED', meeting.date);
     return remoteMeetingId;
+  }
+
+  /// Tells the server what a person did to a meeting on this phone.
+  ///
+  /// A refusal never fails the sync: a server from before this existed
+  /// answers 404, and the meeting's records matter more than its status. A cancelled server
+  /// meeting (the console cancelled a plan this phone then held) is left as
+  /// the console set it and logged.
+  Future<void> _reportLifecycle(
+    String remoteGroupId,
+    String remoteMeetingId,
+    String event,
+    DateTime at,
+  ) async {
+    try {
+      await _writeApi.reportMeetingLifecycle(
+        groupId: remoteGroupId,
+        meetingId: remoteMeetingId,
+        event: event,
+        at: at,
+      );
+    } on ApiException catch (e) {
+      // No signal: fail this pass so it is tried again, rather than leaving
+      // the server showing a meeting in progress that the phone has closed.
+      if (e.statusCode == 0) rethrow;
+      log.warn('sync', 'Meeting $remoteMeetingId: $event not recorded: ${e.message}');
+    }
   }
 
   Future<MeetingSyncResult> syncMeeting(Meeting meeting) async {
@@ -160,6 +205,12 @@ class WriteSyncService {
     // they are collected alongside the other entries above — nothing skipped.
     const skippedFines = 0;
 
+    // Closed on the phone: the server's copy is closed too, after its records.
+    if (!meeting.isOpen) {
+      await _reportLifecycle(remoteGroupId, remoteMeetingId, 'CLOSED',
+          meeting.closedAt ?? DateTime.now());
+    }
+
     await _idMap.replaceConflicts(meeting.id, conflicts);
     // Only now: a pass that stopped part-way (the signal went, the app was
     // closed) leaves the meeting unmapped, so it is tried again rather than
@@ -234,12 +285,20 @@ class WriteSyncService {
       final crid = 'lnd-${row['id']}';
       final member = remote(row['member_id'] as String, 'ledgerEntry', crid);
       if (member == null) continue;
+      final agreed = Loan.fromMap({...row, 'amount_repaid': 0, 'member_name': ''});
       result.add(LedgerEntryInput(
         memberId: member,
         type: 'INTERNAL_LOAN_DISBURSEMENT',
         amountCents: _cents(row['principal'] as num),
         description: 'Loan disbursement',
         clientRequestId: crid,
+        // The terms THIS loan was agreed at, so the server charges exactly
+        // what the phone does (month by month, same rule).
+        loan: {
+          'termMonths': agreed.termMonths,
+          'interestRateBps': (agreed.interestRate * 100).round(),
+          'interestType': agreed.interestType == InterestType.reducingBalance ? 'REDUCING' : 'FLAT',
+        },
       ));
     }
 

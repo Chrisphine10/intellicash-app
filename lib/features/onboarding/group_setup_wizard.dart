@@ -9,6 +9,9 @@ import '../../data/models/group.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/app_state.dart';
 import '../../providers/connection_provider.dart';
+import '../../providers/meeting_schedule_provider.dart';
+import '../../core/utils/meeting_schedule.dart';
+import '../members/member_sign_ins_switch.dart';
 import '../../shared/widgets/common.dart';
 
 /// The 4-step group constitution wizard: Basics, Savings, Loans, Schedule.
@@ -57,6 +60,10 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
   // Step 4 — Schedule
   late MeetingFrequency _frequency;
   final Set<int> _meetingDays = {};
+  // When the group meets, and whether members are reminded. Reminders only:
+  // a meeting still starts when an official taps Start Meeting.
+  late TimeOfDay _meetingTime;
+  late bool _remindersEnabled;
 
   bool get _isEdit => widget.existing != null;
 
@@ -70,7 +77,7 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
         context.read<ConnectionProvider>().signedInUser?.name ?? '';
     _nameCtrl = TextEditingController(text: g?.name ?? accountName);
     _cycleCtrl = TextEditingController(text: '${g?.cycleNumber ?? 1}');
-    _savingsMode = g?.savingsMode ?? SavingsMode.fixed;
+    _savingsMode = SavingsMode.fixed;
     _shareValueCtrl =
         TextEditingController(text: _trimNum(g?.shareValue ?? 100));
     _maxSharesCtrl =
@@ -90,6 +97,9 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
         TextEditingController(text: '${g?.defaultLoanTermMonths ?? 1}');
     _frequency = g?.meetingFrequency ?? MeetingFrequency.weekly;
     _meetingDays.addAll(g?.meetingDays ?? const [DateTime.sunday]);
+    final time = parseMeetingTime(g?.meetingTime ?? '14:00');
+    _meetingTime = TimeOfDay(hour: time.hour, minute: time.minute);
+    _remindersEnabled = g?.remindersEnabled ?? true;
   }
 
   static String _trimNum(double v) =>
@@ -204,6 +214,12 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
         validator: (v) =>
             (int.tryParse(v ?? '') ?? 0) < 1 ? 'Enter a cycle of 1 or more' : null,
       ),
+      if (_isEdit) ...[
+        const SizedBox(height: 16),
+        // The group's own switch, kept on the server so every phone, the
+        // console and the members' sign-ins follow the same answer.
+        MemberSignInsSwitch(localGroupId: widget.existing!.id),
+      ],
       if (!_isEdit) ...[
         const SectionLabel('Founding members'),
         Text(
@@ -263,25 +279,12 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
     return [
       const SectionLabel('Savings configuration',
           padding: EdgeInsets.only(bottom: 4)),
-      RadioGroup<SavingsMode>(
-        groupValue: _savingsMode,
-        onChanged: (v) => setState(() => _savingsMode = v!),
-        child: Column(
-          children: [
-            RadioListTile<SavingsMode>(
-              value: SavingsMode.fixed,
-              title: Text(SavingsMode.fixed.label),
-              subtitle: Text(l10n.groupSetupWizardEveryoneBuysSharesAtOne),
-              contentPadding: EdgeInsets.zero,
-            ),
-            RadioListTile<SavingsMode>(
-              value: SavingsMode.flexible,
-              title: Text(SavingsMode.flexible.label),
-              subtitle: Text(l10n.groupSetupWizardMembersSaveWhatTheyCan),
-              contentPadding: EdgeInsets.zero,
-            ),
-          ],
-        ),
+      // Members save by buying shares at the group's share value. ("Flexible"
+      // saving used to be offered here but was never built anywhere else, so
+      // choosing it changed nothing; it is gone and every group buys shares.)
+      Text(
+        l10n.groupSetupWizardEveryoneBuysSharesAtOne,
+        style: Theme.of(context).textTheme.bodySmall,
       ),
       const SizedBox(height: 12),
       TextFormField(
@@ -393,6 +396,7 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
   }
 
   List<Widget> _scheduleStep() {
+    final l10n = L10n.of(context);
     return [
       const SectionLabel('Meeting schedule',
           padding: EdgeInsets.only(bottom: 12)),
@@ -450,7 +454,28 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
             ),
         ],
       ),
-      const SizedBox(height: 20),
+      const SizedBox(height: 12),
+      ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: const Icon(Icons.schedule),
+        title: Text(l10n.meetingsMeetingTime),
+        trailing: Text(_meetingTime.format(context),
+            style: const TextStyle(fontWeight: FontWeight.w600)),
+        onTap: () async {
+          final picked =
+              await showTimePicker(context: context, initialTime: _meetingTime);
+          if (picked != null) setState(() => _meetingTime = picked);
+        },
+      ),
+      SwitchListTile(
+        contentPadding: EdgeInsets.zero,
+        title: Text(l10n.meetingsSendReminders),
+        subtitle: Text(l10n.meetingsRemindersNote,
+            style: Theme.of(context).textTheme.bodySmall),
+        value: _remindersEnabled,
+        onChanged: (on) => setState(() => _remindersEnabled = on),
+      ),
+      const SizedBox(height: 12),
       _helperCard(
         '${_nameCtrl.text.trim().isEmpty ? 'Your group' : _nameCtrl.text.trim()} '
         'meets ${_frequency.label.toLowerCase()} on '
@@ -539,7 +564,18 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
           defaultLoanTermMonths: int.parse(_termCtrl.text),
           meetingFrequency: _frequency,
           meetingDays: _meetingDays.toList()..sort(),
+          meetingTime: formatMeetingTime(_meetingTime.hour, _meetingTime.minute),
+          remindersEnabled: _remindersEnabled,
         ));
+        // New days or time: re-plan the phone's reminders, and send the
+        // schedule up so members are texted for the right day.
+        if (mounted) {
+          final group = appState.group;
+          if (group != null) {
+            unawaited(context.read<MeetingScheduleProvider>().load(group));
+          }
+        }
+        unawaited(appState.syncNow());
         if (mounted) {
           Navigator.of(context).pop();
           showAppSnack(context, 'Group settings saved.');
@@ -558,6 +594,8 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
           defaultLoanTermMonths: int.parse(_termCtrl.text),
           meetingFrequency: _frequency,
           meetingDays: _meetingDays.toList()..sort(),
+          meetingTime: formatMeetingTime(_meetingTime.hour, _meetingTime.minute),
+          remindersEnabled: _remindersEnabled,
           memberNames: _memberNames,
         );
         // Link the new group and send its founding members up straight away,

@@ -328,6 +328,12 @@ class _RestoreGroupCardState extends State<_RestoreGroupCard> {
       final l10n = L10n.of(context);
       final name = result.group?.name ?? 'your group';
       final history = result.history;
+      if (history != null && history.hasUnmappedMemberSkipped) {
+        messenger.showSnackBar(SnackBar(
+          content: Text(l10n.welcomeSomeRecordsNotLoaded),
+          duration: const Duration(seconds: 4),
+        ));
+      }
       messenger.showSnackBar(
         SnackBar(
           content: Text(result.alreadyPresent

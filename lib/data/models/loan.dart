@@ -1,3 +1,4 @@
+import '../../core/utils/loan_accrual.dart';
 import 'enums.dart';
 
 class Loan {
@@ -16,6 +17,7 @@ class Loan {
     required this.createdAt,
     this.amountRepaid = 0,
     this.memberName = '',
+    this.repayments = const [],
   });
 
   final String id;
@@ -31,7 +33,10 @@ class Loan {
   final double interestRate;
   final InterestType interestType;
 
-  /// Principal plus interest for the full term, fixed at disbursement.
+  /// The most this loan can cost: principal plus interest for every month of
+  /// the term, as if nothing were repaid. What is owed on a given day is
+  /// [positionAsOf] — interest is charged month by month (same rule as the
+  /// server), so a loan repaid early costs less.
   final double totalDue;
   final DateTime disbursedAt;
   final DateTime dueDate;
@@ -42,15 +47,53 @@ class Loan {
   final double amountRepaid;
   final String memberName;
 
-  double get outstanding {
-    final due = totalDue - amountRepaid;
-    return due > 0 ? due : 0;
+  /// Each repayment and when it was made (joined by the repository). Interest
+  /// depends on the dates, so balances are worked out from these.
+  final List<LoanMoney> repayments;
+
+  /// The agreed term in whole months, from the due date set at disbursement.
+  int get termMonths {
+    final months = (dueDate.year - disbursedAt.year) * 12 +
+        dueDate.month -
+        disbursedAt.month +
+        (dueDate.day >= disbursedAt.day ? 0 : -1);
+    return months < 1 ? 1 : months;
   }
+
+  /// What this loan owes on [asOf]: interest so far, repaid, outstanding.
+  LoanPosition positionAsOf(DateTime asOf) {
+    // A loan loaded without its repayment rows still knows the total repaid;
+    // treat it as paid on the day of disbursement, which is exact for flat
+    // interest and the most a member could be credited for reducing balance.
+    final events = repayments.isNotEmpty || amountRepaid <= 0
+        ? repayments
+        : [LoanMoney(disbursedAt, (amountRepaid * 100).round())];
+    return LoanAccrual.position(
+      principalCents: (principal * 100).round(),
+      rateBps: (interestRate * 100).round(),
+      termMonths: termMonths,
+      type: interestType,
+      disbursedAt: disbursedAt,
+      repayments: events,
+      asOf: asOf,
+    );
+  }
+
+  /// Owed today, in shillings.
+  double get outstanding => positionAsOf(DateTime.now()).outstandingCents / 100;
+
+  /// Interest charged so far, in shillings.
+  double get interestSoFar => positionAsOf(DateTime.now()).interestCents / 100;
 
   bool get isOverdue =>
       status == LoanStatus.active && DateTime.now().isAfter(dueDate);
 
-  Loan copyWith({LoanStatus? status, double? amountRepaid, String? memberName}) {
+  Loan copyWith({
+    LoanStatus? status,
+    double? amountRepaid,
+    String? memberName,
+    List<LoanMoney>? repayments,
+  }) {
     return Loan(
       id: id,
       groupId: groupId,
@@ -66,6 +109,7 @@ class Loan {
       createdAt: createdAt,
       amountRepaid: amountRepaid ?? this.amountRepaid,
       memberName: memberName ?? this.memberName,
+      repayments: repayments ?? this.repayments,
     );
   }
 
@@ -77,8 +121,10 @@ class Loan {
       meetingId: map['meeting_id'] as String?,
       principal: (map['principal'] as num).toDouble(),
       interestRate: (map['interest_rate'] as num).toDouble(),
+      // An unknown type is flat — the server's default, and what every
+      // group used before reducing balance could be chosen.
       interestType: enumFromName(InterestType.values,
-          map['interest_type'] as String, InterestType.reducingBalance),
+          map['interest_type'] as String, InterestType.flat),
       totalDue: (map['total_due'] as num).toDouble(),
       disbursedAt: DateTime.parse(map['disbursed_at'] as String),
       dueDate: DateTime.parse(map['due_date'] as String),

@@ -44,6 +44,8 @@ import 'data/services/sync_service.dart';
 import 'core/network/api_exception.dart';
 import 'data/services/auto_sync_coordinator.dart';
 import 'data/services/group_history_importer.dart';
+import 'data/services/local_data_vault.dart';
+import 'data/services/module_switches.dart';
 import 'data/services/share_out_sync_service.dart';
 import 'data/services/write_sync_service.dart';
 import 'providers/app_state.dart';
@@ -55,10 +57,23 @@ import 'providers/locale_controller.dart';
 import 'providers/meeting_provider.dart';
 import 'providers/member_provider.dart';
 import 'providers/poll_provider.dart';
+import 'providers/meeting_schedule_provider.dart';
+import 'core/notifications/meeting_alerts.dart';
+import 'data/repositories/meeting_schedule_repository.dart';
+import 'data/services/meeting_schedule_sync.dart';
 import 'providers/share_out_provider.dart';
 import 'providers/store_provider.dart';
 import 'providers/sync_provider.dart';
 import 'providers/theme_controller.dart';
+
+/// Bridge: holds a callback that ConnectionProvider fires after restoring a
+/// group. AppState wires its reloadGroup() into this once it exists, so the
+/// routing re-evaluates and the record book appears without a manual step.
+class _RestoredCallback {
+  void Function()? fn;
+}
+
+final _restoredCallback = _RestoredCallback();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -81,6 +96,7 @@ Future<void> main() async {
   }
 
   final db = AppDatabase.instance;
+  final localDataVault = LocalDataVault(db);
   final syncService = SyncService(SyncRepository(db));
 
   // The ApiClient reads the current credentials on every call, so the
@@ -98,10 +114,15 @@ Future<void> main() async {
 
   // Write-path (Phase 2a) dependencies.
   final idMap = IdMapRepository(db);
+  // Planned meetings - kept only to remind people; never started by the app.
+  final meetingSchedule = MeetingScheduleRepository(db);
+  final meetingAlerts = MeetingAlerts();
+  MeetingScheduleProvider? scheduleRef;
   final writeSyncService = WriteSyncService(
     db: db,
     idMap: idMap,
     writeApi: RemoteWriteApi(apiClient),
+    schedule: meetingSchedule,
   );
 
   // Automatic sync: when connectivity returns, push every bound group's
@@ -112,7 +133,11 @@ Future<void> main() async {
   final writeApi = RemoteWriteApi(apiClient);
   final governanceApi = RemoteGovernanceApi(apiClient);
   // Sends the share-outs this phone has made, in step with the meetings.
-  final shareOutSync = ShareOutSyncService(db: db, idMap: idMap, writeApi: writeApi);
+  final shareOutSync = ShareOutSyncService(
+    db: db,
+    idMap: idMap,
+    writeApi: writeApi,
+  );
   // Loads a group that already exists online onto this phone, history and all.
   // Shared with the sync below, which finishes a restore whose history was cut
   // short by a dropped signal.
@@ -123,17 +148,28 @@ Future<void> main() async {
     idMap: idMap,
     history: GroupHistoryImporter(db: db),
   );
+  final meetingScheduleSync = MeetingScheduleSync(
+    schedule: meetingSchedule,
+    idMap: idMap,
+    writeApi: writeApi,
+    remoteMeetings: remoteApi.groupMeetings,
+    remoteGroup: remoteApi.groupDetail,
+    saveLocalGroup: GroupRepository(db).updateGroup,
+  );
   final autoSync = AutoSyncCoordinator(
     idMap: idMap,
     meetings: MeetingRepository(db),
     writeSync: writeSyncService,
     shareOutSync: shareOutSync,
+    // The group's meeting days and plans, so members are texted reminders.
+    scheduleSync: meetingScheduleSync,
     // Binds a group's own phone to its server group and sends up members made
     // on the phone, so its records reach the console without anyone opening
     // the manual Sync screen.
     linkSupport: GroupLinkSupport(
       currentGroup: GroupRepository(db).currentGroup,
-      membersForGroup: (localGroupId) => MemberRepository(db).membersForGroup(localGroupId),
+      membersForGroup: (localGroupId) =>
+          MemberRepository(db).membersForGroup(localGroupId),
       ownRemoteGroupId: () async {
         final user = connectionRef?.signedInUser;
         return user?.role == 'GROUP_ACCOUNT' ? user?.groupId : null;
@@ -145,15 +181,33 @@ Future<void> main() async {
         phone: member.phone,
         role: member.role.serverName,
       ),
-      policyIsConfigured: (remoteGroupId) async =>
-          (await governanceApi.policy(remoteGroupId)).configured,
-      pushPolicy: (remoteGroupId, {required rateBps, required termMonths}) async {
-        await governanceApi.savePolicy(
-          remoteGroupId,
-          loanInterestRateBps: rateBps,
-          defaultLoanTermMonths: termMonths,
-        );
+      // The group's money rules, kept in step both ways (whichever side
+      // changed them last wins); see AutoSyncCoordinator.syncGroupRules.
+      remotePolicy: governanceApi.policy,
+      pushRules: governanceApi.saveRules,
+      applyRules: (localGroupId, policy) async {
+        final repository = GroupRepository(db);
+        final local = await repository.currentGroup();
+        if (local == null || local.id != localGroupId) return;
+        await repository.updateGroup(local.copyWith(
+          interestRate: policy.loanInterestRateBps / 100,
+          defaultLoanTermMonths: policy.defaultLoanTermMonths,
+          interestType: policy.interestType == 'REDUCING'
+              ? InterestType.reducingBalance
+              : InterestType.flat,
+          shareValue: policy.shareValueCents == null ? null : policy.shareValueCents! / 100,
+          maxSharesPerMeeting: policy.maxSharesPerMeeting,
+          socialFundAmount: policy.socialFundCents == null ? null : policy.socialFundCents! / 100,
+          loanMultiplier: policy.loanMultiplierBps == null ? null : policy.loanMultiplierBps! / 10000,
+        ));
+        _restoredCallback.fn?.call();
       },
+      rulesWatermark: (localGroupId) async {
+        final raw = (await SharedPreferences.getInstance()).getString('group_rules_mark_$localGroupId');
+        return raw == null ? null : DateTime.tryParse(raw);
+      },
+      saveRulesWatermark: (localGroupId, at) async =>
+          (await SharedPreferences.getInstance()).setString('group_rules_mark_$localGroupId', at.toIso8601String()),
       remoteMembers: remoteApi.groupMembers,
       addLocalMember: (localGroupId, remote) => MemberRepository(db).addMember(
         groupId: localGroupId,
@@ -167,21 +221,31 @@ Future<void> main() async {
       // A "not now" to linking this book to that group is remembered, so the
       // question is not asked at every start.
       linkDismissed: (localGroupId, remoteGroupId) async =>
-          ((await SharedPreferences.getInstance())
-                      .getStringList('link_proposal_dismissed') ??
+          ((await SharedPreferences.getInstance()).getStringList(
+                    'link_proposal_dismissed',
+                  ) ??
                   const <String>[])
               .contains('$localGroupId|$remoteGroupId'),
       saveLinkDismissed: (localGroupId, remoteGroupId) async {
         final prefs = await SharedPreferences.getInstance();
-        final asked = prefs.getStringList('link_proposal_dismissed') ?? <String>[];
-        await prefs.setStringList(
-            'link_proposal_dismissed', [...asked, '$localGroupId|$remoteGroupId']);
+        final asked =
+            prefs.getStringList('link_proposal_dismissed') ?? <String>[];
+        await prefs.setStringList('link_proposal_dismissed', [
+          ...asked,
+          '$localGroupId|$remoteGroupId',
+        ]);
       },
       editedMembersSince: (after) => MemberRepository(db).editedSince(after),
       roleWatermark: () async =>
-          (await SharedPreferences.getInstance()).getInt('role_sync_watermark') ?? 0,
+          (await SharedPreferences.getInstance()).getInt(
+            'role_sync_watermark',
+          ) ??
+          0,
       saveRoleWatermark: (value) async =>
-          (await SharedPreferences.getInstance()).setInt('role_sync_watermark', value),
+          (await SharedPreferences.getInstance()).setInt(
+            'role_sync_watermark',
+            value,
+          ),
       pushRole: (remoteGroupId, remoteMemberId, role) async {
         try {
           await writeApi.assignRole(
@@ -206,10 +270,15 @@ Future<void> main() async {
   final assessmentsApi = RemoteAssessmentsApi(apiClient);
   final assessments = AssessmentRepository();
   final attachments = AttachmentRepository();
-  final attachmentSync = AttachmentSyncService(client: apiClient, attachments: attachments);
+  final attachmentSync = AttachmentSyncService(
+    client: apiClient,
+    attachments: attachments,
+  );
   final mentorship = MentorshipRepository();
-  final mentorshipSync =
-      MentorshipSyncService(client: apiClient, mentorship: mentorship);
+  final mentorshipSync = MentorshipSyncService(
+    client: apiClient,
+    mentorship: mentorship,
+  );
   final mentorshipCatalogue = MentorshipCatalogueStore(client: apiClient);
   final visitSync = VisitSyncService(
     api: RemoteVisitsApi(apiClient),
@@ -254,6 +323,22 @@ Future<void> main() async {
     // before anything is sent: the meetings it brings are numbered from one.
     await groupRestore.completePendingHistory();
     final meetings = await autoSync.syncBoundGroups();
+    // Plans may have come down from the console: show them and re-plan the
+    // phone's own reminders.
+    try {
+      // The console changed the meeting days or time: the phone took them, so
+      // the group every screen shows is reloaded.
+      if (meetingScheduleSync.localGroupChanged) {
+        meetingScheduleSync.localGroupChanged = false;
+        _restoredCallback.fn?.call();
+      }
+      final group = await GroupRepository(db).currentGroup();
+      if (group != null) await scheduleRef?.load(group);
+    } catch (_) {
+      // Reminders are a convenience; never a reason to fail a sync.
+    }
+    // Re-check pending history AFTER sync bound groups pulls server members down.
+    await groupRestore.completePendingHistory();
 
     // Refresh the cached scorecard while there is signal. Guarded on the
     // checksum so the 46-question document is downloaded when it changes and
@@ -262,7 +347,8 @@ Future<void> main() async {
     // phone is still perfectly usable.
     try {
       final template = await assessmentsApi.fetchCurrent();
-      if (template != null && template.checksum != await assessments.currentChecksum()) {
+      if (template != null &&
+          template.checksum != await assessments.currentChecksum()) {
         await assessments.cacheSnapshot(
           snapshotId: template.snapshotId,
           templateId: template.templateId,
@@ -313,6 +399,13 @@ Future<void> main() async {
   };
   // The badge counts real unsynced work, not the vestigial write-queue, so it
   // tracks the sync it can see and clears as meetings back up.
+  // Optional modules (Intelli-Store, Voting) each server group may use, as
+  // the server last said; both off until it says otherwise.
+  final moduleSwitches = ModuleSwitches(
+    remoteIdFor: (localGroupId) => idMap.remoteId(MapEntity.group, localGroupId),
+  );
+  await moduleSwitches.load();
+
   syncService.pendingProbe = () async =>
       await autoSync.pendingMeetings() +
       await autoSync.pendingShareOuts() +
@@ -328,14 +421,21 @@ Future<void> main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => AppState(
-            groupRepository: GroupRepository(db),
-            syncService: syncService,
-            remoteGroupIdFor: (localGroupId) =>
-                idMap.remoteId(MapEntity.group, localGroupId),
-            linkSource: autoSync,
-          )..bootstrap(),
+          create: (_) {
+            final appState = AppState(
+              groupRepository: GroupRepository(db),
+              syncService: syncService,
+              remoteGroupIdFor: (localGroupId) =>
+                  idMap.remoteId(MapEntity.group, localGroupId),
+              linkSource: autoSync,
+            )..bootstrap();
+            // Wire the restore callback so ConnectionProvider can trigger a
+            // re-route after pulling a group's book down from the server.
+            _restoredCallback.fn = appState.reloadGroup;
+            return appState;
+          },
         ),
+        ChangeNotifierProvider<ModuleSwitches>.value(value: moduleSwitches),
         ChangeNotifierProvider(
           create: (_) => DashboardProvider(DashboardRepository(db)),
         ),
@@ -346,14 +446,35 @@ Future<void> main() async {
           create: (_) => MeetingProvider(MeetingRepository(db)),
         ),
         ChangeNotifierProvider(
-          create: (_) => LoanProvider(LoanRepository(db)),
+          create: (_) => scheduleRef =
+              MeetingScheduleProvider(meetingSchedule, alerts: meetingAlerts),
         ),
+        ChangeNotifierProvider(create: (_) => LoanProvider(LoanRepository(db))),
         ChangeNotifierProvider(
           create: (_) {
             final connection = ConnectionProvider(
               store: CredentialStore(),
               api: remoteApi,
               applyCredentials: (creds) => liveCredentials = creds,
+              pendingLocalWork: autoSync.accountSwitchPending,
+              syncPreviousAccount: syncService.pushNow,
+              archiveLocalWorkspace: () async {
+                await localDataVault.archive(label: 'Account switch backup');
+              },
+              clearLocalWorkspace: db.clearLocalWorkspace,
+              groupRestore: groupRestore,
+              onGroupRestored: () => _restoredCallback.fn?.call(),
+              onGroupModules: moduleSwitches.remember,
+              // Sign-out waits for everything a sync would send.
+              pendingForSignOut: () async =>
+                  await autoSync.signOutPending() +
+                  await visitSync.pendingCount() +
+                  await attachmentSync.pendingCount() +
+                  await mentorshipSync.pendingCount(),
+              syncBeforeSignOut: () async {
+                await syncService.pushNow();
+              },
+              deviceOnline: () => syncService.online,
             );
             // A 401 on an authenticated call means this session is dead. Sign
             // out rather than leaving the phone believing otherwise.
@@ -378,6 +499,7 @@ Future<void> main() async {
             syncService: writeSyncService,
             memberRepository: MemberRepository(db),
             meetingRepository: MeetingRepository(db),
+            fullSync: autoSync.syncBoundGroups,
           ),
         ),
         ChangeNotifierProvider(
@@ -405,12 +527,8 @@ Future<void> main() async {
         // Field visits. The repository and the outbox-backed sync service are
         // plain Providers: the visit flow drives its own screen state and only
         // needs shared, credential-aware collaborators.
-        Provider<RemoteVisitsApi>(
-          create: (_) => RemoteVisitsApi(apiClient),
-        ),
-        Provider<VisitRepository>(
-          create: (_) => VisitRepository(),
-        ),
+        Provider<RemoteVisitsApi>(create: (_) => RemoteVisitsApi(apiClient)),
+        Provider<VisitRepository>(create: (_) => VisitRepository()),
         // The SAME instance the reconnect trigger drives — two would each
         // hold their own view of the queue.
         Provider<VisitSyncService>.value(value: visitSync),
@@ -434,12 +552,8 @@ Future<void> main() async {
             onSendNow: syncService.pushNow,
           ),
         ),
-        ChangeNotifierProvider(
-          create: (_) => ThemeController()..bootstrap(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => LocaleController()..bootstrap(),
-        ),
+        ChangeNotifierProvider(create: (_) => ThemeController()..bootstrap()),
+        ChangeNotifierProvider(create: (_) => LocaleController()..bootstrap()),
       ],
       child: const IntelliCashApp(),
     ),

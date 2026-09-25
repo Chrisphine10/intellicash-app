@@ -19,6 +19,8 @@ class Group {
     required this.meetingFrequency,
     required this.meetingDays,
     this.requireThreeKey = true,
+    this.meetingTime = '14:00',
+    this.remindersEnabled = true,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -51,6 +53,13 @@ class Group {
   /// officials — or most of the members — each confirm their secret PIN.
   /// On by default; switchable in Meeting Security settings.
   final bool requireThreeKey;
+
+  /// When the group meets, "HH:mm" (24-hour, local time). Used only to remind
+  /// people - a meeting starts only when an official starts it.
+  final String meetingTime;
+
+  /// Whether this phone shows meeting reminders and the server texts them.
+  final bool remindersEnabled;
 
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -102,6 +111,8 @@ class Group {
     MeetingFrequency? meetingFrequency,
     List<int>? meetingDays,
     bool? requireThreeKey,
+    String? meetingTime,
+    bool? remindersEnabled,
     DateTime? updatedAt,
   }) {
     return Group(
@@ -121,6 +132,8 @@ class Group {
       meetingFrequency: meetingFrequency ?? this.meetingFrequency,
       meetingDays: meetingDays ?? this.meetingDays,
       requireThreeKey: requireThreeKey ?? this.requireThreeKey,
+      meetingTime: meetingTime ?? this.meetingTime,
+      remindersEnabled: remindersEnabled ?? this.remindersEnabled,
       createdAt: createdAt,
       updatedAt: updatedAt ?? DateTime.now(),
     );
@@ -146,6 +159,8 @@ class Group {
           map['meeting_frequency'] as String, MeetingFrequency.weekly),
       meetingDays: _parseDays(map['meeting_days'], map['meeting_day']),
       requireThreeKey: ((map['require_three_key'] as int?) ?? 1) == 1,
+      meetingTime: (map['meeting_time'] as String?) ?? '14:00',
+      remindersEnabled: ((map['reminders_enabled'] as int?) ?? 1) == 1,
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String),
     );
@@ -171,6 +186,8 @@ class Group {
       'meeting_days': meetingDays.join(','),
       'meeting_day': meetingDay,
       'require_three_key': requireThreeKey ? 1 : 0,
+      'meeting_time': meetingTime,
+      'reminders_enabled': remindersEnabled ? 1 : 0,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };

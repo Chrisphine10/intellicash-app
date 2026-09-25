@@ -37,6 +37,7 @@ enum MeetingStatus {
 
 enum LoanStatus {
   active('active'),
+  carriedForward('carried forward'),
   repaid('repaid'),
   defaulted('defaulted');
 

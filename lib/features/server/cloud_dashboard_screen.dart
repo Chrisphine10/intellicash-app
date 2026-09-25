@@ -1,3 +1,4 @@
+import '../../core/utils/meeting_schedule.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -213,7 +214,8 @@ class _MeetingsSection extends StatelessWidget {
                     fontSize: 11, color: AppColors.textSecondary),
               ),
               trailing: Text(
-                meeting.status,
+                meetingStatusLabel(meeting.status,
+                    scheduledAt: meeting.scheduledAt),
                 style: TextStyle(
                     fontSize: 11.5, color: AppColors.textSecondary),
               ),

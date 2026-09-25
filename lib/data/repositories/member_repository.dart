@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 import '../../core/database/app_database.dart';
 import '../models/enums.dart';
 import '../models/member.dart';
+import 'loan_repository.dart';
 import 'sync_repository.dart';
 
 class MemberRepository {
@@ -141,7 +142,6 @@ class MemberRepository {
         m.*,
         COALESCE(s.total_savings, 0)  AS total_savings,
         COALESCE(s.total_shares, 0)   AS total_shares,
-        COALESCE(l.active_balance, 0) AS active_balance,
         COALESCE(l.defaulted_count, 0) AS defaulted_count
       FROM members m
       LEFT JOIN (
@@ -154,29 +154,30 @@ class MemberRepository {
       ) s ON s.member_id = m.id
       LEFT JOIN (
         SELECT ln.member_id,
-               SUM(CASE WHEN ln.status IN ('active', 'defaulted')
-                   THEN ln.total_due - COALESCE(r.repaid, 0) ELSE 0 END)
-                 AS active_balance,
                SUM(CASE WHEN ln.status = 'defaulted' THEN 1 ELSE 0 END)
                  AS defaulted_count
         FROM loans ln
-        LEFT JOIN (
-          SELECT loan_id, SUM(amount) AS repaid
-          FROM loan_repayments
-          GROUP BY loan_id
-        ) r ON r.loan_id = ln.id
         GROUP BY ln.member_id
       ) l ON l.member_id = m.id
       WHERE m.group_id = ?1 AND m.is_active = 1
       ORDER BY m.name COLLATE NOCASE ASC
     ''', [groupId]);
 
+    // Owed today on open loans, month by month (the server's rule), per member.
+    final now = DateTime.now();
+    final owedCents = <String, int>{};
+    for (final loan in await LoanRepository.openLoans(db, groupId)) {
+      owedCents[loan.memberId] =
+          (owedCents[loan.memberId] ?? 0) + loan.positionAsOf(now).outstandingCents;
+    }
+
     return rows.map((row) {
+      final member = Member.fromMap(row);
       return MemberFinancials(
-        member: Member.fromMap(row),
+        member: member,
         totalSavings: (row['total_savings'] as num).toDouble(),
         totalShares: (row['total_shares'] as num).toInt(),
-        activeLoanBalance: (row['active_balance'] as num).toDouble(),
+        activeLoanBalance: (owedCents[member.id] ?? 0) / 100,
         hasDefaultedLoan: (row['defaulted_count'] as num) > 0,
       );
     }).toList();

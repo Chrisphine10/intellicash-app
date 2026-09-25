@@ -32,9 +32,24 @@ class FakeRemoteWriteApi extends RemoteWriteApi {
     required String groupId,
     required String title,
     required DateTime scheduledAt,
+    bool adoptScheduled = false,
+    String? source,
   }) async {
     createMeetingCalls++;
     return 'remote-meeting-1';
+  }
+
+  /// What the phone told the server a person did: STARTED, CLOSED.
+  final List<String> lifecycle = [];
+
+  @override
+  Future<void> reportMeetingLifecycle({
+    required String groupId,
+    required String meetingId,
+    required String event,
+    required DateTime at,
+  }) async {
+    lifecycle.add(event);
   }
 
   @override
@@ -307,6 +322,34 @@ void main() {
       expect(fake.createMeetingCalls, 1,
           reason: 'the twin is reused, not created a second time');
       expect(await coordinator.pendingMeetings(), 0);
+
+      // The server heard what people did, in order: started, then closed.
+      expect(fake.lifecycle.first, 'STARTED');
+      expect(fake.lifecycle.last, 'CLOSED');
+    });
+
+    test('a meeting in progress is reported started, and its records wait for the close', () async {
+      final group = await seedGroup();
+      final roster = await members.membersForGroup(group.id);
+      final meeting = await meetings.startMeeting(group);
+      await idMap.put(MapEntity.group, group.id, 'remote-group-1',
+          groupId: 'remote-group-1');
+      for (final member in roster) {
+        await idMap.put(MapEntity.member, member.id, 'r-${member.id}',
+            groupId: 'remote-group-1');
+      }
+      await meetings.recordSharePurchase(
+          meeting: meeting, group: group, memberId: roster.first.id, shares: 1);
+
+      final fake = FakeRemoteWriteApi();
+      final service = WriteSyncService(db: db, idMap: idMap, writeApi: fake);
+      final coordinator =
+          AutoSyncCoordinator(idMap: idMap, meetings: meetings, writeSync: service);
+
+      await coordinator.syncBoundGroups();
+
+      expect(fake.lifecycle, ['STARTED']);
+      expect(fake.ledger, isEmpty, reason: 'an open meeting is still being recorded');
     });
 
     test('a push that stops part-way is tried again, not counted as done', () async {

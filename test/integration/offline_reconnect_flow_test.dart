@@ -38,9 +38,21 @@ class _FakeBackend extends RemoteWriteApi {
     required String groupId,
     required String title,
     required DateTime scheduledAt,
+    bool adoptScheduled = false,
+    String? source,
   }) async {
     _guard();
     return 'remote-meeting-1';
+  }
+
+  @override
+  Future<void> reportMeetingLifecycle({
+    required String groupId,
+    required String meetingId,
+    required String event,
+    required DateTime at,
+  }) async {
+    _guard();
   }
 
   @override

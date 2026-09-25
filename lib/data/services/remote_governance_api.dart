@@ -69,6 +69,13 @@ class RemoteGroupPolicy {
     required this.loanInterestRateBps,
     required this.configured,
     required this.canConfigure,
+    this.interestType = 'FLAT',
+    this.shareValueCents,
+    this.maxSharesPerMeeting,
+    this.socialFundCents,
+    this.loanMultiplierBps,
+    this.memberAccountsEnabled = false,
+    this.updatedAt,
   });
 
   final int defaultLoanTermMonths;
@@ -82,16 +89,73 @@ class RemoteGroupPolicy {
   final bool configured;
   final bool canConfigure;
 
+  /// FLAT or REDUCING (balance), as the group set it.
+  final String interestType;
+
+  /// The group's own rules; null where the group never set one online.
+  final int? shareValueCents;
+  final int? maxSharesPerMeeting;
+  final int? socialFundCents;
+
+  /// Borrowing limit as a multiple of savings, in basis points (30000 = 3x).
+  final int? loanMultiplierBps;
+
+  /// Whether the group's members may sign in to see their own savings.
+  final bool memberAccountsEnabled;
+
+  /// When the rules were last saved online; decides which side's rules win.
+  final DateTime? updatedAt;
+
   factory RemoteGroupPolicy.fromJson(Map<String, dynamic> j) {
     final policy = (j['policy'] as Map?) ?? const {};
+    int? optionalInt(String key) => (policy[key] as num?)?.toInt();
+    final updated = policy['updatedAt'];
     return RemoteGroupPolicy(
       defaultLoanTermMonths: (policy['defaultLoanTermMonths'] as num?)?.toInt() ?? 1,
       expenseFundType: '${policy['expenseFundType'] ?? 'SOCIAL'}',
       loanInterestRateBps: (policy['loanInterestRateBps'] as num?)?.toInt() ?? 0,
       configured: policy['configured'] == true,
       canConfigure: j['canConfigure'] == true,
+      interestType: policy['interestType'] == 'REDUCING' ? 'REDUCING' : 'FLAT',
+      shareValueCents: optionalInt('shareValueCents'),
+      maxSharesPerMeeting: optionalInt('maxSharesPerMeeting'),
+      socialFundCents: optionalInt('socialFundCents'),
+      loanMultiplierBps: optionalInt('loanMultiplierBps'),
+      memberAccountsEnabled: policy['memberAccountsEnabled'] == true,
+      updatedAt: updated is String ? DateTime.tryParse(updated) : null,
     );
   }
+}
+
+/// A group's own money rules, as the phone keeps them, for the server.
+class GroupRulesPayload {
+  const GroupRulesPayload({
+    required this.loanInterestRateBps,
+    required this.defaultLoanTermMonths,
+    required this.interestType,
+    required this.shareValueCents,
+    required this.maxSharesPerMeeting,
+    required this.socialFundCents,
+    required this.loanMultiplierBps,
+  });
+
+  final int loanInterestRateBps;
+  final int defaultLoanTermMonths;
+  final String interestType;
+  final int shareValueCents;
+  final int maxSharesPerMeeting;
+  final int socialFundCents;
+  final int loanMultiplierBps;
+
+  Map<String, dynamic> toJson() => {
+        'loanInterestRateBps': loanInterestRateBps,
+        'defaultLoanTermMonths': defaultLoanTermMonths,
+        'interestType': interestType,
+        'shareValueCents': shareValueCents,
+        'maxSharesPerMeeting': maxSharesPerMeeting,
+        'socialFundCents': socialFundCents,
+        'loanMultiplierBps': loanMultiplierBps,
+      };
 }
 
 /// A meeting, reduced to what a picker needs.
@@ -108,16 +172,11 @@ class RemoteOpenMeeting {
   final String status;
   final DateTime? scheduledAt;
 
-  /// Open on the server — or the twin of a meeting being held on a phone, which
-  /// the server only ever sees as SCHEDULED, dated today. Mirrors the server's
-  /// own rule (within a day and a half), so the two never disagree about which
-  /// meeting welfare may be paid in.
-  bool get isOpen {
-    if (status == 'IN_PROGRESS') return true;
-    final when = scheduledAt;
-    if (status != 'SCHEDULED' || when == null) return false;
-    return DateTime.now().difference(when).abs() <= const Duration(hours: 36);
-  }
+  /// Being held: someone started it. A meeting held on this phone is reported
+  /// as started when its server copy is made (WriteSyncService), so it shows
+  /// here as IN_PROGRESS. A scheduled meeting is only a plan for reminders,
+  /// however close its date, and never counts.
+  bool get isOpen => status == 'IN_PROGRESS';
 
   factory RemoteOpenMeeting.fromJson(Map<String, dynamic> j) => RemoteOpenMeeting(
         id: '${j['id']}',
@@ -280,5 +339,18 @@ class RemoteGovernanceApi {
     });
     final map = Map<String, dynamic>.from(data as Map);
     return '${map['message'] ?? 'Saved.'}';
+  }
+
+  /// Saves the group's whole rule set; returns the policy as the server now
+  /// holds it (its `updatedAt` marks the rules as in step).
+  Future<RemoteGroupPolicy> saveRules(String groupId, GroupRulesPayload rules) async {
+    final data = await _client.putData('/groups/$groupId/policy', body: rules.toJson());
+    return RemoteGroupPolicy.fromJson(Map<String, dynamic>.from(data as Map));
+  }
+
+  /// Switches member sign-ins on or off for the group.
+  Future<RemoteGroupPolicy> setMemberAccountsEnabled(String groupId, bool enabled) async {
+    final data = await _client.putData('/groups/$groupId/policy', body: {'memberAccountsEnabled': enabled});
+    return RemoteGroupPolicy.fromJson(Map<String, dynamic>.from(data as Map));
   }
 }

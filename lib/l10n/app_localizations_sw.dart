@@ -148,12 +148,6 @@ class L10nSw extends L10n {
   String get sectionGroup => 'Kikundi';
 
   @override
-  String get sectionReports => 'Ripoti';
-
-  @override
-  String get sectionEndOfCycle => 'Mwisho wa mzunguko';
-
-  @override
   String get sectionCloudBackup => 'Wingu na hifadhi';
 
   @override
@@ -173,13 +167,6 @@ class L10nSw extends L10n {
 
   @override
   String get meetingSecurity => 'Usalama wa Mkutano';
-
-  @override
-  String get memberAccounts => 'Akaunti za Wanachama';
-
-  @override
-  String get memberAccountsSubtitle =>
-      'Ruhusu wanachama wapate akaunti zao kuona akiba zao';
 
   @override
   String get groupRules => 'Sheria za Kikundi';
@@ -343,9 +330,6 @@ class L10nSw extends L10n {
   String get meetingHubWelfare => 'Jamii';
 
   @override
-  String get meetingHubIntelliStore => 'Intelli-Store';
-
-  @override
   String get meetingHubExternalLoans => 'Mikopo ya Nje';
 
   @override
@@ -355,10 +339,6 @@ class L10nSw extends L10n {
   @override
   String get groupSetupWizardEveryoneBuysSharesAtOne =>
       'Kila mtu ananunua hisa kwa bei moja isiyobadilika';
-
-  @override
-  String get groupSetupWizardMembersSaveWhatTheyCan =>
-      'Wanachama huweka akiba kadri wawezavyo kila mkutano';
 
   @override
   String get groupSetupWizardGroupName => 'Jina la Kikundi';
@@ -2034,4 +2014,293 @@ class L10nSw extends L10n {
 
   @override
   String get buySharesAbsentTag => 'hajahudhuria';
+
+  @override
+  String get localVaultTitle => 'Data ya zamani ya ndani';
+
+  @override
+  String get localVaultEmpty => 'Hakuna nakala zilizohifadhiwa.';
+
+  @override
+  String get localVaultNote =>
+      'Nakala hizi zilizosongwa zinabaki kwenye simu hii. Si nakala rudufu za wingu.';
+
+  @override
+  String get localVaultRecoverTitle => 'Rejesha data hii?';
+
+  @override
+  String get localVaultRecoverBody =>
+      'Kurejeshwa kunabadilisha kitabu cha sasa cha ndani. Haipakii data na inapaswa kutumika tu ukiwa umetoka.';
+
+  @override
+  String get localVaultRecovered => 'Data ya ndani imerejeshwa.';
+
+  @override
+  String get localVaultDeleteTitle => 'Futa nakala hii?';
+
+  @override
+  String get localVaultDeleteBody =>
+      'Nakala hii itaondolewa kabisa kwenye simu hii.';
+
+  @override
+  String get signInRecoverLocalData =>
+      'Rejesha au futa data ya zamani ya ndani';
+
+  @override
+  String get welcomeSomeRecordsNotLoaded =>
+      'Baadhi ya rekodi hazikupakiwa. Angalia mtandao kisha ujaribu tena.';
+
+  @override
+  String get meetingsUpcomingTitle => 'Mikutano ijayo';
+
+  @override
+  String get meetingsScheduleAction => 'Panga mkutano';
+
+  @override
+  String get meetingsFromGroupSchedule => 'Kutoka siku za mikutano ya kikundi';
+
+  @override
+  String get meetingsRemindersNote =>
+      'Wanachama hukumbushwa siku moja kabla na saa mbili kabla. Mkutano huanza tu unapobonyeza Anza Mkutano.';
+
+  @override
+  String get meetingsDidntHappenTitle => 'Haukufanyika?';
+
+  @override
+  String get meetingsDidntHappenBody =>
+      'Mkutano huu ulipangwa lakini hakuna aliyeuanzisha. Ughairi ili wanachama waache kukumbushwa.';
+
+  @override
+  String get meetingsCancelMeeting => 'Ghairi mkutano';
+
+  @override
+  String get meetingsCancelReasonTitle => 'Kwa nini haukufanyika?';
+
+  @override
+  String get meetingsCancelReasonHint => 'Kwa mfano: mvua, sikukuu';
+
+  @override
+  String get meetingsCancelledNotice =>
+      'Mkutano umeghairiwa. Hakuna vikumbusho zaidi vitakavyotumwa.';
+
+  @override
+  String get meetingsScheduledNotice =>
+      'Mkutano umepangwa. Wanachama watakumbushwa.';
+
+  @override
+  String get meetingsNotStarted => 'Haujaanza';
+
+  @override
+  String get meetingsStartNow => 'Anza sasa';
+
+  @override
+  String get meetingsMeetingTime => 'Saa ya mkutano';
+
+  @override
+  String get meetingsSendReminders => 'Wakumbushe wanachama kuhusu mikutano';
+
+  @override
+  String get meetingHubShopAndFinance => 'Duka na mikopo ya nje';
+
+  @override
+  String get signOutSendingFirst =>
+      'Inatuma rekodi za simu hii kabla ya kutoka…';
+
+  @override
+  String get signOutNotYetTitle => 'Bado hujatoka';
+
+  @override
+  String signOutBlockedOffline(int count) {
+    return 'Simu hii ina vitu $count ambavyo bado havijatumwa. Unganisha kwenye intaneti ili vitumwe, kisha utoke.';
+  }
+
+  @override
+  String signOutBlockedUnsent(int count) {
+    return 'Vitu $count havikuweza kutumwa, kwa hivyo bado umeingia. Funga mkutano ulio wazi, angalia muunganisho kisha ujaribu tena.';
+  }
+
+  @override
+  String get signOutUnderstood => 'Sawa';
+
+  @override
+  String get moreLockedChooseGroup =>
+      'Chagua kikundi chako kwenye akaunti ya mtandaoni ili utumie hii';
+
+  @override
+  String get moreLockedSignIn =>
+      'Ingia kwenye akaunti ya mtandaoni ili utumie hii';
+
+  @override
+  String get moreStatusOffline => 'nje ya mtandao';
+
+  @override
+  String get moreCloudConnected => 'Imeunganishwa';
+
+  @override
+  String moreCloudConnectedMembers(int count) {
+    return 'Imeunganishwa · wanachama $count';
+  }
+
+  @override
+  String get moreCloudCouldNotConnect =>
+      'Imeshindwa kuunganisha. Gusa ujaribu tena.';
+
+  @override
+  String get moreCloudNotConnected =>
+      'Unganisha simu hii na kikundi chako mtandaoni';
+
+  @override
+  String get moreSectionOnThisPhone => 'Kwenye simu hii';
+
+  @override
+  String get moreSectionOnline => 'Mtandaoni';
+
+  @override
+  String get moreEditSetUp => 'Hariri mipangilio ya kikundi';
+
+  @override
+  String get moreMeetingSecurityOn =>
+      'Kufungua kwa funguo 3 kumewashwa · majukumu na PIN';
+
+  @override
+  String get moreMeetingSecurityOff =>
+      'Kufungua kwa funguo 3 kumezimwa · majukumu na PIN';
+
+  @override
+  String moreGroupRulesSummary(
+    String share,
+    int maxShares,
+    String social,
+    String interest,
+    String multiplier,
+  ) {
+    return '$share kwa hisa · hadi hisa $maxShares kwa mkutano · $social mfuko wa jamii · riba $interest% · kopa hadi mara $multiplier ya akiba';
+  }
+
+  @override
+  String get moreLoanRulesSubtitle =>
+      'Muda wa mkopo, riba na chanzo cha matumizi';
+
+  @override
+  String get moreSavingCycles => 'Mizunguko ya akiba';
+
+  @override
+  String get moreSavingCyclesSubtitle => 'Funga mzunguko na uanze unaofuata';
+
+  @override
+  String get moreCloudAndAdvanced => 'Mtandao na mipangilio zaidi';
+
+  @override
+  String get moreCloudAndAdvancedSubtitle =>
+      'Akaunti ya mtandaoni, watoa huduma za malipo, data ya zamani';
+
+  @override
+  String get morePaymentProviders => 'Watoa huduma za malipo';
+
+  @override
+  String get morePaymentProvidersSubtitle =>
+      'Mahali pesa za wanachama zinapokelewa';
+
+  @override
+  String get moreInviteAndRequests => 'Mialiko na maombi ya kujiunga';
+
+  @override
+  String moreCycleStarted(int cycle, String date) {
+    return 'Mzunguko $cycle · ulianza $date';
+  }
+
+  @override
+  String get moreGroupSettingsHubSubtitle =>
+      'Mipangilio, usalama wa mkutano, sheria, mikopo na mizunguko';
+
+  @override
+  String get moreSectionReportsShareOut => 'Ripoti na mgawanyo';
+
+  @override
+  String get moreSectionAccountSync => 'Akaunti na usawazishaji';
+
+  @override
+  String get moreEverythingBackedUp => 'Kila kitu kimehifadhiwa';
+
+  @override
+  String moreItemsWaiting(int count) {
+    return 'Vitu $count vinasubiri kuhifadhiwa';
+  }
+
+  @override
+  String moreBackedUpCount(int count) {
+    return 'Rekodi $count zimehifadhiwa.';
+  }
+
+  @override
+  String get moreAlreadyBackedUp => 'Kila kitu tayari kimehifadhiwa.';
+
+  @override
+  String get memberSignInsTitle => 'Wanachama kuingia wenyewe';
+
+  @override
+  String get memberSignInsSubtitle =>
+      'Wanachama wanaweza kuingia kwenye simu zao kuona akiba na mikopo yao.';
+
+  @override
+  String get memberSignInsNeedsConnection =>
+      'Unganisha kwenye intaneti ili ubadilishe hili.';
+
+  @override
+  String get memberSignInsNowOn =>
+      'Wanachama sasa wanaweza kuingia kuona akiba yao.';
+
+  @override
+  String get memberSignInsNowOff =>
+      'Wanachama hawawezi tena kuingia kwa kikundi hiki.';
+
+  @override
+  String get memberDetailSignInSection => 'Akaunti ya kuingia';
+
+  @override
+  String memberDetailSignInExplain(String name) {
+    return 'Mpe $name akaunti yake ili aone akiba na mikopo yake kwenye simu yake.';
+  }
+
+  @override
+  String get memberDetailCreateSignIn => 'Unda akaunti';
+
+  @override
+  String get memberDetailCreatingSignIn => 'Inaunda…';
+
+  @override
+  String get memberDetailResetSignIn => 'Weka nenosiri jipya';
+
+  @override
+  String memberDetailSignInCreated(String name) {
+    return '$name sasa anaweza kuingia kwa nambari yake ya simu.';
+  }
+
+  @override
+  String memberDetailSignInLinked(String name) {
+    return '$name tayari anaingia kwa kikundi kingine, kwa hivyo kikundi hiki kimeunganishwa na akaunti hiyo. Nenosiri lake halibadiliki.';
+  }
+
+  @override
+  String memberDetailPasswordReset(String name) {
+    return 'Nenosiri jipya la $name limewekwa. Mpe ana kwa ana.';
+  }
+
+  @override
+  String get localVaultExport => 'Hamisha';
+
+  @override
+  String get localVaultRecover => 'Rejesha';
+
+  @override
+  String get localVaultDelete => 'Futa';
+
+  @override
+  String localVaultExportSubject(String label) {
+    return 'Nakala ya rekodi za IntelliCash ($label)';
+  }
+
+  @override
+  String get localVaultExportFailed =>
+      'Nakala hii haikuweza kuhamishwa. Jaribu tena.';
 }

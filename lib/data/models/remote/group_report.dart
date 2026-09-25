@@ -42,13 +42,19 @@ class ReportMemberRow {
     final borrowed = cents('loanDisbursementsCents');
     final repaid = cents('loanRepaymentsCents');
     final role = '${json['role'] ?? 'MEMBER'}';
+    // The server's own figure, interest included, when it sends one. Borrowed
+    // minus repaid ignores interest, so it under-reads what a member owes -
+    // and disagreed with the member's own passbook.
+    final serverOwes = json['loanOutstandingCents'];
     return ReportMemberRow(
       name: '${json['fullName'] ?? 'Member'}',
       // Their savings are their shares, as on the Members tab. The social fund
       // is not savings — it is paid out as welfare, not shared back.
       savings: cents('sharesCents'),
       // Overpayment must never read as a negative debt.
-      owes: borrowed - repaid < 0 ? 0 : borrowed - repaid,
+      owes: serverOwes is num
+          ? serverOwes / 100
+          : (borrowed - repaid < 0 ? 0 : borrowed - repaid),
       roleLabel: role == 'MEMBER' ? null : _titleCase(role),
     );
   }
@@ -77,6 +83,8 @@ class GroupReport {
     required this.members,
     required this.meetingCount,
     this.attendanceRate,
+    this.groupValue,
+    this.interestEarned,
   });
 
   final DateTime? generatedAt;
@@ -92,19 +100,72 @@ class GroupReport {
   /// 0..1, or null when the group has no attendance recorded yet.
   final double? attendanceRate;
 
+  /// What a share-out would split today: the loan fund's cash plus what
+  /// borrowers still owe. Null from an older server.
+  final double? groupValue;
+
+  /// Interest the group has earned on its loans this cycle.
+  final double? interestEarned;
+
   factory GroupReport.fromJson(Map<String, dynamic> json) {
+    final statement = json['statement'];
+    if (statement is Map<String, dynamic> && statement['loanFund'] is Map) {
+      return GroupReport._fromStatement(json, statement);
+    }
+    return GroupReport._fromLedger(json);
+  }
+
+  /// The server's statement: this cycle, signed by direction, debts with
+  /// interest - the same figures the group's web statement and the partner
+  /// portfolio show. Nothing is added up on the phone.
+  factory GroupReport._fromStatement(
+      Map<String, dynamic> json, Map<String, dynamic> statement) {
+    double kes(Object? map, String key) =>
+        map is Map ? ((map[key] as num?) ?? 0) / 100 : 0;
+    final loanFund = statement['loanFund'];
+    final socialFund = statement['socialFund'];
+    final loans = statement['loans'];
+    final meetings = statement['meetings'];
+    final equity = statement['equity'];
+    final attendance =
+        meetings is Map ? (meetings['attendanceRate'] as num?)?.toDouble() : null;
+    return GroupReport(
+      generatedAt: DateTime.tryParse('${json['generatedAt']}'),
+      totalSavings: kes(loanFund, 'sharesCents'),
+      socialFund: kes(socialFund, 'contributionsCents'),
+      fines: kes(socialFund, 'finesCents'),
+      loansGivenOut: kes(loanFund, 'disbursedCents'),
+      loansRepaid: kes(loanFund, 'repaymentsCents'),
+      loansStillOwed: kes(loans, 'outstandingCents'),
+      members: ((json['members'] as List?) ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(ReportMemberRow.fromJson)
+          .toList(),
+      meetingCount:
+          meetings is Map ? ((meetings['held'] as num?) ?? 0).toInt() : 0,
+      // The statement gives a percentage; this model has always held 0..1.
+      attendanceRate: attendance == null ? null : attendance / 100,
+      groupValue: equity is Map ? kes(equity, 'totalCents') : null,
+      interestEarned: loans is Map ? kes(loans, 'interestCollectedCents') : null,
+    );
+  }
+
+  /// An older server with no statement: its ledger breakdown, as before.
+  factory GroupReport._fromLedger(Map<String, dynamic> json) {
     final ledger = (json['ledger'] as List?) ?? const [];
 
     // The ledger breakdown is grouped by type AND direction, so a type can
-    // appear more than once and the rows have to be added, not looked up.
+    // appear more than once. A DEBIT row against a type takes away - adding
+    // every row regardless of direction inflated the total.
     double totalFor(String type) {
       var cents = 0.0;
       for (final row in ledger) {
         if (row is Map && row['type'] == type) {
-          cents += ((row['totalCents'] as num?) ?? 0).toDouble();
+          final amount = ((row['totalCents'] as num?) ?? 0).toDouble();
+          cents += row['direction'] == 'DEBIT' ? -amount : amount;
         }
       }
-      return cents / 100;
+      return cents.abs() / 100;
     }
 
     final borrowed = totalFor('INTERNAL_LOAN_DISBURSEMENT');

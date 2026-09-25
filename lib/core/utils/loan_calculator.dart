@@ -4,12 +4,12 @@ import '../../data/models/enums.dart';
 ///
 /// Rates are **per month**, matching how VSLAs quote them (e.g. "5%").
 abstract final class LoanCalculator {
-  /// Total repayable at disbursement.
-  ///
-  /// Flat: interest on the full principal every month of the term.
-  /// Reducing balance: interest on the outstanding principal, assuming the
-  /// principal reduces in equal monthly installments — the standard
-  /// `P * r * (n + 1) / 2` total-interest formula.
+  /// The most a loan can cost: principal plus a month's interest for every
+  /// month of the term, as if nothing were repaid. For both flat and reducing
+  /// balance that is `P * r * n` — reducing balance only costs less once
+  /// principal is actually repaid, which [LoanAccrual] works out month by
+  /// month from the repayments (same rule as the server). What a member owes
+  /// on a given day is `Loan.positionAsOf`, not this.
   static double totalDue({
     required double principal,
     required double monthlyRatePercent,
@@ -17,10 +17,7 @@ abstract final class LoanCalculator {
     required InterestType type,
   }) {
     final r = monthlyRatePercent / 100;
-    final interest = switch (type) {
-      InterestType.flat => principal * r * termMonths,
-      InterestType.reducingBalance => principal * r * (termMonths + 1) / 2,
-    };
+    final interest = principal * r * termMonths;
     return _round2(principal + interest);
   }
 

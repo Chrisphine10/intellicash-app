@@ -25,9 +25,16 @@ class MeetingRepository {
   final AppDatabase _db;
   static const _uuid = Uuid();
 
+  Future<List<String>> localGroupIds() async {
+    final db = await _db.database;
+    final rows = await db.query('groups', columns: ['id']);
+    return [for (final row in rows) row['id'] as String];
+  }
+
   Future<List<MeetingListItem>> meetingsForGroup(String groupId) async {
     final db = await _db.database;
-    final rows = await db.rawQuery('''
+    final rows = await db.rawQuery(
+      '''
       SELECT m.*,
         COALESCE(sp.total, 0) + COALESCE(f.total, 0) +
         COALESCE(sf.total, 0) + COALESCE(r.total, 0) AS collected
@@ -46,13 +53,17 @@ class MeetingRepository {
         ON r.meeting_id = m.id
       WHERE m.group_id = ?
       ORDER BY m.number DESC
-    ''', [groupId]);
+    ''',
+      [groupId],
+    );
 
     return rows
-        .map((row) => MeetingListItem(
-              meeting: Meeting.fromMap(row),
-              collected: (row['collected'] as num).toDouble(),
-            ))
+        .map(
+          (row) => MeetingListItem(
+            meeting: Meeting.fromMap(row),
+            collected: (row['collected'] as num).toDouble(),
+          ),
+        )
         .toList();
   }
 
@@ -78,9 +89,13 @@ class MeetingRepository {
   /// What is subtracted is the whole entitlement (the share plus the welfare
   /// that was distributed), because the loans netted against it come back in as
   /// repayments; the welfare fund a group chose to keep stays in the box.
+  ///
+  /// Welfare paid out (to a member in hospital, a funeral) left the box too,
+  /// and was not subtracted - the box read higher than the cash in it.
   Future<double> cashBoxBalance(String groupId) async {
     final db = await _db.database;
-    final rows = await db.rawQuery('''
+    final rows = await db.rawQuery(
+      '''
       SELECT
         (SELECT COALESCE(SUM(sp.amount), 0) FROM share_purchases sp
           JOIN meetings m ON m.id = sp.meeting_id WHERE m.group_id = ?1)
@@ -94,8 +109,12 @@ class MeetingRepository {
           WHERE l.group_id = ?1)
       - (SELECT COALESCE(SUM(p.gross_payout + p.welfare_payout), 0)
           FROM share_out_payouts p WHERE p.group_id = ?1)
+      - (SELECT COALESCE(SUM(w.amount), 0) FROM welfare_expenses w
+          WHERE w.group_id = ?1)
       AS balance
-    ''', [groupId]);
+    ''',
+      [groupId],
+    );
     return ((rows.first['balance'] ?? 0) as num).toDouble();
   }
 
@@ -109,7 +128,8 @@ class MeetingRepository {
     final existing = await openMeeting(group.id);
     if (existing != null) {
       throw DomainException(
-          'Meeting #${existing.number} is still in progress. Close it first.');
+        'Meeting #${existing.number} is still in progress. Close it first.',
+      );
     }
 
     final db = await _db.database;
@@ -132,8 +152,9 @@ class MeetingRepository {
       await txn.insert(
         'meetings',
         meeting.toMap()
-          ..['unlocked_by'] =
-              unlockedBy == null ? null : jsonEncode(unlockedBy),
+          ..['unlocked_by'] = unlockedBy == null
+              ? null
+              : jsonEncode(unlockedBy),
       );
 
       final members = await txn.query(
@@ -184,15 +205,11 @@ class MeetingRepository {
     _requireOpen(meeting);
     final db = await _db.database;
     await db.transaction((txn) async {
-      await txn.insert(
-        'attendance',
-        {
-          'meeting_id': meeting.id,
-          'member_id': memberId,
-          'present': present ? 1 : 0,
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+      await txn.insert('attendance', {
+        'meeting_id': meeting.id,
+        'member_id': memberId,
+        'present': present ? 1 : 0,
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
       await SyncRepository.enqueue(
         txn,
         entityType: 'attendance',
@@ -219,7 +236,8 @@ class MeetingRepository {
     _requireOpen(meeting);
     if (shares < 1 || shares > group.maxSharesPerMeeting) {
       throw DomainException(
-          'Shares must be between 1 and ${group.maxSharesPerMeeting}.');
+        'Shares must be between 1 and ${group.maxSharesPerMeeting}.',
+      );
     }
 
     final db = await _db.database;
@@ -231,10 +249,12 @@ class MeetingRepository {
     final alreadyBought = (purchased.first['bought'] as num).toInt();
     if (alreadyBought + shares > group.maxSharesPerMeeting) {
       final remaining = group.maxSharesPerMeeting - alreadyBought;
-      throw DomainException(remaining <= 0
-          ? 'Member already holds the maximum '
-              '${group.maxSharesPerMeeting} shares this meeting.'
-          : 'Only $remaining more share(s) allowed this meeting.');
+      throw DomainException(
+        remaining <= 0
+            ? 'Member already holds the maximum '
+                  '${group.maxSharesPerMeeting} shares this meeting.'
+            : 'Only $remaining more share(s) allowed this meeting.',
+      );
     }
 
     final trimmedRef = paymentReference?.trim();
@@ -246,8 +266,9 @@ class MeetingRepository {
       unitValue: group.shareValue,
       amount: shares * group.shareValue,
       paymentMethod: paymentMethod,
-      paymentReference:
-          (trimmedRef == null || trimmedRef.isEmpty) ? null : trimmedRef,
+      paymentReference: (trimmedRef == null || trimmedRef.isEmpty)
+          ? null
+          : trimmedRef,
       createdAt: DateTime.now(),
     );
     await db.transaction((txn) async {
@@ -301,13 +322,23 @@ class MeetingRepository {
     required Group group,
   }) async {
     _requireOpen(meeting);
+    // Same guard as the per-member switch: a zero contribution records members
+    // as "paid" for nothing, and the server refuses it when the meeting syncs.
+    if (group.socialFundAmount <= 0) {
+      throw const DomainException(
+        'The social fund amount is KSh 0. Set it in Group Settings (Savings step) before collecting.',
+      );
+    }
     final db = await _db.database;
-    final rows = await db.rawQuery('''
+    final rows = await db.rawQuery(
+      '''
       SELECT a.member_id FROM attendance a
       WHERE a.meeting_id = ?1 AND a.present = 1
         AND a.member_id NOT IN
           (SELECT member_id FROM social_fund_entries WHERE meeting_id = ?1)
-    ''', [meeting.id]);
+    ''',
+      [meeting.id],
+    );
     if (rows.isEmpty) return 0;
 
     final now = DateTime.now();
@@ -333,11 +364,27 @@ class MeetingRepository {
     return rows.length;
   }
 
+  /// What was actually recorded for the social fund in this meeting, in
+  /// shillings — the recorded amounts, not payers x today's amount, which
+  /// would be wrong once the group changes its amount.
+  Future<double> socialFundCollected(String meetingId) async {
+    final db = await _db.database;
+    final rows = await db.rawQuery(
+      'SELECT COALESCE(SUM(amount), 0) AS total FROM social_fund_entries WHERE meeting_id = ?',
+      [meetingId],
+    );
+    return ((rows.first['total'] ?? 0) as num).toDouble();
+  }
+
   /// The set of member ids who have paid the social fund in this meeting.
   Future<Set<String>> socialFundPayers(String meetingId) async {
     final db = await _db.database;
-    final rows = await db.query('social_fund_entries',
-        columns: ['member_id'], where: 'meeting_id = ?', whereArgs: [meetingId]);
+    final rows = await db.query(
+      'social_fund_entries',
+      columns: ['member_id'],
+      where: 'meeting_id = ?',
+      whereArgs: [meetingId],
+    );
     return {for (final r in rows) r['member_id'] as String};
   }
 
@@ -358,12 +405,15 @@ class MeetingRepository {
       // meeting syncs.
       if (group.socialFundAmount <= 0) {
         throw const DomainException(
-            'The social fund amount is KSh 0. Set it in Group Settings (Savings step) before collecting.');
+          'The social fund amount is KSh 0. Set it in Group Settings (Savings step) before collecting.',
+        );
       }
-      final existing = await db.query('social_fund_entries',
-          where: 'meeting_id = ? AND member_id = ?',
-          whereArgs: [meeting.id, memberId],
-          limit: 1);
+      final existing = await db.query(
+        'social_fund_entries',
+        where: 'meeting_id = ? AND member_id = ?',
+        whereArgs: [meeting.id, memberId],
+        limit: 1,
+      );
       if (existing.isNotEmpty) return;
       final entry = SocialFundEntry(
         id: _uuid.v4(),
@@ -383,15 +433,18 @@ class MeetingRepository {
         );
       });
     } else {
-      await db.delete('social_fund_entries',
-          where: 'meeting_id = ? AND member_id = ?',
-          whereArgs: [meeting.id, memberId]);
+      await db.delete(
+        'social_fund_entries',
+        where: 'meeting_id = ? AND member_id = ?',
+        whereArgs: [meeting.id, memberId],
+      );
     }
   }
 
   Future<MeetingTotals> totals(String meetingId) async {
     final db = await _db.database;
-    final rows = await db.rawQuery('''
+    final rows = await db.rawQuery(
+      '''
       SELECT
         (SELECT COALESCE(SUM(amount), 0) FROM share_purchases
           WHERE meeting_id = ?1) AS shares_amount,
@@ -407,7 +460,9 @@ class MeetingRepository {
           WHERE meeting_id = ?1) AS disbursements,
         (SELECT COALESCE(SUM(present), 0) FROM attendance
           WHERE meeting_id = ?1) AS present_count
-    ''', [meetingId]);
+    ''',
+      [meetingId],
+    );
 
     final row = rows.first;
     return MeetingTotals(
@@ -424,7 +479,8 @@ class MeetingRepository {
   /// Share purchases this meeting, grouped per member, largest first.
   Future<List<LedgerEntry>> ledger(String meetingId) async {
     final db = await _db.database;
-    final rows = await db.rawQuery('''
+    final rows = await db.rawQuery(
+      '''
       SELECT sp.member_id, m.name AS member_name,
              SUM(sp.shares) AS shares, SUM(sp.amount) AS amount,
              GROUP_CONCAT(DISTINCT sp.payment_method) AS methods
@@ -433,15 +489,22 @@ class MeetingRepository {
       WHERE sp.meeting_id = ?
       GROUP BY sp.member_id, m.name
       ORDER BY amount DESC, member_name COLLATE NOCASE ASC
-    ''', [meetingId]);
+    ''',
+      [meetingId],
+    );
 
     return rows.map((row) {
       final methods = (row['methods'] as String?) ?? '';
       final labels = methods
           .split(',')
           .where((m) => m.isNotEmpty)
-          .map((name) =>
-              enumFromName(PaymentMethod.values, name, PaymentMethod.cash).label)
+          .map(
+            (name) => enumFromName(
+              PaymentMethod.values,
+              name,
+              PaymentMethod.cash,
+            ).label,
+          )
           .toSet()
           .join(' · ');
       return LedgerEntry(
@@ -484,7 +547,8 @@ class MeetingRepository {
   void _requireOpen(Meeting meeting) {
     if (!meeting.isOpen) {
       throw DomainException(
-          'Meeting #${meeting.number} is closed. Its records are locked.');
+        'Meeting #${meeting.number} is closed. Its records are locked.',
+      );
     }
   }
 }

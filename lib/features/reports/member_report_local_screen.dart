@@ -108,6 +108,12 @@ class _MemberReportLocalScreenState extends State<MemberReportLocalScreen> {
 
   bool get _fromServer => _passbook != null;
 
+  /// A share COUNT only this phone knows. The server totals the value of
+  /// shares, not how many; next to server figures the count could belong to a
+  /// different set of records, so the statement shows a dash rather than mix
+  /// the two sources on one page.
+  String _sharesHeldOf(MemberFinancials f) => _fromServer ? '-' : '${f.totalShares}';
+
   String _buildReportText(Group group, MemberFinancials f) {
     final l10n = L10n.of(context);
     final lines = <String>[
@@ -119,7 +125,7 @@ class _MemberReportLocalScreenState extends State<MemberReportLocalScreen> {
       '',
       'SAVINGS & CONTRIBUTIONS',
       reportLine('Total savings', Formatters.money(_savingsOf(f))),
-      reportLine('Shares held', '${f.totalShares}'),
+      reportLine('Shares held', _sharesHeldOf(f)),
       reportLine('Social fund', Formatters.money(_socialOf)),
       reportLine('Fines paid', Formatters.money(_finesOf)),
       reportLine('Attendance', '${(_attendanceOf * 100).round()}%'),
@@ -230,7 +236,7 @@ class _MemberReportLocalScreenState extends State<MemberReportLocalScreen> {
                             KeyValueRow('Total savings',
                                 Formatters.money(_savingsOf(f)),
                                 emphasize: true),
-                            KeyValueRow('Shares held', '${f.totalShares}'),
+                            KeyValueRow('Shares held', _sharesHeldOf(f)),
                             KeyValueRow(
                                 'Social fund', Formatters.money(_socialOf)),
                             KeyValueRow(

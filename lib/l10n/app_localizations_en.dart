@@ -149,12 +149,6 @@ class L10nEn extends L10n {
   String get sectionGroup => 'Group';
 
   @override
-  String get sectionReports => 'Reports';
-
-  @override
-  String get sectionEndOfCycle => 'End of cycle';
-
-  @override
   String get sectionCloudBackup => 'Cloud & backup';
 
   @override
@@ -174,13 +168,6 @@ class L10nEn extends L10n {
 
   @override
   String get meetingSecurity => 'Meeting Security';
-
-  @override
-  String get memberAccounts => 'Member Accounts';
-
-  @override
-  String get memberAccountsSubtitle =>
-      'Let members get their own sign-in to see their savings';
 
   @override
   String get groupRules => 'Group Rules';
@@ -344,9 +331,6 @@ class L10nEn extends L10n {
   String get meetingHubWelfare => 'Welfare';
 
   @override
-  String get meetingHubIntelliStore => 'Intelli-Store';
-
-  @override
   String get meetingHubExternalLoans => 'External Loans';
 
   @override
@@ -356,10 +340,6 @@ class L10nEn extends L10n {
   @override
   String get groupSetupWizardEveryoneBuysSharesAtOne =>
       'Everyone buys shares at one fixed price';
-
-  @override
-  String get groupSetupWizardMembersSaveWhatTheyCan =>
-      'Members save what they can each meeting';
 
   @override
   String get groupSetupWizardGroupName => 'Group Name';
@@ -2037,4 +2017,286 @@ class L10nEn extends L10n {
 
   @override
   String get buySharesAbsentTag => 'not marked present';
+
+  @override
+  String get localVaultTitle => 'Old local data';
+
+  @override
+  String get localVaultEmpty => 'No saved local archives.';
+
+  @override
+  String get localVaultNote =>
+      'These compressed copies stay on this phone. They are not cloud backups.';
+
+  @override
+  String get localVaultRecoverTitle => 'Recover this data?';
+
+  @override
+  String get localVaultRecoverBody =>
+      'Recovery replaces the current local book. It does not upload data and should only be used while signed out.';
+
+  @override
+  String get localVaultRecovered => 'Local data recovered.';
+
+  @override
+  String get localVaultDeleteTitle => 'Delete this archive?';
+
+  @override
+  String get localVaultDeleteBody =>
+      'This copy will be permanently removed from this phone.';
+
+  @override
+  String get signInRecoverLocalData => 'Recover or delete old local data';
+
+  @override
+  String get welcomeSomeRecordsNotLoaded =>
+      'Some records could not be loaded. Check your connection and try again.';
+
+  @override
+  String get meetingsUpcomingTitle => 'Upcoming meetings';
+
+  @override
+  String get meetingsScheduleAction => 'Schedule a meeting';
+
+  @override
+  String get meetingsFromGroupSchedule => 'From the group\'s meeting days';
+
+  @override
+  String get meetingsRemindersNote =>
+      'Members are reminded the day before and two hours before. A meeting starts only when you tap Start Meeting.';
+
+  @override
+  String get meetingsDidntHappenTitle => 'Didn\'t happen?';
+
+  @override
+  String get meetingsDidntHappenBody =>
+      'This meeting was planned but nobody started it. Cancel it so members stop being reminded.';
+
+  @override
+  String get meetingsCancelMeeting => 'Cancel meeting';
+
+  @override
+  String get meetingsCancelReasonTitle => 'Why didn\'t it take place?';
+
+  @override
+  String get meetingsCancelReasonHint => 'For example: rain, public holiday';
+
+  @override
+  String get meetingsCancelledNotice =>
+      'Meeting cancelled. No more reminders will be sent for it.';
+
+  @override
+  String get meetingsScheduledNotice =>
+      'Meeting planned. Members will be reminded.';
+
+  @override
+  String get meetingsNotStarted => 'Not started';
+
+  @override
+  String get meetingsStartNow => 'Start now';
+
+  @override
+  String get meetingsMeetingTime => 'Meeting time';
+
+  @override
+  String get meetingsSendReminders => 'Remind members of meetings';
+
+  @override
+  String get meetingHubShopAndFinance => 'Shop & outside finance';
+
+  @override
+  String get signOutSendingFirst =>
+      'Sending this phone\'s records before signing out…';
+
+  @override
+  String get signOutNotYetTitle => 'Not signed out yet';
+
+  @override
+  String signOutBlockedOffline(int count) {
+    return 'This phone has $count item(s) not sent yet. Connect to the internet so they can be sent, then sign out.';
+  }
+
+  @override
+  String signOutBlockedUnsent(int count) {
+    return '$count item(s) could not be sent, so you are still signed in. Close any open meeting, check the connection and try again.';
+  }
+
+  @override
+  String get signOutUnderstood => 'OK';
+
+  @override
+  String get moreLockedChooseGroup =>
+      'Choose your group under Cloud account to use this';
+
+  @override
+  String get moreLockedSignIn => 'Sign in under Cloud account to use this';
+
+  @override
+  String get moreStatusOffline => 'offline';
+
+  @override
+  String get moreCloudConnected => 'Connected';
+
+  @override
+  String moreCloudConnectedMembers(int count) {
+    return 'Connected · $count members';
+  }
+
+  @override
+  String get moreCloudCouldNotConnect => 'Could not connect. Tap to try again.';
+
+  @override
+  String get moreCloudNotConnected => 'Connect this phone to your group online';
+
+  @override
+  String get moreSectionOnThisPhone => 'On this phone';
+
+  @override
+  String get moreSectionOnline => 'Online';
+
+  @override
+  String get moreEditSetUp => 'Edit group set-up';
+
+  @override
+  String get moreMeetingSecurityOn => '3-key unlock is on · roles and PINs';
+
+  @override
+  String get moreMeetingSecurityOff => '3-key unlock is off · roles and PINs';
+
+  @override
+  String moreGroupRulesSummary(
+    String share,
+    int maxShares,
+    String social,
+    String interest,
+    String multiplier,
+  ) {
+    return '$share per share · up to $maxShares shares a meeting · $social social fund · $interest% interest · borrow up to $multiplier× savings';
+  }
+
+  @override
+  String get moreLoanRulesSubtitle =>
+      'Loan term, interest and where expenses come from';
+
+  @override
+  String get moreSavingCycles => 'Saving cycles';
+
+  @override
+  String get moreSavingCyclesSubtitle => 'Close a cycle and start the next';
+
+  @override
+  String get moreCloudAndAdvanced => 'Cloud & advanced';
+
+  @override
+  String get moreCloudAndAdvancedSubtitle =>
+      'Cloud account, payment providers, old local data';
+
+  @override
+  String get morePaymentProviders => 'Payment providers';
+
+  @override
+  String get morePaymentProvidersSubtitle =>
+      'Where money from members is received';
+
+  @override
+  String get moreInviteAndRequests => 'Invite & join requests';
+
+  @override
+  String moreCycleStarted(int cycle, String date) {
+    return 'Cycle $cycle · started $date';
+  }
+
+  @override
+  String get moreGroupSettingsHubSubtitle =>
+      'Set-up, meeting security, rules, loans and cycles';
+
+  @override
+  String get moreSectionReportsShareOut => 'Reports & share-out';
+
+  @override
+  String get moreSectionAccountSync => 'Account & sync';
+
+  @override
+  String get moreEverythingBackedUp => 'Everything is backed up';
+
+  @override
+  String moreItemsWaiting(int count) {
+    return '$count item(s) waiting to back up';
+  }
+
+  @override
+  String moreBackedUpCount(int count) {
+    return 'Backed up $count record(s).';
+  }
+
+  @override
+  String get moreAlreadyBackedUp => 'Everything is already backed up.';
+
+  @override
+  String get memberSignInsTitle => 'Member sign-ins';
+
+  @override
+  String get memberSignInsSubtitle =>
+      'Members can sign in on their own phones to see their savings and loans.';
+
+  @override
+  String get memberSignInsNeedsConnection =>
+      'Connect to the internet to change this.';
+
+  @override
+  String get memberSignInsNowOn =>
+      'Members can now sign in to see their savings.';
+
+  @override
+  String get memberSignInsNowOff => 'Member sign-ins are off for this group.';
+
+  @override
+  String get memberDetailSignInSection => 'Sign-in account';
+
+  @override
+  String memberDetailSignInExplain(String name) {
+    return 'Give $name their own sign-in so they can see their savings and loans on their own phone.';
+  }
+
+  @override
+  String get memberDetailCreateSignIn => 'Create sign-in';
+
+  @override
+  String get memberDetailCreatingSignIn => 'Creating…';
+
+  @override
+  String get memberDetailResetSignIn => 'Reset password';
+
+  @override
+  String memberDetailSignInCreated(String name) {
+    return '$name can now sign in with their phone number.';
+  }
+
+  @override
+  String memberDetailSignInLinked(String name) {
+    return '$name already signs in for another group, so this group is now linked to that sign-in. Their password stays the same.';
+  }
+
+  @override
+  String memberDetailPasswordReset(String name) {
+    return '$name\'s new password is set. Hand it over in person.';
+  }
+
+  @override
+  String get localVaultExport => 'Export';
+
+  @override
+  String get localVaultRecover => 'Recover';
+
+  @override
+  String get localVaultDelete => 'Delete';
+
+  @override
+  String localVaultExportSubject(String label) {
+    return 'IntelliCash records backup ($label)';
+  }
+
+  @override
+  String get localVaultExportFailed =>
+      'This copy could not be exported. Try again.';
 }

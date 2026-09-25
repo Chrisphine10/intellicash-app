@@ -85,3 +85,42 @@ RemoteMember? matchRemoteMember(String? localPhone, List<RemoteMember> roster) {
   }
   return found;
 }
+
+/// A member as the phone knows them locally — used for de-dup during restore.
+class LocalMember {
+  const LocalMember(this.id, this.name, this.phone);
+  final String id;
+  final String name;
+  final String? phone;
+}
+
+/// Finds a local member by phone number, for de-dup during restore.
+///
+/// Returns the local member's id when exactly one local member has this phone.
+/// Returns null when no member has it, or when two members share it (ambiguous).
+String? matchLocalMember(String? phone, List<LocalMember> locals) {
+  final wanted = normalisePhone(phone);
+  if (wanted.isEmpty) return null;
+  String? found;
+  for (final candidate in locals) {
+    if (normalisePhone(candidate.phone) != wanted) continue;
+    if (found != null) return null; // ambiguous — two people on one number
+    found = candidate.id;
+  }
+  return found;
+}
+
+/// The key two sign-in identifiers are compared by, to tell whether a sign-in
+/// is the same account as the last one on this phone.
+///
+/// A phone number in any of its spellings (`+2547…`, `07…`) gives one key. An
+/// email, or anything else with no digits to normalise, is compared as
+/// trimmed lower-case text: normalising it as a phone would give an empty key
+/// for every email, and every email account would look like "no one".
+String accountIdentityKey(String? identifier) {
+  final raw = (identifier ?? '').trim();
+  if (raw.isEmpty) return '';
+  if (raw.contains('@')) return raw.toLowerCase();
+  final phone = normalisePhone(raw);
+  return phone.isNotEmpty ? phone : raw.toLowerCase();
+}

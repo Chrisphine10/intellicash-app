@@ -133,6 +133,8 @@ class AppState extends ChangeNotifier {
     required int defaultLoanTermMonths,
     required MeetingFrequency meetingFrequency,
     required List<int> meetingDays,
+    String meetingTime = '14:00',
+    bool remindersEnabled = true,
     required List<String> memberNames,
   }) async {
     await _groupRepository.createGroup(
@@ -148,6 +150,8 @@ class AppState extends ChangeNotifier {
       defaultLoanTermMonths: defaultLoanTermMonths,
       meetingFrequency: meetingFrequency,
       meetingDays: meetingDays,
+      meetingTime: meetingTime,
+      remindersEnabled: remindersEnabled,
       memberNames: memberNames,
     );
     await completeSetup();

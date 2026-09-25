@@ -11,7 +11,7 @@ import '../data/services/remote_api.dart';
 import '../data/services/write_sync_service.dart';
 
 /// Drives Phase 2a write-path sync: binding the local group to a backend
-/// group, matching members, and pushing closed meetings.
+/// group, matching members, and pushing the group's complete local record.
 class SyncProvider extends ChangeNotifier {
   SyncProvider({
     required IdMapRepository idMap,
@@ -19,17 +19,19 @@ class SyncProvider extends ChangeNotifier {
     required WriteSyncService syncService,
     required MemberRepository memberRepository,
     required MeetingRepository meetingRepository,
-  })  : _idMap = idMap,
-        _remoteApi = remoteApi,
-        _syncService = syncService,
-        _members = memberRepository,
-        _meetings = meetingRepository;
+    this.fullSync,
+  }) : _idMap = idMap,
+       _remoteApi = remoteApi,
+       _syncService = syncService,
+       _members = memberRepository,
+       _meetings = meetingRepository;
 
   final IdMapRepository _idMap;
   final RemoteApi _remoteApi;
   final WriteSyncService _syncService;
   final MemberRepository _members;
   final MeetingRepository _meetings;
+  final Future<int> Function()? fullSync;
 
   bool _busy = false;
   String? _error;
@@ -55,8 +57,7 @@ class SyncProvider extends ChangeNotifier {
     final local = await _members.membersForGroup(localGroupId);
     _localMembers = local.length;
     final memberMap = await _idMap.mappings(MapEntity.member);
-    _unmatched =
-        local.where((m) => !memberMap.containsKey(m.id)).toList();
+    _unmatched = local.where((m) => !memberMap.containsKey(m.id)).toList();
     _mappedMembers = _localMembers - _unmatched.length;
     notifyListeners();
   }
@@ -71,30 +72,49 @@ class SyncProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
     try {
-      await _idMap.put(MapEntity.group, localGroupId, remoteGroup.id,
-          groupId: remoteGroup.id);
+      await _idMap.put(
+        MapEntity.group,
+        localGroupId,
+        remoteGroup.id,
+        groupId: remoteGroup.id,
+      );
       _remoteGroupId = remoteGroup.id;
 
       final remoteMembers = await _remoteApi.groupMembers(remoteGroup.id);
       final localMembers = await _members.membersForGroup(localGroupId);
 
-      final byPhone = <String, RemoteMember>{};
-      final byName = <String, RemoteMember>{};
+      final byPhone = <String, List<RemoteMember>>{};
+      final byName = <String, List<RemoteMember>>{};
       for (final r in remoteMembers) {
         final p = _phoneKey(r.phone);
-        if (p != null) byPhone[p] = r;
-        byName[r.fullName.toLowerCase().trim()] = r;
+        if (p != null) (byPhone[p] ??= []).add(r);
+        (byName[_nameKey(r.fullName)] ??= []).add(r);
       }
 
       var matched = 0;
+      final usedRemoteIds = <String>{};
       final unmatched = <Member>[];
       for (final m in localMembers) {
         final phoneKey = _phoneKey(m.phone);
-        final remote = (phoneKey != null ? byPhone[phoneKey] : null) ??
-            byName[m.name.toLowerCase().trim()];
-        if (remote != null) {
-          await _idMap.put(MapEntity.member, m.id, remote.id,
-              groupId: remoteGroup.id);
+        final phoneMatches = phoneKey == null
+            ? const <RemoteMember>[]
+            : byPhone[phoneKey] ?? const [];
+        final nameMatches = byName[_nameKey(m.name)] ?? const [];
+        // A name-only match is safe only when it identifies one person on
+        // both sides. Never attach two members with the same name to one
+        // account; they must be linked explicitly.
+        final remote = phoneMatches.length == 1
+            ? phoneMatches.first
+            : phoneMatches.isEmpty && nameMatches.length == 1
+            ? nameMatches.first
+            : null;
+        if (remote != null && usedRemoteIds.add(remote.id)) {
+          await _idMap.put(
+            MapEntity.member,
+            m.id,
+            remote.id,
+            groupId: remoteGroup.id,
+          );
           matched++;
         } else {
           unmatched.add(m);
@@ -104,8 +124,10 @@ class SyncProvider extends ChangeNotifier {
       _localMembers = localMembers.length;
       _mappedMembers = matched;
       _unmatched = unmatched;
-      log.info('sync',
-          'Bound group -> ${remoteGroup.code}: matched $matched/${localMembers.length} members');
+      log.info(
+        'sync',
+        'Bound group -> ${remoteGroup.code}: matched $matched/${localMembers.length} members',
+      );
     } on ApiException catch (e) {
       _error = e.message;
       log.error('sync', 'Bind failed', e);
@@ -117,8 +139,12 @@ class SyncProvider extends ChangeNotifier {
 
   /// Manually links one local member to a backend member.
   Future<void> linkMember(Member local, RemoteMember remote) async {
-    await _idMap.put(MapEntity.member, local.id, remote.id,
-        groupId: _remoteGroupId);
+    await _idMap.put(
+      MapEntity.member,
+      local.id,
+      remote.id,
+      groupId: _remoteGroupId,
+    );
     _unmatched = _unmatched.where((m) => m.id != local.id).toList();
     _mappedMembers++;
     notifyListeners();
@@ -130,7 +156,7 @@ class SyncProvider extends ChangeNotifier {
     return _remoteApi.groupMembers(gid);
   }
 
-  /// Syncs every closed local meeting for the group. Returns a summary.
+  /// Syncs the group's complete local record. Returns a summary.
   Future<String> syncClosedMeetings(String localGroupId) async {
     if (_remoteGroupId == null) {
       _error = 'Link the group to the backend first.';
@@ -141,6 +167,15 @@ class SyncProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
     try {
+      // The manual screen must use the same complete path as reconnect sync:
+      // member convergence first, then meetings/ledgers, welfare pull, and
+      // share-outs in cycle order. Keep the old direct path for lightweight
+      // callers/tests that do not provide the coordinator.
+      if (fullSync != null) {
+        final records = await fullSync!();
+        _lastSummary = 'Synced $records record(s).';
+        return _lastSummary!;
+      }
       final items = await _meetings.meetingsForGroup(localGroupId);
       final closed = items.where((i) => !i.meeting.isOpen).toList();
       var meetingsSynced = 0;
@@ -186,4 +221,7 @@ class SyncProvider extends ChangeNotifier {
     if (digits.length < 9) return null;
     return digits.substring(digits.length - 9);
   }
+
+  static String _nameKey(String value) =>
+      value.toLowerCase().replaceAll(RegExp(r'\s+'), ' ').trim();
 }

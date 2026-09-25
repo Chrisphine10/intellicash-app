@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intellicash_mobile/core/database/app_database.dart';
 import 'package:intellicash_mobile/data/models/enums.dart';
 import 'package:intellicash_mobile/data/models/group.dart';
+import 'package:intellicash_mobile/data/models/loan.dart';
 import 'package:intellicash_mobile/data/repositories/dashboard_repository.dart';
 import 'package:intellicash_mobile/data/repositories/group_repository.dart';
 import 'package:intellicash_mobile/data/repositories/loan_repository.dart';
@@ -85,26 +86,37 @@ void main() {
     await meetings.recordFine(
         meeting: meeting, memberId: ann.id, amount: 90, reason: 'Late');
 
+    // Interest is charged month by month, so both loans are dated a month
+    // back: each has run one full month at 10% when it is repaid.
+    Future<Loan> monthOld(Loan loan) async {
+      final database = await db.database;
+      final disbursed = DateTime.now().subtract(const Duration(days: 31));
+      await database.update('loans', {'disbursed_at': disbursed.toIso8601String()},
+          where: 'id = ?', whereArgs: [loan.id]);
+      return (await loans.loanById(loan.id))!;
+    }
+
     // Ben takes a loan and repays it in full -> the group earns its interest.
-    final benLoan = await loans.disburse(
+    final benLoan = await monthOld(await loans.disburse(
       group: group,
       memberId: ben.id,
       principal: 500,
       dueDate: DateTime.now().add(const Duration(days: 90)),
       meetingId: meeting.id,
-    );
+    ));
+    expect(benLoan.outstanding, 550, reason: '500 + one month at 10%');
     await loans.repay(loan: benLoan, amount: benLoan.outstanding, meetingId: meeting.id);
 
     // Cara takes a loan and only partly repays -> outstanding at share-out.
-    final caraLoan = await loans.disburse(
+    final caraLoan = await monthOld(await loans.disburse(
       group: group,
       memberId: cara.id,
       principal: 300,
       dueDate: DateTime.now().add(const Duration(days: 90)),
       meetingId: meeting.id,
-    );
+    ));
     await loans.repay(loan: caraLoan, amount: 100, meetingId: meeting.id);
-    final caraOutstanding = caraLoan.totalDue - 100;
+    final caraOutstanding = caraLoan.outstanding - 100; // 330 - 100
 
     // --- Preview ---
     final preview = await shareOut.preview(group);
@@ -113,7 +125,7 @@ void main() {
     // Pool (E) = capital + repayments - disbursed + outstanding, rounded
     // per component exactly as the repository does.
     final expectedPool = c(2000) +
-        c(benLoan.totalDue + 100) -
+        c(benLoan.outstanding + 100) -
         c(800) +
         c(caraOutstanding);
     expect(preview.savingsPoolCents, expectedPool);

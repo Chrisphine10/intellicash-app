@@ -25,6 +25,7 @@ class SocialFundScreen extends StatefulWidget {
 
 class _SocialFundScreenState extends State<SocialFundScreen> {
   Set<String> _paid = {};
+  double _collected = 0;
   bool _loaded = false;
   final Set<String> _busy = {};
 
@@ -42,9 +43,11 @@ class _SocialFundScreenState extends State<SocialFundScreen> {
       await memberProvider.load(group.id);
     }
     final payers = await meetingProvider.socialFundPayers();
+    final collected = await meetingProvider.socialFundCollected();
     if (!mounted) return;
     setState(() {
       _paid = payers;
+      _collected = collected;
       _loaded = true;
     });
   }
@@ -64,6 +67,8 @@ class _SocialFundScreenState extends State<SocialFundScreen> {
     try {
       await provider.setSocialFundPaid(
           group: group, memberId: memberId, paid: paid);
+      final collected = await provider.socialFundCollected();
+      if (mounted) setState(() => _collected = collected);
       await appState.refreshPendingSync();
     } on DomainException catch (e) {
       if (mounted) {
@@ -95,7 +100,8 @@ class _SocialFundScreenState extends State<SocialFundScreen> {
     final paidCount = members
         .where((f) => _paid.contains(f.member.id))
         .length;
-    final collected = paidCount * amount;
+    // The amounts recorded, not paidCount x today's amount.
+    final collected = _collected;
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.meetingHubSocialFund)),

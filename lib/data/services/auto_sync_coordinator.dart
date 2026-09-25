@@ -6,6 +6,8 @@ import '../models/member.dart';
 import '../models/remote/remote_models.dart';
 import '../repositories/id_map_repository.dart';
 import '../repositories/meeting_repository.dart';
+import 'meeting_schedule_sync.dart';
+import 'remote_governance_api.dart';
 import 'member_matching.dart';
 import 'share_out_sync_service.dart';
 import 'write_sync_service.dart';
@@ -39,8 +41,11 @@ class GroupLinkSupport {
     this.pushRole,
     this.remoteMembers,
     this.addLocalMember,
-    this.policyIsConfigured,
-    this.pushPolicy,
+    this.remotePolicy,
+    this.pushRules,
+    this.applyRules,
+    this.rulesWatermark,
+    this.saveRulesWatermark,
     this.linkDismissed,
     this.saveLinkDismissed,
   });
@@ -59,34 +64,52 @@ class GroupLinkSupport {
 
   /// Role changes made on this phone. Optional: without them roles set on the
   /// phone stay on the phone.
-  final Future<({List<Member> members, int watermark})> Function(int after)? editedMembersSince;
+  final Future<({List<Member> members, int watermark})> Function(int after)?
+  editedMembersSince;
   final Future<int> Function()? roleWatermark;
   final Future<void> Function(int watermark)? saveRoleWatermark;
 
   /// Sets one member's office on the server. Must treat "already holds it" as
   /// success — a retried sync meets its own earlier write.
-  final Future<void> Function(String remoteGroupId, String remoteMemberId, MemberRole role)? pushRole;
+  final Future<void> Function(
+    String remoteGroupId,
+    String remoteMemberId,
+    MemberRole role,
+  )?
+  pushRole;
 
   /// The server's roster for a group, and a way to add one of those people to
   /// this phone's roster. Optional: without them the phone only ever sends
   /// members UP, and someone the server admitted (an approved join request, a
   /// member added on the web) never appears in the phone's list.
-  final Future<List<RemoteMember>> Function(String remoteGroupId)? remoteMembers;
-  final Future<Member> Function(String localGroupId, RemoteMember remote)? addLocalMember;
+  final Future<List<RemoteMember>> Function(String remoteGroupId)?
+  remoteMembers;
+  final Future<Member> Function(String localGroupId, RemoteMember remote)?
+  addLocalMember;
 
-  /// Whether the server group already has loan rules of its own, and a way to
-  /// give it this phone's. Optional. Without them a group that never opened the
-  /// server-side "Group Rules" is charged nothing on the server (the platform
-  /// default is interest-free) while its phone shows 10 %, so the two report
-  /// different balances for the same loan.
-  final Future<bool> Function(String remoteGroupId)? policyIsConfigured;
-  final Future<void> Function(String remoteGroupId, {required int rateBps, required int termMonths})? pushPolicy;
+  /// The group's money rules on both sides, kept in step by [syncGroupRules].
+  /// Optional. Without them the server prices loans by its own defaults
+  /// (interest-free) while the phone charges the group's rate, and the two
+  /// report different balances for the same loan.
+  final Future<RemoteGroupPolicy> Function(String remoteGroupId)? remotePolicy;
+
+  /// Sends the phone's rules; returns the policy as the server now holds it.
+  final Future<RemoteGroupPolicy> Function(String remoteGroupId, GroupRulesPayload rules)? pushRules;
+
+  /// Takes the server's rules onto this phone's book.
+  final Future<void> Function(String localGroupId, RemoteGroupPolicy policy)? applyRules;
+
+  /// When the two sides' rules were last known to agree.
+  final Future<DateTime?> Function(String localGroupId)? rulesWatermark;
+  final Future<void> Function(String localGroupId, DateTime at)? saveRulesWatermark;
 
   /// Whether the person already answered "not now" to linking this phone's book
   /// to this server group, and a way to remember that answer. Optional: without
   /// them the question is simply asked again on the next start.
-  final Future<bool> Function(String localGroupId, String remoteGroupId)? linkDismissed;
-  final Future<void> Function(String localGroupId, String remoteGroupId)? saveLinkDismissed;
+  final Future<bool> Function(String localGroupId, String remoteGroupId)?
+  linkDismissed;
+  final Future<void> Function(String localGroupId, String remoteGroupId)?
+  saveLinkDismissed;
 }
 
 /// A book on this phone that COULD belong to the signed-in group account, but
@@ -123,9 +146,10 @@ class AutoSyncCoordinator implements LinkProposalSource {
     this.welfareSync,
     this.linkSupport,
     this.shareOutSync,
-  })  : _idMap = idMap,
-        _meetings = meetings,
-        _writeSync = writeSync;
+    this.scheduleSync,
+  }) : _idMap = idMap,
+       _meetings = meetings,
+       _writeSync = writeSync;
 
   final IdMapRepository _idMap;
   final MeetingRepository _meetings;
@@ -147,6 +171,10 @@ class AutoSyncCoordinator implements LinkProposalSource {
   /// particular order relative to it.
   final ShareOutSyncService? shareOutSync;
 
+  /// Optional, like the others: without it the group's meeting plans stay on
+  /// the phone and members get no reminder texts for them.
+  final MeetingScheduleSync? scheduleSync;
+
   LinkProposal? _proposal;
 
   /// A link waiting for the person's yes, or null. Set by
@@ -161,9 +189,16 @@ class AutoSyncCoordinator implements LinkProposalSource {
     final proposal = _proposal;
     if (proposal == null) return false;
     _proposal = null;
-    await _idMap.put(MapEntity.group, proposal.localGroupId, proposal.remoteGroupId,
-        groupId: proposal.remoteGroupId);
-    log.info('autosync', 'Linked "${proposal.localName}" to "${proposal.remoteName}" after the person confirmed');
+    await _idMap.put(
+      MapEntity.group,
+      proposal.localGroupId,
+      proposal.remoteGroupId,
+      groupId: proposal.remoteGroupId,
+    );
+    log.info(
+      'autosync',
+      'Linked "${proposal.localName}" to "${proposal.remoteName}" after the person confirmed',
+    );
     return true;
   }
 
@@ -174,7 +209,10 @@ class AutoSyncCoordinator implements LinkProposalSource {
     if (proposal == null) return;
     _proposal = null;
     try {
-      await linkSupport?.saveLinkDismissed?.call(proposal.localGroupId, proposal.remoteGroupId);
+      await linkSupport?.saveLinkDismissed?.call(
+        proposal.localGroupId,
+        proposal.remoteGroupId,
+      );
     } catch (_) {
       // Asked again next time; nothing worse.
     }
@@ -210,10 +248,13 @@ class AutoSyncCoordinator implements LinkProposalSource {
 
       final remote = await support.remoteGroup(remoteGroupId);
       final sameName = _nameKey(remote.name) == _nameKey(local.name);
-      final freshShell = (remote.memberCount ?? 0) == 0 && (remote.meetingCount ?? 0) == 0;
+      final freshShell =
+          (remote.memberCount ?? 0) == 0 && (remote.meetingCount ?? 0) == 0;
       if (!sameName) {
         if (freshShell) {
-          final declined = await support.linkDismissed?.call(local.id, remoteGroupId) ?? false;
+          final declined =
+              await support.linkDismissed?.call(local.id, remoteGroupId) ??
+              false;
           if (!declined) {
             _proposal = LinkProposal(
               localGroupId: local.id,
@@ -223,13 +264,23 @@ class AutoSyncCoordinator implements LinkProposalSource {
             );
           }
         }
-        log.warn('autosync',
-            'Not binding "${local.name}" to "${remote.name}" automatically: the names differ.');
+        log.warn(
+          'autosync',
+          'Not binding "${local.name}" to "${remote.name}" automatically: the names differ.',
+        );
         return false;
       }
 
-      await _idMap.put(MapEntity.group, local.id, remoteGroupId, groupId: remoteGroupId);
-      log.info('autosync', 'Bound "${local.name}" to server group ${remote.code}');
+      await _idMap.put(
+        MapEntity.group,
+        local.id,
+        remoteGroupId,
+        groupId: remoteGroupId,
+      );
+      log.info(
+        'autosync',
+        'Bound "${local.name}" to server group ${remote.code}',
+      );
       return true;
     } catch (e) {
       log.warn('autosync', 'Automatic group binding skipped: $e');
@@ -239,7 +290,10 @@ class AutoSyncCoordinator implements LinkProposalSource {
 
   /// Sends up every member of [localGroupId] the server does not know yet, and
   /// records their server ids. Returns how many were linked.
-  Future<int> pushUnmappedMembers(String localGroupId, String remoteGroupId) async {
+  Future<int> pushUnmappedMembers(
+    String localGroupId,
+    String remoteGroupId,
+  ) async {
     final support = linkSupport;
     if (support == null) return 0;
     final mapped = await _idMap.mappings(MapEntity.member);
@@ -248,7 +302,12 @@ class AutoSyncCoordinator implements LinkProposalSource {
       if (mapped.containsKey(member.id)) continue;
       try {
         final remoteId = await support.pushMember(remoteGroupId, member);
-        await _idMap.put(MapEntity.member, member.id, remoteId, groupId: remoteGroupId);
+        await _idMap.put(
+          MapEntity.member,
+          member.id,
+          remoteId,
+          groupId: remoteGroupId,
+        );
         linked++;
       } catch (e) {
         // One member failing (no signal mid-run) must not stop the rest; the
@@ -256,7 +315,9 @@ class AutoSyncCoordinator implements LinkProposalSource {
         log.warn('autosync', 'Member ${member.name} did not sync: $e');
       }
     }
-    if (linked > 0) log.info('autosync', 'Linked $linked member(s) to the server');
+    if (linked > 0) {
+      log.info('autosync', 'Linked $linked member(s) to the server');
+    }
     return linked;
   }
 
@@ -279,7 +340,9 @@ class AutoSyncCoordinator implements LinkProposalSource {
     final add = support?.addLocalMember;
     if (support == null || fetch == null || add == null) return 0;
 
-    final remote = (await fetch(remoteGroupId)).where((member) => member.isActive).toList();
+    final remote = (await fetch(
+      remoteGroupId,
+    )).where((member) => member.isActive).toList();
     final mappings = await _idMap.mappings(MapEntity.member);
     final knownRemote = mappings.values.toSet();
     final mappedLocal = mappings.keys.toSet();
@@ -296,7 +359,8 @@ class AutoSyncCoordinator implements LinkProposalSource {
         final localPhone = normalisePhone(local.phone);
         final samePerson = wantedPhone.isNotEmpty
             ? localPhone == wantedPhone
-            : localPhone.isEmpty && _nameKey(local.name) == _nameKey(person.fullName);
+            : localPhone.isEmpty &&
+                  _nameKey(local.name) == _nameKey(person.fullName);
         if (samePerson) {
           twin = local;
           break;
@@ -305,45 +369,88 @@ class AutoSyncCoordinator implements LinkProposalSource {
 
       try {
         final local = twin ?? await add(localGroupId, person);
-        await _idMap.put(MapEntity.member, local.id, person.id, groupId: remoteGroupId);
+        await _idMap.put(
+          MapEntity.member,
+          local.id,
+          person.id,
+          groupId: remoteGroupId,
+        );
         mappedLocal.add(local.id);
         knownRemote.add(person.id);
         if (twin == null) pulled++;
       } catch (e) {
-        log.warn('autosync', 'Could not add ${person.fullName} from the server: $e');
+        log.warn(
+          'autosync',
+          'Could not add ${person.fullName} from the server: $e',
+        );
       }
     }
-    if (pulled > 0) log.info('autosync', 'Added $pulled member(s) from the server');
+    if (pulled > 0) {
+      log.info('autosync', 'Added $pulled member(s) from the server');
+    }
     return pulled;
   }
 
-  /// Gives the server the loan rules this phone already uses, but ONLY when the
-  /// server has none. Returns true if it did.
+  /// Keeps the group's money rules the same on the phone and the server:
+  /// interest rate and type, loan term, share value, most shares a meeting,
+  /// social fund amount and borrowing multiplier.
   ///
-  /// Never overwrites a policy the server holds — one set on the web console, or
-  /// in the server-side "Group Rules", is the group's decision. Flat monthly
-  /// interest is the only model the server can express, so a phone set to
-  /// reducing balance sends nothing rather than a rate that means something
-  /// different there.
-  Future<bool> pushPolicyIfUnset(String localGroupId, String remoteGroupId) async {
+  /// Whichever side changed them LAST wins. Edits made on this phone (the
+  /// set-up wizard, even offline) are pushed; rules changed on the web console
+  /// come down to the phone. The watermark records when both sides last
+  /// agreed — the later of the phone's edit and the server's save — so an
+  /// unchanged rule set is never sent back and forth. Returns 'pushed',
+  /// 'pulled' or null.
+  Future<String?> syncGroupRules(
+    String localGroupId,
+    String remoteGroupId,
+  ) async {
     final support = linkSupport;
-    final configured = support?.policyIsConfigured;
-    final push = support?.pushPolicy;
-    if (support == null || configured == null || push == null) return false;
+    final fetch = support?.remotePolicy;
+    final push = support?.pushRules;
+    if (support == null || fetch == null || push == null) return null;
 
     final local = await support.currentGroup();
-    if (local == null || local.id != localGroupId) return false;
-    if (local.interestType != InterestType.flat) return false;
-    if (await configured(remoteGroupId)) return false;
+    if (local == null || local.id != localGroupId) return null;
+    final mark = await support.rulesWatermark?.call(localGroupId);
+    final remote = await fetch(remoteGroupId);
+    final remoteAt = remote.configured ? remote.updatedAt : null;
 
-    await push(
-      remoteGroupId,
-      rateBps: (local.interestRate * 100).round(),
-      termMonths: local.defaultLoanTermMonths < 1 ? 1 : local.defaultLoanTermMonths,
-    );
-    log.info('autosync', "Gave the server this group's loan rules (${local.interestRate}% a month)");
-    return true;
+    final localChanged = mark == null || local.updatedAt.isAfter(mark);
+    final remoteChanged = remoteAt != null && (mark == null || remoteAt.isAfter(mark));
+    if (!localChanged && !remoteChanged) return null;
+
+    DateTime later(DateTime a, DateTime? b) => b != null && b.isAfter(a) ? b : a;
+
+    final phoneWins = localChanged && (!remoteChanged || !remoteAt.isAfter(local.updatedAt));
+    if (phoneWins) {
+      final saved = await push(remoteGroupId, rulesOf(local));
+      await support.saveRulesWatermark?.call(localGroupId, later(local.updatedAt, saved.updatedAt));
+      log.info('autosync', "Gave the server this group's rules (${local.interestRate}% a month, ${local.interestType.name})");
+      return 'pushed';
+    }
+
+    // The server's side is newer, so it has a save time.
+    final serverAt = remoteAt!;
+    final apply = support.applyRules;
+    if (apply == null) return null;
+    await apply(localGroupId, remote);
+    final updated = await support.currentGroup();
+    await support.saveRulesWatermark?.call(localGroupId, later(updated?.updatedAt ?? serverAt, serverAt));
+    log.info('autosync', 'Took the group rules set online');
+    return 'pulled';
   }
+
+  /// The phone's rules, in the server's units (cents, basis points).
+  static GroupRulesPayload rulesOf(Group group) => GroupRulesPayload(
+        loanInterestRateBps: (group.interestRate * 100).round(),
+        defaultLoanTermMonths: group.defaultLoanTermMonths < 1 ? 1 : group.defaultLoanTermMonths,
+        interestType: group.interestType == InterestType.reducingBalance ? 'REDUCING' : 'FLAT',
+        shareValueCents: (group.shareValue * 100).round(),
+        maxSharesPerMeeting: group.maxSharesPerMeeting < 1 ? 1 : group.maxSharesPerMeeting,
+        socialFundCents: (group.socialFundAmount * 100).round(),
+        loanMultiplierBps: (group.loanMultiplier * 10000).round(),
+      );
 
   /// Sends roles changed on this phone since the last push — and only those, so
   /// an office changed on the web is not overwritten by a phone that never
@@ -405,8 +512,10 @@ class AutoSyncCoordinator implements LinkProposalSource {
       final remoteGroupId = boundGroups[localGroupId];
       if (welfareSync != null && remoteGroupId != null) {
         try {
-          final pulled = await welfareSync!
-              .pull(remoteGroupId, localGroupId: localGroupId);
+          final pulled = await welfareSync!.pull(
+            remoteGroupId,
+            localGroupId: localGroupId,
+          );
           if (pulled > 0) {
             log.info('autosync', 'Pulled $pulled welfare expense(s)');
           }
@@ -419,6 +528,49 @@ class AutoSyncCoordinator implements LinkProposalSource {
       final items = await _meetings.meetingsForGroup(localGroupId);
       for (final item in items) {
         if (await _needsSync(item.meeting)) pending++;
+      }
+    }
+    return pending;
+  }
+
+  /// Work that clearing this phone's book would destroy, counted before an
+  /// account switch or sign-out. Unlike the badge count it includes a meeting
+  /// still in progress (it has not been closed, so it has not been sent) and
+  /// every meeting of a book not linked to the server yet: both exist nowhere
+  /// but on this phone.
+  Future<int> accountSwitchPending() async {
+    var pending = 0;
+    final groups = await _idMap.mappings(MapEntity.group);
+    for (final localGroupId in await _meetings.localGroupIds()) {
+      final remoteGroupId = groups[localGroupId];
+      for (final item in await _meetings.meetingsForGroup(localGroupId)) {
+        if (item.meeting.isOpen ||
+            remoteGroupId == null ||
+            await _needsSync(item.meeting)) {
+          pending++;
+        }
+      }
+      if (shareOutSync != null) {
+        pending += (await shareOutSync!.unsent(localGroupId)).length;
+      }
+    }
+    return pending;
+  }
+
+  /// Work a sign-out waits for: in every book LINKED to the server, a meeting
+  /// still open, a closed meeting not fully sent, or a share-out not sent. A
+  /// book never linked is not counted — it has nowhere to sync to, and signing
+  /// out does not touch it.
+  Future<int> signOutPending() async {
+    var pending = 0;
+    final groups = await _idMap.mappings(MapEntity.group);
+    for (final localGroupId in await _meetings.localGroupIds()) {
+      if (groups[localGroupId] == null) continue;
+      for (final item in await _meetings.meetingsForGroup(localGroupId)) {
+        if (item.meeting.isOpen || await _needsSync(item.meeting)) pending++;
+      }
+      if (shareOutSync != null) {
+        pending += (await shareOutSync!.unsent(localGroupId)).length;
       }
     }
     return pending;
@@ -457,17 +609,39 @@ class AutoSyncCoordinator implements LinkProposalSource {
           } catch (e) {
             log.warn('autosync', 'Server members did not pull: $e');
           }
-          // Before any loan is pushed, so the server prices it at the rate the
-          // phone quoted the borrower.
+          // Before any loan is pushed, so the server prices it at the rate and
+          // interest type the phone quoted the borrower.
           try {
-            await pushPolicyIfUnset(localGroupId, remoteGroupId);
+            await syncGroupRules(localGroupId, remoteGroupId);
           } catch (e) {
-            log.warn('autosync', 'Loan rules did not sync: $e');
+            log.warn('autosync', 'Group rules did not sync: $e');
           }
         }
         final items = await _meetings.meetingsForGroup(localGroupId);
-        records += await _pushMeetingsAndShareOuts(
-            localGroupId, [for (final item in items) item.meeting]);
+        // A meeting in progress on this phone: the server is told it started,
+        // so the console and welfare see it as being held. Its records go up
+        // when it closes, as before.
+        for (final item in items) {
+          if (!item.meeting.isOpen) continue;
+          try {
+            await _writeSync.ensureRemoteMeeting(item.meeting);
+          } catch (e) {
+            log.warn('autosync', 'Open meeting not reported: $e');
+          }
+        }
+        if (remoteGroupId != null && scheduleSync != null) {
+          try {
+            final group = await linkSupport?.currentGroup();
+            if (group != null && group.id == localGroupId) {
+              records += await scheduleSync!.syncGroup(group, remoteGroupId);
+            }
+          } catch (e) {
+            log.warn('autosync', 'Meeting plans did not sync: $e');
+          }
+        }
+        records += await _pushMeetingsAndShareOuts(localGroupId, [
+          for (final item in items) item.meeting,
+        ]);
       } catch (e) {
         log.warn('autosync', 'Group $localGroupId did not sync: $e');
       }
@@ -502,7 +676,9 @@ class AutoSyncCoordinator implements LinkProposalSource {
   ///
   /// Returns how many records the backend accepted.
   Future<int> _pushMeetingsAndShareOuts(
-      String localGroupId, List<Meeting> meetings) async {
+    String localGroupId,
+    List<Meeting> meetings,
+  ) async {
     var records = 0;
     final ordered = [...meetings]
       ..sort((a, b) => _timeOf(a).compareTo(_timeOf(b)));

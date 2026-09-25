@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../../core/database/app_database.dart';
 import '../../core/network/api_exception.dart';
 import '../../core/theme/app_colors.dart';
-import '../../core/utils/app_settings.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/loan.dart';
 import '../../data/repositories/id_map_repository.dart';
@@ -50,7 +49,6 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
     if (!mounted) return;
     final rate =
         await context.read<MemberProvider>().attendanceRate(widget.memberId);
-    final accountsEnabled = await AppSettings.memberAccountsEnabled();
     final remoteMemberId =
         await _idMap.remoteId(MapEntity.member, widget.memberId);
     String? remoteGroupId;
@@ -64,6 +62,19 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
           .groupId;
       if (groupId != null) {
         remoteGroupId = await _idMap.remoteId(MapEntity.group, groupId);
+      }
+    }
+    // The GROUP's switch, held on the server (Edit group set-up). Offline or
+    // unlinked it is unknown, and the sign-in card stays out of the way.
+    var accountsEnabled = false;
+    if (mounted && remoteGroupId != null) {
+      final connection = context.read<ConnectionProvider>();
+      if (connection.isConnected) {
+        try {
+          accountsEnabled = await connection.api.memberAccountsEnabled(remoteGroupId);
+        } on ApiException {
+          accountsEnabled = false;
+        }
       }
     }
     if (mounted) {
@@ -85,17 +96,42 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
       builder: (_) => _AccountPasswordSheet(memberName: memberName),
     );
     if (password == null || !mounted) return;
+    final l10n = L10n.of(context);
     setState(() => _creatingAccount = true);
     try {
-      await connection.api.createMemberAccount(
+      final linked = await connection.api.createMemberAccount(
         _remoteGroupId!,
         _remoteMemberId!,
         password: password,
       );
       if (mounted) {
-        showAppSnack(context,
-            '$memberName can now sign in with their phone number.');
+        showAppSnack(
+          context,
+          linked ? l10n.memberDetailSignInLinked(memberName) : l10n.memberDetailSignInCreated(memberName),
+        );
       }
+    } on ApiException catch (e) {
+      if (mounted) showAppSnack(context, e.message, error: true);
+    } finally {
+      if (mounted) setState(() => _creatingAccount = false);
+    }
+  }
+
+  /// A member who forgot their password gets a new starting one, handed over
+  /// in person like the first.
+  Future<void> _resetPassword(String memberName) async {
+    final connection = context.read<ConnectionProvider>();
+    final l10n = L10n.of(context);
+    final password = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => _AccountPasswordSheet(memberName: memberName),
+    );
+    if (password == null || !mounted) return;
+    setState(() => _creatingAccount = true);
+    try {
+      await connection.api.resetMemberPassword(_remoteGroupId!, _remoteMemberId!, password: password);
+      if (mounted) showAppSnack(context, l10n.memberDetailPasswordReset(memberName));
     } on ApiException catch (e) {
       if (mounted) showAppSnack(context, e.message, error: true);
     } finally {
@@ -182,12 +218,12 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
                     child: Column(
                       children: [
                         KeyValueRow(
-                          'Total savings',
+                          'Total paid in (shares)',
                           Formatters.money(financials!.totalSavings),
                           emphasize: true,
                         ),
                         KeyValueRow(
-                            'Shares held', '${financials.totalShares}'),
+                            'Share count', '${financials.totalShares}'),
                         KeyValueRow('Active loan balance',
                             Formatters.money(financials.activeLoanBalance)),
                         KeyValueRow(
@@ -199,7 +235,7 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
                   ),
                 ),
                 if (_memberAccountsEnabled) ...[
-                  const SectionLabel('Sign-in account'),
+                  SectionLabel(l10n.memberDetailSignInSection),
                   Card(
                     child: Padding(
                       padding: const EdgeInsets.all(14),
@@ -208,21 +244,32 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
                         children: [
                           Text(
                             _canCreateAccount
-                                ? 'Give ${member.name} their own sign-in so '
-                                    'they can see their savings and loans on '
-                                    'their own phone.'
+                                ? l10n.memberDetailSignInExplain(member.name)
                                 : l10n.memberDetailToCreateASignInAccount,
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                           const SizedBox(height: 10),
-                          OutlinedButton.icon(
-                            onPressed: _canCreateAccount && !_creatingAccount
-                                ? () => _createAccount(member.name)
-                                : null,
-                            icon: const Icon(Icons.person_add_alt, size: 18),
-                            label: Text(_creatingAccount
-                                ? 'Creating…'
-                                : 'Create Sign-In Account'),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              OutlinedButton.icon(
+                                onPressed: _canCreateAccount && !_creatingAccount
+                                    ? () => _createAccount(member.name)
+                                    : null,
+                                icon: const Icon(Icons.person_add_alt, size: 18),
+                                label: Text(_creatingAccount
+                                    ? l10n.memberDetailCreatingSignIn
+                                    : l10n.memberDetailCreateSignIn),
+                              ),
+                              TextButton.icon(
+                                onPressed: _canCreateAccount && !_creatingAccount
+                                    ? () => _resetPassword(member.name)
+                                    : null,
+                                icon: const Icon(Icons.lock_reset, size: 18),
+                                label: Text(l10n.memberDetailResetSignIn),
+                              ),
+                            ],
                           ),
                         ],
                       ),

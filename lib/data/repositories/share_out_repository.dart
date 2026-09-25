@@ -5,6 +5,7 @@ import '../../core/utils/domain_exception.dart';
 import '../../core/utils/share_out_calculator.dart';
 import '../models/enums.dart';
 import '../models/group.dart';
+import 'loan_repository.dart';
 import 'sync_repository.dart';
 
 /// One member's stored share-out payout.
@@ -66,11 +67,10 @@ class ShareOutRepository {
     final gid = group.id;
     final start = group.cycleStartDate.toIso8601String();
 
-    // Per-member share contributions and outstanding loan balances this cycle.
+    // Per-member share contributions this cycle.
     final memberRows = await db.rawQuery('''
       SELECT m.id AS member_id, m.name AS member_name,
-             COALESCE(sp.total, 0) AS shares,
-             COALESCE(lo.outstanding, 0) AS outstanding
+             COALESCE(sp.total, 0) AS shares
       FROM members m
       LEFT JOIN (
         SELECT sp.member_id, SUM(sp.amount) AS total
@@ -79,16 +79,6 @@ class ShareOutRepository {
         WHERE mt.group_id = ?1 AND sp.created_at > ?2
         GROUP BY sp.member_id
       ) sp ON sp.member_id = m.id
-      LEFT JOIN (
-        SELECT l.member_id,
-               SUM(l.total_due) - COALESCE(SUM(r.repaid), 0) AS outstanding
-        FROM loans l
-        LEFT JOIN (SELECT loan_id, SUM(amount) AS repaid
-                   FROM loan_repayments GROUP BY loan_id) r ON r.loan_id = l.id
-        WHERE l.group_id = ?1 AND l.status IN ('active', 'defaulted')
-          AND l.disbursed_at > ?2
-        GROUP BY l.member_id
-      ) lo ON lo.member_id = m.id
       WHERE m.group_id = ?1 AND m.is_active = 1
       ORDER BY m.name COLLATE NOCASE
     ''', [gid, start]);
@@ -114,10 +104,20 @@ class ShareOutRepository {
            WHERE w.group_id = ?1 AND w.created_at > ?2) AS welfare_spent
     ''', [gid, start])).first;
 
+    // What every member owes TODAY on every open loan — including one carried
+    // over from an earlier cycle, which used to be left out of the netting and
+    // never settled. Month by month, the same rule as the server.
+    final now = DateTime.now();
+    final owedCents = <String, int>{};
+    for (final loan in await LoanRepository.openLoans(db, gid)) {
+      owedCents[loan.memberId] =
+          (owedCents[loan.memberId] ?? 0) + loan.positionAsOf(now).outstandingCents;
+    }
+
     final members = <ShareOutMember>[];
     var totalOutstandingCents = 0;
     for (final row in memberRows) {
-      final outstanding = _cents((row['outstanding'] as num).toDouble());
+      final outstanding = owedCents[row['member_id'] as String] ?? 0;
       totalOutstandingCents += outstanding;
       members.add(ShareOutMember(
         memberId: row['member_id'] as String,
@@ -192,7 +192,6 @@ class ShareOutRepository {
     final db = await _db.database;
     final now = DateTime.now();
     final nowIso = now.toIso8601String();
-    final start = group.cycleStartDate.toIso8601String();
     final nextGroup = group.copyWith(
       cycleNumber: group.cycleNumber + 1,
       cycleStartDate: now,
@@ -228,28 +227,21 @@ class ShareOutRepository {
 
       // 2. Settle the cycle's outstanding loans — their balance was netted off
       // each member's payout, so record a settling repayment and close them.
-      final openLoans = await txn.rawQuery('''
-        SELECT l.id, l.total_due, COALESCE(r.repaid, 0) AS repaid
-        FROM loans l
-        LEFT JOIN (SELECT loan_id, SUM(amount) AS repaid
-                   FROM loan_repayments GROUP BY loan_id) r ON r.loan_id = l.id
-        WHERE l.group_id = ?1 AND l.status IN ('active', 'defaulted')
-          AND l.disbursed_at > ?2
-      ''', [group.id, start]);
-      for (final loan in openLoans) {
-        final remaining = (loan['total_due'] as num).toDouble() -
-            (loan['repaid'] as num).toDouble();
-        if (remaining > 0.005) {
+      // Every open loan, whichever cycle it was lent in: never carried forward.
+      final settleAt = DateTime.parse(nowIso);
+      for (final loan in await LoanRepository.openLoans(txn, group.id)) {
+        final remainingCents = loan.positionAsOf(settleAt).outstandingCents;
+        if (remainingCents > 0) {
           await txn.insert('loan_repayments', {
             'id': _uuid.v4(),
-            'loan_id': loan['id'],
+            'loan_id': loan.id,
             'meeting_id': null,
-            'amount': remaining,
+            'amount': remainingCents / 100,
             'paid_at': nowIso,
           });
         }
         await txn.update('loans', {'status': LoanStatus.repaid.name},
-            where: 'id = ?', whereArgs: [loan['id']]);
+            where: 'id = ?', whereArgs: [loan.id]);
       }
 
       // 3. Roll the group into the next cycle.

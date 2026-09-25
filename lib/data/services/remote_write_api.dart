@@ -11,17 +11,67 @@ class RemoteWriteApi {
 
   final ApiClient _client;
 
-  /// `POST /groups/:groupId/meetings` — returns the new backend meeting id.
+  /// `POST /groups/:groupId/meetings` — returns the backend meeting id.
+  ///
+  /// With [adoptScheduled], a meeting started on the phone takes over the
+  /// group's scheduled meeting for that day (if it has nothing recorded in it)
+  /// instead of making a second one; the server returns that meeting's id.
   Future<String> createMeeting({
     required String groupId,
     required String title,
     required DateTime scheduledAt,
+    bool adoptScheduled = false,
+    String? source,
   }) async {
     final data = await _client.postData('/groups/$groupId/meetings', body: {
       'title': title,
       'scheduledAt': scheduledAt.toUtc().toIso8601String(),
+      if (adoptScheduled) 'adoptScheduled': true,
+      if (source != null) 'source': source,
     });
     return (data as Map<String, dynamic>)['id'] as String;
+  }
+
+  /// `POST /groups/:groupId/meetings/:meetingId/phone-lifecycle` — tells the
+  /// server what a person did on the phone: STARTED or CLOSED. Safe to resend.
+  Future<void> reportMeetingLifecycle({
+    required String groupId,
+    required String meetingId,
+    required String event,
+    required DateTime at,
+  }) async {
+    await _client.postData(
+      '/groups/$groupId/meetings/$meetingId/phone-lifecycle',
+      body: {'event': event, 'at': at.toUtc().toIso8601String()},
+    );
+  }
+
+  /// `POST /groups/:groupId/meetings/:meetingId/cancel` — an official cancels
+  /// a scheduled meeting that did not happen.
+  Future<void> cancelMeeting({
+    required String groupId,
+    required String meetingId,
+    required String reason,
+  }) async {
+    await _client.postData('/groups/$groupId/meetings/$meetingId/cancel',
+        body: {'reason': reason});
+  }
+
+  /// `PUT /groups/:groupId/meeting-schedule` — the group's meeting days and
+  /// time, which the server uses only to remind members.
+  Future<void> putMeetingSchedule({
+    required String groupId,
+    required String frequency,
+    required List<int> days,
+    required String time,
+    required bool remindersEnabled,
+  }) async {
+    await _client.putData('/groups/$groupId/meeting-schedule', body: {
+      'frequency': frequency,
+      'days': days,
+      'time': time,
+      'remindersEnabled': remindersEnabled,
+    });
   }
 
   /// `POST /groups/:groupId/members/sync` — sends a member this phone knows
@@ -147,9 +197,15 @@ class LedgerEntryInput {
     this.description,
     this.externalReference,
     required this.clientRequestId,
+    this.loan,
   });
 
   final String memberId;
+
+  /// For a disbursement: the terms the loan was agreed at on this phone
+  /// ({termMonths, interestRateBps, interestType}), so the server records the
+  /// same loan rather than applying its current default.
+  final Map<String, Object>? loan;
 
   /// SHARE_PURCHASE | SOCIAL_CONTRIBUTION | LOAN_REPAYMENT |
   /// INTERNAL_LOAN_DISBURSEMENT | SHARE_OUT_PAYOUT
@@ -163,6 +219,7 @@ class LedgerEntryInput {
         'memberId': memberId,
         'type': type,
         'amountCents': amountCents,
+        if (loan != null) 'loan': loan,
         if (description != null && description!.isNotEmpty)
           'description': description,
         if (externalReference != null && externalReference!.isNotEmpty)

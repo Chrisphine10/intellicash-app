@@ -37,11 +37,12 @@ class _AgentReportScreenState extends State<AgentReportScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.ratings != null) {
-      _ratings.addAll(widget.ratings!);
-    } else {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _loadRatings());
-    }
+    // Ratings handed over by the caseload screen show at once, but the
+    // server's report is still fetched: it carries the caseload's money and
+    // its own judgement on which groups need a visit. It used to be skipped
+    // whenever ratings were passed in - which was always.
+    if (widget.ratings != null) _ratings.addAll(widget.ratings!);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadRatings());
   }
 
   Future<void> _loadRatings() async {

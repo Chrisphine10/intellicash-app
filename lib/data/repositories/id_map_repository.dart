@@ -27,6 +27,11 @@ abstract final class MapEntity {
   /// `pending` (the signal went first; tried again on the next sync), `done`, or
   /// `skipped` (the phone had already recorded meetings of its own).
   static const groupHistory = 'group_history';
+
+  /// The meeting days and time last sent for a group, as a signature, so the
+  /// schedule is sent again only when an official changes it. The local id is
+  /// the local group id.
+  static const meetingScheduleRule = 'meeting_schedule_rule';
 }
 
 /// A conflict the backend reported for a synced record.

@@ -17,33 +17,22 @@ void main() {
       );
     });
 
-    test('reducing balance charges interest on the declining principal', () {
-      // 5,000 at 5% reducing over 3 months -> interest = P*r*(n+1)/2 = 500
-      expect(
-        LoanCalculator.totalDue(
-          principal: 5000,
-          monthlyRatePercent: 5,
-          termMonths: 3,
-          type: InterestType.reducingBalance,
-        ),
-        5500,
-      );
-    });
-
-    test('reducing balance is cheaper than flat for the same terms', () {
-      final flat = LoanCalculator.totalDue(
-        principal: 10000,
-        monthlyRatePercent: 5,
-        termMonths: 6,
-        type: InterestType.flat,
-      );
-      final reducing = LoanCalculator.totalDue(
-        principal: 10000,
-        monthlyRatePercent: 5,
-        termMonths: 6,
-        type: InterestType.reducingBalance,
-      );
-      expect(reducing, lessThan(flat));
+    test('the at-term maximum is the same for flat and reducing balance', () {
+      // Nothing repaid: every month is charged on the full principal either
+      // way (5,000 x 5% x 3 = 750). Reducing balance only costs less once
+      // principal is repaid — worked out month by month by LoanAccrual and
+      // checked in loan_accrual_fixture_test.dart.
+      for (final type in InterestType.values) {
+        expect(
+          LoanCalculator.totalDue(
+            principal: 5000,
+            monthlyRatePercent: 5,
+            termMonths: 3,
+            type: type,
+          ),
+          5750,
+        );
+      }
     });
 
     test('zero rate charges no interest', () {

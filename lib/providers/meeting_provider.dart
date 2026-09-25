@@ -115,6 +115,12 @@ class MeetingProvider extends ChangeNotifier {
   }
 
   /// Member ids who have paid the social fund in the active meeting.
+  /// What this meeting's social fund actually recorded, in shillings.
+  Future<double> socialFundCollected() {
+    final meeting = _requireMeeting();
+    return _repository.socialFundCollected(meeting.id);
+  }
+
   Future<Set<String>> socialFundPayers() {
     final meeting = _requireMeeting();
     return _repository.socialFundPayers(meeting.id);
