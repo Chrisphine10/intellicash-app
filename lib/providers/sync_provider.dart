@@ -159,7 +159,7 @@ class SyncProvider extends ChangeNotifier {
   /// Syncs the group's complete local record. Returns a summary.
   Future<String> syncClosedMeetings(String localGroupId) async {
     if (_remoteGroupId == null) {
-      _error = 'Link the group to the backend first.';
+      _error = 'Link this group to its online record first.';
       notifyListeners();
       return _error!;
     }

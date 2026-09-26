@@ -106,7 +106,9 @@ void main() {
     test('takes every figure from the statement, nothing re-added on the phone', () {
       final r = GroupReport.fromJson(withStatement());
       expect(r.totalSavings, 10000);
-      expect(r.socialFund, 150);
+      // The fund as it stands (the statement's closing balance), as the web
+      // shows it: 150 in, 100 in fines, 200 of welfare paid = 50.
+      expect(r.socialFund, 50);
       expect(r.fines, 100);
       expect(r.loansGivenOut, 1000);
       expect(r.loansRepaid, 300);

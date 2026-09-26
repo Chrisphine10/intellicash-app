@@ -264,7 +264,7 @@ class _LinkSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SectionLabel('Link to a backend group'),
+        const SectionLabel('Link to the online group'),
         if (remoteGroups.isEmpty)
           EmptyState(
             icon: Icons.groups_outlined,

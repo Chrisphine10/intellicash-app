@@ -293,8 +293,9 @@ class ApiClient {
           'The server took too long to respond. Check the connection and try again.');
     } catch (e) {
       log.warn('api', 'POST $path -> transport failure', e);
+      // Read by a treasurer with one bar of signal, not by a developer.
       throw const ApiException(
-          'Could not reach the server. Confirm the base URL and that the backend is running.');
+          'Could not reach IntelliCash. Check your internet connection and try again.');
     }
 
     Map<String, dynamic> decoded;
@@ -302,14 +303,14 @@ class ApiClient {
       final parsed = response.body.isEmpty ? {} : jsonDecode(response.body);
       decoded = parsed is Map<String, dynamic> ? parsed : {};
     } on FormatException {
-      throw ApiException('The server returned an unexpected response (${response.statusCode}).',
+      throw ApiException('Something went wrong on our side. Please try again in a moment.',
           statusCode: response.statusCode);
     }
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
       final token = _sessionTokenFrom(response.headers['set-cookie']);
       if (token == null) {
-        throw const ApiException('Signed in, but the server returned no session.');
+        throw const ApiException('Signing in did not finish. Please try again.');
       }
       log.info('api', 'POST $path -> ${response.statusCode} (signed in)');
       return (user: (decoded['data'] as Map<String, dynamic>), sessionToken: token);

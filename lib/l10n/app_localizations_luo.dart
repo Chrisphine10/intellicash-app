@@ -2292,4 +2292,18 @@ class L10nLuo extends L10n {
   @override
   String get localVaultExportFailed =>
       'This copy could not be exported. Try again.';
+
+  @override
+  String get meetingHistoryPendingTitle =>
+      'The group\'s history is still coming';
+
+  @override
+  String get meetingHistoryPendingBody =>
+      'Earlier meetings, savings and loans from the online record have not finished coming onto this phone. If a meeting is started now, they can no longer be added underneath it. Connect to the internet and wait a moment, or start anyway.';
+
+  @override
+  String get meetingHistoryPendingWait => 'Wait for it';
+
+  @override
+  String get meetingHistoryPendingStartAnyway => 'Start anyway';
 }

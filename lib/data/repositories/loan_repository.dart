@@ -228,40 +228,75 @@ class LoanRepository {
     }
 
     final paidAt = DateTime.now();
-    final repayment = LoanRepayment(
-      id: _uuid.v4(),
-      loanId: loan.id,
-      meetingId: meetingId,
-      amount: amount,
-      paidAt: paidAt,
-    );
 
-    final after = loan.copyWith(
-      amountRepaid: loan.amountRepaid + amount,
-      repayments: [...loan.repayments, LoanMoney(paidAt, (amount * 100).round())],
-    );
-    final fullyRepaid = after.positionAsOf(paidAt).settled;
+    // The server's rule, so both hold the same balances: a member's payment
+    // clears their OLDEST open loan first and rolls onto the next. (Which
+    // loan a payment settles decides when that loan stops charging interest,
+    // so paying the newer loan here while the server paid the older one made
+    // the two disagree about what the member owed.) One repayment row per loan
+    // it reaches; the server replays them the same way.
+    final open = (await loansForMember(loan.memberId))
+        .where((l) => l.status == LoanStatus.active || l.status == LoanStatus.defaulted)
+        .toList()
+      ..sort((a, b) {
+        final byDate = a.disbursedAt.compareTo(b.disbursedAt);
+        return byDate != 0 ? byDate : a.id.compareTo(b.id);
+      });
+    var remaining = (amount * 100).round();
+    final slices = <(Loan, LoanRepayment, bool)>[];
+    for (final target in open) {
+      if (remaining <= 0) break;
+      final owed = target.positionAsOf(paidAt).outstandingCents;
+      if (owed <= 0) continue;
+      final take = remaining < owed ? remaining : owed;
+      remaining -= take;
+      final repayment = LoanRepayment(
+        id: _uuid.v4(),
+        loanId: target.id,
+        meetingId: meetingId,
+        amount: take / 100,
+        paidAt: paidAt,
+      );
+      final after = target.copyWith(
+        repayments: [...target.repayments, LoanMoney(paidAt, take)],
+      );
+      slices.add((target, repayment, after.positionAsOf(paidAt).settled));
+    }
+    if (slices.isEmpty) {
+      throw const DomainException('This loan is already repaid.');
+    }
+
     final db = await _db.database;
     await db.transaction((txn) async {
-      await txn.insert('loan_repayments', repayment.toMap());
-      if (fullyRepaid) {
-        await txn.update(
-          'loans',
-          {'status': LoanStatus.repaid.name},
-          where: 'id = ?',
-          whereArgs: [loan.id],
+      for (final (target, repayment, settled) in slices) {
+        await txn.insert('loan_repayments', repayment.toMap());
+        if (settled) {
+          await txn.update(
+            'loans',
+            {'status': LoanStatus.repaid.name},
+            where: 'id = ?',
+            whereArgs: [target.id],
+          );
+        }
+        await SyncRepository.enqueue(
+          txn,
+          entityType: 'loan_repayment',
+          entityId: repayment.id,
+          operation: 'create',
+          payload: repayment.toMap(),
         );
       }
-      await SyncRepository.enqueue(
-        txn,
-        entityType: 'loan_repayment',
-        entityId: repayment.id,
-        operation: 'create',
-        payload: repayment.toMap(),
-      );
     });
 
-    return after.copyWith(status: fullyRepaid ? LoanStatus.repaid : loan.status);
+    return (await loanById(loan.id))!;
+  }
+
+  /// What [memberId] owes today across every open loan, interest so far included.
+  Future<double> owedByMember(String memberId) async {
+    final now = DateTime.now();
+    final open = (await loansForMember(memberId))
+        .where((l) => l.status == LoanStatus.active || l.status == LoanStatus.defaulted);
+    return open.fold<int>(0, (sum, l) => sum + l.positionAsOf(now).outstandingCents) / 100;
   }
 
   Future<List<LoanRepayment>> repaymentsForLoan(String loanId) async {

@@ -6,6 +6,7 @@ import '../../data/services/member_matching.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/member_provider.dart';
 import '../../shared/widgets/common.dart';
+import '../../core/utils/user_message.dart';
 
 /// Correct a member's name or phone number.
 ///
@@ -107,7 +108,7 @@ class _EditMemberSheetState extends State<EditMemberSheet> {
       if (!mounted) return;
       setState(() {
         _saving = false;
-        _error = '$error';
+        _error = userMessage(error);
       });
     }
   }

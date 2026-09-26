@@ -68,6 +68,9 @@ class LoanProvider extends ChangeNotifier {
 
   Future<Loan?> loanById(String loanId) => _repository.loanById(loanId);
 
+  /// Everything a member owes today across their open loans.
+  Future<double> owedByMember(String memberId) => _repository.owedByMember(memberId);
+
   Future<List<Loan>> loansForMember(String memberId) =>
       _repository.loansForMember(memberId);
 

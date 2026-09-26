@@ -191,7 +191,9 @@ void main() {
     expect(summary.memberCount, 3);
     expect(summary.meetingCount, 2);
     expect(summary.finesCollected, 50);
-    expect(summary.socialFund, 100);
+    // The fund as it stands, as the server's statement shows it: 100 paid in
+    // plus the 50 fine, no welfare paid out yet.
+    expect(summary.socialFund, 150);
     expect(summary.trend, hasLength(2));
     expect(summary.trend.first.cumulativeSavings, 1600);
 

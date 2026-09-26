@@ -40,10 +40,20 @@ class DashboardRepository {
           WHERE m.group_id = ?1
             AND f.created_at > (SELECT cycle_start_date FROM groups WHERE id = ?1))
           AS fines_collected,
+        -- The social fund as it STANDS, like the server's statement: every
+        -- contribution and fine ever paid in, less welfare paid out and any
+        -- welfare shared out. It is a running fund, not a cycle's takings:
+        -- a float the group kept at share-out is still in it.
         (SELECT COALESCE(SUM(sf.amount), 0) FROM social_fund_entries sf
           JOIN meetings m ON m.id = sf.meeting_id
-          WHERE m.group_id = ?1
-            AND sf.created_at > (SELECT cycle_start_date FROM groups WHERE id = ?1))
+          WHERE m.group_id = ?1)
+        + (SELECT COALESCE(SUM(f.amount), 0) FROM fines f
+          JOIN meetings m ON m.id = f.meeting_id
+          WHERE m.group_id = ?1)
+        - (SELECT COALESCE(SUM(w.amount), 0) FROM welfare_expenses w
+          WHERE w.group_id = ?1)
+        - (SELECT COALESCE(SUM(p.welfare_payout), 0) FROM share_out_payouts p
+          WHERE p.group_id = ?1)
           AS social_fund
     ''', [groupId]);
 

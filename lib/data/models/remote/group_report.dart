@@ -132,7 +132,10 @@ class GroupReport {
     return GroupReport(
       generatedAt: DateTime.tryParse('${json['generatedAt']}'),
       totalSavings: kes(loanFund, 'sharesCents'),
-      socialFund: kes(socialFund, 'contributionsCents'),
+      // The fund as it stands (contributions and fines, less welfare paid),
+      // as the web statement and the phone's own dashboard show it - not the
+      // contributions alone, which made one tile mean three things.
+      socialFund: kes(socialFund, 'closingCents'),
       fines: kes(socialFund, 'finesCents'),
       loansGivenOut: kes(loanFund, 'disbursedCents'),
       loansRepaid: kes(loanFund, 'repaymentsCents'),

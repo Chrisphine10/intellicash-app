@@ -456,7 +456,14 @@ Future<void> main() async {
               store: CredentialStore(),
               api: remoteApi,
               applyCredentials: (creds) => liveCredentials = creds,
-              pendingLocalWork: autoSync.accountSwitchPending,
+              // Everything a switch would wipe: meetings and share-outs, a
+              // roster not yet online, unsent offices and rules, and - as
+              // for sign-out - visits, photos and mentorship.
+              pendingLocalWork: () async =>
+                  await autoSync.accountSwitchPending() +
+                  await visitSync.pendingCount() +
+                  await attachmentSync.pendingCount() +
+                  await mentorshipSync.pendingCount(),
               syncPreviousAccount: syncService.pushNow,
               archiveLocalWorkspace: () async {
                 await localDataVault.archive(label: 'Account switch backup');

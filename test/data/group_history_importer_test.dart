@@ -21,6 +21,7 @@ import 'package:intellicash_mobile/data/services/group_history_importer.dart';
 import 'package:intellicash_mobile/data/services/group_restore_service.dart';
 import 'package:intellicash_mobile/data/services/remote_write_api.dart';
 import 'package:intellicash_mobile/data/services/share_out_sync_service.dart';
+import 'package:intellicash_mobile/data/services/write_sync_service.dart';
 
 /// A treasurer changes phone. The group, its members and its settings come back
 /// - and, until this, nothing else: no savings, no loans, no meetings, so the
@@ -430,6 +431,105 @@ void main() {
     expect(group.interestRate, 10.0);
   });
 
+  test('a meeting restored while still open sends what is added to it afterwards, and only that', () async {
+    // Data-loss fix (25 Sep 2026): the open meeting used to be recorded as
+    // already backed up, so shares recorded in it after the restore never
+    // reached the server; and re-sending it whole would have duplicated the
+    // rows that came FROM the server.
+    final phone = await freshPhone();
+    await importer.import(
+      localGroupId: phone.group.id,
+      remoteGroupId: 'remote-g',
+      bundle: bundle(meetings: [
+        RestoreMeeting(id: 'r-m1', title: 'Meeting #1', scheduledAt: days(-60), status: 'SEALED', closedAt: days(-60), cycleNumber: 1),
+        RestoreMeeting(id: 'r-m2', title: 'Meeting #2', scheduledAt: days(10), status: 'IN_PROGRESS', closedAt: null, cycleNumber: 2),
+      ]),
+      localMemberFor: phone.memberFor,
+    );
+
+    final database = await db.database;
+    final open = (await database.query('meetings', where: "status = 'open'")).single;
+    expect(await idMap.remoteId(MapEntity.meeting, open['id'] as String), isNull,
+        reason: 'not backed up: what is recorded from now on exists only here');
+    expect(await idMap.remoteId(MapEntity.meetingTwin, open['id'] as String), 'r-m2');
+
+    // Brian buys shares at the meeting after the phone was restored.
+    await idMap.put(MapEntity.member, phone.memberFor['r-alice']!, 'r-alice', groupId: 'remote-g');
+    await idMap.put(MapEntity.member, phone.memberFor['r-brian']!, 'r-brian', groupId: 'remote-g');
+    await database.insert('share_purchases', {
+      'id': 'after-restore',
+      'meeting_id': open['id'],
+      'member_id': phone.memberFor['r-brian'],
+      'shares': 2,
+      'unit_value': 500.0,
+      'amount': 1000.0,
+      'payment_method': 'cash',
+      'created_at': DateTime.now().toIso8601String(),
+    });
+
+    final api = _RecordingWriteApi();
+    final meeting = (await MeetingRepository(db).meetingsForGroup(phone.group.id))
+        .map((item) => item.meeting)
+        .firstWhere((m) => m.id == open['id']);
+    await WriteSyncService(db: db, idMap: idMap, writeApi: api).syncMeeting(meeting);
+
+    expect(api.meetingIds, everyElement('r-m2'), reason: 'into the server meeting it came from');
+    expect(api.sent.map((e) => e.clientRequestId), ['shr-after-restore'],
+        reason: "Alice's 1,000 came from the server and is not sent back");
+    expect(api.createdMeetings, 0);
+  });
+
+  test('one payment that cleared two loans is split across both, as the server applied it', () async {
+    final phone = await freshPhone();
+    RestoreLoan loan(String id, String entryId, int cents, DateTime at) => RestoreLoan(
+          id: id,
+          memberId: 'r-brian',
+          cycleNumber: 2,
+          principalCents: cents,
+          interestRateBps: 0,
+          termMonths: 3,
+          disbursedAt: at,
+          dueAt: at.add(const Duration(days: 90)),
+          status: 'REPAID',
+          disbursementEntryId: entryId,
+        );
+    await importer.import(
+      localGroupId: phone.group.id,
+      remoteGroupId: 'remote-g',
+      bundle: RestoreBundle(
+        cycleNumber: 2,
+        cycleStartedAt: t0,
+        policyConfigured: true,
+        loanInterestRateBps: 0,
+        defaultLoanTermMonths: 3,
+        meetings: [
+          RestoreMeeting(id: 'r-m1', title: 'Meeting #1', scheduledAt: days(1), status: 'SEALED', closedAt: days(1), cycleNumber: 2),
+        ],
+        attendance: const [],
+        loans: [loan('l-old', 'e-old', 30000, days(1, 9)), loan('l-new', 'e-new', 25000, days(1, 10))],
+        entries: [
+          entry('e-old', 'INTERNAL_LOAN_DISBURSEMENT', 30000, meeting: 'r-m1', member: 'r-brian', cycle: 2, at: days(1, 9), direction: 'DEBIT'),
+          entry('e-new', 'INTERNAL_LOAN_DISBURSEMENT', 25000, meeting: 'r-m1', member: 'r-brian', cycle: 2, at: days(1, 10), direction: 'DEBIT'),
+          // One payment of 550.00 whose ledger row points at the old loan only.
+          entry('e-pay', 'LOAN_REPAYMENT', 55000, meeting: 'r-m1', member: 'r-brian', loan: 'l-old', cycle: 2, at: days(1, 11)),
+        ],
+        allocations: const [
+          RestoreAllocation(repaymentEntryId: 'e-pay', loanId: 'l-old', cents: 30000),
+          RestoreAllocation(repaymentEntryId: 'e-pay', loanId: 'l-new', cents: 25000),
+        ],
+      ),
+      localMemberFor: phone.memberFor,
+    );
+
+    final loans = await LoanRepository(db).loansForMember(phone.memberFor['r-brian']!);
+    expect(loans, hasLength(2));
+    expect(loans.every((l) => l.outstanding == 0), isTrue,
+        reason: 'both cleared, as the server says - not 250.00 still owed on the newer one');
+    final database = await db.database;
+    final rows = await database.query('loan_repayments');
+    expect(rows.map((r) => r['amount']).toList()..sort(), [250.0, 300.0]);
+  });
+
   group('through "Load my group"', () {
     late _FakeRestoreApi api;
     late GroupRestoreService service;
@@ -666,5 +766,53 @@ class _FakeRestoreApi implements RemoteApiLike {
   Future<RestoreBundle?> restoreBundle(String groupId) async {
     if (bundleThrows) throw Exception('no signal');
     return noBundle ? null : _bundle;
+  }
+}
+
+/// Records what a meeting sync sends, with no network.
+class _RecordingWriteApi extends RemoteWriteApi {
+  _RecordingWriteApi()
+      : super(ApiClient(credentials: () => const ApiCredentials(baseUrl: '', apiKey: '')));
+
+  final List<LedgerEntryInput> sent = [];
+  final List<String> meetingIds = [];
+  int createdMeetings = 0;
+
+  @override
+  Future<String> createMeeting({
+    required String groupId,
+    required String title,
+    required DateTime scheduledAt,
+    bool adoptScheduled = false,
+    String? source,
+  }) async {
+    createdMeetings++;
+    return 'created';
+  }
+
+  @override
+  Future<void> reportMeetingLifecycle({
+    required String groupId,
+    required String meetingId,
+    required String event,
+    required DateTime at,
+  }) async {}
+
+  @override
+  Future<void> putAttendance({
+    required String groupId,
+    required String meetingId,
+    required String memberId,
+    required String status,
+  }) async {}
+
+  @override
+  Future<void> postLedgerEntry({
+    required String groupId,
+    required String meetingId,
+    required LedgerEntryInput entry,
+  }) async {
+    meetingIds.add(meetingId);
+    sent.add(entry);
   }
 }

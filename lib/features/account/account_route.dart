@@ -22,9 +22,9 @@ import 'change_password_screen.dart';
 class AccountRoute extends StatelessWidget {
   const AccountRoute({super.key});
 
-  /// Kept in step with `pubspec.yaml` by the release checklist. Reading it at
+  /// Kept in step with `pubspec.yaml` (test/core/app_version_test.dart fails when it is not). Reading it at
   /// runtime would mean adding `package_info_plus` for one line of text.
-  static const appVersion = '2.6.1 (24)';
+  static const appVersion = '2.6.3 (26)';
 
   @override
   Widget build(BuildContext context) {

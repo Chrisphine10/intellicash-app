@@ -436,6 +436,21 @@ class AutoSyncCoordinator implements LinkProposalSource {
     if (apply == null) return null;
     await apply(localGroupId, remote);
     final updated = await support.currentGroup();
+    // A server policy saved before the share rules reached the server (only
+    // rate and term) is newer but incomplete. The phone keeps its own share
+    // value, social fund and multiplier for those, and gives them to the
+    // server - otherwise the server would never learn them and a restored
+    // phone would fall back to a default nobody chose.
+    final incomplete = remote.shareValueCents == null ||
+        remote.maxSharesPerMeeting == null ||
+        remote.socialFundCents == null ||
+        remote.loanMultiplierBps == null;
+    if (incomplete && updated != null && updated.id == localGroupId) {
+      final saved = await push(remoteGroupId, rulesOf(updated));
+      await support.saveRulesWatermark?.call(localGroupId, later(later(updated.updatedAt, serverAt), saved.updatedAt));
+      log.info('autosync', "Took the online loan rules and filled in this phone's share rules");
+      return 'pulled';
+    }
     await support.saveRulesWatermark?.call(localGroupId, later(updated?.updatedAt ?? serverAt, serverAt));
     log.info('autosync', 'Took the group rules set online');
     return 'pulled';
@@ -538,21 +553,46 @@ class AutoSyncCoordinator implements LinkProposalSource {
   /// still in progress (it has not been closed, so it has not been sent) and
   /// every meeting of a book not linked to the server yet: both exist nowhere
   /// but on this phone.
+  ///
+  /// Also counted, because a switch wipes them and nothing else would send
+  /// them: a book never linked that holds a roster (a group set up on this
+  /// phone and not yet online), offices changed here and not yet sent, and
+  /// group rules changed here and not yet sent. Visits, photos and mentorship
+  /// are counted by the caller from their own queues, as for sign-out.
   Future<int> accountSwitchPending() async {
     var pending = 0;
     final groups = await _idMap.mappings(MapEntity.group);
     for (final localGroupId in await _meetings.localGroupIds()) {
       final remoteGroupId = groups[localGroupId];
-      for (final item in await _meetings.meetingsForGroup(localGroupId)) {
+      final meetings = await _meetings.meetingsForGroup(localGroupId);
+      for (final item in meetings) {
         if (item.meeting.isOpen ||
             remoteGroupId == null ||
             await _needsSync(item.meeting)) {
           pending++;
         }
       }
+      if (remoteGroupId == null && meetings.isEmpty) {
+        final roster = await linkSupport?.membersForGroup(localGroupId) ?? const [];
+        if (roster.isNotEmpty) pending++;
+      }
       if (shareOutSync != null) {
         pending += (await shareOutSync!.unsent(localGroupId)).length;
       }
+    }
+
+    final support = linkSupport;
+    final since = support?.editedMembersSince;
+    if (support != null && since != null) {
+      final after = await support.roleWatermark?.call() ?? 0;
+      final edits = await since(after);
+      pending += edits.members.where((member) => groups[member.groupId] != null).length;
+    }
+    final current = await support?.currentGroup();
+    final mark = support?.rulesWatermark;
+    if (current != null && mark != null && groups[current.id] != null) {
+      final at = await mark(current.id);
+      if (at == null || current.updatedAt.isAfter(at)) pending++;
     }
     return pending;
   }

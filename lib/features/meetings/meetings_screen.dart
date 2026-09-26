@@ -3,10 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/database/app_database.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/domain_exception.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/group.dart';
+import '../../data/repositories/id_map_repository.dart';
 import '../../data/repositories/meeting_schedule_repository.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/app_state.dart';
@@ -52,6 +54,39 @@ class _MeetingsScreenState extends State<MeetingsScreen> {
     final provider = context.read<MeetingProvider>();
     final schedule = context.read<MeetingScheduleProvider>();
     final group = appState.group!;
+
+    // A restored group whose history has not finished coming: once a meeting
+    // exists on the phone the history can no longer be placed underneath it,
+    // so it would never arrive. Say so, and let the treasurer wait for it.
+    final history = await IdMapRepository(AppDatabase.instance)
+        .remoteId(MapEntity.groupHistory, group.id);
+    if (history == 'pending') {
+      if (!mounted) return;
+      final l10n = L10n.of(context);
+      final startAnyway = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(l10n.meetingHistoryPendingTitle),
+          content: Text(l10n.meetingHistoryPendingBody),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(l10n.meetingHistoryPendingWait),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(l10n.meetingHistoryPendingStartAnyway),
+            ),
+          ],
+        ),
+      );
+      if (startAnyway != true) {
+        // Try to finish it now, while the person waits.
+        unawaited(appState.syncNow());
+        return;
+      }
+    }
+    if (!mounted) return;
 
     // The 3-key gate: when on (Meeting Security settings), the meeting only
     // starts after officials/members turn their PIN keys.

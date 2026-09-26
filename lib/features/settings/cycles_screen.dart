@@ -6,6 +6,7 @@ import '../../data/services/remote_governance_api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/connection_provider.dart';
 import '../../shared/widgets/common.dart';
+import '../../core/utils/user_message.dart';
 
 /// Saving cycles.
 ///
@@ -61,7 +62,7 @@ class _CyclesScreenState extends State<CyclesScreen> {
     } catch (error) {
       if (!mounted) return;
       setState(() {
-        _error = '$error';
+        _error = userMessage(error);
         _loading = false;
       });
     }
@@ -108,7 +109,7 @@ class _CyclesScreenState extends State<CyclesScreen> {
       showAppSnack(context, message);
     } catch (error) {
       if (!mounted) return;
-      showAppSnack(context, '$error', error: true);
+      showAppSnack(context, userMessage(error), error: true);
     } finally {
       if (mounted) setState(() => _busy = false);
     }

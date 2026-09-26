@@ -103,18 +103,22 @@ class MemberRepository {
     });
   }
 
-  /// One member's lifetime contribution totals beyond savings: social fund
-  /// and fines. Backs the per-member report the group generates.
+  /// One member's contribution totals beyond savings: social fund and fines.
+  /// Backs the per-member report the group generates. With [since] (the
+  /// cycle's start) they are this cycle's, the same period as the savings
+  /// beside them on the report and as the server's passbook; without it,
+  /// every cycle.
   Future<({double social, double fines})> contributionTotals(
-      String memberId) async {
+      String memberId, {DateTime? since}) async {
     final db = await _db.database;
+    final after = since?.toIso8601String() ?? '';
     final rows = await db.rawQuery('''
       SELECT
         (SELECT COALESCE(SUM(amount), 0) FROM social_fund_entries
-          WHERE member_id = ?) AS social,
+          WHERE member_id = ?1 AND created_at > ?2) AS social,
         (SELECT COALESCE(SUM(amount), 0) FROM fines
-          WHERE member_id = ?) AS fines
-    ''', [memberId, memberId]);
+          WHERE member_id = ?1 AND created_at > ?2) AS fines
+    ''', [memberId, after]);
     final row = rows.first;
     return (
       social: ((row['social'] ?? 0) as num).toDouble(),
@@ -183,14 +187,15 @@ class MemberRepository {
     }).toList();
   }
 
-  /// Attendance rate across all meetings, 0..1, for the member detail screen.
-  Future<double> attendanceRate(String memberId) async {
+  /// Attendance rate, 0..1: across all meetings, or (with [since]) at the
+  /// meetings held since then - the cycle, for the member's report.
+  Future<double> attendanceRate(String memberId, {DateTime? since}) async {
     final db = await _db.database;
     final rows = await db.rawQuery('''
-      SELECT COUNT(*) AS total, SUM(present) AS attended
-      FROM attendance
-      WHERE member_id = ?
-    ''', [memberId]);
+      SELECT COUNT(*) AS total, SUM(a.present) AS attended
+      FROM attendance a JOIN meetings m ON m.id = a.meeting_id
+      WHERE a.member_id = ?1 AND m.date > ?2
+    ''', [memberId, since?.toIso8601String() ?? '']);
     final total = (rows.first['total'] as num?)?.toInt() ?? 0;
     if (total == 0) return 0;
     final attended = (rows.first['attended'] as num?)?.toInt() ?? 0;

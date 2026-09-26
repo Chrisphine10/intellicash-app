@@ -779,7 +779,7 @@
   "localVaultEmpty": "No saved local archives.",
   "localVaultNote": "These compressed copies stay on this phone. They are not cloud backups.",
   "localVaultRecoverTitle": "Recover this data?",
-  "localVaultRecoverBody": "Recovery replaces the current local book. It does not upload data and should only be used while signed out.",
+  "localVaultRecoverBody": "Recovery replaces the book on this phone with this archive. The current book is saved as a new archive first, so this can be undone. It is refused while anything is still waiting to go online, and nothing is uploaded.",
   "localVaultRecovered": "Local data recovered.",
   "localVaultDeleteTitle": "Delete this archive?",
   "localVaultDeleteBody": "This copy will be permanently removed from this phone.",
@@ -951,5 +951,9 @@
       }
     }
   },
-  "localVaultExportFailed": "This copy could not be exported. Try again."
+  "localVaultExportFailed": "This copy could not be exported. Try again.",
+  "meetingHistoryPendingTitle": "The group's history is still coming",
+  "meetingHistoryPendingBody": "Earlier meetings, savings and loans from the online record have not finished coming onto this phone. If a meeting is started now, they can no longer be added underneath it. Connect to the internet and wait a moment, or start anyway.",
+  "meetingHistoryPendingWait": "Wait for it",
+  "meetingHistoryPendingStartAnyway": "Start anyway"
 }

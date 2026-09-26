@@ -672,5 +672,9 @@
   "localVaultRecover": "Recover",
   "localVaultDelete": "Delete",
   "localVaultExportSubject": "IntelliCash records backup ({label})",
-  "localVaultExportFailed": "This copy could not be exported. Try again."
+  "localVaultExportFailed": "This copy could not be exported. Try again.",
+  "meetingHistoryPendingTitle": "The group's history is still coming",
+  "meetingHistoryPendingBody": "Earlier meetings, savings and loans from the online record have not finished coming onto this phone. If a meeting is started now, they can no longer be added underneath it. Connect to the internet and wait a moment, or start anyway.",
+  "meetingHistoryPendingWait": "Wait for it",
+  "meetingHistoryPendingStartAnyway": "Start anyway"
 }

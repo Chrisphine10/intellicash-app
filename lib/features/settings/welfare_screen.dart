@@ -9,6 +9,7 @@ import '../../data/services/write_sync_service.dart';
 import '../../providers/connection_provider.dart';
 import '../../providers/meeting_provider.dart';
 import '../../shared/widgets/common.dart';
+import '../../core/utils/user_message.dart';
 
 /// The welfare (social) fund — what has been paid out, and what is left.
 ///
@@ -118,7 +119,7 @@ class _WelfareScreenState extends State<WelfareScreen> {
     } catch (error) {
       if (!mounted) return;
       setState(() {
-        _error = '$error';
+        _error = userMessage(error);
         _loading = false;
       });
     }
@@ -198,7 +199,7 @@ class _WelfareScreenState extends State<WelfareScreen> {
       );
     } catch (error) {
       if (!mounted) return;
-      showAppSnack(context, '$error', error: true);
+      showAppSnack(context, userMessage(error), error: true);
     } finally {
       if (mounted) setState(() => _saving = false);
     }

@@ -12,6 +12,8 @@ import 'package:intellicash_mobile/data/models/meeting.dart';
 import 'package:intellicash_mobile/data/repositories/group_repository.dart';
 import 'package:intellicash_mobile/data/repositories/id_map_repository.dart';
 import 'package:intellicash_mobile/data/repositories/meeting_repository.dart';
+import 'package:intellicash_mobile/data/repositories/member_repository.dart';
+import 'package:intellicash_mobile/data/models/member.dart';
 import 'package:intellicash_mobile/data/services/auto_sync_coordinator.dart';
 import 'package:intellicash_mobile/data/services/remote_write_api.dart';
 import 'package:intellicash_mobile/data/services/write_sync_service.dart';
@@ -210,5 +212,49 @@ void main() {
     final retry = await coordinator.syncBoundGroups();
     expect(retry, 4);
     expect(writeSync.syncedMeetingIds, [first.id]);
+  });
+
+  group('before an account switch clears the phone, it counts', () {
+    AutoSyncCoordinator withSupport({
+      List<Member> edited = const [],
+      DateTime? rulesSentAt,
+    }) =>
+        AutoSyncCoordinator(
+          idMap: idMap,
+          meetings: meetings,
+          writeSync: writeSync,
+          linkSupport: GroupLinkSupport(
+            currentGroup: groups.currentGroup,
+            membersForGroup: MemberRepository(db).membersForGroup,
+            ownRemoteGroupId: () async => null,
+            remoteGroup: (_) => throw UnimplementedError(),
+            pushMember: (_, __) => throw UnimplementedError(),
+            editedMembersSince: (after) async => (members: edited, watermark: after + edited.length),
+            roleWatermark: () async => 0,
+            rulesWatermark: (_) async => rulesSentAt,
+          ),
+        );
+
+    test('a group set up on this phone and not yet online, even with no meeting', () async {
+      await seedGroup();
+      expect(await withSupport().accountSwitchPending(), 1,
+          reason: 'its roster exists nowhere else');
+    });
+
+    test('offices changed on this phone and not yet sent', () async {
+      final group = await seedGroup();
+      await idMap.put(MapEntity.group, group.id, 'remote-g', groupId: 'remote-g');
+      final roster = await MemberRepository(db).membersForGroup(group.id);
+      final coordinator = withSupport(edited: [roster.first], rulesSentAt: DateTime.now().add(const Duration(days: 1)));
+      expect(await coordinator.accountSwitchPending(), 1);
+    });
+
+    test('group rules changed on this phone and not yet sent', () async {
+      final group = await seedGroup();
+      await idMap.put(MapEntity.group, group.id, 'remote-g', groupId: 'remote-g');
+      expect(await withSupport(rulesSentAt: null).accountSwitchPending(), 1);
+      expect(await withSupport(rulesSentAt: DateTime.now().add(const Duration(days: 1))).accountSwitchPending(), 0,
+          reason: 'everything sent: nothing a switch would lose');
+    });
   });
 }

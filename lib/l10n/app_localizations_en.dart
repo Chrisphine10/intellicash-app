@@ -2033,7 +2033,7 @@ class L10nEn extends L10n {
 
   @override
   String get localVaultRecoverBody =>
-      'Recovery replaces the current local book. It does not upload data and should only be used while signed out.';
+      'Recovery replaces the book on this phone with this archive. The current book is saved as a new archive first, so this can be undone. It is refused while anything is still waiting to go online, and nothing is uploaded.';
 
   @override
   String get localVaultRecovered => 'Local data recovered.';
@@ -2299,4 +2299,18 @@ class L10nEn extends L10n {
   @override
   String get localVaultExportFailed =>
       'This copy could not be exported. Try again.';
+
+  @override
+  String get meetingHistoryPendingTitle =>
+      'The group\'s history is still coming';
+
+  @override
+  String get meetingHistoryPendingBody =>
+      'Earlier meetings, savings and loans from the online record have not finished coming onto this phone. If a meeting is started now, they can no longer be added underneath it. Connect to the internet and wait a moment, or start anyway.';
+
+  @override
+  String get meetingHistoryPendingWait => 'Wait for it';
+
+  @override
+  String get meetingHistoryPendingStartAnyway => 'Start anyway';
 }

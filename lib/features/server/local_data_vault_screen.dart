@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../core/database/app_database.dart';
 import '../../data/services/local_data_vault.dart';
 import '../../l10n/app_localizations.dart';
+import '../../providers/connection_provider.dart';
+import '../../core/utils/user_message.dart';
 
 class LocalDataVaultScreen extends StatefulWidget {
   const LocalDataVaultScreen({super.key});
@@ -70,10 +73,14 @@ class _LocalDataVaultScreenState extends State<LocalDataVaultScreen> {
         ],
       ),
     );
-    if (confirmed != true) return;
+    if (confirmed != true || !mounted) return;
+    final connection = context.read<ConnectionProvider>();
     setState(() => _busy = true);
     try {
-      await _vault.recover(archive.id);
+      // Refused while anything is waiting to go online; the current book is
+      // archived first, so this can be undone.
+      await _vault.recover(archive.id, unsentWork: connection.unsentLocalWork);
+      await _load();
       if (mounted) {
         ScaffoldMessenger.of(
           context,
@@ -83,7 +90,7 @@ class _LocalDataVaultScreenState extends State<LocalDataVaultScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('$error')));
+        ).showSnackBar(SnackBar(content: Text(userMessage(error))));
       }
     } finally {
       if (mounted) setState(() => _busy = false);

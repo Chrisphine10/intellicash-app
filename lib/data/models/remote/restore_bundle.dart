@@ -15,6 +15,7 @@ class RestoreBundle {
     required this.entries,
     required this.loans,
     this.members = const [],
+    this.allocations = const [],
     this.interestType = 'FLAT',
     this.shareValueCents,
     this.maxSharesPerMeeting,
@@ -54,6 +55,11 @@ class RestoreBundle {
   final List<RestoreLoan> loans;
   final List<RestoreMember> members;
 
+  /// How the server applied each repayment across a member's loans (a
+  /// payment can clear one loan and roll onto the next). Empty from a server
+  /// older than this; the importer then falls back to each row's own loan.
+  final List<RestoreAllocation> allocations;
+
   factory RestoreBundle.fromJson(Map<String, dynamic> json) {
     final group = json['group'] as Map<String, dynamic>;
     final policy = (json['policy'] as Map<String, dynamic>?) ?? const {};
@@ -74,6 +80,7 @@ class RestoreBundle {
       attendance: list('attendance', RestoreAttendance.fromJson),
       entries: list('entries', RestoreEntry.fromJson),
       loans: list('loans', RestoreLoan.fromJson),
+      allocations: list('allocations', RestoreAllocation.fromJson),
       members: list('members', RestoreMember.fromJson),
       interestType: policy['interestType'] == 'REDUCING' ? 'REDUCING' : 'FLAT',
       shareValueCents: (policy['shareValueCents'] as num?)?.toInt(),
@@ -85,6 +92,25 @@ class RestoreBundle {
       meetingTime: group['meetingTime'] as String?,
     );
   }
+}
+
+/// One slice of one repayment, as the server applied it to one loan.
+class RestoreAllocation {
+  const RestoreAllocation({
+    required this.repaymentEntryId,
+    required this.loanId,
+    required this.cents,
+  });
+
+  final String repaymentEntryId;
+  final String loanId;
+  final int cents;
+
+  factory RestoreAllocation.fromJson(Map<String, dynamic> json) => RestoreAllocation(
+        repaymentEntryId: json['repaymentEntryId'] as String,
+        loanId: json['loanId'] as String,
+        cents: (json['cents'] as num).toInt(),
+      );
 }
 
 class RestoreMeeting {

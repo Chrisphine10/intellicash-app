@@ -32,6 +32,13 @@ abstract final class MapEntity {
   /// schedule is sent again only when an official changes it. The local id is
   /// the local group id.
   static const meetingScheduleRule = 'meeting_schedule_rule';
+
+  /// A money row this phone was given by the server (a restore), keyed by the
+  /// client request id the phone would send it under (`shr-<row id>`, ...),
+  /// mapped to the server's entry id. It is already online, so a meeting sync
+  /// never sends it: re-sending under the phone's fresh id would record it a
+  /// second time. Only rows added on this phone afterwards are sent.
+  static const importedEntry = 'imported_entry';
 }
 
 /// A conflict the backend reported for a synced record.

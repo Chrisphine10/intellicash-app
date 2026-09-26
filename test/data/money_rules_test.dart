@@ -132,6 +132,47 @@ void main() {
     expect(now.outstanding, 700);
   });
 
+  test("a payment clears the member's oldest loan first, as the server applies it", () async {
+    final group = await seedGroup();
+    final ann = (await members.membersForGroup(group.id)).first;
+    final meeting = await meetings.startMeeting(group);
+    await meetings.recordSharePurchase(meeting: meeting, group: group, memberId: ann.id, shares: 20);
+    final older = await loans.disburse(
+      group: group,
+      memberId: ann.id,
+      principal: 300,
+      dueDate: DateTime.now().add(const Duration(days: 92)),
+      meetingId: meeting.id,
+    );
+    // Make it plainly the older one.
+    final database = await db.database;
+    await database.update('loans', {'disbursed_at': DateTime.now().subtract(const Duration(days: 2)).toIso8601String()},
+        where: 'id = ?', whereArgs: [older.id]);
+    final newer = await loans.disburse(
+      group: group,
+      memberId: ann.id,
+      principal: 250,
+      dueDate: DateTime.now().add(const Duration(days: 92)),
+      meetingId: meeting.id,
+    );
+
+    // The treasurer picks the newer loan and records 250.
+    await loans.repay(loan: newer, amount: 250, meetingId: meeting.id);
+
+    final oldAfter = (await loans.loanById(older.id))!;
+    final newAfter = (await loans.loanById(newer.id))!;
+    expect(oldAfter.outstanding, 50, reason: 'the payment went to the oldest loan first');
+    expect(newAfter.outstanding, 250);
+    expect(await loans.owedByMember(ann.id), 300);
+
+    // 300 more clears the rest of the old loan and rolls 250 onto the newer one.
+    await loans.repay(loan: newAfter, amount: 250, meetingId: meeting.id);
+    await loans.repay(loan: (await loans.loanById(newer.id))!, amount: 50, meetingId: meeting.id);
+    expect((await loans.loanById(older.id))!.status, LoanStatus.repaid);
+    expect((await loans.loanById(newer.id))!.status, LoanStatus.repaid);
+    expect(await loans.owedByMember(ann.id), 0);
+  });
+
   test('share-out nets and settles a loan carried over from an earlier cycle', () async {
     final group = await seedGroup();
     final roster = await members.membersForGroup(group.id);

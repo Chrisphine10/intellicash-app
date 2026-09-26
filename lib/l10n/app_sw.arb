@@ -598,7 +598,7 @@
   "localVaultEmpty": "Hakuna nakala zilizohifadhiwa.",
   "localVaultNote": "Nakala hizi zilizosongwa zinabaki kwenye simu hii. Si nakala rudufu za wingu.",
   "localVaultRecoverTitle": "Rejesha data hii?",
-  "localVaultRecoverBody": "Kurejeshwa kunabadilisha kitabu cha sasa cha ndani. Haipakii data na inapaswa kutumika tu ukiwa umetoka.",
+  "localVaultRecoverBody": "Kurejesha kunabadilisha kitabu kilicho kwenye simu hii kwa hifadhi hii. Kitabu cha sasa kinahifadhiwa kwanza kama hifadhi mpya, kwa hiyo unaweza kurudi. Hakuruhusiwi kama kuna kitu bado hakijatumwa mtandaoni, na hakuna kinachopakiwa.",
   "localVaultRecovered": "Data ya ndani imerejeshwa.",
   "localVaultDeleteTitle": "Futa nakala hii?",
   "localVaultDeleteBody": "Nakala hii itaondolewa kabisa kwenye simu hii.",
@@ -671,5 +671,9 @@
   "localVaultRecover": "Rejesha",
   "localVaultDelete": "Futa",
   "localVaultExportSubject": "Nakala ya rekodi za IntelliCash ({label})",
-  "localVaultExportFailed": "Nakala hii haikuweza kuhamishwa. Jaribu tena."
+  "localVaultExportFailed": "Nakala hii haikuweza kuhamishwa. Jaribu tena.",
+  "meetingHistoryPendingTitle": "Historia ya kikundi bado inakuja",
+  "meetingHistoryPendingBody": "Mikutano ya awali, akiba na mikopo kutoka rekodi ya mtandaoni bado haijamaliza kuja kwenye simu hii. Mkutano ukianzishwa sasa, haviwezi tena kuongezwa chini yake. Unganisha mtandao na usubiri kidogo, au anza hata hivyo.",
+  "meetingHistoryPendingWait": "Subiri",
+  "meetingHistoryPendingStartAnyway": "Anza hata hivyo"
 }

@@ -2030,7 +2030,7 @@ class L10nSw extends L10n {
 
   @override
   String get localVaultRecoverBody =>
-      'Kurejeshwa kunabadilisha kitabu cha sasa cha ndani. Haipakii data na inapaswa kutumika tu ukiwa umetoka.';
+      'Kurejesha kunabadilisha kitabu kilicho kwenye simu hii kwa hifadhi hii. Kitabu cha sasa kinahifadhiwa kwanza kama hifadhi mpya, kwa hiyo unaweza kurudi. Hakuruhusiwi kama kuna kitu bado hakijatumwa mtandaoni, na hakuna kinachopakiwa.';
 
   @override
   String get localVaultRecovered => 'Data ya ndani imerejeshwa.';
@@ -2303,4 +2303,17 @@ class L10nSw extends L10n {
   @override
   String get localVaultExportFailed =>
       'Nakala hii haikuweza kuhamishwa. Jaribu tena.';
+
+  @override
+  String get meetingHistoryPendingTitle => 'Historia ya kikundi bado inakuja';
+
+  @override
+  String get meetingHistoryPendingBody =>
+      'Mikutano ya awali, akiba na mikopo kutoka rekodi ya mtandaoni bado haijamaliza kuja kwenye simu hii. Mkutano ukianzishwa sasa, haviwezi tena kuongezwa chini yake. Unganisha mtandao na usubiri kidogo, au anza hata hivyo.';
+
+  @override
+  String get meetingHistoryPendingWait => 'Subiri';
+
+  @override
+  String get meetingHistoryPendingStartAnyway => 'Anza hata hivyo';
 }

@@ -110,6 +110,10 @@ class ConnectionProvider extends ChangeNotifier {
   /// A live signed-in session (restored or fresh).
   bool get hasSession => isConnected && _signedInUser != null;
 
+  /// Everything on this phone that is not online yet and that replacing the
+  /// book would destroy (the same count an account switch waits for).
+  Future<int> unsentLocalWork() async => await pendingLocalWork?.call() ?? 0;
+
   /// Who this phone belongs to, from secure storage.
   ///
   /// Use this — not [hasSession] — to decide which app a person sees.

@@ -53,8 +53,11 @@ class HistoryImportResult {
 /// cycle's balances read as they did on the old phone.
 ///
 /// Everything is written in ONE transaction, so a failure leaves the phone as it
-/// was rather than half a history. Every meeting brought over is recorded as
-/// already backed up online (it came from there), so none is ever sent back.
+/// was rather than half a history. Every finished meeting brought over is
+/// recorded as already backed up online (it came from there), and every money
+/// row as already online ([MapEntity.importedEntry]), so none is ever sent
+/// back. A meeting still being held stays pending: what is added to it on this
+/// phone is sent when it closes, and only that.
 ///
 /// It refuses to run on a phone that has already recorded meetings for the
 /// group: the imported meetings are numbered from one, and mixing them with
@@ -159,6 +162,10 @@ class GroupHistoryImporter {
     };
     final entries = [...bundle.entries]
       ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    final slicesFor = <String, List<RestoreAllocation>>{};
+    for (final slice in bundle.allocations) {
+      (slicesFor[slice.repaymentEntryId] ??= []).add(slice);
+    }
 
     // Where this cycle's balances start. The server's own share-out counts
     // savings from the last payout, and the console's share-out does not close the
@@ -223,10 +230,14 @@ class GroupHistoryImporter {
           'closed_at': closedAt == null ? null : _local(closedAt),
           'unlocked_by': null,
         });
+        // A finished meeting came from the server and is backed up. The one
+        // still being held is only a TWIN: what is recorded in it from now on
+        // exists on this phone alone, so it must stay pending and be sent
+        // when it closes. Mapping it as backed up lost those records.
         await txn.insert(
             'id_map',
             {
-              'entity_type': MapEntity.meeting,
+              'entity_type': isOpen ? MapEntity.meetingTwin : MapEntity.meeting,
               'local_id': localMeeting[meeting.id],
               'remote_id': meeting.id,
               'group_id': remoteGroupId,
@@ -234,6 +245,19 @@ class GroupHistoryImporter {
             },
             conflictAlgorithm: ConflictAlgorithm.replace);
       }
+
+      // Every money row brought over is already online: remembered by the
+      // request id a sync would send it under, so it never is.
+      Future<void> imported(String prefix, String localRowId, String remoteEntryId) => txn.insert(
+          'id_map',
+          {
+            'entity_type': MapEntity.importedEntry,
+            'local_id': '$prefix-$localRowId',
+            'remote_id': remoteEntryId,
+            'group_id': remoteGroupId,
+            'synced_at': DateTime.now().toIso8601String(),
+          },
+          conflictAlgorithm: ConflictAlgorithm.replace);
 
       // --- PASS 2: resolve members from the bundle ---
       // Build a complete remote-member-id -> local-member-id map so that
@@ -362,6 +386,7 @@ class GroupHistoryImporter {
           },
           'created_at': _local(entry.createdAt),
         });
+        await imported('lnd', id, entry.id);
         if (loan != null) localLoan[loan.id] = id;
         loansMade++;
       }
@@ -384,8 +409,10 @@ class GroupHistoryImporter {
               (m) => m != PaymentMethod.cash && entry.description.contains(m.label),
               orElse: () => PaymentMethod.cash,
             );
+            final shareRowId = _uuid.v4();
+            await imported('shr', shareRowId, entry.id);
             await txn.insert('share_purchases', {
-              'id': _uuid.v4(),
+              'id': shareRowId,
               'meeting_id': meeting,
               'member_id': member,
               'shares': count,
@@ -403,8 +430,10 @@ class GroupHistoryImporter {
               skipped++;
               break;
             }
+            final socialRowId = _uuid.v4();
+            await imported('soc', socialRowId, entry.id);
             await txn.insert('social_fund_entries', {
-              'id': _uuid.v4(),
+              'id': socialRowId,
               'meeting_id': meeting,
               'member_id': member,
               'amount': amount,
@@ -418,8 +447,10 @@ class GroupHistoryImporter {
               break;
             }
             final reason = entry.description.replaceFirst(RegExp(r'^Fine\s*·?\s*'), '').trim();
+            final fineRowId = _uuid.v4();
+            await imported('fin', fineRowId, entry.id);
             await txn.insert('fines', {
-              'id': _uuid.v4(),
+              'id': fineRowId,
               'meeting_id': meeting,
               'member_id': member,
               'amount': amount,
@@ -428,18 +459,37 @@ class GroupHistoryImporter {
             });
             records++;
           case 'LOAN_REPAYMENT':
-            final loanId = localLoan[entry.loanId];
-            if (loanId == null) {
+            // As the server applied it: one slice per loan it paid (a payment
+            // can clear an old loan and roll onto the next). Whatever no loan
+            // took stays with the loan the row points at. An older server
+            // sends no slices: the row's own loan then takes all of it.
+            final slices = [
+              for (final slice in slicesFor[entry.id] ?? const <RestoreAllocation>[])
+                if (localLoan[slice.loanId] != null) slice,
+            ];
+            final placed = <(String, int)>[
+              for (final slice in slices) (localLoan[slice.loanId]!, slice.cents),
+            ];
+            final rest = entry.amountCents - slices.fold<int>(0, (sum, slice) => sum + slice.cents);
+            if (rest > 0) {
+              final own = localLoan[entry.loanId] ?? (placed.isEmpty ? null : placed.last.$1);
+              if (own != null) placed.add((own, rest));
+            }
+            if (placed.isEmpty) {
               skipped++;
               break;
             }
-            await txn.insert('loan_repayments', {
-              'id': _uuid.v4(),
-              'loan_id': loanId,
-              'meeting_id': meeting,
-              'amount': amount,
-              'paid_at': _local(entry.createdAt),
-            });
+            for (final (loanId, cents) in placed) {
+              final repaymentRowId = _uuid.v4();
+              await imported('rpy', repaymentRowId, entry.id);
+              await txn.insert('loan_repayments', {
+                'id': repaymentRowId,
+                'loan_id': loanId,
+                'meeting_id': meeting,
+                'amount': _kes(cents),
+                'paid_at': _local(entry.createdAt),
+              });
+            }
             records++;
         }
       }

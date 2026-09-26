@@ -63,10 +63,13 @@ class _MemberReportLocalScreenState extends State<MemberReportLocalScreen> {
     final all = await _memberRepository.financialsForGroup(group.id);
     final financials =
         all.where((f) => f.member.id == widget.memberId).firstOrNull;
-    final contributions =
-        await _memberRepository.contributionTotals(widget.memberId);
-    final attendance =
-        await _memberRepository.attendanceRate(widget.memberId);
+    // This cycle, like the savings beside them (and like the server's
+    // passbook): lifetime social fund and fines next to one cycle's savings
+    // made the offline report disagree with the online one.
+    final contributions = await _memberRepository
+        .contributionTotals(widget.memberId, since: group.cycleStartDate);
+    final attendance = await _memberRepository
+        .attendanceRate(widget.memberId, since: group.cycleStartDate);
     final loans = await _loanRepository.loansForMember(widget.memberId);
 
     // Members added on this handset carry a local id the server has never

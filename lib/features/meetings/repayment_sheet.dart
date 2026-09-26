@@ -159,16 +159,19 @@ class _RepaymentSheetState extends State<RepaymentSheet> {
         amount: double.parse(_amountCtrl.text),
         meetingId: meetingProvider.activeMeeting?.id,
       );
+      // A payment clears the member's oldest loan first (the server's rule),
+      // so what is left is told across all their loans, not just this one.
+      final stillOwed = await loanProvider.owedByMember(updated.memberId);
       await meetingProvider.refreshTotals();
       await appState.refreshPendingSync();
       if (!mounted) return;
       Navigator.of(context).pop();
       showAppSnack(
         context,
-        updated.outstanding <= 0
-            ? '${updated.memberName}\'s loan is fully repaid. 🎉'
+        stillOwed <= 0
+            ? '${updated.memberName}\'s loans are fully repaid. 🎉'
             : 'Repayment recorded — '
-                '${Formatters.money(updated.outstanding)} remaining.',
+                '${Formatters.money(stillOwed)} still owed on ${updated.memberName}\'s loans.',
       );
     } on DomainException catch (e) {
       if (mounted) showAppSnack(context, e.message, error: true);

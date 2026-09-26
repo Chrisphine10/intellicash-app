@@ -337,6 +337,14 @@ class WriteSyncService {
       ));
     }
 
+    // Rows a restore brought over from the server are already online; sending
+    // them again under this phone's ids would record them twice. Only what
+    // was added on this phone goes (a meeting restored while still open).
+    final alreadyOnline = await _idMap.mappings(MapEntity.importedEntry);
+    if (alreadyOnline.isNotEmpty) {
+      result.removeWhere((entry) => alreadyOnline.containsKey(entry.clientRequestId));
+    }
+
     // A zero-value entry (a "paid KSh 0" social fund tick made while the amount
     // was unset) carries no money, and the server refuses anything below one
     // cent. Sent, it would sit as a permanent conflict and keep the meeting on
