@@ -146,7 +146,7 @@ class _MemberReportScreenState extends State<MemberReportScreen> {
       groupName,
       Formatters.fullDate(DateTime.now()),
       '',
-      'MY SAVINGS',
+      'MY SHARES',
       reportLine('Shares bought', Formatters.money(shares)),
       reportLine('Social fund', Formatters.money(social)),
       reportLine('Fines paid', Formatters.money(fines)),
@@ -257,7 +257,7 @@ class _MemberReportScreenState extends State<MemberReportScreen> {
                           ),
                         ),
                       ),
-                      const SectionLabel('My savings'),
+                      const SectionLabel('My shares'),
                       Card(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(

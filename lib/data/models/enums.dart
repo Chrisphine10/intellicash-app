@@ -68,6 +68,18 @@ enum MemberRole {
   /// the previous holder down to [member] — the server's rule too.
   bool get isSingleHolder =>
       this == chairperson || this == secretary || this == treasurer;
+
+  /// The office for a server role name ("CHAIRPERSON"), or for a stored enum
+  /// name ("chairperson"). Anything else is an ordinary member. Restores used
+  /// to store the server's uppercase name, which matched nothing, so every
+  /// restored official came back as a member.
+  static MemberRole fromAny(String? value) {
+    if (value == null) return MemberRole.member;
+    for (final role in MemberRole.values) {
+      if (role.name == value || role.serverName == value.toUpperCase()) return role;
+    }
+    return MemberRole.member;
+  }
 }
 
 /// How a member paid for a share purchase (or other contribution).

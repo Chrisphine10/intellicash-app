@@ -159,7 +159,7 @@ class _GroupReportScreenState extends State<GroupReportScreen> {
           'on ${group.meetingDaysLabel}'),
       '',
       'MONEY',
-      reportLine('Total savings', Formatters.money(_totalSavings)),
+      reportLine('Total shares', Formatters.money(_totalSavings)),
       reportLine('Social fund', Formatters.money(_socialFund)),
       reportLine('Fines collected', Formatters.money(_fines)),
       reportLine('Loans given out', Formatters.money(_loansGivenOut)),
@@ -178,7 +178,7 @@ class _GroupReportScreenState extends State<GroupReportScreen> {
     }
     for (final m in _members) {
       final owes = m.owes > 0 ? ', owes ${Formatters.money(m.owes)}' : '';
-      lines.add('${m.name} - saved ${Formatters.money(m.savings)}$owes');
+      lines.add('${m.name} - shares ${Formatters.money(m.savings)}$owes');
     }
     lines
       ..add('')
@@ -255,7 +255,7 @@ class _GroupReportScreenState extends State<GroupReportScreen> {
                               horizontal: 15, vertical: 12),
                           child: Column(
                             children: [
-                              KeyValueRow('Total savings',
+                              KeyValueRow('Total shares',
                                   Formatters.money(_totalSavings)),
                               KeyValueRow(
                                   'Social fund', Formatters.money(_socialFund)),

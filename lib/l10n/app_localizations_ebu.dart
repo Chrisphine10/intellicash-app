@@ -62,7 +62,7 @@ class L10nEbu extends L10n {
 
   @override
   String get setUpGroupSubtitle =>
-      'Iga uigi, mikopo na micemanio ya gikundi kianyu — ni irutaga wira o na hatari intaneti.';
+      'Iga hisa, mikopo na micemanio ya gikundi kianyu — ni irutaga wira o na hatari intaneti.';
 
   @override
   String get whoIsThisAccountFor => 'Akaunti ino ni ya u?';
@@ -75,14 +75,14 @@ class L10nEbu extends L10n {
 
   @override
   String get accountTypeGroupSubtitle =>
-      'Thimu ino niyo ikuiga uigi, mikopo na micemanio ya gikundi giitu.';
+      'Thimu ino niyo ikuiga hisa, mikopo na micemanio ya gikundi giitu.';
 
   @override
   String get accountTypeMember => 'Nii Nyiki';
 
   @override
   String get accountTypeMemberSubtitle =>
-      'Ningwenda kuona uigi, hisa na mikopo yakwa.';
+      'Ningwenda kuona hisa na mikopo yakwa.';
 
   @override
   String get accountTypeAgent => 'Murugamiriri wa Mugunda';
@@ -163,7 +163,7 @@ class L10nEbu extends L10n {
   String get groupSettings => 'Mibango ya Gikundi';
 
   @override
-  String get groupSettingsSubtitle => 'Uigi, mikopo na mithenya ya micemanio';
+  String get groupSettingsSubtitle => 'Hisa, mikopo na mithenya ya micemanio';
 
   @override
   String get meetingSecurity => 'Ugitiri wa Mucemanio';
@@ -224,11 +224,11 @@ class L10nEbu extends L10n {
 
   @override
   String get signOutKeepsRecords =>
-      'Uigi, mikopo na micemanio ya gikundi kianyu igutigwo iigitwo thimu-ini ino, no gutiri mundu ungimihingura utatoonyete ringi. Namba yaku ya thimu niikuririkanwo.';
+      'Hisa, mikopo na micemanio ya gikundi kianyu igutigwo iigitwo thimu-ini ino, no gutiri mundu ungimihingura utatoonyete ringi. Namba yaku ya thimu niikuririkanwo.';
 
   @override
   String get signOutMemberNote =>
-      'Niukabatara gutoonya ringi niguo wone uigi waku. Namba yaku ya thimu niikuririkanwo.';
+      'Niukabatara gutoonya ringi niguo wone hisa ciaku. Namba yaku ya thimu niikuririkanwo.';
 
   @override
   String get signOutAgentNote =>
@@ -349,7 +349,7 @@ class L10nEbu extends L10n {
 
   @override
   String get groupSetupWizardWhichSavingsCycleIsThis =>
-      'Gikundi giki kiri muthiururuko uriku wa uigi?';
+      'Gikundi giki kiri muthiururuko uriku wa hisa?';
 
   @override
   String get groupSetupWizardMemberName => 'Rietwa ria mumemba';
@@ -373,14 +373,14 @@ class L10nEbu extends L10n {
 
   @override
   String get groupSetupWizardTrackedSeparatelyFromSavings =>
-      'Urumagirirwo mwanya na uigi';
+      'Urumagirirwo mwanya na hisa';
 
   @override
   String get groupSetupWizardInterestRatePerMonth => 'Ucuuthi (% o mweri)';
 
   @override
   String get groupSetupWizardMaxLoanMultiplierSavings =>
-      'Muigana wa Mukopo (× uigi)';
+      'Muigana wa Mukopo (× hisa)';
 
   @override
   String get groupSetupWizardDefaultLoanTermMonths =>
@@ -529,7 +529,7 @@ class L10nEbu extends L10n {
 
   @override
   String get memberPassbookMySavingsAcrossAllGroups =>
-      'Uigi wakwa ikundi-ini ciothe';
+      'Hisa ciakwa ikundi-ini ciothe';
 
   @override
   String get memberPassbookJoinAnotherGroup => 'Itikira gikundi kingi';
@@ -542,7 +542,7 @@ class L10nEbu extends L10n {
 
   @override
   String get memberPassbookYourSavingsAndLoanRecords =>
-      'Maandiko ma uigi na mikopo yaku nimakonekaga haha.';
+      'Maandiko ma hisa na mikopo yaku nimakonekaga haha.';
 
   @override
   String get joinRequestsDecline => 'Rega';
@@ -624,7 +624,16 @@ class L10nEbu extends L10n {
   String get dashboardHello => 'Wi mwega 👋';
 
   @override
-  String get dashboardTotalSavings => 'Mbeca Ciothe Iigitwo';
+  String get dashboardTotalSavings => 'Hisa Ciothe';
+
+  @override
+  String get dashboardSharesFromServer =>
+      'Total shares from the online record. This phone has no meetings for the group yet.';
+
+  @override
+  String dashboardSharesOnlineDiffers(String amount) {
+    return 'Online record: $amount. The difference is meetings not yet backed up from this phone, or recorded somewhere else.';
+  }
 
   @override
   String get dashboardActiveLoans => 'Mikopo Iri Wira-ini';
@@ -681,11 +690,21 @@ class L10nEbu extends L10n {
   String get cyclesCloseCycle => 'Hinga muthiururuko';
 
   @override
-  String get cyclesSavingCycles => 'Mithiururuko ya Uigi';
+  String get cyclesSavingCycles => 'Mithiururuko ya Hisa';
 
   @override
   String get cyclesCloseCycleAndStartThe =>
       'Hinga muthiururuko wambiririe uria ungi';
+
+  @override
+  String get cyclesShareOutFirst => 'Do the share-out first';
+
+  @override
+  String get cyclesShareOutFirstBody =>
+      'Members bought shares in this cycle. A cycle with shares ends with its share-out, which pays every member and closes the cycle in one step. It cannot be closed before that.';
+
+  @override
+  String get cyclesGoToShareOut => 'Go to Share-Out';
 
   @override
   String get cyclesReadOnlyStillVisibleIn =>
@@ -832,10 +851,10 @@ class L10nEbu extends L10n {
   String get cloudDashboardRefresh => 'Eruhia';
 
   @override
-  String get cloudDashboardSavingsFund => 'Muthithu wa Uigi';
+  String get cloudDashboardSavingsFund => 'Hisa Ciothe';
 
   @override
-  String get cloudDashboardInternalLoans => 'Mikopo ya Thiini';
+  String get cloudDashboardInternalLoans => 'Muthithu wa Mikopo';
 
   @override
   String get serverSettingsOrUseAGroupAccess =>
@@ -1026,11 +1045,11 @@ class L10nEbu extends L10n {
   String get moreIntelliCash => 'Intelli-Cash';
 
   @override
-  String get mySavingsMySavings => 'Mbeca Ciakwa';
+  String get mySavingsMySavings => 'Hisa Ciakwa';
 
   @override
   String get mySavingsOnceAGroupAcceptsYou =>
-      'Gikundi kingigwitikira, uigi waku niukonekaga haha.';
+      'Gikundi kingigwitikira, hisa ciaku niukonekaga haha.';
 
   @override
   String get buySharesEnterCodeByHand => 'Andika Kimenyithia na Guoko';
@@ -1097,11 +1116,11 @@ class L10nEbu extends L10n {
 
   @override
   String get dashboardTheSavingsCurveAppearsAfterYour =>
-      'Muharo wa uigi uronekaga thutha wa micemanio yaku iiri ya mbere.';
+      'Muharo wa hisa uronekaga thutha wa micemanio yaku iiri ya mbere.';
 
   @override
   String get disburseLoanThisMemberHasNoBorrowingHeadroom =>
-      'Mumemba uyu ndari na uhoti wa kuhooya mukopo — uigi no muhaka wongerereke kana mukopo uria ari naguo unyihanyiihe mbere.';
+      'Mumemba uyu ndari na uhoti wa kuhooya mukopo — hisa no muhaka wongerereke kana mukopo uria ari naguo unyihanyiihe mbere.';
 
   @override
   String get disburseLoanTheLoanFundIsEmptyCollect =>
@@ -1133,7 +1152,7 @@ class L10nEbu extends L10n {
 
   @override
   String get meetingsStartYourFirstMeetingToRecord =>
-      'Ambiriria mucemanio waku wa mbere niguo wandike ukinyu, uigi, faini na mikopo.';
+      'Ambiriria mucemanio waku wa mbere niguo wandike ukinyu, hisa, faini na mikopo.';
 
   @override
   String get meetingsClosedMeetingsAreLockedTheirRecords =>
@@ -1149,11 +1168,11 @@ class L10nEbu extends L10n {
 
   @override
   String get memberPassbookAskYourGroupToAddYou =>
-      'Hooya gikundi giaku gikuongerere na uigi waku niukonekaga haha.';
+      'Hooya gikundi giaku gikuongerere na hisa ciaku niukonekaga haha.';
 
   @override
   String get editMemberCorrectingASpellingOrAMistyped =>
-      'Kurungiriria ndemwa kana namba iria ihititie. Uigi, mikopo na ukinyu wake utigwo o uria uri.';
+      'Kurungiriria ndemwa kana namba iria ihititie. Hisa, mikopo na ukinyu wake utigwo o uria uri.';
 
   @override
   String get joinRequestsTheyWillNotBeAddedTo =>
@@ -1177,7 +1196,7 @@ class L10nEbu extends L10n {
 
   @override
   String get membersAddMembersWithTheButtonBelow =>
-      'Ongerera amemba na batani iria iri na thi — o umwe agiaga na maandiko make ma uigi na mikopo.';
+      'Ongerera amemba na batani iria iri na thi — o umwe agiaga na maandiko make ma hisa na mikopo.';
 
   @override
   String get meetingSecurityAssignAChairpersonSecretaryAndTreasurer =>
@@ -1189,7 +1208,7 @@ class L10nEbu extends L10n {
 
   @override
   String get moreYourGroupSSavingsAndLoans =>
-      'Uigi na mikopo ya gikundi giaku, o thimu-ini yaku. Kindu o giothe kiigagwo thimu-ini ino mbere, gicooke kiigwo intaneti-ini wagia na mutandao.\n\nIntelli-Wealth Limited · intelliwealth.org';
+      'Hisa na mikopo ya gikundi giaku, o thimu-ini yaku. Kindu o giothe kiigagwo thimu-ini ino mbere, gicooke kiigwo intaneti-ini wagia na mutandao.\n\nIntelli-Wealth Limited · intelliwealth.org';
 
   @override
   String get moreNoInternetYourRecordsAreSafe =>
@@ -1201,7 +1220,7 @@ class L10nEbu extends L10n {
 
   @override
   String get welcomeYourGroupIsAlreadyOnThe =>
-      'Gikundi giaku ni kiri cheba-ini. Kirute haha handu ha guthondeka kingi, niguo uhoro wa uigi waku utige uri handu hamwe.';
+      'Gikundi giaku ni kiri cheba-ini. Kirute haha handu ha guthondeka kingi, niguo uhoro wa hisa ciaku utige uri handu hamwe.';
 
   @override
   String get agentReportWhenGroupsAreAssignedToYou =>
@@ -1245,7 +1264,7 @@ class L10nEbu extends L10n {
 
   @override
   String get serverSettingsAskYourGroupAdministratorForAn =>
-      'Hooya murori wa gikundi giaku kihinguro, ucooke ugikire haha. Kirekagiria thimu ino kuona na kwandika uigi, mikopo na micemanio ya gikundi giaku tu.';
+      'Hooya murori wa gikundi giaku kihinguro, ucooke ugikire haha. Kirekagiria thimu ino kuona na kwandika hisa, mikopo na micemanio ya gikundi giaku tu.';
 
   @override
   String get cyclesPullDownToTryAgainIf =>
@@ -1306,6 +1325,10 @@ class L10nEbu extends L10n {
   @override
   String get externalLoansExternalLoansLoadFromTheIntelli =>
       'Mikopo ya nja irutagwo cheba-ini ya Intelli-Cash. Ohania kana utoonye mbere.';
+
+  @override
+  String get externalLoanGroupAccountOnly =>
+      'Mukopo ni wa gikundi giothe, kwa uguo akaunti ya gikundi kiene no yo ingihooya. Hooya atongoria a gikundi kianyu mahooye mucemanio-ini.';
 
   @override
   String get storeFarmSolarHouseholdAndBusinessProducts =>
@@ -1917,7 +1940,7 @@ class L10nEbu extends L10n {
 
   @override
   String get socialFundZeroCannotCollect =>
-      'The social fund amount is KSh 0, so there is nothing to collect. Set the amount in Group Settings (Savings step) first.';
+      'The social fund amount is KSh 0, so there is nothing to collect. Set the amount in Group Settings (Shares step) first.';
 
   @override
   String get groupSyncNothingToBackUp =>
@@ -1933,7 +1956,7 @@ class L10nEbu extends L10n {
 
   @override
   String shareOutCloseMeetingFirst(int number) {
-    return 'Close Meeting #$number before sharing out. Its savings and loans belong to this cycle.';
+    return 'Close Meeting #$number before sharing out. Its shares and loans belong to this cycle.';
   }
 
   @override
@@ -2009,12 +2032,12 @@ class L10nEbu extends L10n {
 
   @override
   String restoreHistoryPending(String groupName, int members) {
-    return 'Loaded $groupName with $members members. Its meetings and savings will follow when there is a signal.';
+    return 'Loaded $groupName with $members members. Its meetings and shares will follow when there is a signal.';
   }
 
   @override
   String restoreHistoryNotLoaded(String groupName, int members) {
-    return 'Loaded $groupName with $members members. Its earlier meetings and savings could not be loaded from the online record.';
+    return 'Loaded $groupName with $members members. Its earlier meetings and shares could not be loaded from the online record.';
   }
 
   @override
@@ -2174,7 +2197,7 @@ class L10nEbu extends L10n {
     String interest,
     String multiplier,
   ) {
-    return '$share per share · up to $maxShares shares a meeting · $social social fund · $interest% interest · borrow up to $multiplier× savings';
+    return '$share per share · up to $maxShares shares a meeting · $social social fund · $interest% interest · borrow up to $multiplier× shares';
   }
 
   @override
@@ -2182,10 +2205,10 @@ class L10nEbu extends L10n {
       'Loan term, interest and where expenses come from';
 
   @override
-  String get moreSavingCycles => 'Saving cycles';
+  String get moreSavingCycles => 'Share cycles';
 
   @override
-  String get moreSavingCyclesSubtitle => 'Close a cycle and start the next';
+  String get moreSavingCyclesSubtitle => 'Close a cycle after its share-out';
 
   @override
   String get moreCloudAndAdvanced => 'Cloud & advanced';
@@ -2240,7 +2263,7 @@ class L10nEbu extends L10n {
 
   @override
   String get memberSignInsSubtitle =>
-      'Members can sign in on their own phones to see their savings and loans.';
+      'Members can sign in on their own phones to see their shares and loans.';
 
   @override
   String get memberSignInsNeedsConnection =>
@@ -2248,7 +2271,7 @@ class L10nEbu extends L10n {
 
   @override
   String get memberSignInsNowOn =>
-      'Members can now sign in to see their savings.';
+      'Members can now sign in to see their shares.';
 
   @override
   String get memberSignInsNowOff => 'Member sign-ins are off for this group.';
@@ -2258,7 +2281,7 @@ class L10nEbu extends L10n {
 
   @override
   String memberDetailSignInExplain(String name) {
-    return 'Give $name their own sign-in so they can see their savings and loans on their own phone.';
+    return 'Give $name their own sign-in so they can see their shares and loans on their own phone.';
   }
 
   @override
@@ -2309,7 +2332,7 @@ class L10nEbu extends L10n {
 
   @override
   String get meetingHistoryPendingBody =>
-      'Earlier meetings, savings and loans from the online record have not finished coming onto this phone. If a meeting is started now, they can no longer be added underneath it. Connect to the internet and wait a moment, or start anyway.';
+      'Earlier meetings, shares and loans from the online record have not finished coming onto this phone. If a meeting is started now, they can no longer be added underneath it. Connect to the internet and wait a moment, or start anyway.';
 
   @override
   String get meetingHistoryPendingWait => 'Wait for it';

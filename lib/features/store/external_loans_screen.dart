@@ -26,8 +26,20 @@ IconData externalLoanCategoryIcon(String category) =>
     };
 
 /// Opens the apply bottom sheet for a partner loan product.
+///
+/// A loan binds the whole group, so the server takes applications only from
+/// the group's own account (or an admin). A member or field agent signed in
+/// here is told so, instead of filling in a form the server will refuse.
 Future<void> showExternalLoanApplySheet(
-    BuildContext context, ExternalLoanProduct product) {
+    BuildContext context, ExternalLoanProduct product) async {
+  final account = context.read<ConnectionProvider>().account;
+  if (account != null && !account.isGroupAccount) {
+    final l10n = L10n.of(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.externalLoanGroupAccountOnly)),
+    );
+    return;
+  }
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,

@@ -41,6 +41,7 @@ class GroupLinkSupport {
     this.pushRole,
     this.remoteMembers,
     this.addLocalMember,
+    this.applyRemoteRole,
     this.remotePolicy,
     this.pushRules,
     this.applyRules,
@@ -86,6 +87,10 @@ class GroupLinkSupport {
   remoteMembers;
   final Future<Member> Function(String localGroupId, RemoteMember remote)?
   addLocalMember;
+
+  /// Sets a member's office from the server without queueing it to be pushed
+  /// back (an office changed on the console, or an election result).
+  final Future<void> Function(String localMemberId, MemberRole role)? applyRemoteRole;
 
   /// The group's money rules on both sides, kept in step by [syncGroupRules].
   /// Optional. Without them the server prices loans by its own defaults
@@ -388,7 +393,38 @@ class AutoSyncCoordinator implements LinkProposalSource {
     if (pulled > 0) {
       log.info('autosync', 'Added $pulled member(s) from the server');
     }
+    await _pullRoles(remote, locals);
     return pulled;
+  }
+
+  /// Offices changed on the console (or by an election) come down to members
+  /// this phone already has. A role changed on THIS phone and not yet sent is
+  /// left alone: the phone's change goes up first and the server decides.
+  Future<void> _pullRoles(List<RemoteMember> remote, List<Member> locals) async {
+    final support = linkSupport;
+    final apply = support?.applyRemoteRole;
+    if (support == null || apply == null) return;
+    final mappings = await _idMap.mappings(MapEntity.member);
+    final localFor = <String, Member>{
+      for (final local in locals)
+        if (mappings[local.id] != null) mappings[local.id]!: local,
+    };
+    final pending = <String>{};
+    final since = support.editedMembersSince;
+    if (since != null) {
+      final after = await support.roleWatermark?.call() ?? 0;
+      pending.addAll((await since(after)).members.map((m) => m.id));
+    }
+    var changed = 0;
+    for (final person in remote) {
+      final local = localFor[person.id];
+      if (local == null || pending.contains(local.id)) continue;
+      final role = MemberRole.fromAny(person.role);
+      if (role == local.role) continue;
+      await apply(local.id, role);
+      changed++;
+    }
+    if (changed > 0) log.info('autosync', 'Updated $changed office(s) from the server');
   }
 
   /// Keeps the group's money rules the same on the phone and the server:

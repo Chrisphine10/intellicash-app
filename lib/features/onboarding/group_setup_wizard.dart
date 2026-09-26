@@ -28,7 +28,7 @@ class GroupSetupWizard extends StatefulWidget {
 }
 
 class _GroupSetupWizardState extends State<GroupSetupWizard> {
-  static const _stepTitles = ['Basics', 'Savings', 'Loans', 'Schedule'];
+  static const _stepTitles = ['Basics', 'Shares', 'Loans', 'Schedule'];
 
   final _formKeys = List.generate(4, (_) => GlobalKey<FormState>());
   int _step = 0;
@@ -277,7 +277,7 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
   List<Widget> _savingsStep() {
     final l10n = L10n.of(context);
     return [
-      const SectionLabel('Savings configuration',
+      const SectionLabel('Shares configuration',
           padding: EdgeInsets.only(bottom: 4)),
       // Members save by buying shares at the group's share value. ("Flexible"
       // saving used to be offered here but was never built anywhere else, so
@@ -390,7 +390,7 @@ class _GroupSetupWizardState extends State<GroupSetupWizard> {
       const SizedBox(height: 8),
       _helperCard(
         'Members can borrow up to ${_multiplierCtrl.text}× their '
-        'total savings.',
+        'total shares.',
       ),
     ];
   }

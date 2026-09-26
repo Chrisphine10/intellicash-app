@@ -44,12 +44,12 @@ class _MySavingsScreenState extends State<MySavingsScreen> {
         setState(() {
           _overview = overview;
           if (overview == null) {
-            _error = 'Could not load your savings. Check your connection.';
+            _error = 'Could not load your shares. Check your connection.';
           }
         });
       }
     } catch (_) {
-      if (mounted) setState(() => _error = 'Could not load your savings.');
+      if (mounted) setState(() => _error = 'Could not load your shares.');
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -117,8 +117,8 @@ class _MySavingsScreenState extends State<MySavingsScreen> {
                                     fontSize: 15, fontWeight: FontWeight.w700)),
                             Text(
                               overview.groupCount == 1
-                                  ? 'Saving with 1 group'
-                                  : 'Saving with ${overview.groupCount} groups',
+                                  ? 'Shares in 1 group'
+                                  : 'Shares in ${overview.groupCount} groups',
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ],

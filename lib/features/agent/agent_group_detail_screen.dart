@@ -133,7 +133,7 @@ class _AgentGroupDetailScreenState extends State<AgentGroupDetailScreen> {
                     const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
                 child: Column(
                   children: [
-                    KeyValueRow('Total savings',
+                    KeyValueRow('Total shares',
                         Formatters.money(_report!.totalSavings)),
                     KeyValueRow(
                         'Social fund', Formatters.money(_report!.socialFund)),

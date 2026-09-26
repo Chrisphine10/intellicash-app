@@ -29,6 +29,16 @@ class MemberProvider extends ChangeNotifier {
     String? phone,
     MemberRole role = MemberRole.member,
   }) async {
+    // The same rule as handing an office over: a new chairperson steps the
+    // sitting one down, so the group never has two.
+    if (role.isSingleHolder) {
+      final current = await _repository.membersForGroup(groupId);
+      for (final other in current) {
+        if (other.role == role) {
+          await _repository.updateMember(other.copyWith(role: MemberRole.member));
+        }
+      }
+    }
     final member = await _repository.addMember(
       groupId: groupId,
       name: name,

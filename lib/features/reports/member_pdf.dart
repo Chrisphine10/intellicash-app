@@ -89,7 +89,7 @@ Future<List<int>> buildPassbookPdfBytes(MemberPassbook book) async {
       footer: _footer,
       build: (context) => [
         _heading(
-          'My Savings Statement',
+          'My Shares Statement',
           '${book.memberName}  -  ${book.groupName ?? 'Group'}  -  '
               '${Formatters.fullDate(DateTime.now())}',
         ),
@@ -143,7 +143,7 @@ Future<List<int>> buildOverviewPdfBytes(MemberOverview overview) async {
       footer: _footer,
       build: (context) => [
         _heading(
-          'My Savings - All Groups',
+          'My Shares - All Groups',
           '${overview.memberName}  -  ${overview.groupCount} '
               '${overview.groupCount == 1 ? 'group' : 'groups'}  -  '
               '${Formatters.fullDate(DateTime.now())}',
@@ -202,5 +202,5 @@ Future<List<int>> buildOverviewPdfBytes(MemberOverview overview) async {
 
 Future<void> shareOverviewPdf(MemberOverview overview) async {
   final bytes = await buildOverviewPdfBytes(overview);
-  await _share('My_Savings_All_Groups_${_safe(overview.memberName)}.pdf', bytes);
+  await _share('My_Shares_All_Groups_${_safe(overview.memberName)}.pdf', bytes);
 }

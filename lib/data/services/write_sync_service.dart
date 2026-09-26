@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../core/database/app_database.dart';
 import '../../core/network/api_exception.dart';
 import '../../core/utils/app_logger.dart';
@@ -109,24 +111,50 @@ class WriteSyncService {
   /// answers 404, and the meeting's records matter more than its status. A cancelled server
   /// meeting (the console cancelled a plan this phone then held) is left as
   /// the console set it and logged.
-  Future<void> _reportLifecycle(
+  ///
+  /// Returns the refusal, if any, so a CLOSED the server would not take keeps
+  /// the meeting waiting (and retried) instead of counting it as backed up
+  /// while the console still shows it open.
+  Future<ApiException?> _reportLifecycle(
     String remoteGroupId,
     String remoteMeetingId,
     String event,
-    DateTime at,
-  ) async {
+    DateTime at, {
+    List<String>? unlockedByMemberIds,
+  }) async {
     try {
       await _writeApi.reportMeetingLifecycle(
         groupId: remoteGroupId,
         meetingId: remoteMeetingId,
         event: event,
         at: at,
+        unlockedByMemberIds: unlockedByMemberIds,
       );
+      return null;
     } on ApiException catch (e) {
       // No signal: fail this pass so it is tried again, rather than leaving
       // the server showing a meeting in progress that the phone has closed.
       if (e.statusCode == 0) rethrow;
       log.warn('sync', 'Meeting $remoteMeetingId: $event not recorded: ${e.message}');
+      // A server from before this existed: nothing more will come of retrying.
+      if (e.statusCode == 404) return null;
+      return e;
+    }
+  }
+
+  /// The server ids of the members whose PINs opened [meeting] on this phone.
+  Future<List<String>> _unlockedByRemote(
+      Meeting meeting, Map<String, String> memberMap) async {
+    final db = await _db.database;
+    final rows = await db.query('meetings',
+        columns: ['unlocked_by'], where: 'id = ?', whereArgs: [meeting.id]);
+    final raw = rows.isEmpty ? null : rows.first['unlocked_by'] as String?;
+    if (raw == null || raw.isEmpty) return const [];
+    try {
+      final ids = (jsonDecode(raw) as List).map((e) => '$e');
+      return [for (final id in ids) if (memberMap[id] != null) memberMap[id]!];
+    } catch (_) {
+      return const [];
     }
   }
 
@@ -207,8 +235,13 @@ class WriteSyncService {
 
     // Closed on the phone: the server's copy is closed too, after its records.
     if (!meeting.isOpen) {
-      await _reportLifecycle(remoteGroupId, remoteMeetingId, 'CLOSED',
-          meeting.closedAt ?? DateTime.now());
+      final refused = await _reportLifecycle(remoteGroupId, remoteMeetingId,
+          'CLOSED', meeting.closedAt ?? DateTime.now(),
+          unlockedByMemberIds: await _unlockedByRemote(meeting, memberMap));
+      if (refused != null) {
+        conflict('meeting', _codeOf(refused),
+            'The server did not record this meeting as closed: ${refused.message}');
+      }
     }
 
     await _idMap.replaceConflicts(meeting.id, conflicts);

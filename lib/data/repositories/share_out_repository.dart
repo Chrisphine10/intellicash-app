@@ -186,7 +186,7 @@ class ShareOutRepository {
     final openMeeting = await openMeetingNumber(group.id);
     if (openMeeting != null) {
       throw DomainException(
-          'Close Meeting #$openMeeting before sharing out. Its savings and '
+          'Close Meeting #$openMeeting before sharing out. Its shares and '
           'loans belong to this cycle.');
     }
     final db = await _db.database;

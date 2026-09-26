@@ -287,7 +287,7 @@ class _MemberPassbookScreenState extends State<MemberPassbookScreen> {
                 label: Text(l10n.memberPassbookJoinAGroup),
               ),
             ] else ...[
-              const SectionLabel('My savings'),
+              const SectionLabel('My shares'),
               Card(
                 child: Padding(
                   padding:
@@ -415,7 +415,7 @@ class _MembershipRow extends StatelessWidget {
       subtitle: Text(
         active
             ? 'Showing this group below'
-            : 'Tap to see your savings here',
+            : 'Tap to see your shares here',
         style: Theme.of(context).textTheme.bodySmall,
       ),
       trailing: active

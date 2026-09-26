@@ -62,7 +62,7 @@ class L10nEn extends L10n {
 
   @override
   String get setUpGroupSubtitle =>
-      'Keep your group\'s savings, loans and meetings — works without internet once set up.';
+      'Keep your group\'s shares, loans and meetings — works without internet once set up.';
 
   @override
   String get whoIsThisAccountFor => 'Who is this account for?';
@@ -76,14 +76,14 @@ class L10nEn extends L10n {
 
   @override
   String get accountTypeGroupSubtitle =>
-      'This phone will keep our group\'s savings, loans and meetings.';
+      'This phone will keep our group\'s shares, loans and meetings.';
 
   @override
   String get accountTypeMember => 'Just Me';
 
   @override
   String get accountTypeMemberSubtitle =>
-      'I want to see my own savings, shares and loans.';
+      'I want to see my own shares and loans.';
 
   @override
   String get accountTypeAgent => 'Field Agent';
@@ -164,7 +164,7 @@ class L10nEn extends L10n {
   String get groupSettings => 'Group Settings';
 
   @override
-  String get groupSettingsSubtitle => 'Savings, loans and meeting days';
+  String get groupSettingsSubtitle => 'Shares, loans and meeting days';
 
   @override
   String get meetingSecurity => 'Meeting Security';
@@ -225,11 +225,11 @@ class L10nEn extends L10n {
 
   @override
   String get signOutKeepsRecords =>
-      'Your group\'s savings, loans and meetings stay saved on this phone, but nobody can open them until you sign in again. Your phone number will be remembered.';
+      'Your group\'s shares, loans and meetings stay saved on this phone, but nobody can open them until you sign in again. Your phone number will be remembered.';
 
   @override
   String get signOutMemberNote =>
-      'You will need to sign in again to see your savings. Your phone number will be remembered.';
+      'You will need to sign in again to see your shares. Your phone number will be remembered.';
 
   @override
   String get signOutAgentNote =>
@@ -349,7 +349,7 @@ class L10nEn extends L10n {
 
   @override
   String get groupSetupWizardWhichSavingsCycleIsThis =>
-      'Which savings cycle is this group on?';
+      'Which share cycle is this group on?';
 
   @override
   String get groupSetupWizardMemberName => 'Member Name';
@@ -372,7 +372,7 @@ class L10nEn extends L10n {
 
   @override
   String get groupSetupWizardTrackedSeparatelyFromSavings =>
-      'Tracked separately from savings';
+      'Tracked separately from shares';
 
   @override
   String get groupSetupWizardInterestRatePerMonth =>
@@ -380,7 +380,7 @@ class L10nEn extends L10n {
 
   @override
   String get groupSetupWizardMaxLoanMultiplierSavings =>
-      'Max Loan Multiplier (× savings)';
+      'Max Loan Multiplier (× shares)';
 
   @override
   String get groupSetupWizardDefaultLoanTermMonths =>
@@ -529,7 +529,7 @@ class L10nEn extends L10n {
 
   @override
   String get memberPassbookMySavingsAcrossAllGroups =>
-      'My savings across all groups';
+      'My shares across all groups';
 
   @override
   String get memberPassbookJoinAnotherGroup => 'Join another group';
@@ -542,7 +542,7 @@ class L10nEn extends L10n {
 
   @override
   String get memberPassbookYourSavingsAndLoanRecords =>
-      'Your savings and loan records will appear here.';
+      'Your share and loan records will appear here.';
 
   @override
   String get joinRequestsDecline => 'Decline';
@@ -622,7 +622,16 @@ class L10nEn extends L10n {
   String get dashboardHello => 'Hello 👋';
 
   @override
-  String get dashboardTotalSavings => 'Total Savings';
+  String get dashboardTotalSavings => 'Total Shares';
+
+  @override
+  String get dashboardSharesFromServer =>
+      'Total shares from the online record. This phone has no meetings for the group yet.';
+
+  @override
+  String dashboardSharesOnlineDiffers(String amount) {
+    return 'Online record: $amount. The difference is meetings not yet backed up from this phone, or recorded somewhere else.';
+  }
 
   @override
   String get dashboardActiveLoans => 'Active Loans';
@@ -679,10 +688,20 @@ class L10nEn extends L10n {
   String get cyclesCloseCycle => 'Close cycle';
 
   @override
-  String get cyclesSavingCycles => 'Saving Cycles';
+  String get cyclesSavingCycles => 'Share Cycles';
 
   @override
   String get cyclesCloseCycleAndStartThe => 'Close cycle and start the next';
+
+  @override
+  String get cyclesShareOutFirst => 'Do the share-out first';
+
+  @override
+  String get cyclesShareOutFirstBody =>
+      'Members bought shares in this cycle. A cycle with shares ends with its share-out, which pays every member and closes the cycle in one step. It cannot be closed before that.';
+
+  @override
+  String get cyclesGoToShareOut => 'Go to Share-Out';
 
   @override
   String get cyclesReadOnlyStillVisibleIn =>
@@ -830,10 +849,10 @@ class L10nEn extends L10n {
   String get cloudDashboardRefresh => 'Refresh';
 
   @override
-  String get cloudDashboardSavingsFund => 'Savings Fund';
+  String get cloudDashboardSavingsFund => 'Total Shares';
 
   @override
-  String get cloudDashboardInternalLoans => 'Internal Loans';
+  String get cloudDashboardInternalLoans => 'Loan Fund (cash)';
 
   @override
   String get serverSettingsOrUseAGroupAccess => 'or use a group access key';
@@ -1023,11 +1042,11 @@ class L10nEn extends L10n {
   String get moreIntelliCash => 'Intelli-Cash';
 
   @override
-  String get mySavingsMySavings => 'My Savings';
+  String get mySavingsMySavings => 'My Shares';
 
   @override
   String get mySavingsOnceAGroupAcceptsYou =>
-      'Once a group accepts you, your savings will show here.';
+      'Once a group accepts you, your shares will show here.';
 
   @override
   String get buySharesEnterCodeByHand => 'Enter Code by Hand';
@@ -1095,11 +1114,11 @@ class L10nEn extends L10n {
 
   @override
   String get dashboardTheSavingsCurveAppearsAfterYour =>
-      'The savings curve appears after your first two meetings.';
+      'The shares curve appears after your first two meetings.';
 
   @override
   String get disburseLoanThisMemberHasNoBorrowingHeadroom =>
-      'This member has no borrowing headroom — savings must grow or the current loan must reduce first.';
+      'This member has no borrowing headroom — their shares must grow or the current loan must reduce first.';
 
   @override
   String get disburseLoanTheLoanFundIsEmptyCollect =>
@@ -1131,7 +1150,7 @@ class L10nEn extends L10n {
 
   @override
   String get meetingsStartYourFirstMeetingToRecord =>
-      'Start your first meeting to record attendance, savings, fines and loans.';
+      'Start your first meeting to record attendance, shares, fines and loans.';
 
   @override
   String get meetingsClosedMeetingsAreLockedTheirRecords =>
@@ -1147,11 +1166,11 @@ class L10nEn extends L10n {
 
   @override
   String get memberPassbookAskYourGroupToAddYou =>
-      'Ask your group to add you and your savings will show up here.';
+      'Ask your group to add you and your shares will show up here.';
 
   @override
   String get editMemberCorrectingASpellingOrAMistyped =>
-      'Correcting a spelling or a mistyped number. Their savings, loans and attendance stay exactly as they are.';
+      'Correcting a spelling or a mistyped number. Their shares, loans and attendance stay exactly as they are.';
 
   @override
   String get joinRequestsTheyWillNotBeAddedTo =>
@@ -1175,7 +1194,7 @@ class L10nEn extends L10n {
 
   @override
   String get membersAddMembersWithTheButtonBelow =>
-      'Add members with the button below — each gets an individual savings and loan profile.';
+      'Add members with the button below — each gets an individual shares and loan profile.';
 
   @override
   String get meetingSecurityAssignAChairpersonSecretaryAndTreasurer =>
@@ -1187,7 +1206,7 @@ class L10nEn extends L10n {
 
   @override
   String get moreYourGroupSSavingsAndLoans =>
-      'Your group\'s savings and loans, right on your phone. Everything is saved on this phone first and backed up online when you have internet.\n\nIntelli-Wealth Limited · intelliwealth.org';
+      'Your group\'s shares and loans, right on your phone. Everything is saved on this phone first and backed up online when you have internet.\n\nIntelli-Wealth Limited · intelliwealth.org';
 
   @override
   String get moreNoInternetYourRecordsAreSafe =>
@@ -1199,7 +1218,7 @@ class L10nEn extends L10n {
 
   @override
   String get welcomeYourGroupIsAlreadyOnThe =>
-      'Your group is already on the server. Load it here instead of creating a new one, so your savings history stays in one record.';
+      'Your group is already on the server. Load it here instead of creating a new one, so your shares history stays in one record.';
 
   @override
   String get agentReportWhenGroupsAreAssignedToYou =>
@@ -1243,7 +1262,7 @@ class L10nEn extends L10n {
 
   @override
   String get serverSettingsAskYourGroupAdministratorForAn =>
-      'Ask your group administrator for an access key, then paste it here. It only lets this phone see and record your group\'s savings, loans and meetings.';
+      'Ask your group administrator for an access key, then paste it here. It only lets this phone see and record your group\'s shares, loans and meetings.';
 
   @override
   String get cyclesPullDownToTryAgainIf =>
@@ -1304,6 +1323,10 @@ class L10nEn extends L10n {
   @override
   String get externalLoansExternalLoansLoadFromTheIntelli =>
       'External loans load from the Intelli-Cash backend. Connect or sign in first.';
+
+  @override
+  String get externalLoanGroupAccountOnly =>
+      'A loan binds the whole group, so only your group\'s own account can apply. Ask your group\'s officials to apply during a meeting.';
 
   @override
   String get storeFarmSolarHouseholdAndBusinessProducts =>
@@ -1915,7 +1938,7 @@ class L10nEn extends L10n {
 
   @override
   String get socialFundZeroCannotCollect =>
-      'The social fund amount is KSh 0, so there is nothing to collect. Set the amount in Group Settings (Savings step) first.';
+      'The social fund amount is KSh 0, so there is nothing to collect. Set the amount in Group Settings (Shares step) first.';
 
   @override
   String get groupSyncNothingToBackUp =>
@@ -1931,7 +1954,7 @@ class L10nEn extends L10n {
 
   @override
   String shareOutCloseMeetingFirst(int number) {
-    return 'Close Meeting #$number before sharing out. Its savings and loans belong to this cycle.';
+    return 'Close Meeting #$number before sharing out. Its shares and loans belong to this cycle.';
   }
 
   @override
@@ -2007,12 +2030,12 @@ class L10nEn extends L10n {
 
   @override
   String restoreHistoryPending(String groupName, int members) {
-    return 'Loaded $groupName with $members members. Its meetings and savings will follow when there is a signal.';
+    return 'Loaded $groupName with $members members. Its meetings and shares will follow when there is a signal.';
   }
 
   @override
   String restoreHistoryNotLoaded(String groupName, int members) {
-    return 'Loaded $groupName with $members members. Its earlier meetings and savings could not be loaded from the online record.';
+    return 'Loaded $groupName with $members members. Its earlier meetings and shares could not be loaded from the online record.';
   }
 
   @override
@@ -2171,7 +2194,7 @@ class L10nEn extends L10n {
     String interest,
     String multiplier,
   ) {
-    return '$share per share · up to $maxShares shares a meeting · $social social fund · $interest% interest · borrow up to $multiplier× savings';
+    return '$share per share · up to $maxShares shares a meeting · $social social fund · $interest% interest · borrow up to $multiplier× shares';
   }
 
   @override
@@ -2179,10 +2202,10 @@ class L10nEn extends L10n {
       'Loan term, interest and where expenses come from';
 
   @override
-  String get moreSavingCycles => 'Saving cycles';
+  String get moreSavingCycles => 'Share cycles';
 
   @override
-  String get moreSavingCyclesSubtitle => 'Close a cycle and start the next';
+  String get moreSavingCyclesSubtitle => 'Close a cycle after its share-out';
 
   @override
   String get moreCloudAndAdvanced => 'Cloud & advanced';
@@ -2237,7 +2260,7 @@ class L10nEn extends L10n {
 
   @override
   String get memberSignInsSubtitle =>
-      'Members can sign in on their own phones to see their savings and loans.';
+      'Members can sign in on their own phones to see their shares and loans.';
 
   @override
   String get memberSignInsNeedsConnection =>
@@ -2245,7 +2268,7 @@ class L10nEn extends L10n {
 
   @override
   String get memberSignInsNowOn =>
-      'Members can now sign in to see their savings.';
+      'Members can now sign in to see their shares.';
 
   @override
   String get memberSignInsNowOff => 'Member sign-ins are off for this group.';
@@ -2255,7 +2278,7 @@ class L10nEn extends L10n {
 
   @override
   String memberDetailSignInExplain(String name) {
-    return 'Give $name their own sign-in so they can see their savings and loans on their own phone.';
+    return 'Give $name their own sign-in so they can see their shares and loans on their own phone.';
   }
 
   @override
@@ -2306,7 +2329,7 @@ class L10nEn extends L10n {
 
   @override
   String get meetingHistoryPendingBody =>
-      'Earlier meetings, savings and loans from the online record have not finished coming onto this phone. If a meeting is started now, they can no longer be added underneath it. Connect to the internet and wait a moment, or start anyway.';
+      'Earlier meetings, shares and loans from the online record have not finished coming onto this phone. If a meeting is started now, they can no longer be added underneath it. Connect to the internet and wait a moment, or start anyway.';
 
   @override
   String get meetingHistoryPendingWait => 'Wait for it';

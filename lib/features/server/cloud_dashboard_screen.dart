@@ -69,7 +69,7 @@ class _CloudDashboardScreenState extends State<CloudDashboardScreen> {
                 '${group.creditScore != null ? ' · Credit score ${group.creditScore}' : ''}',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
-              const SectionLabel('Fund balances'),
+              const SectionLabel('Online record'),
               GridView.count(
                 crossAxisCount: 2,
                 shrinkWrap: true,
@@ -78,10 +78,15 @@ class _CloudDashboardScreenState extends State<CloudDashboardScreen> {
                 crossAxisSpacing: 10,
                 childAspectRatio: 1.7,
                 children: [
+                  // Total shares = the shares bought this cycle, the same
+                  // figure the phone's dashboard counts. The loan fund's cash
+                  // is shown separately: it drops whenever a loan goes out.
                   StatCard(
-                    value: Formatters.moneyCompact(group.savingsBalance),
+                    value: group.totalShares == null
+                        ? '—'
+                        : Formatters.moneyCompact(group.totalShares!),
                     label: l10n.cloudDashboardSavingsFund,
-                    icon: Icons.savings_outlined,
+                    icon: Icons.pie_chart_outline,
                   ),
                   StatCard(
                     value: Formatters.moneyCompact(group.internalLoanBalance),

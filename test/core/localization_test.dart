@@ -96,7 +96,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Nunua Hisa'), findsOneWidget);
-    expect(find.text('Jumla ya Akiba'), findsOneWidget);
+    expect(find.text('Jumla ya Hisa'), findsOneWidget);
     expect(find.text('Kitabu Changu'), findsOneWidget);
     expect(find.text('Kubali'), findsOneWidget);
   });

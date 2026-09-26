@@ -190,7 +190,7 @@ class _MembersScreenState extends State<MembersScreen> {
                         fontSize: 13.5, fontWeight: FontWeight.w600),
                   ),
                   subtitle: Text(
-                    'Savings ${Formatters.moneyCompact(financials.totalSavings)} · '
+                    'Shares ${Formatters.moneyCompact(financials.totalSavings)} · '
                     '${financials.hasActiveLoan ? 'Loan ${Formatters.moneyCompact(financials.activeLoanBalance)}' : 'No active loan'}',
                     style: TextStyle(
                         fontSize: 11, color: AppColors.textSecondary),

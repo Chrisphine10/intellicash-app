@@ -61,7 +61,7 @@ class L10nLuo extends L10n {
 
   @override
   String get setUpGroupSubtitle =>
-      'Kan pesa mokan, hola kod chokruoge mag riwruok mau — otiyo kata ka onge intanet.';
+      'Kan hisa, hola kod chokruoge mag riwruok mau — otiyo kata ka onge intanet.';
 
   @override
   String get whoIsThisAccountFor => 'Akaunt ni en mar ngʼa?';
@@ -74,14 +74,13 @@ class L10nLuo extends L10n {
 
   @override
   String get accountTypeGroupSubtitle =>
-      'Simu ni ema biro kano pesa, hola kod chokruoge mag riwruok marwa.';
+      'Simu ni ema biro hisa pesa, hola kod chokruoge mag riwruok marwa.';
 
   @override
   String get accountTypeMember => 'An Kenda';
 
   @override
-  String get accountTypeMemberSubtitle =>
-      'Adwaro neno pesa mokan, hisa kod hola maga.';
+  String get accountTypeMemberSubtitle => 'Adwaro neno hisa kod hola maga.';
 
   @override
   String get accountTypeAgent => 'Jakony mar Gwengʼ';
@@ -163,8 +162,7 @@ class L10nLuo extends L10n {
   String get groupSettings => 'Chenro mar Riwruok';
 
   @override
-  String get groupSettingsSubtitle =>
-      'Pesa mokan, hola kod odiechienge mag chokruok';
+  String get groupSettingsSubtitle => 'Hisa, hola kod odiechienge mag chokruok';
 
   @override
   String get meetingSecurity => 'Rito mar Chokruok';
@@ -229,7 +227,7 @@ class L10nLuo extends L10n {
 
   @override
   String get signOutMemberNote =>
-      'Ibiro dwaro donjo kendo mondo ine pesa mokan magi. Namba mar simu mari ibiro par.';
+      'Ibiro dwaro donjo kendo mondo ine hisa magi. Namba mar simu mari ibiro par.';
 
   @override
   String get signOutAgentNote =>
@@ -348,7 +346,7 @@ class L10nLuo extends L10n {
 
   @override
   String get groupSetupWizardWhichSavingsCycleIsThis =>
-      'Riwruokni ni e ndalo mar kano mane?';
+      'Riwruokni ni e ndalo mar hisa mane?';
 
   @override
   String get groupSetupWizardMemberName => 'Nying Jamembe';
@@ -372,14 +370,14 @@ class L10nLuo extends L10n {
 
   @override
   String get groupSetupWizardTrackedSeparatelyFromSavings =>
-      'Iluwo kama opogore gi pesa mokan';
+      'Iluwo kama opogore gi hisa';
 
   @override
   String get groupSetupWizardInterestRatePerMonth => 'Ohala (% e dwe achiel)';
 
   @override
   String get groupSetupWizardMaxLoanMultiplierSavings =>
-      'Tongʼ mar Hola (× pesa mokan)';
+      'Tongʼ mar Hola (× hisa)';
 
   @override
   String get groupSetupWizardDefaultLoanTermMonths => 'Kinde mar Hola (dweche)';
@@ -528,7 +526,7 @@ class L10nLuo extends L10n {
 
   @override
   String get memberPassbookMySavingsAcrossAllGroups =>
-      'Pesa mokan maga e riwruoge duto';
+      'Hisa maga e riwruoge duto';
 
   @override
   String get memberPassbookJoinAnotherGroup => 'Donj e riwruok machielo';
@@ -541,7 +539,7 @@ class L10nLuo extends L10n {
 
   @override
   String get memberPassbookYourSavingsAndLoanRecords =>
-      'Ndiko mag pesa mokan kod hola magi biro nenore ka.';
+      'Ndiko mag hisa kod hola magi biro nenore ka.';
 
   @override
   String get joinRequestsDecline => 'Kwed';
@@ -621,7 +619,16 @@ class L10nLuo extends L10n {
   String get dashboardHello => 'Amosi 👋';
 
   @override
-  String get dashboardTotalSavings => 'Pesa Duto Mokan';
+  String get dashboardTotalSavings => 'Hisa Duto';
+
+  @override
+  String get dashboardSharesFromServer =>
+      'Total shares from the online record. This phone has no meetings for the group yet.';
+
+  @override
+  String dashboardSharesOnlineDiffers(String amount) {
+    return 'Online record: $amount. The difference is meetings not yet backed up from this phone, or recorded somewhere else.';
+  }
 
   @override
   String get dashboardActiveLoans => 'Hola Matiyo';
@@ -678,10 +685,20 @@ class L10nLuo extends L10n {
   String get cyclesCloseCycle => 'Lor ndalo';
 
   @override
-  String get cyclesSavingCycles => 'Ndalo mag Kano';
+  String get cyclesSavingCycles => 'Ndalo mag Hisa';
 
   @override
   String get cyclesCloseCycleAndStartThe => 'Lor ndalo kendo ichak machielo';
+
+  @override
+  String get cyclesShareOutFirst => 'Do the share-out first';
+
+  @override
+  String get cyclesShareOutFirstBody =>
+      'Members bought shares in this cycle. A cycle with shares ends with its share-out, which pays every member and closes the cycle in one step. It cannot be closed before that.';
+
+  @override
+  String get cyclesGoToShareOut => 'Go to Share-Out';
 
   @override
   String get cyclesReadOnlyStillVisibleIn => 'Somo kende — pod nenore e ripot';
@@ -826,10 +843,10 @@ class L10nLuo extends L10n {
   String get cloudDashboardRefresh => 'Nwo';
 
   @override
-  String get cloudDashboardSavingsFund => 'Sanduk mar Kano';
+  String get cloudDashboardSavingsFund => 'Hisa Duto';
 
   @override
-  String get cloudDashboardInternalLoans => 'Hola mag Iye';
+  String get cloudDashboardInternalLoans => 'Sanduk mar Hola';
 
   @override
   String get serverSettingsOrUseAGroupAccess => 'kata ti gi rayaw mar riwruok';
@@ -1018,11 +1035,11 @@ class L10nLuo extends L10n {
   String get moreIntelliCash => 'Intelli-Cash';
 
   @override
-  String get mySavingsMySavings => 'Pesa Maga Mokan';
+  String get mySavingsMySavings => 'Hisa Maga';
 
   @override
   String get mySavingsOnceAGroupAcceptsYou =>
-      'Ka riwruok orwaki, pesa mokan magi biro nenore ka.';
+      'Ka riwruok orwaki, hisa magi biro nenore ka.';
 
   @override
   String get buySharesEnterCodeByHand => 'Ket Rangʼiny gi Lweti';
@@ -1089,11 +1106,11 @@ class L10nLuo extends L10n {
 
   @override
   String get dashboardTheSavingsCurveAppearsAfterYour =>
-      'Kido mar pesa mokan nenore bangʼ chokruoge ariyo mokwongo.';
+      'Kido mar hisa nenore bangʼ chokruoge ariyo mokwongo.';
 
   @override
   String get disburseLoanThisMemberHasNoBorrowingHeadroom =>
-      'Jamembeni onge gi thuolo mar holo — pesa mokan nyaka medre kata hola ma en-go nyaka dok piny mokwongo.';
+      'Jamembeni onge gi thuolo mar holo — hisa nyaka medre kata hola ma en-go nyaka dok piny mokwongo.';
 
   @override
   String get disburseLoanTheLoanFundIsEmptyCollect =>
@@ -1125,7 +1142,7 @@ class L10nLuo extends L10n {
 
   @override
   String get meetingsStartYourFirstMeetingToRecord =>
-      'Chak chokruok mari mokwongo mondo indik bedo e chokruok, pesa mokan, chudo kod hola.';
+      'Chak chokruok mari mokwongo mondo indik bedo e chokruok, hisa, chudo kod hola.';
 
   @override
   String get meetingsClosedMeetingsAreLockedTheirRecords =>
@@ -1141,11 +1158,11 @@ class L10nLuo extends L10n {
 
   @override
   String get memberPassbookAskYourGroupToAddYou =>
-      'Kwa riwruok mari mondo omedi eka pesa mokan magi nonenre ka.';
+      'Kwa riwruok mari mondo omedi eka hisa magi nonenre ka.';
 
   @override
   String get editMemberCorrectingASpellingOrAMistyped =>
-      'Loso otonge kata namba mane ondik marach. Pesa mokan, hola kod bedo e chokruok mage siko kaka gin.';
+      'Loso otonge kata namba mane ondik marach. Hisa, hola kod bedo e chokruok mage siko kaka gin.';
 
   @override
   String get joinRequestsTheyWillNotBeAddedTo =>
@@ -1169,7 +1186,7 @@ class L10nLuo extends L10n {
 
   @override
   String get membersAddMembersWithTheButtonBelow =>
-      'Med jomembe gi rayaw manie piny — ngʼato ka ngʼato yudo ndiko mare owuon mar pesa mokan kod hola.';
+      'Med jomembe gi rayaw manie piny — ngʼato ka ngʼato yudo ndiko mare owuon mar hisa kod hola.';
 
   @override
   String get meetingSecurityAssignAChairpersonSecretaryAndTreasurer =>
@@ -1181,7 +1198,7 @@ class L10nLuo extends L10n {
 
   @override
   String get moreYourGroupSSavingsAndLoans =>
-      'Pesa mokan kod hola mag riwruok mari, e simu mari. Gimoro amora ikano e simu ni mokwongo, eka okan e intanet ka iyudo mtandao.\n\nIntelli-Wealth Limited · intelliwealth.org';
+      'Hisa kod hola mag riwruok mari, e simu mari. Gimoro amora ihisa e simu ni mokwongo, eka okan e intanet ka iyudo mtandao.\n\nIntelli-Wealth Limited · intelliwealth.org';
 
   @override
   String get moreNoInternetYourRecordsAreSafe =>
@@ -1193,7 +1210,7 @@ class L10nLuo extends L10n {
 
   @override
   String get welcomeYourGroupIsAlreadyOnThe =>
-      'Riwruok mari nitie e seva. Kele ka kar loso manyien, mondo weche mag pesa mokan magi osik e ndiko achiel.';
+      'Riwruok mari nitie e seva. Kele ka kar loso manyien, mondo weche mag hisa magi osik e ndiko achiel.';
 
   @override
   String get agentReportWhenGroupsAreAssignedToYou =>
@@ -1237,7 +1254,7 @@ class L10nLuo extends L10n {
 
   @override
   String get serverSettingsAskYourGroupAdministratorForAn =>
-      'Kwa jarit mar riwruok mari rayaw, eka iket ka. Oyie mana simu ni mondo one kendo ondik pesa mokan, hola kod chokruoge mag riwruok mari.';
+      'Kwa jarit mar riwruok mari rayaw, eka iket ka. Oyie mana simu ni mondo one kendo ondik hisa, hola kod chokruoge mag riwruok mari.';
 
   @override
   String get cyclesPullDownToTryAgainIf =>
@@ -1298,6 +1315,10 @@ class L10nLuo extends L10n {
   @override
   String get externalLoansExternalLoansLoadFromTheIntelli =>
       'Hola moa oko yudore koa e seva mar Intelli-Cash. Tud kata idonji mokwongo.';
+
+  @override
+  String get externalLoanGroupAccountOnly =>
+      'Hola en mar riwruok duto, omiyo akaunt mar riwruok owuon kende ema nyalo kwayo. Kwa jotelo mag riwruok mau mondo okwa e chokruok.';
 
   @override
   String get storeFarmSolarHouseholdAndBusinessProducts =>
@@ -1908,7 +1929,7 @@ class L10nLuo extends L10n {
 
   @override
   String get socialFundZeroCannotCollect =>
-      'The social fund amount is KSh 0, so there is nothing to collect. Set the amount in Group Settings (Savings step) first.';
+      'The social fund amount is KSh 0, so there is nothing to collect. Set the amount in Group Settings (Shares step) first.';
 
   @override
   String get groupSyncNothingToBackUp =>
@@ -1924,7 +1945,7 @@ class L10nLuo extends L10n {
 
   @override
   String shareOutCloseMeetingFirst(int number) {
-    return 'Close Meeting #$number before sharing out. Its savings and loans belong to this cycle.';
+    return 'Close Meeting #$number before sharing out. Its shares and loans belong to this cycle.';
   }
 
   @override
@@ -2000,12 +2021,12 @@ class L10nLuo extends L10n {
 
   @override
   String restoreHistoryPending(String groupName, int members) {
-    return 'Loaded $groupName with $members members. Its meetings and savings will follow when there is a signal.';
+    return 'Loaded $groupName with $members members. Its meetings and shares will follow when there is a signal.';
   }
 
   @override
   String restoreHistoryNotLoaded(String groupName, int members) {
-    return 'Loaded $groupName with $members members. Its earlier meetings and savings could not be loaded from the online record.';
+    return 'Loaded $groupName with $members members. Its earlier meetings and shares could not be loaded from the online record.';
   }
 
   @override
@@ -2164,7 +2185,7 @@ class L10nLuo extends L10n {
     String interest,
     String multiplier,
   ) {
-    return '$share per share · up to $maxShares shares a meeting · $social social fund · $interest% interest · borrow up to $multiplier× savings';
+    return '$share per share · up to $maxShares shares a meeting · $social social fund · $interest% interest · borrow up to $multiplier× shares';
   }
 
   @override
@@ -2172,10 +2193,10 @@ class L10nLuo extends L10n {
       'Loan term, interest and where expenses come from';
 
   @override
-  String get moreSavingCycles => 'Saving cycles';
+  String get moreSavingCycles => 'Share cycles';
 
   @override
-  String get moreSavingCyclesSubtitle => 'Close a cycle and start the next';
+  String get moreSavingCyclesSubtitle => 'Close a cycle after its share-out';
 
   @override
   String get moreCloudAndAdvanced => 'Cloud & advanced';
@@ -2230,7 +2251,7 @@ class L10nLuo extends L10n {
 
   @override
   String get memberSignInsSubtitle =>
-      'Members can sign in on their own phones to see their savings and loans.';
+      'Members can sign in on their own phones to see their shares and loans.';
 
   @override
   String get memberSignInsNeedsConnection =>
@@ -2238,7 +2259,7 @@ class L10nLuo extends L10n {
 
   @override
   String get memberSignInsNowOn =>
-      'Members can now sign in to see their savings.';
+      'Members can now sign in to see their shares.';
 
   @override
   String get memberSignInsNowOff => 'Member sign-ins are off for this group.';
@@ -2248,7 +2269,7 @@ class L10nLuo extends L10n {
 
   @override
   String memberDetailSignInExplain(String name) {
-    return 'Give $name their own sign-in so they can see their savings and loans on their own phone.';
+    return 'Give $name their own sign-in so they can see their shares and loans on their own phone.';
   }
 
   @override
@@ -2299,7 +2320,7 @@ class L10nLuo extends L10n {
 
   @override
   String get meetingHistoryPendingBody =>
-      'Earlier meetings, savings and loans from the online record have not finished coming onto this phone. If a meeting is started now, they can no longer be added underneath it. Connect to the internet and wait a moment, or start anyway.';
+      'Earlier meetings, shares and loans from the online record have not finished coming onto this phone. If a meeting is started now, they can no longer be added underneath it. Connect to the internet and wait a moment, or start anyway.';
 
   @override
   String get meetingHistoryPendingWait => 'Wait for it';

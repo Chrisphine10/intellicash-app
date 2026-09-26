@@ -326,7 +326,7 @@ class MeetingRepository {
     // as "paid" for nothing, and the server refuses it when the meeting syncs.
     if (group.socialFundAmount <= 0) {
       throw const DomainException(
-        'The social fund amount is KSh 0. Set it in Group Settings (Savings step) before collecting.',
+        'The social fund amount is KSh 0. Set it in Group Settings (Shares step) before collecting.',
       );
     }
     final db = await _db.database;
@@ -405,7 +405,7 @@ class MeetingRepository {
       // meeting syncs.
       if (group.socialFundAmount <= 0) {
         throw const DomainException(
-          'The social fund amount is KSh 0. Set it in Group Settings (Savings step) before collecting.',
+          'The social fund amount is KSh 0. Set it in Group Settings (Shares step) before collecting.',
         );
       }
       final existing = await db.query(

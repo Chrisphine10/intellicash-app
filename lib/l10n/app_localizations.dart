@@ -202,7 +202,7 @@ abstract class L10n {
   /// No description provided for @setUpGroupSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Keep your group\'s savings, loans and meetings — works without internet once set up.'**
+  /// **'Keep your group\'s shares, loans and meetings — works without internet once set up.'**
   String get setUpGroupSubtitle;
 
   /// No description provided for @whoIsThisAccountFor.
@@ -226,7 +226,7 @@ abstract class L10n {
   /// No description provided for @accountTypeGroupSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'This phone will keep our group\'s savings, loans and meetings.'**
+  /// **'This phone will keep our group\'s shares, loans and meetings.'**
   String get accountTypeGroupSubtitle;
 
   /// No description provided for @accountTypeMember.
@@ -238,7 +238,7 @@ abstract class L10n {
   /// No description provided for @accountTypeMemberSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'I want to see my own savings, shares and loans.'**
+  /// **'I want to see my own shares and loans.'**
   String get accountTypeMemberSubtitle;
 
   /// No description provided for @accountTypeAgent.
@@ -394,7 +394,7 @@ abstract class L10n {
   /// No description provided for @groupSettingsSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Savings, loans and meeting days'**
+  /// **'Shares, loans and meeting days'**
   String get groupSettingsSubtitle;
 
   /// No description provided for @meetingSecurity.
@@ -508,13 +508,13 @@ abstract class L10n {
   /// No description provided for @signOutKeepsRecords.
   ///
   /// In en, this message translates to:
-  /// **'Your group\'s savings, loans and meetings stay saved on this phone, but nobody can open them until you sign in again. Your phone number will be remembered.'**
+  /// **'Your group\'s shares, loans and meetings stay saved on this phone, but nobody can open them until you sign in again. Your phone number will be remembered.'**
   String get signOutKeepsRecords;
 
   /// No description provided for @signOutMemberNote.
   ///
   /// In en, this message translates to:
-  /// **'You will need to sign in again to see your savings. Your phone number will be remembered.'**
+  /// **'You will need to sign in again to see your shares. Your phone number will be remembered.'**
   String get signOutMemberNote;
 
   /// No description provided for @signOutAgentNote.
@@ -736,7 +736,7 @@ abstract class L10n {
   /// No description provided for @groupSetupWizardWhichSavingsCycleIsThis.
   ///
   /// In en, this message translates to:
-  /// **'Which savings cycle is this group on?'**
+  /// **'Which share cycle is this group on?'**
   String get groupSetupWizardWhichSavingsCycleIsThis;
 
   /// No description provided for @groupSetupWizardMemberName.
@@ -778,7 +778,7 @@ abstract class L10n {
   /// No description provided for @groupSetupWizardTrackedSeparatelyFromSavings.
   ///
   /// In en, this message translates to:
-  /// **'Tracked separately from savings'**
+  /// **'Tracked separately from shares'**
   String get groupSetupWizardTrackedSeparatelyFromSavings;
 
   /// No description provided for @groupSetupWizardInterestRatePerMonth.
@@ -790,7 +790,7 @@ abstract class L10n {
   /// No description provided for @groupSetupWizardMaxLoanMultiplierSavings.
   ///
   /// In en, this message translates to:
-  /// **'Max Loan Multiplier (× savings)'**
+  /// **'Max Loan Multiplier (× shares)'**
   String get groupSetupWizardMaxLoanMultiplierSavings;
 
   /// No description provided for @groupSetupWizardDefaultLoanTermMonths.
@@ -1072,7 +1072,7 @@ abstract class L10n {
   /// No description provided for @memberPassbookMySavingsAcrossAllGroups.
   ///
   /// In en, this message translates to:
-  /// **'My savings across all groups'**
+  /// **'My shares across all groups'**
   String get memberPassbookMySavingsAcrossAllGroups;
 
   /// No description provided for @memberPassbookJoinAnotherGroup.
@@ -1096,7 +1096,7 @@ abstract class L10n {
   /// No description provided for @memberPassbookYourSavingsAndLoanRecords.
   ///
   /// In en, this message translates to:
-  /// **'Your savings and loan records will appear here.'**
+  /// **'Your share and loan records will appear here.'**
   String get memberPassbookYourSavingsAndLoanRecords;
 
   /// No description provided for @joinRequestsDecline.
@@ -1252,8 +1252,20 @@ abstract class L10n {
   /// No description provided for @dashboardTotalSavings.
   ///
   /// In en, this message translates to:
-  /// **'Total Savings'**
+  /// **'Total Shares'**
   String get dashboardTotalSavings;
+
+  /// No description provided for @dashboardSharesFromServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Total shares from the online record. This phone has no meetings for the group yet.'**
+  String get dashboardSharesFromServer;
+
+  /// No description provided for @dashboardSharesOnlineDiffers.
+  ///
+  /// In en, this message translates to:
+  /// **'Online record: {amount}. The difference is meetings not yet backed up from this phone, or recorded somewhere else.'**
+  String dashboardSharesOnlineDiffers(String amount);
 
   /// No description provided for @dashboardActiveLoans.
   ///
@@ -1366,7 +1378,7 @@ abstract class L10n {
   /// No description provided for @cyclesSavingCycles.
   ///
   /// In en, this message translates to:
-  /// **'Saving Cycles'**
+  /// **'Share Cycles'**
   String get cyclesSavingCycles;
 
   /// No description provided for @cyclesCloseCycleAndStartThe.
@@ -1374,6 +1386,24 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Close cycle and start the next'**
   String get cyclesCloseCycleAndStartThe;
+
+  /// No description provided for @cyclesShareOutFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Do the share-out first'**
+  String get cyclesShareOutFirst;
+
+  /// No description provided for @cyclesShareOutFirstBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Members bought shares in this cycle. A cycle with shares ends with its share-out, which pays every member and closes the cycle in one step. It cannot be closed before that.'**
+  String get cyclesShareOutFirstBody;
+
+  /// No description provided for @cyclesGoToShareOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Share-Out'**
+  String get cyclesGoToShareOut;
 
   /// No description provided for @cyclesReadOnlyStillVisibleIn.
   ///
@@ -1648,13 +1678,13 @@ abstract class L10n {
   /// No description provided for @cloudDashboardSavingsFund.
   ///
   /// In en, this message translates to:
-  /// **'Savings Fund'**
+  /// **'Total Shares'**
   String get cloudDashboardSavingsFund;
 
   /// No description provided for @cloudDashboardInternalLoans.
   ///
   /// In en, this message translates to:
-  /// **'Internal Loans'**
+  /// **'Loan Fund (cash)'**
   String get cloudDashboardInternalLoans;
 
   /// No description provided for @serverSettingsOrUseAGroupAccess.
@@ -2014,13 +2044,13 @@ abstract class L10n {
   /// No description provided for @mySavingsMySavings.
   ///
   /// In en, this message translates to:
-  /// **'My Savings'**
+  /// **'My Shares'**
   String get mySavingsMySavings;
 
   /// No description provided for @mySavingsOnceAGroupAcceptsYou.
   ///
   /// In en, this message translates to:
-  /// **'Once a group accepts you, your savings will show here.'**
+  /// **'Once a group accepts you, your shares will show here.'**
   String get mySavingsOnceAGroupAcceptsYou;
 
   /// No description provided for @buySharesEnterCodeByHand.
@@ -2140,13 +2170,13 @@ abstract class L10n {
   /// No description provided for @dashboardTheSavingsCurveAppearsAfterYour.
   ///
   /// In en, this message translates to:
-  /// **'The savings curve appears after your first two meetings.'**
+  /// **'The shares curve appears after your first two meetings.'**
   String get dashboardTheSavingsCurveAppearsAfterYour;
 
   /// No description provided for @disburseLoanThisMemberHasNoBorrowingHeadroom.
   ///
   /// In en, this message translates to:
-  /// **'This member has no borrowing headroom — savings must grow or the current loan must reduce first.'**
+  /// **'This member has no borrowing headroom — their shares must grow or the current loan must reduce first.'**
   String get disburseLoanThisMemberHasNoBorrowingHeadroom;
 
   /// No description provided for @disburseLoanTheLoanFundIsEmptyCollect.
@@ -2194,7 +2224,7 @@ abstract class L10n {
   /// No description provided for @meetingsStartYourFirstMeetingToRecord.
   ///
   /// In en, this message translates to:
-  /// **'Start your first meeting to record attendance, savings, fines and loans.'**
+  /// **'Start your first meeting to record attendance, shares, fines and loans.'**
   String get meetingsStartYourFirstMeetingToRecord;
 
   /// No description provided for @meetingsClosedMeetingsAreLockedTheirRecords.
@@ -2218,13 +2248,13 @@ abstract class L10n {
   /// No description provided for @memberPassbookAskYourGroupToAddYou.
   ///
   /// In en, this message translates to:
-  /// **'Ask your group to add you and your savings will show up here.'**
+  /// **'Ask your group to add you and your shares will show up here.'**
   String get memberPassbookAskYourGroupToAddYou;
 
   /// No description provided for @editMemberCorrectingASpellingOrAMistyped.
   ///
   /// In en, this message translates to:
-  /// **'Correcting a spelling or a mistyped number. Their savings, loans and attendance stay exactly as they are.'**
+  /// **'Correcting a spelling or a mistyped number. Their shares, loans and attendance stay exactly as they are.'**
   String get editMemberCorrectingASpellingOrAMistyped;
 
   /// No description provided for @joinRequestsTheyWillNotBeAddedTo.
@@ -2260,7 +2290,7 @@ abstract class L10n {
   /// No description provided for @membersAddMembersWithTheButtonBelow.
   ///
   /// In en, this message translates to:
-  /// **'Add members with the button below — each gets an individual savings and loan profile.'**
+  /// **'Add members with the button below — each gets an individual shares and loan profile.'**
   String get membersAddMembersWithTheButtonBelow;
 
   /// No description provided for @meetingSecurityAssignAChairpersonSecretaryAndTreasurer.
@@ -2278,7 +2308,7 @@ abstract class L10n {
   /// No description provided for @moreYourGroupSSavingsAndLoans.
   ///
   /// In en, this message translates to:
-  /// **'Your group\'s savings and loans, right on your phone. Everything is saved on this phone first and backed up online when you have internet.\n\nIntelli-Wealth Limited · intelliwealth.org'**
+  /// **'Your group\'s shares and loans, right on your phone. Everything is saved on this phone first and backed up online when you have internet.\n\nIntelli-Wealth Limited · intelliwealth.org'**
   String get moreYourGroupSSavingsAndLoans;
 
   /// No description provided for @moreNoInternetYourRecordsAreSafe.
@@ -2296,7 +2326,7 @@ abstract class L10n {
   /// No description provided for @welcomeYourGroupIsAlreadyOnThe.
   ///
   /// In en, this message translates to:
-  /// **'Your group is already on the server. Load it here instead of creating a new one, so your savings history stays in one record.'**
+  /// **'Your group is already on the server. Load it here instead of creating a new one, so your shares history stays in one record.'**
   String get welcomeYourGroupIsAlreadyOnThe;
 
   /// No description provided for @agentReportWhenGroupsAreAssignedToYou.
@@ -2362,7 +2392,7 @@ abstract class L10n {
   /// No description provided for @serverSettingsAskYourGroupAdministratorForAn.
   ///
   /// In en, this message translates to:
-  /// **'Ask your group administrator for an access key, then paste it here. It only lets this phone see and record your group\'s savings, loans and meetings.'**
+  /// **'Ask your group administrator for an access key, then paste it here. It only lets this phone see and record your group\'s shares, loans and meetings.'**
   String get serverSettingsAskYourGroupAdministratorForAn;
 
   /// No description provided for @cyclesPullDownToTryAgainIf.
@@ -2454,6 +2484,12 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'External loans load from the Intelli-Cash backend. Connect or sign in first.'**
   String get externalLoansExternalLoansLoadFromTheIntelli;
+
+  /// No description provided for @externalLoanGroupAccountOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'A loan binds the whole group, so only your group\'s own account can apply. Ask your group\'s officials to apply during a meeting.'**
+  String get externalLoanGroupAccountOnly;
 
   /// No description provided for @storeFarmSolarHouseholdAndBusinessProducts.
   ///
@@ -3508,7 +3544,7 @@ abstract class L10n {
   /// No description provided for @socialFundZeroCannotCollect.
   ///
   /// In en, this message translates to:
-  /// **'The social fund amount is KSh 0, so there is nothing to collect. Set the amount in Group Settings (Savings step) first.'**
+  /// **'The social fund amount is KSh 0, so there is nothing to collect. Set the amount in Group Settings (Shares step) first.'**
   String get socialFundZeroCannotCollect;
 
   /// No description provided for @groupSyncNothingToBackUp.
@@ -3532,7 +3568,7 @@ abstract class L10n {
   /// No description provided for @shareOutCloseMeetingFirst.
   ///
   /// In en, this message translates to:
-  /// **'Close Meeting #{number} before sharing out. Its savings and loans belong to this cycle.'**
+  /// **'Close Meeting #{number} before sharing out. Its shares and loans belong to this cycle.'**
   String shareOutCloseMeetingFirst(int number);
 
   /// No description provided for @shareOutPermanentOnline.
@@ -3652,13 +3688,13 @@ abstract class L10n {
   /// No description provided for @restoreHistoryPending.
   ///
   /// In en, this message translates to:
-  /// **'Loaded {groupName} with {members} members. Its meetings and savings will follow when there is a signal.'**
+  /// **'Loaded {groupName} with {members} members. Its meetings and shares will follow when there is a signal.'**
   String restoreHistoryPending(String groupName, int members);
 
   /// No description provided for @restoreHistoryNotLoaded.
   ///
   /// In en, this message translates to:
-  /// **'Loaded {groupName} with {members} members. Its earlier meetings and savings could not be loaded from the online record.'**
+  /// **'Loaded {groupName} with {members} members. Its earlier meetings and shares could not be loaded from the online record.'**
   String restoreHistoryNotLoaded(String groupName, int members);
 
   /// No description provided for @buySharesAbsentTag.
@@ -3928,7 +3964,7 @@ abstract class L10n {
   /// No description provided for @moreGroupRulesSummary.
   ///
   /// In en, this message translates to:
-  /// **'{share} per share · up to {maxShares} shares a meeting · {social} social fund · {interest}% interest · borrow up to {multiplier}× savings'**
+  /// **'{share} per share · up to {maxShares} shares a meeting · {social} social fund · {interest}% interest · borrow up to {multiplier}× shares'**
   String moreGroupRulesSummary(
     String share,
     int maxShares,
@@ -3946,13 +3982,13 @@ abstract class L10n {
   /// No description provided for @moreSavingCycles.
   ///
   /// In en, this message translates to:
-  /// **'Saving cycles'**
+  /// **'Share cycles'**
   String get moreSavingCycles;
 
   /// No description provided for @moreSavingCyclesSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Close a cycle and start the next'**
+  /// **'Close a cycle after its share-out'**
   String get moreSavingCyclesSubtitle;
 
   /// No description provided for @moreCloudAndAdvanced.
@@ -4042,7 +4078,7 @@ abstract class L10n {
   /// No description provided for @memberSignInsSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Members can sign in on their own phones to see their savings and loans.'**
+  /// **'Members can sign in on their own phones to see their shares and loans.'**
   String get memberSignInsSubtitle;
 
   /// No description provided for @memberSignInsNeedsConnection.
@@ -4054,7 +4090,7 @@ abstract class L10n {
   /// No description provided for @memberSignInsNowOn.
   ///
   /// In en, this message translates to:
-  /// **'Members can now sign in to see their savings.'**
+  /// **'Members can now sign in to see their shares.'**
   String get memberSignInsNowOn;
 
   /// No description provided for @memberSignInsNowOff.
@@ -4072,7 +4108,7 @@ abstract class L10n {
   /// No description provided for @memberDetailSignInExplain.
   ///
   /// In en, this message translates to:
-  /// **'Give {name} their own sign-in so they can see their savings and loans on their own phone.'**
+  /// **'Give {name} their own sign-in so they can see their shares and loans on their own phone.'**
   String memberDetailSignInExplain(String name);
 
   /// No description provided for @memberDetailCreateSignIn.
@@ -4150,7 +4186,7 @@ abstract class L10n {
   /// No description provided for @meetingHistoryPendingBody.
   ///
   /// In en, this message translates to:
-  /// **'Earlier meetings, savings and loans from the online record have not finished coming onto this phone. If a meeting is started now, they can no longer be added underneath it. Connect to the internet and wait a moment, or start anyway.'**
+  /// **'Earlier meetings, shares and loans from the online record have not finished coming onto this phone. If a meeting is started now, they can no longer be added underneath it. Connect to the internet and wait a moment, or start anyway.'**
   String get meetingHistoryPendingBody;
 
   /// No description provided for @meetingHistoryPendingWait.

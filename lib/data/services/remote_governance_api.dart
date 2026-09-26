@@ -42,9 +42,14 @@ class RemoteCycles {
     required this.currentNumber,
     required this.cycles,
     required this.canManage,
+    this.closeNeedsShareOut = false,
   });
 
   final int currentNumber;
+
+  /// Members bought shares this cycle and they were not shared out: the
+  /// cycle ends with its share-out, never with a plain close.
+  final bool closeNeedsShareOut;
   final List<RemoteCycle> cycles;
   final bool canManage;
 
@@ -54,6 +59,7 @@ class RemoteCycles {
             .map((e) => RemoteCycle.fromJson(Map<String, dynamic>.from(e as Map)))
             .toList(growable: false),
         canManage: j['canManage'] == true,
+        closeNeedsShareOut: j['closeNeedsShareOut'] == true,
       );
 }
 

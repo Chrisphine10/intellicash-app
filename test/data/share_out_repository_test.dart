@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intellicash_mobile/data/models/remote/remote_models.dart';
 import 'package:intellicash_mobile/core/database/app_database.dart';
 import 'package:intellicash_mobile/data/models/enums.dart';
 import 'package:intellicash_mobile/data/models/group.dart';
@@ -237,6 +238,25 @@ void main() {
 
     final after = await dashboard.summary(group.id);
     expect(after.totalSavings, 0);
+
+    // The server may not have heard of the share-out yet and still count the
+    // old cycle's shares. The phone's new, empty cycle must not show them.
+    final staleServer = RemoteGroup(
+      id: 'remote-1',
+      name: group.name,
+      code: 'IWL-X',
+      phase: 'MOBILISATION',
+      county: 'Nairobi',
+      shareValue: 100,
+      maxSharesPerMeeting: 10,
+      cycleNumber: 1,
+      totalSavingsCents: 200000,
+    );
+    final withServer = await dashboard.summary(group.id, remoteGroup: staleServer);
+    expect(withServer.totalSavings, 0);
+    expect(withServer.sharesFromServer, isFalse);
+    expect(withServer.serverTotalShares, isNull,
+        reason: 'a different cycle: its figure is not put beside this one');
     expect(after.meetingCount, 0);
     expect(after.finesCollected, 0);
     expect(after.trend, isEmpty);

@@ -14,7 +14,7 @@ import '../../shared/widgets/common.dart';
 const List<String> kFineReasons = [
   'Late arrival',
   'Absent without apology',
-  'Missed savings contribution',
+  'Missed share contribution',
   'Late loan repayment',
   'Phone ringing in meeting',
   'Leaving early',

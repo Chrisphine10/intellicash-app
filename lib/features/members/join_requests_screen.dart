@@ -94,10 +94,10 @@ class _JoinRequestsScreenState extends State<JoinRequestsScreen> {
               ? '${request.requestedName} gave a phone number that is already '
                   'on the register for ${request.willLinkToMemberName}.\n\n'
                   'If you accept, this phone will be able to see and use '
-                  '${request.willLinkToMemberName}\'s savings and loan '
+                  '${request.willLinkToMemberName}\'s shares and loan '
                   'records. Only accept if you know it is the same person.'
               : '${request.requestedName} will become a member of ${_groupName()}. '
-                  'They will be able to see the group\'s savings, loans and '
+                  'They will be able to see the group\'s shares, loans and '
                   'meeting records, and take part in group business.\n\n'
                   'Only approve someone the group knows.',
           style: const TextStyle(fontSize: 13.5),
@@ -203,7 +203,7 @@ class _JoinRequestsScreenState extends State<JoinRequestsScreen> {
         // so stops the "where is my money?" question at the next meeting.
         showAppSnack(
           context,
-          '${request.requestedName} is now a member. Their existing savings '
+          '${request.requestedName} is now a member. Their existing shares '
           'records were matched to them.',
         );
       } else {

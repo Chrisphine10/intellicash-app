@@ -39,10 +39,18 @@ class RemoteWriteApi {
     required String meetingId,
     required String event,
     required DateTime at,
+    List<String>? unlockedByMemberIds,
   }) async {
     await _client.postData(
       '/groups/$groupId/meetings/$meetingId/phone-lifecycle',
-      body: {'event': event, 'at': at.toUtc().toIso8601String()},
+      body: {
+        'event': event,
+        'at': at.toUtc().toIso8601String(),
+        // CLOSED: whose PINs opened the meeting (server ids), so the console
+        // shows the unlock instead of "waiting for keys".
+        if (unlockedByMemberIds != null && unlockedByMemberIds.isNotEmpty)
+          'unlockedByMemberIds': unlockedByMemberIds,
+      },
     );
   }
 

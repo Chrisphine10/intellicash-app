@@ -180,6 +180,21 @@ class GroupHistoryImporter {
       }
     }
 
+    // A server with no cycle on record keeps the group's whole history as one
+    // cycle. Without a start from the server the restore used to leave
+    // `cycle_start_date` at "now", so every imported share fell before the
+    // cycle and the dashboard read nothing (or fell back to the loan fund's
+    // cash). The cycle then starts just before its earliest record.
+    if (balancesFrom == null) {
+      final dates = <DateTime>[
+        for (final entry in bundle.entries) entry.createdAt,
+        for (final meeting in bundle.meetings) meeting.scheduledAt,
+      ]..sort();
+      if (dates.isNotEmpty) {
+        balancesFrom = dates.first.subtract(const Duration(seconds: 1));
+      }
+    }
+
     var records = 0;
     var loansMade = 0;
     var skipped = 0;
@@ -306,7 +321,7 @@ class GroupHistoryImporter {
           'group_id': localGroupId,
           'name': remoteMember.fullName,
           'phone': remoteMember.phone,
-          'role': remoteMember.role ?? 'member',
+          'role': MemberRole.fromAny(remoteMember.role).name,
           'is_active': 1,
           'joined_at': DateTime.now().toIso8601String(),
         });

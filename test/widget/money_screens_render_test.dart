@@ -212,7 +212,7 @@ void main() {
           scrollable: find.byType(Scrollable).first);
       expect(find.text('TOTALS SINCE THE GROUP BEGAN'), findsOneWidget);
       // The figures an agent needs before visiting a struggling group.
-      expect(find.text('Total savings'), findsOneWidget);
+      expect(find.text('Total shares'), findsOneWidget);
       expect(find.text('Still owed'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });

@@ -93,7 +93,7 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
                     const SizedBox(height: 8),
                     Text(
                       'We have asked $sentTo to add you. An official of the '
-                      'group will accept or decline it. Your savings will '
+                      'group will accept or decline it. Your shares will '
                       'show here once they accept.',
                       style: const TextStyle(fontSize: 13.5, height: 1.4),
                     ),

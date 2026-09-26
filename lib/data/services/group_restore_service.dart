@@ -109,6 +109,9 @@ class GroupRestoreService {
           groupId: group.id,
           name: remoteMember.fullName,
           phone: remoteMember.phone,
+          // The group's officials come back as officials: without them no
+          // meeting can be opened with the three keys.
+          role: MemberRole.fromAny(remoteMember.role),
         );
         await _idMap.put(
           MapEntity.member,

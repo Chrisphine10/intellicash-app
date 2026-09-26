@@ -37,7 +37,7 @@ class _GroupPolicyScreenState extends State<GroupPolicyScreen> {
 
   static const _funds = <String, String>{
     'SOCIAL': 'Welfare (social) fund',
-    'SAVINGS': 'Savings fund',
+    'SAVINGS': 'Shares fund',
     'INTERNAL_LOAN': 'Loan fund',
   };
 

@@ -52,6 +52,7 @@ class _FakeBackend extends RemoteWriteApi {
     required String meetingId,
     required String event,
     required DateTime at,
+    List<String>? unlockedByMemberIds,
   }) async {
     _guard();
   }
@@ -380,6 +381,76 @@ void main() {
     pushedRoles.clear();
     await sync.syncBoundGroups();
     expect(pushedRoles, isEmpty);
+  });
+
+  test('an office changed on the console reaches the phone, but not over an unsent phone change', () async {
+    final group = await seedGroup('Tsunami SHG');
+    final roster = await members.membersForGroup(group.id);
+    await idMap.put(MapEntity.group, group.id, 'remote-group-9', groupId: 'remote-group-9');
+    for (final m in roster) {
+      await idMap.put(MapEntity.member, m.id, 'srv-${m.id}', groupId: 'remote-group-9');
+    }
+    final ian = roster.firstWhere((m) => m.name == 'Ian Kamau');
+    final wanjiku = roster.firstWhere((m) => m.name == 'Wanjiku Kamau');
+    var serverRoles = {ian.id: 'CHAIRPERSON', wanjiku.id: 'MEMBER'};
+    var watermark = 0;
+    // A phone that is refused (never lands) keeps its change "unsent".
+    var pushWorks = true;
+
+    final sync = AutoSyncCoordinator(
+      idMap: idMap,
+      meetings: meetings,
+      writeSync: WriteSyncService(db: db, idMap: idMap, writeApi: backend),
+      linkSupport: GroupLinkSupport(
+        currentGroup: groups.currentGroup,
+        membersForGroup: (id) => members.membersForGroup(id),
+        ownRemoteGroupId: () async => 'remote-group-9',
+        remoteGroup: (_) async => remote('Tsunami SHG'),
+        pushMember: (_, m) async => 'srv-${m.id}',
+        remoteMembers: (_) async => [
+          for (final m in roster)
+            RemoteMember(
+              id: 'srv-${m.id}',
+              fullName: m.name,
+              phone: m.phone,
+              role: serverRoles[m.id] ?? 'MEMBER',
+              kycStatus: 'PENDING',
+              status: 'ACTIVE',
+            ),
+        ],
+        addLocalMember: (localGroupId, person) async =>
+            members.addMember(groupId: localGroupId, name: person.fullName),
+        applyRemoteRole: members.setRoleFromServer,
+        editedMembersSince: members.editedSince,
+        roleWatermark: () async => watermark,
+        saveRoleWatermark: (value) async => watermark = value,
+        pushRole: (remoteGroupId, remoteMemberId, role) async {
+          if (!pushWorks) throw Exception('offline');
+        },
+      ),
+    );
+
+    await sync.syncBoundGroups();
+    Member find(List<Member> list, String id) => list.firstWhere((m) => m.id == id);
+    var now = await members.membersForGroup(group.id);
+    expect(find(now, ian.id).role, MemberRole.chairperson, reason: 'the console made Ian chairperson');
+
+    // Wanjiku is made treasurer on the phone, and the push does not land.
+    pushWorks = false;
+    await members.updateMember(find(now, wanjiku.id).copyWith(role: MemberRole.treasurer));
+    await sync.syncBoundGroups();
+    now = await members.membersForGroup(group.id);
+    expect(find(now, wanjiku.id).role, MemberRole.treasurer,
+        reason: 'the unsent phone change is not overwritten by the server');
+
+    // It lands, and the console later hands the chair to Wanjiku.
+    pushWorks = true;
+    await sync.syncBoundGroups();
+    serverRoles = {ian.id: 'MEMBER', wanjiku.id: 'CHAIRPERSON'};
+    await sync.syncBoundGroups();
+    now = await members.membersForGroup(group.id);
+    expect(find(now, wanjiku.id).role, MemberRole.chairperson);
+    expect(find(now, ian.id).role, MemberRole.member);
   });
 
   /// A coordinator with the pull/policy hooks, over a server roster and policy

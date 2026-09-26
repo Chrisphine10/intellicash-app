@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/database/app_database.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
+import '../../data/models/dashboard_summary.dart';
 import '../../data/models/remote/remote_models.dart';
 import '../../data/repositories/id_map_repository.dart';
 import '../../l10n/app_localizations.dart';
@@ -146,7 +147,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ],
             ),
-            const SectionLabel('Savings trend'),
+            _SharesSourceNote(summary: summary),
+            const SectionLabel('Shares trend'),
             Card(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(12, 16, 16, 8),
@@ -170,6 +172,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+
+/// Where the "Total shares" figure came from. The phone's own book is shown
+/// whenever it holds meetings; the online record's figure is shown beside it
+/// when the two differ, so a gap is explained rather than hidden or blended.
+class _SharesSourceNote extends StatelessWidget {
+  const _SharesSourceNote({required this.summary});
+
+  final DashboardSummary summary;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = L10n.of(context);
+    final online = summary.serverTotalShares;
+    final String? text;
+    if (summary.sharesFromServer) {
+      text = l10n.dashboardSharesFromServer;
+    } else if (online != null && (online - summary.totalSavings).abs() >= 1) {
+      text = l10n.dashboardSharesOnlineDiffers(Formatters.money(online));
+    } else {
+      text = null;
+    }
+    if (text == null) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Text(text, style: Theme.of(context).textTheme.bodySmall),
     );
   }
 }

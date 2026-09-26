@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intellicash_mobile/core/database/app_database.dart';
 import 'package:intellicash_mobile/core/network/api_client.dart';
 import 'package:intellicash_mobile/core/network/api_credentials.dart';
+import 'package:intellicash_mobile/core/network/api_exception.dart';
 import 'package:intellicash_mobile/data/models/enums.dart';
 import 'package:intellicash_mobile/data/models/group.dart';
 import 'package:intellicash_mobile/data/repositories/group_repository.dart';
@@ -42,14 +43,23 @@ class FakeRemoteWriteApi extends RemoteWriteApi {
   /// What the phone told the server a person did: STARTED, CLOSED.
   final List<String> lifecycle = [];
 
+  /// Who the phone said opened the meeting, sent with CLOSED.
+  List<String>? closedUnlockedBy;
+
+  /// When set, CLOSED is refused with this (the server said no).
+  ApiException? refuseClosed;
+
   @override
   Future<void> reportMeetingLifecycle({
     required String groupId,
     required String meetingId,
     required String event,
     required DateTime at,
+    List<String>? unlockedByMemberIds,
   }) async {
+    if (event == 'CLOSED' && refuseClosed != null) throw refuseClosed!;
     lifecycle.add(event);
+    if (event == 'CLOSED') closedUnlockedBy = unlockedByMemberIds;
   }
 
   @override
@@ -282,6 +292,54 @@ void main() {
       final service = WriteSyncService(
           db: db, idMap: idMap, writeApi: FakeRemoteWriteApi());
       expect(() => service.syncMeeting(meeting), throwsA(anything));
+    });
+  });
+
+  group('closing a meeting on the server', () {
+    Future<(Group, List<String>)> boundGroup() async {
+      final group = await seedGroup();
+      final roster = await members.membersForGroup(group.id);
+      await idMap.put(MapEntity.group, group.id, 'remote-group-1',
+          groupId: 'remote-group-1');
+      for (final member in roster) {
+        await idMap.put(MapEntity.member, member.id, 'r-${member.id}',
+            groupId: 'remote-group-1');
+      }
+      return (group, [for (final m in roster) m.id]);
+    }
+
+    test('tells the server whose PINs opened the meeting', () async {
+      final (group, ids) = await boundGroup();
+      final meeting = await meetings.startMeeting(group, unlockedBy: ids.take(2).toList());
+      await meetings.closeMeeting(meeting);
+
+      final fake = FakeRemoteWriteApi();
+      final service = WriteSyncService(db: db, idMap: idMap, writeApi: fake);
+      await service.syncMeeting((await meetings.meetingsForGroup(group.id)).first.meeting);
+
+      expect(fake.lifecycle.last, 'CLOSED');
+      expect(fake.closedUnlockedBy, ['r-${ids[0]}', 'r-${ids[1]}']);
+    });
+
+    test('a close the server refuses keeps the meeting waiting', () async {
+      final (group, _) = await boundGroup();
+      final meeting = await meetings.startMeeting(group);
+      await meetings.closeMeeting(meeting);
+
+      final fake = FakeRemoteWriteApi()
+        ..refuseClosed = const ApiException('No.', statusCode: 409, code: 'MEETING_CANCELLED');
+      final service = WriteSyncService(db: db, idMap: idMap, writeApi: fake);
+      final coordinator =
+          AutoSyncCoordinator(idMap: idMap, meetings: meetings, writeSync: service);
+
+      await coordinator.syncBoundGroups();
+      expect(await coordinator.pendingMeetings(), 1,
+          reason: 'the console still shows it open, so it is not backed up');
+
+      // Accepted next time: now it is done.
+      fake.refuseClosed = null;
+      await coordinator.syncBoundGroups();
+      expect(await coordinator.pendingMeetings(), 0);
     });
   });
 

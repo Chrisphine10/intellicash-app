@@ -42,9 +42,9 @@ class _AccountType {
 
 const _accountTypes = [
   _AccountType('GROUP', Icons.groups_outlined, 'Our Group',
-      'This phone will keep our group\'s savings, loans and meetings.'),
+      'This phone will keep our group\'s shares, loans and meetings.'),
   _AccountType('MEMBER', Icons.person_outline, 'Just Me',
-      'I want to see my own savings, shares and loans.'),
+      'I want to see my own shares and loans.'),
   // Village Agent, VA and CBT (Community-Based Trainer) are the same job and
   // the same backend role. Programmes use different words for it, so name all
   // of them here — someone who only knows themselves as a CBT should not have

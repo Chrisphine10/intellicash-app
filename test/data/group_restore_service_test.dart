@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intellicash_mobile/data/models/enums.dart';
 import 'package:intellicash_mobile/core/database/app_database.dart';
 import 'package:intellicash_mobile/data/models/remote/remote_models.dart';
 import 'package:intellicash_mobile/data/models/remote/restore_bundle.dart';
@@ -63,6 +64,17 @@ void main() {
 
     final local = await members.membersForGroup(result.group!.id);
     expect(local.map((m) => m.name), containsAll(['Mary Njeri', 'Jane Wanjiru']));
+  });
+
+  test('brings the officials back as officials', () async {
+    // Every restored member used to come back as an ordinary member, so a
+    // restored phone had no key holders and no meeting could be opened.
+    final result = await service.restore('remote-g1');
+    final local = await members.membersForGroup(result.group!.id);
+    final mary = local.firstWhere((m) => m.name == 'Mary Njeri');
+    final jane = local.firstWhere((m) => m.name == 'Jane Wanjiru');
+    expect(mary.role, MemberRole.chairperson);
+    expect(jane.role, MemberRole.member);
   });
 
   test('maps the local group to the remote one, so meetings can sync back',
@@ -156,7 +168,7 @@ class _FakeApi implements RemoteApiLike {
         'id': 'remote-m1',
         'fullName': 'Mary Njeri',
         'phone': '+254700000006',
-        'role': 'MEMBER',
+        'role': 'CHAIRPERSON',
         'status': 'ACTIVE',
       }),
       RemoteMember.fromJson({

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/database/app_database.dart';
 import '../../core/theme/app_colors.dart';
+import '../../data/repositories/id_map_repository.dart';
+import '../shareout/share_out_screen.dart';
 import '../../data/services/remote_governance_api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/connection_provider.dart';
@@ -32,6 +35,22 @@ class _CyclesScreenState extends State<CyclesScreen> {
 
   String? get _groupId => context.read<ConnectionProvider>().selectedGroup?.id;
 
+  /// Shares bought this cycle in this phone's own book (some may not have
+  /// reached the server yet). Any at all and the cycle ends with a share-out.
+  bool _phoneHasShares = false;
+
+  Future<bool> _localSharesThisCycle(String remoteGroupId) async {
+    final db = await AppDatabase.instance.database;
+    final rows = await db.rawQuery('''
+      SELECT COUNT(*) AS n FROM share_purchases sp
+      JOIN meetings m ON m.id = sp.meeting_id
+      JOIN groups g ON g.id = m.group_id
+      JOIN id_map im ON im.entity_type = ? AND im.local_id = g.id AND im.remote_id = ?
+      WHERE sp.created_at > g.cycle_start_date
+    ''', [MapEntity.group, remoteGroupId]);
+    return ((rows.first['n'] as num?) ?? 0) > 0;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -54,9 +73,11 @@ class _CyclesScreenState extends State<CyclesScreen> {
     });
     try {
       final data = await context.read<RemoteGovernanceApi>().cycles(groupId);
+      final phoneHasShares = await _localSharesThisCycle(groupId);
       if (!mounted) return;
       setState(() {
         _data = data;
+        _phoneHasShares = phoneHasShares;
         _loading = false;
       });
     } catch (error) {
@@ -148,7 +169,7 @@ class _CyclesScreenState extends State<CyclesScreen> {
       return ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text("Could not load this group's saving cycles.",
+          Text("Could not load this group's share cycles.",
               style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: 6),
           Text(
@@ -177,7 +198,31 @@ class _CyclesScreenState extends State<CyclesScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        if (data.canManage)
+        if (data.canManage && (data.closeNeedsShareOut || _phoneHasShares))
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l10n.cyclesShareOutFirst,
+                      style: Theme.of(context).textTheme.titleSmall),
+                  const SizedBox(height: 4),
+                  Text(l10n.cyclesShareOutFirstBody,
+                      style: Theme.of(context).textTheme.bodySmall),
+                  const SizedBox(height: 10),
+                  FilledButton.icon(
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const ShareOutScreen()),
+                    ),
+                    icon: const Icon(Icons.pie_chart_outline, size: 18),
+                    label: Text(l10n.cyclesGoToShareOut),
+                  ),
+                ],
+              ),
+            ),
+          )
+        else if (data.canManage)
           FilledButton.icon(
             onPressed: _busy ? null : _close,
             icon: const Icon(Icons.event_available_outlined, size: 18),

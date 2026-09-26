@@ -120,8 +120,8 @@ void main() {
       await _pump(tester, _FakeApi(overview: _overviewWith(2)),
           const MySavingsScreen());
 
-      expect(find.text('My Savings'), findsOneWidget);
-      expect(find.text('Saving with 2 groups'), findsOneWidget);
+      expect(find.text('My Shares'), findsOneWidget);
+      expect(find.text('Shares in 2 groups'), findsOneWidget);
       // SectionLabel upper-cases what it is given.
       expect(find.text('EVERYTHING TOGETHER'), findsOneWidget);
       expect(find.text('Viewing'), findsOneWidget);
@@ -152,7 +152,7 @@ void main() {
       // With one group the warning would be noise.
       await _pump(tester, _FakeApi(overview: _overviewWith(1)),
           const MySavingsScreen());
-      expect(find.text('Saving with 1 group'), findsOneWidget);
+      expect(find.text('Shares in 1 group'), findsOneWidget);
       expect(
         find.textContaining('does not reduce what you owe in another'),
         findsNothing,
@@ -218,14 +218,14 @@ void main() {
     testWidgets('My Savings lays out on a 320x480 screen', (tester) async {
       // Three groups plus the combined block is the tallest this gets.
       await pumpSmall(tester, const MySavingsScreen());
-      expect(find.text('Saving with 3 groups'), findsOneWidget);
+      expect(find.text('Shares in 3 groups'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
 
     testWidgets('My Savings lays out in dark mode', (tester) async {
       await pumpSmall(tester, const MySavingsScreen(),
           brightness: Brightness.dark);
-      expect(find.text('My Savings'), findsOneWidget);
+      expect(find.text('My Shares'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
 

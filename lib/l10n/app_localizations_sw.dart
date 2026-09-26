@@ -61,7 +61,7 @@ class L10nSw extends L10n {
 
   @override
   String get setUpGroupSubtitle =>
-      'Weka akiba, mikopo na mikutano ya kikundi chenu — hufanya kazi bila intaneti baada ya kusajili.';
+      'Tunza hisa, mikopo na mikutano ya kikundi chenu — hufanya kazi bila intaneti baada ya kusajili.';
 
   @override
   String get whoIsThisAccountFor => 'Akaunti hii ni ya nani?';
@@ -75,14 +75,13 @@ class L10nSw extends L10n {
 
   @override
   String get accountTypeGroupSubtitle =>
-      'Simu hii itatunza akiba, mikopo na mikutano ya kikundi chetu.';
+      'Simu hii itatunza hisa, mikopo na mikutano ya kikundi chetu.';
 
   @override
   String get accountTypeMember => 'Mimi Peke Yangu';
 
   @override
-  String get accountTypeMemberSubtitle =>
-      'Nataka kuona akiba, hisa na mikopo yangu.';
+  String get accountTypeMemberSubtitle => 'Nataka kuona hisa na mikopo yangu.';
 
   @override
   String get accountTypeAgent => 'Wakala wa Ugani';
@@ -163,7 +162,7 @@ class L10nSw extends L10n {
   String get groupSettings => 'Mipangilio ya Kikundi';
 
   @override
-  String get groupSettingsSubtitle => 'Akiba, mikopo na siku za mikutano';
+  String get groupSettingsSubtitle => 'Hisa, mikopo na siku za mikutano';
 
   @override
   String get meetingSecurity => 'Usalama wa Mkutano';
@@ -224,11 +223,11 @@ class L10nSw extends L10n {
 
   @override
   String get signOutKeepsRecords =>
-      'Akiba, mikopo na mikutano ya kikundi chenu vitabaki vimehifadhiwa kwenye simu hii, lakini hakuna atakayeweza kuvifungua hadi uingie tena. Nambari yako ya simu itakumbukwa.';
+      'Hisa, mikopo na mikutano ya kikundi chenu vitabaki vimehifadhiwa kwenye simu hii, lakini hakuna atakayeweza kuvifungua hadi uingie tena. Nambari yako ya simu itakumbukwa.';
 
   @override
   String get signOutMemberNote =>
-      'Utahitaji kuingia tena ili kuona akiba yako. Nambari yako ya simu itakumbukwa.';
+      'Utahitaji kuingia tena ili kuona hisa zako. Nambari yako ya simu itakumbukwa.';
 
   @override
   String get signOutAgentNote =>
@@ -348,7 +347,7 @@ class L10nSw extends L10n {
 
   @override
   String get groupSetupWizardWhichSavingsCycleIsThis =>
-      'Kikundi hiki kiko kwenye mzunguko upi wa akiba?';
+      'Kikundi hiki kiko kwenye mzunguko upi wa hisa?';
 
   @override
   String get groupSetupWizardMemberName => 'Jina la Mwanachama';
@@ -371,14 +370,14 @@ class L10nSw extends L10n {
 
   @override
   String get groupSetupWizardTrackedSeparatelyFromSavings =>
-      'Hufuatiliwa tofauti na akiba';
+      'Hufuatiliwa tofauti na hisa';
 
   @override
   String get groupSetupWizardInterestRatePerMonth => 'Riba (% kwa mwezi)';
 
   @override
   String get groupSetupWizardMaxLoanMultiplierSavings =>
-      'Kikomo cha Mkopo (× akiba)';
+      'Kikomo cha Mkopo (× hisa)';
 
   @override
   String get groupSetupWizardDefaultLoanTermMonths =>
@@ -528,7 +527,7 @@ class L10nSw extends L10n {
 
   @override
   String get memberPassbookMySavingsAcrossAllGroups =>
-      'Akiba yangu katika vikundi vyote';
+      'Hisa zangu katika vikundi vyote';
 
   @override
   String get memberPassbookJoinAnotherGroup => 'Jiunge na kikundi kingine';
@@ -541,7 +540,7 @@ class L10nSw extends L10n {
 
   @override
   String get memberPassbookYourSavingsAndLoanRecords =>
-      'Rekodi za akiba na mikopo yako zitaonekana hapa.';
+      'Rekodi za hisa na mikopo yako zitaonekana hapa.';
 
   @override
   String get joinRequestsDecline => 'Kataa';
@@ -621,7 +620,16 @@ class L10nSw extends L10n {
   String get dashboardHello => 'Habari 👋';
 
   @override
-  String get dashboardTotalSavings => 'Jumla ya Akiba';
+  String get dashboardTotalSavings => 'Jumla ya Hisa';
+
+  @override
+  String get dashboardSharesFromServer =>
+      'Jumla ya hisa kutoka rekodi ya mtandaoni. Simu hii bado haina mikutano ya kikundi.';
+
+  @override
+  String dashboardSharesOnlineDiffers(String amount) {
+    return 'Rekodi ya mtandaoni: $amount. Tofauti ni mikutano ambayo bado haijatumwa kutoka simu hii, au iliyorekodiwa mahali pengine.';
+  }
 
   @override
   String get dashboardActiveLoans => 'Mikopo Hai';
@@ -678,10 +686,20 @@ class L10nSw extends L10n {
   String get cyclesCloseCycle => 'Funga mzunguko';
 
   @override
-  String get cyclesSavingCycles => 'Mizunguko ya Akiba';
+  String get cyclesSavingCycles => 'Mizunguko ya Hisa';
 
   @override
   String get cyclesCloseCycleAndStartThe => 'Funga mzunguko na uanze ujao';
+
+  @override
+  String get cyclesShareOutFirst => 'Gawaneni kwanza';
+
+  @override
+  String get cyclesShareOutFirstBody =>
+      'Wanachama walinunua hisa katika mzunguko huu. Mzunguko wenye hisa huisha kwa kugawana, ambako hulipa kila mwanachama na kufunga mzunguko kwa hatua moja. Hauwezi kufungwa kabla ya hapo.';
+
+  @override
+  String get cyclesGoToShareOut => 'Nenda Kugawana';
 
   @override
   String get cyclesReadOnlyStillVisibleIn =>
@@ -829,10 +847,10 @@ class L10nSw extends L10n {
   String get cloudDashboardRefresh => 'Onyesha upya';
 
   @override
-  String get cloudDashboardSavingsFund => 'Mfuko wa Akiba';
+  String get cloudDashboardSavingsFund => 'Jumla ya Hisa';
 
   @override
-  String get cloudDashboardInternalLoans => 'Mikopo ya Ndani';
+  String get cloudDashboardInternalLoans => 'Mfuko wa Mikopo (pesa taslimu)';
 
   @override
   String get serverSettingsOrUseAGroupAccess => 'au tumia ufunguo wa kikundi';
@@ -1021,11 +1039,11 @@ class L10nSw extends L10n {
   String get moreIntelliCash => 'Intelli-Cash';
 
   @override
-  String get mySavingsMySavings => 'Akiba Yangu';
+  String get mySavingsMySavings => 'Hisa Zangu';
 
   @override
   String get mySavingsOnceAGroupAcceptsYou =>
-      'Kikundi kikikukubali, akiba yako itaonekana hapa.';
+      'Kikundi kikikukubali, hisa zako zitaonekana hapa.';
 
   @override
   String get buySharesEnterCodeByHand => 'Weka Msimbo kwa Mkono';
@@ -1093,11 +1111,11 @@ class L10nSw extends L10n {
 
   @override
   String get dashboardTheSavingsCurveAppearsAfterYour =>
-      'Mchoro wa akiba huonekana baada ya mikutano yako miwili ya kwanza.';
+      'Mchoro wa hisa huonekana baada ya mikutano yako miwili ya kwanza.';
 
   @override
   String get disburseLoanThisMemberHasNoBorrowingHeadroom =>
-      'Mwanachama huyu hana nafasi ya kukopa — akiba lazima iongezeke au mkopo wa sasa upungue kwanza.';
+      'Mwanachama huyu hana nafasi ya kukopa — hisa zake lazima ziongezeke au mkopo wa sasa upungue kwanza.';
 
   @override
   String get disburseLoanTheLoanFundIsEmptyCollect =>
@@ -1129,7 +1147,7 @@ class L10nSw extends L10n {
 
   @override
   String get meetingsStartYourFirstMeetingToRecord =>
-      'Anzisha mkutano wako wa kwanza ili kurekodi mahudhurio, akiba, faini na mikopo.';
+      'Anzisha mkutano wako wa kwanza ili kurekodi mahudhurio, hisa, faini na mikopo.';
 
   @override
   String get meetingsClosedMeetingsAreLockedTheirRecords =>
@@ -1145,11 +1163,11 @@ class L10nSw extends L10n {
 
   @override
   String get memberPassbookAskYourGroupToAddYou =>
-      'Omba kikundi chako kikuongeze na akiba yako itaonekana hapa.';
+      'Omba kikundi chako kikuongeze na hisa zako zitaonekana hapa.';
 
   @override
   String get editMemberCorrectingASpellingOrAMistyped =>
-      'Kurekebisha herufi au namba iliyokosewa. Akiba, mikopo na mahudhurio yao hubaki kama yalivyo.';
+      'Kurekebisha herufi au namba iliyokosewa. Hisa, mikopo na mahudhurio yao hubaki kama yalivyo.';
 
   @override
   String get joinRequestsTheyWillNotBeAddedTo =>
@@ -1173,7 +1191,7 @@ class L10nSw extends L10n {
 
   @override
   String get membersAddMembersWithTheButtonBelow =>
-      'Ongeza wanachama kwa kitufe kilicho chini — kila mmoja hupata rekodi yake ya akiba na mikopo.';
+      'Ongeza wanachama kwa kitufe kilicho chini — kila mmoja hupata rekodi yake ya hisa na mikopo.';
 
   @override
   String get meetingSecurityAssignAChairpersonSecretaryAndTreasurer =>
@@ -1185,7 +1203,7 @@ class L10nSw extends L10n {
 
   @override
   String get moreYourGroupSSavingsAndLoans =>
-      'Akiba na mikopo ya kikundi chako, hapo hapo kwenye simu yako. Kila kitu huhifadhiwa kwenye simu hii kwanza, kisha hufanyiwa nakala mtandaoni ukipata intaneti.\n\nIntelli-Wealth Limited · intelliwealth.org';
+      'Hisa na mikopo ya kikundi chako, hapo hapo kwenye simu yako. Kila kitu huhifadhiwa kwenye simu hii kwanza, kisha hufanyiwa nakala mtandaoni ukipata intaneti.\n\nIntelli-Wealth Limited · intelliwealth.org';
 
   @override
   String get moreNoInternetYourRecordsAreSafe =>
@@ -1197,7 +1215,7 @@ class L10nSw extends L10n {
 
   @override
   String get welcomeYourGroupIsAlreadyOnThe =>
-      'Kikundi chako tayari kiko kwenye seva. Kipakie hapa badala ya kuunda kipya, ili historia ya akiba yako ibaki rekodi moja.';
+      'Kikundi chako tayari kiko kwenye seva. Kipakie hapa badala ya kuunda kipya, ili historia ya hisa zako ibaki rekodi moja.';
 
   @override
   String get agentReportWhenGroupsAreAssignedToYou =>
@@ -1241,7 +1259,7 @@ class L10nSw extends L10n {
 
   @override
   String get serverSettingsAskYourGroupAdministratorForAn =>
-      'Omba msimamizi wa kikundi chako ufunguo wa kuingia, kisha ubandike hapa. Unaruhusu simu hii kuona na kurekodi akiba, mikopo na mikutano ya kikundi chako tu.';
+      'Omba msimamizi wa kikundi chako ufunguo wa kuingia, kisha ubandike hapa. Unaruhusu simu hii kuona na kurekodi hisa, mikopo na mikutano ya kikundi chako tu.';
 
   @override
   String get cyclesPullDownToTryAgainIf =>
@@ -1302,6 +1320,10 @@ class L10nSw extends L10n {
   @override
   String get externalLoansExternalLoansLoadFromTheIntelli =>
       'Mikopo ya nje hupakiwa kutoka seva ya Intelli-Cash. Unganisha au ingia kwanza.';
+
+  @override
+  String get externalLoanGroupAccountOnly =>
+      'Mkopo unakifunga kikundi kizima, kwa hivyo akaunti ya kikundi pekee inaweza kuomba. Waombe viongozi wa kikundi chako waombe wakati wa mkutano.';
 
   @override
   String get storeFarmSolarHouseholdAndBusinessProducts =>
@@ -1912,7 +1934,7 @@ class L10nSw extends L10n {
 
   @override
   String get socialFundZeroCannotCollect =>
-      'Kiasi cha mfuko wa jamii ni KSh 0, kwa hivyo hakuna cha kukusanya. Weka kiasi katika Mipangilio ya Kikundi (hatua ya Akiba) kwanza.';
+      'Kiasi cha mfuko wa jamii ni KSh 0, kwa hivyo hakuna cha kukusanya. Weka kiasi katika Mipangilio ya Kikundi (hatua ya Hisa) kwanza.';
 
   @override
   String get groupSyncNothingToBackUp =>
@@ -1928,7 +1950,7 @@ class L10nSw extends L10n {
 
   @override
   String shareOutCloseMeetingFirst(int number) {
-    return 'Funga Mkutano #$number kabla ya kugawana. Akiba na mikopo yake ni ya mzunguko huu.';
+    return 'Funga Mkutano #$number kabla ya kugawana. Hisa na mikopo yake ni ya mzunguko huu.';
   }
 
   @override
@@ -2004,12 +2026,12 @@ class L10nSw extends L10n {
 
   @override
   String restoreHistoryPending(String groupName, int members) {
-    return '$groupName imepakiwa na wanachama $members. Mikutano na akiba yake vitafuata kunapokuwa na mtandao.';
+    return '$groupName imepakiwa na wanachama $members. Mikutano na hisa zake vitafuata kunapokuwa na mtandao.';
   }
 
   @override
   String restoreHistoryNotLoaded(String groupName, int members) {
-    return '$groupName imepakiwa na wanachama $members. Mikutano na akiba yake ya awali haikuweza kupakiwa kutoka rekodi ya mtandaoni.';
+    return '$groupName imepakiwa na wanachama $members. Mikutano na hisa zake za awali hazikuweza kupakiwa kutoka rekodi ya mtandaoni.';
   }
 
   @override
@@ -2174,7 +2196,7 @@ class L10nSw extends L10n {
     String interest,
     String multiplier,
   ) {
-    return '$share kwa hisa · hadi hisa $maxShares kwa mkutano · $social mfuko wa jamii · riba $interest% · kopa hadi mara $multiplier ya akiba';
+    return '$share kwa hisa · hadi hisa $maxShares kwa mkutano · $social mfuko wa jamii · riba $interest% · kopa hadi mara $multiplier ya hisa';
   }
 
   @override
@@ -2182,10 +2204,10 @@ class L10nSw extends L10n {
       'Muda wa mkopo, riba na chanzo cha matumizi';
 
   @override
-  String get moreSavingCycles => 'Mizunguko ya akiba';
+  String get moreSavingCycles => 'Mizunguko ya hisa';
 
   @override
-  String get moreSavingCyclesSubtitle => 'Funga mzunguko na uanze unaofuata';
+  String get moreSavingCyclesSubtitle => 'Funga mzunguko baada ya kugawana';
 
   @override
   String get moreCloudAndAdvanced => 'Mtandao na mipangilio zaidi';
@@ -2240,7 +2262,7 @@ class L10nSw extends L10n {
 
   @override
   String get memberSignInsSubtitle =>
-      'Wanachama wanaweza kuingia kwenye simu zao kuona akiba na mikopo yao.';
+      'Wanachama wanaweza kuingia kwenye simu zao kuona hisa na mikopo yao.';
 
   @override
   String get memberSignInsNeedsConnection =>
@@ -2248,7 +2270,7 @@ class L10nSw extends L10n {
 
   @override
   String get memberSignInsNowOn =>
-      'Wanachama sasa wanaweza kuingia kuona akiba yao.';
+      'Wanachama sasa wanaweza kuingia kuona hisa zao.';
 
   @override
   String get memberSignInsNowOff =>
@@ -2259,7 +2281,7 @@ class L10nSw extends L10n {
 
   @override
   String memberDetailSignInExplain(String name) {
-    return 'Mpe $name akaunti yake ili aone akiba na mikopo yake kwenye simu yake.';
+    return 'Mpe $name akaunti yake ili aone hisa na mikopo yake kwenye simu yake.';
   }
 
   @override
@@ -2309,7 +2331,7 @@ class L10nSw extends L10n {
 
   @override
   String get meetingHistoryPendingBody =>
-      'Mikutano ya awali, akiba na mikopo kutoka rekodi ya mtandaoni bado haijamaliza kuja kwenye simu hii. Mkutano ukianzishwa sasa, haviwezi tena kuongezwa chini yake. Unganisha mtandao na usubiri kidogo, au anza hata hivyo.';
+      'Mikutano ya awali, hisa na mikopo kutoka rekodi ya mtandaoni bado haijamaliza kuja kwenye simu hii. Mkutano ukianzishwa sasa, haviwezi tena kuongezwa chini yake. Unganisha mtandao na usubiri kidogo, au anza hata hivyo.';
 
   @override
   String get meetingHistoryPendingWait => 'Subiri';

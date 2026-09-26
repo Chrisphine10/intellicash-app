@@ -55,8 +55,7 @@ class Member {
       groupId: map['group_id'] as String,
       name: map['name'] as String,
       phone: map['phone'] as String?,
-      role: enumFromName(
-          MemberRole.values, map['role'] as String, MemberRole.member),
+      role: MemberRole.fromAny(map['role'] as String?),
       isActive: (map['is_active'] as int) == 1,
       pinHash: map['pin_hash'] as String?,
       joinedAt: DateTime.parse(map['joined_at'] as String),

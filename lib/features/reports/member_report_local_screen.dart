@@ -126,8 +126,8 @@ class _MemberReportLocalScreenState extends State<MemberReportLocalScreen> {
       reportLine('Role', f.member.role.label),
       reportLine('Joined', Formatters.shortDate(f.member.joinedAt)),
       '',
-      'SAVINGS & CONTRIBUTIONS',
-      reportLine('Total savings', Formatters.money(_savingsOf(f))),
+      'SHARES & CONTRIBUTIONS',
+      reportLine('Total shares', Formatters.money(_savingsOf(f))),
       reportLine('Shares held', _sharesHeldOf(f)),
       reportLine('Social fund', Formatters.money(_socialOf)),
       reportLine('Fines paid', Formatters.money(_finesOf)),
@@ -229,14 +229,14 @@ class _MemberReportLocalScreenState extends State<MemberReportLocalScreen> {
                         ),
                       ],
                     ),
-                    const SectionLabel('Savings & contributions'),
+                    const SectionLabel('Shares & contributions'),
                     Card(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 15, vertical: 12),
                         child: Column(
                           children: [
-                            KeyValueRow('Total savings',
+                            KeyValueRow('Total shares',
                                 Formatters.money(_savingsOf(f)),
                                 emphasize: true),
                             KeyValueRow('Shares held', _sharesHeldOf(f)),

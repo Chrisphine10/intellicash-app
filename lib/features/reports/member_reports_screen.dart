@@ -62,7 +62,7 @@ class _MemberReportsScreenState extends State<MemberReportsScreen> {
                           style: const TextStyle(
                               fontSize: 13.5, fontWeight: FontWeight.w600)),
                       subtitle: Text(
-                        'Saved ${Formatters.moneyCompact(f.totalSavings)}'
+                        'Shares ${Formatters.moneyCompact(f.totalSavings)}'
                         '${f.activeLoanBalance > 0 ? ' · owes ${Formatters.moneyCompact(f.activeLoanBalance)}' : ''}',
                         style: TextStyle(
                             fontSize: 11, color: AppColors.textSecondary),

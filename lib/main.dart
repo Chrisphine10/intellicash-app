@@ -213,11 +213,12 @@ Future<void> main() async {
         groupId: localGroupId,
         name: remote.fullName,
         phone: remote.phone,
-        role: MemberRole.values.firstWhere(
-          (role) => role.serverName == remote.role,
-          orElse: () => MemberRole.member,
-        ),
+        role: MemberRole.fromAny(remote.role),
       ),
+      applyRemoteRole: (localMemberId, role) async {
+        await MemberRepository(db).setRoleFromServer(localMemberId, role);
+        _restoredCallback.fn?.call();
+      },
       // A "not now" to linking this book to that group is remembered, so the
       // question is not asked at every start.
       linkDismissed: (localGroupId, remoteGroupId) async =>
@@ -255,7 +256,15 @@ Future<void> main() async {
           );
         } on ApiException catch (e) {
           // The server already has this office for this member: done.
-          if (e.code != 'ALREADY_HOLDS_ROLE') rethrow;
+          if (e.code == 'ALREADY_HOLDS_ROLE') return;
+          // Only the group itself appoints officials; a field agent's phone
+          // is refused. Retrying would fail for ever, so it stops here and the
+          // next pull puts the server's office back on this phone.
+          if (e.statusCode == 403) {
+            log.warn('autosync', 'Office not changed online: ${e.message}');
+            return;
+          }
+          rethrow;
         }
       },
     ),

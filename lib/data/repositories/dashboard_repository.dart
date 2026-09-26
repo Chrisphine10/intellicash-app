@@ -35,6 +35,8 @@ class DashboardRepository {
           WHERE group_id = ?1
             AND date > (SELECT cycle_start_date FROM groups WHERE id = ?1))
           AS meeting_count,
+        (SELECT COUNT(*) FROM meetings WHERE group_id = ?1) AS meetings_ever,
+        (SELECT cycle_number FROM groups WHERE id = ?1) AS cycle_number,
         (SELECT COALESCE(SUM(f.amount), 0) FROM fines f
           JOIN meetings m ON m.id = f.meeting_id
           WHERE m.group_id = ?1
@@ -80,13 +82,22 @@ class DashboardRepository {
     final localFinesCollected = (stats['fines_collected'] as num).toDouble();
     final localSocialFund = (stats['social_fund'] as num).toDouble();
 
-    final bookIsEmpty = localMeetingCount == 0;
+    // The server's figures stand in only while this phone has NEVER held a
+    // meeting for the group (just after sign-in, before its history loads)
+    // and both are on the same cycle. "No meetings this cycle" is not enough:
+    // right after a share-out the phone starts a new cycle with nothing in
+    // it, and the server - which may not have heard of the share-out yet -
+    // would show the old cycle's shares as if they were still held.
+    final meetingsEver = (stats['meetings_ever'] as num).toInt();
+    final localCycle = (stats['cycle_number'] as num?)?.toInt();
+    final sameCycle = remoteGroup == null || localCycle == null || remoteGroup.cycleNumber == localCycle;
+    final bookIsEmpty = meetingsEver == 0 && sameCycle;
     final server = bookIsEmpty ? remoteGroup : null;
-    final totalSavings = server != null
-        ? (server.totalSavingsCents != null
-              ? server.totalSavingsCents! / 100
-              : server.savingsBalance)
-        : localTotalSavings;
+    // Only the server's SHARES figure: the loan fund's cash balance
+    // (`savingsBalance`) falls whenever a loan goes out and is not shares.
+    final serverShares = remoteGroup?.totalShares;
+    final sharesFromServer = server != null && serverShares != null;
+    final totalSavings = sharesFromServer ? serverShares : localTotalSavings;
     final socialFund = server != null
         ? (server.totalSocialFundCents != null
               ? server.totalSocialFundCents! / 100
@@ -106,6 +117,9 @@ class DashboardRepository {
       meetingCount: meetingCount,
       finesCollected: localFinesCollected,
       socialFund: socialFund,
+      sharesFromServer: sharesFromServer,
+      // Shown beside the phone's figure only when both are about the same cycle.
+      serverTotalShares: !sharesFromServer && sameCycle ? serverShares : null,
       trend: trendRows
           .map((row) => SavingsTrendPoint(
                 meetingNumber: (row['number'] as num).toInt(),

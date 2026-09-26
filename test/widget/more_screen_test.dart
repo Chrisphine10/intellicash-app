@@ -140,7 +140,7 @@ void main() {
 
     expect(find.text('Edit group set-up'), findsOneWidget);
     expect(find.text('Meeting Security'), findsOneWidget);
-    expect(find.text('Saving cycles'), findsOneWidget);
+    expect(find.text('Share cycles'), findsOneWidget);
     expect(find.textContaining('per share'), findsOneWidget);
   });
 

@@ -645,11 +645,12 @@ void main() {
         'county': 'Kiambu',
         'shareValueCents': 50000,
         'maxSharesPerMemberPerMeeting': 5,
-        'cycleNumber': 2,
+        'cycleNumber': phone.group.cycleNumber,
         'fundAccounts': [
           {'type': 'INTERNAL_LOAN', 'balanceCents': 4500000},
           {'type': 'SOCIAL', 'balanceCents': 120000},
         ],
+        'totalSharesCents': 6000000,
         '_count': {'members': 15, 'meetings': 8},
       });
 
@@ -657,7 +658,10 @@ void main() {
         phone.group.id,
         remoteGroup: remoteGroup,
       );
-      expect(fallbackSummary.totalSavings, 45000.0);
+      // The server's total shares, not the loan fund's cash (which falls
+      // every time a loan goes out).
+      expect(fallbackSummary.totalSavings, 60000.0);
+      expect(fallbackSummary.sharesFromServer, isTrue);
       expect(fallbackSummary.socialFund, 1200.0);
       expect(fallbackSummary.memberCount, 2);
     });
@@ -796,6 +800,7 @@ class _RecordingWriteApi extends RemoteWriteApi {
     required String meetingId,
     required String event,
     required DateTime at,
+    List<String>? unlockedByMemberIds,
   }) async {}
 
   @override

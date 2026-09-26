@@ -26,13 +26,13 @@
     }
   },
   "setUpGroup": "Set up my group on this phone",
-  "setUpGroupSubtitle": "Keep your group's savings, loans and meetings — works without internet once set up.",
+  "setUpGroupSubtitle": "Keep your group's shares, loans and meetings — works without internet once set up.",
   "whoIsThisAccountFor": "Who is this account for?",
   "pickOneLater": "Pick one — you can always add more accounts later.",
   "accountTypeGroup": "Our Group",
-  "accountTypeGroupSubtitle": "This phone will keep our group's savings, loans and meetings.",
+  "accountTypeGroupSubtitle": "This phone will keep our group's shares, loans and meetings.",
   "accountTypeMember": "Just Me",
-  "accountTypeMemberSubtitle": "I want to see my own savings, shares and loans.",
+  "accountTypeMemberSubtitle": "I want to see my own shares and loans.",
   "accountTypeAgent": "Field Agent",
   "accountTypeAgentSubtitle": "Village Agent or CBT — I support and monitor several groups.",
   "change": "Change",
@@ -58,7 +58,7 @@
   "sectionLanguage": "Language",
   "sectionAbout": "About",
   "groupSettings": "Group Settings",
-  "groupSettingsSubtitle": "Savings, loans and meeting days",
+  "groupSettingsSubtitle": "Shares, loans and meeting days",
   "meetingSecurity": "Meeting Security",
   "groupRules": "Group Rules",
   "groupReport": "Group Report",
@@ -77,8 +77,8 @@
   "back": "Back",
   "cancel": "Cancel",
   "signedOut": "Signed out.",
-  "signOutKeepsRecords": "Your group's savings, loans and meetings stay saved on this phone, but nobody can open them until you sign in again. Your phone number will be remembered.",
-  "signOutMemberNote": "You will need to sign in again to see your savings. Your phone number will be remembered.",
+  "signOutKeepsRecords": "Your group's shares, loans and meetings stay saved on this phone, but nobody can open them until you sign in again. Your phone number will be remembered.",
+  "signOutMemberNote": "You will need to sign in again to see your shares. Your phone number will be remembered.",
   "signOutAgentNote": "You will need to sign in again to see your groups. Your phone number will be remembered.",
   "whoIsSigningIn": "Who is signing in?",
   "whoIsSigningInSubtitle": "Choose the kind of account you use, then enter your phone number and password.",
@@ -115,16 +115,16 @@
   "groupSetupWizardEveryoneBuysSharesAtOne": "Everyone buys shares at one fixed price",
   "groupSetupWizardGroupName": "Group Name",
   "groupSetupWizardCycleNumber": "Cycle Number",
-  "groupSetupWizardWhichSavingsCycleIsThis": "Which savings cycle is this group on?",
+  "groupSetupWizardWhichSavingsCycleIsThis": "Which share cycle is this group on?",
   "groupSetupWizardMemberName": "Member Name",
   "groupSetupWizardAddMember": "Add member",
   "groupSetupWizardRemove": "Remove",
   "groupSetupWizardShareValueKsh": "Share Value (KSh)",
   "groupSetupWizardMaxSharesPerMeeting": "Max Shares per Meeting",
   "groupSetupWizardSocialFundPerMeetingKsh": "Social Fund per Meeting (KSh)",
-  "groupSetupWizardTrackedSeparatelyFromSavings": "Tracked separately from savings",
+  "groupSetupWizardTrackedSeparatelyFromSavings": "Tracked separately from shares",
   "groupSetupWizardInterestRatePerMonth": "Interest Rate (% per month)",
-  "groupSetupWizardMaxLoanMultiplierSavings": "Max Loan Multiplier (× savings)",
+  "groupSetupWizardMaxLoanMultiplierSavings": "Max Loan Multiplier (× shares)",
   "groupSetupWizardDefaultLoanTermMonths": "Default Loan Term (months)",
   "groupSyncBackUpToCloud": "Back Up to Cloud",
   "groupSyncUnlinkGroup": "Unlink group?",
@@ -171,11 +171,11 @@
   "memberPassbookMyPassbook": "My Passbook",
   "memberPassbookJoinAGroup": "Join a group",
   "memberPassbookMyReport": "My report",
-  "memberPassbookMySavingsAcrossAllGroups": "My savings across all groups",
+  "memberPassbookMySavingsAcrossAllGroups": "My shares across all groups",
   "memberPassbookJoinAnotherGroup": "Join another group",
   "memberPassbookYouAreNotInA": "You are not in a group yet",
   "memberPassbookNoTransactionsYet": "No transactions yet",
-  "memberPassbookYourSavingsAndLoanRecords": "Your savings and loan records will appear here.",
+  "memberPassbookYourSavingsAndLoanRecords": "Your share and loan records will appear here.",
   "joinRequestsDecline": "Decline",
   "joinRequestsJoinRequests": "Join Requests",
   "joinRequestsPeopleAskingToJoin": "People asking to join",
@@ -201,7 +201,16 @@
   "productDetailEmail": "Email",
   "productDetailGroupNameOptional": "Group name (optional)",
   "dashboardHello": "Hello 👋",
-  "dashboardTotalSavings": "Total Savings",
+  "dashboardTotalSavings": "Total Shares",
+  "dashboardSharesFromServer": "Total shares from the online record. This phone has no meetings for the group yet.",
+  "dashboardSharesOnlineDiffers": "Online record: {amount}. The difference is meetings not yet backed up from this phone, or recorded somewhere else.",
+  "@dashboardSharesOnlineDiffers": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "dashboardActiveLoans": "Active Loans",
   "dashboardFinesCollected": "Fines Collected",
   "disburseLoanLoanEligibility": "Loan Eligibility",
@@ -220,8 +229,11 @@
   "memberDetailStartingPassword": "Starting password",
   "memberDetailAtLeast6Characters": "At least 6 characters.",
   "cyclesCloseCycle": "Close cycle",
-  "cyclesSavingCycles": "Saving Cycles",
+  "cyclesSavingCycles": "Share Cycles",
   "cyclesCloseCycleAndStartThe": "Close cycle and start the next",
+  "cyclesShareOutFirst": "Do the share-out first",
+  "cyclesShareOutFirstBody": "Members bought shares in this cycle. A cycle with shares ends with its share-out, which pays every member and closes the cycle in one step. It cannot be closed before that.",
+  "cyclesGoToShareOut": "Go to Share-Out",
   "cyclesReadOnlyStillVisibleIn": "Read-only — still visible in reports",
   "externalLoansCreditVentures": "Credit ventures",
   "externalLoansConnectToSeeLoanOffers": "Connect to see loan offers",
@@ -267,8 +279,8 @@
   "memberReportSignInToYourAccount": "Sign in to your account to see and share your report.",
   "cloudDashboardCloudData": "Cloud Data",
   "cloudDashboardRefresh": "Refresh",
-  "cloudDashboardSavingsFund": "Savings Fund",
-  "cloudDashboardInternalLoans": "Internal Loans",
+  "cloudDashboardSavingsFund": "Total Shares",
+  "cloudDashboardInternalLoans": "Loan Fund (cash)",
   "serverSettingsOrUseAGroupAccess": "or use a group access key",
   "serverSettingsViewOnlineRecords": "View Online Records",
   "serverSettingsBackUpThisGroup": "Back Up This Group",
@@ -328,8 +340,8 @@
   "repaymentSelectLoan": "Select Loan",
   "moreWhoIsSignedInLanguage": "Who is signed in, language, appearance and app details",
   "moreIntelliCash": "Intelli-Cash",
-  "mySavingsMySavings": "My Savings",
-  "mySavingsOnceAGroupAcceptsYou": "Once a group accepts you, your savings will show here.",
+  "mySavingsMySavings": "My Shares",
+  "mySavingsOnceAGroupAcceptsYou": "Once a group accepts you, your shares will show here.",
   "buySharesEnterCodeByHand": "Enter Code by Hand",
   "buySharesRecordPurchase": "Record Purchase",
   "sharesLedgerNoPurchasesYet": "No purchases yet",
@@ -349,8 +361,8 @@
   "gatewayPaymentOpenThisLinkToPay": "Open this link to pay:",
   "numericKeypadDelete": "Delete",
   "agentHomeWhenGroupsAreAssignedToYou": "When groups are assigned to you, they appear here with their credit rating.",
-  "dashboardTheSavingsCurveAppearsAfterYour": "The savings curve appears after your first two meetings.",
-  "disburseLoanThisMemberHasNoBorrowingHeadroom": "This member has no borrowing headroom — savings must grow or the current loan must reduce first.",
+  "dashboardTheSavingsCurveAppearsAfterYour": "The shares curve appears after your first two meetings.",
+  "disburseLoanThisMemberHasNoBorrowingHeadroom": "This member has no borrowing headroom — their shares must grow or the current loan must reduce first.",
   "disburseLoanTheLoanFundIsEmptyCollect": "The loan fund is empty. Collect share purchases or loan repayments before lending again.",
   "loanDetailRepaymentsAreRecordedInsideMeetingsAnd": "Repayments are recorded inside meetings and appear here instantly.",
   "loansLoansAreDisbursedInsideAMeeting": "Loans are disbursed inside a meeting — open a meeting and use Disburse Loan.",
@@ -358,24 +370,24 @@
   "meetingHubThisMeetingIsClosedItsRecords": "This meeting is closed. Its records are read-only and form part of the audit trail.",
   "meetingHubAllRecordsInThisMeetingWill": "All records in this meeting will be locked permanently. This cannot be undone.",
   "meetings3KeyUnlockIsOnOfficials": "3-key unlock is on: officials confirm their PINs before the meeting opens.",
-  "meetingsStartYourFirstMeetingToRecord": "Start your first meeting to record attendance, savings, fines and loans.",
+  "meetingsStartYourFirstMeetingToRecord": "Start your first meeting to record attendance, shares, fines and loans.",
   "meetingsClosedMeetingsAreLockedTheirRecords": "Closed meetings are locked — their records form the group's permanent audit trail.",
   "sharesLedgerSharePurchasesLandHereTheMoment": "Share purchases land here the moment they are recorded.",
   "joinGroupYourGroupHasACodeOn": "Your group has a code on its records — ask the secretary if you do not know it. Sending a request does not open the group's books to you; an official has to accept you first.",
-  "memberPassbookAskYourGroupToAddYou": "Ask your group to add you and your savings will show up here.",
-  "editMemberCorrectingASpellingOrAMistyped": "Correcting a spelling or a mistyped number. Their savings, loans and attendance stay exactly as they are.",
+  "memberPassbookAskYourGroupToAddYou": "Ask your group to add you and your shares will show up here.",
+  "editMemberCorrectingASpellingOrAMistyped": "Correcting a spelling or a mistyped number. Their shares, loans and attendance stay exactly as they are.",
   "joinRequestsTheyWillNotBeAddedTo": "They will not be added to the group. You can say why if you want to — it is not required.",
   "joinRequestsThisListIsOutOfDate": "This list is out of date. Pull down to refresh, then check the answer again.",
   "joinRequestsWhenSomeoneAsksToJoinYour": "When someone asks to join your group, their request will show up here for you to answer.",
   "memberDetailToCreateASignInAccount": "To create a sign-in account, first back this group up to the cloud (More → Sync & Backup) while online.",
   "memberDetailLoansThisMemberTakesWillBe": "Loans this member takes will be listed here with their live status.",
-  "membersAddMembersWithTheButtonBelow": "Add members with the button below — each gets an individual savings and loan profile.",
+  "membersAddMembersWithTheButtonBelow": "Add members with the button below — each gets an individual shares and loan profile.",
   "meetingSecurityAssignAChairpersonSecretaryAndTreasurer": "Assign a chairperson, secretary and treasurer below so three officials can unlock meetings. Until then, most members' PINs are needed instead.",
   "meetingSecurityTheOldPinStopsWorkingThe": "The old PIN stops working. The member chooses a new PIN the next time they turn their key at a meeting unlock.",
-  "moreYourGroupSSavingsAndLoans": "Your group's savings and loans, right on your phone. Everything is saved on this phone first and backed up online when you have internet.\n\nIntelli-Wealth Limited · intelliwealth.org",
+  "moreYourGroupSSavingsAndLoans": "Your group's shares and loans, right on your phone. Everything is saved on this phone first and backed up online when you have internet.\n\nIntelli-Wealth Limited · intelliwealth.org",
   "moreNoInternetYourRecordsAreSafe": "No internet — your records are safe on this phone and will back up later.",
   "welcomeThePhoneAppIsForGroups": "The phone app is for groups, members and field agents. Your account does not need to create a group here — sign in on the web console instead, or sign out to use a different account.",
-  "welcomeYourGroupIsAlreadyOnThe": "Your group is already on the server. Load it here instead of creating a new one, so your savings history stays in one record.",
+  "welcomeYourGroupIsAlreadyOnThe": "Your group is already on the server. Load it here instead of creating a new one, so your shares history stays in one record.",
   "agentReportWhenGroupsAreAssignedToYou": "When groups are assigned to you, their report appears here.",
   "groupReportFiguresFromThisPhoneOnlyWork": "Figures from this phone only - work saved on other phones may not be included yet.",
   "groupReportFromThisPhoneOnlyWorkSaved": "From this phone only. Work saved on other phones may not be included yet.",
@@ -386,7 +398,7 @@
   "groupSyncLinkingMatchesYourLocalMembersTo": "Linking matches your local members to the backend roster by phone, then name. Unmatched members can be linked by hand afterwards.",
   "groupSyncTheseLocalMembersHaveNoBackend": "These local members have no backend match. Link them before their transactions can sync.",
   "groupSyncUploadsAttendanceAndLedgerSharesSocial": "Uploads attendance and ledger (shares, social fund, loans, repayments) for every closed meeting. Safe to re-run — already synced records are skipped. Fines and meeting sealing come in a later phase.",
-  "serverSettingsAskYourGroupAdministratorForAn": "Ask your group administrator for an access key, then paste it here. It only lets this phone see and record your group's savings, loans and meetings.",
+  "serverSettingsAskYourGroupAdministratorForAn": "Ask your group administrator for an access key, then paste it here. It only lets this phone see and record your group's shares, loans and meetings.",
   "cyclesPullDownToTryAgainIf": "Pull down to try again. If it keeps happening, check the group is still selected under Cloud Account.",
   "cyclesClosingACycleMakesItsRecords": "Closing a cycle makes its records read-only. Nothing is deleted — past meetings and money stay in history and reports.",
   "cyclesYouCanSeeTheCyclesBut": "You can see the cycles but not close one. Only the group account or a platform admin can.",
@@ -402,6 +414,7 @@
   "externalLoanApplyCreditRatingUnavailableTheLenderChecks": "Credit rating unavailable — the lender checks it when reviewing your application.",
   "externalLoansCheckBackLaterPartnersAddNew": "Check back later — partners add new loan offers from time to time.",
   "externalLoansExternalLoansLoadFromTheIntelli": "External loans load from the Intelli-Cash backend. Connect or sign in first.",
+  "externalLoanGroupAccountOnly": "A loan binds the whole group, so only your group's own account can apply. Ask your group's officials to apply during a meeting.",
   "storeFarmSolarHouseholdAndBusinessProducts": "Farm, solar, household and business products — priced by your group's credit rating.",
   "storeIntelliStoresLoadsFromTheIntelli": "Intelli-Stores loads from the Intelli-Cash backend. Connect or sign in first.",
   "businessProfileTheGroupSOwnEnterpriseNot": "The group's own enterprise, not a member's. Leave blank if they do not run one.",
@@ -677,7 +690,7 @@
   "digitalChampionOffline": "Connect to the internet with the group's account signed in to see or change the champion.",
   "commonTryAgain": "Try again",
   "groupPolicyOnlineLoanRules": "Online Loan Rules",
-  "socialFundZeroCannotCollect": "The social fund amount is KSh 0, so there is nothing to collect. Set the amount in Group Settings (Savings step) first.",
+  "socialFundZeroCannotCollect": "The social fund amount is KSh 0, so there is nothing to collect. Set the amount in Group Settings (Shares step) first.",
   "groupSyncNothingToBackUp": "This phone does not keep a group record, so there is nothing to back up. Your groups live online.",
   "wrongBookTitle": "This phone holds another group's records",
   "wrongBookBody": "These are the records of {groupName}. To keep them private, only that group's own account can open them. Sign in with that group's account, or sign out and use a phone of your own.",
@@ -688,7 +701,7 @@
       }
     }
   },
-  "shareOutCloseMeetingFirst": "Close Meeting #{number} before sharing out. Its savings and loans belong to this cycle.",
+  "shareOutCloseMeetingFirst": "Close Meeting #{number} before sharing out. Its shares and loans belong to this cycle.",
   "@shareOutCloseMeetingFirst": {
     "placeholders": {
       "number": {
@@ -752,7 +765,7 @@
       }
     }
   },
-  "restoreHistoryPending": "Loaded {groupName} with {members} members. Its meetings and savings will follow when there is a signal.",
+  "restoreHistoryPending": "Loaded {groupName} with {members} members. Its meetings and shares will follow when there is a signal.",
   "@restoreHistoryPending": {
     "placeholders": {
       "groupName": {
@@ -763,7 +776,7 @@
       }
     }
   },
-  "restoreHistoryNotLoaded": "Loaded {groupName} with {members} members. Its earlier meetings and savings could not be loaded from the online record.",
+  "restoreHistoryNotLoaded": "Loaded {groupName} with {members} members. Its earlier meetings and shares could not be loaded from the online record.",
   "@restoreHistoryNotLoaded": {
     "placeholders": {
       "groupName": {
@@ -839,7 +852,7 @@
   "moreEditSetUp": "Edit group set-up",
   "moreMeetingSecurityOn": "3-key unlock is on · roles and PINs",
   "moreMeetingSecurityOff": "3-key unlock is off · roles and PINs",
-  "moreGroupRulesSummary": "{share} per share · up to {maxShares} shares a meeting · {social} social fund · {interest}% interest · borrow up to {multiplier}× savings",
+  "moreGroupRulesSummary": "{share} per share · up to {maxShares} shares a meeting · {social} social fund · {interest}% interest · borrow up to {multiplier}× shares",
   "@moreGroupRulesSummary": {
     "placeholders": {
       "share": {
@@ -860,8 +873,8 @@
     }
   },
   "moreLoanRulesSubtitle": "Loan term, interest and where expenses come from",
-  "moreSavingCycles": "Saving cycles",
-  "moreSavingCyclesSubtitle": "Close a cycle and start the next",
+  "moreSavingCycles": "Share cycles",
+  "moreSavingCyclesSubtitle": "Close a cycle after its share-out",
   "moreCloudAndAdvanced": "Cloud & advanced",
   "moreCloudAndAdvancedSubtitle": "Cloud account, payment providers, old local data",
   "morePaymentProviders": "Payment providers",
@@ -900,12 +913,12 @@
   },
   "moreAlreadyBackedUp": "Everything is already backed up.",
   "memberSignInsTitle": "Member sign-ins",
-  "memberSignInsSubtitle": "Members can sign in on their own phones to see their savings and loans.",
+  "memberSignInsSubtitle": "Members can sign in on their own phones to see their shares and loans.",
   "memberSignInsNeedsConnection": "Connect to the internet to change this.",
-  "memberSignInsNowOn": "Members can now sign in to see their savings.",
+  "memberSignInsNowOn": "Members can now sign in to see their shares.",
   "memberSignInsNowOff": "Member sign-ins are off for this group.",
   "memberDetailSignInSection": "Sign-in account",
-  "memberDetailSignInExplain": "Give {name} their own sign-in so they can see their savings and loans on their own phone.",
+  "memberDetailSignInExplain": "Give {name} their own sign-in so they can see their shares and loans on their own phone.",
   "@memberDetailSignInExplain": {
     "placeholders": {
       "name": {
@@ -953,7 +966,7 @@
   },
   "localVaultExportFailed": "This copy could not be exported. Try again.",
   "meetingHistoryPendingTitle": "The group's history is still coming",
-  "meetingHistoryPendingBody": "Earlier meetings, savings and loans from the online record have not finished coming onto this phone. If a meeting is started now, they can no longer be added underneath it. Connect to the internet and wait a moment, or start anyway.",
+  "meetingHistoryPendingBody": "Earlier meetings, shares and loans from the online record have not finished coming onto this phone. If a meeting is started now, they can no longer be added underneath it. Connect to the internet and wait a moment, or start anyway.",
   "meetingHistoryPendingWait": "Wait for it",
   "meetingHistoryPendingStartAnyway": "Start anyway"
 }

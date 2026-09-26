@@ -51,6 +51,7 @@ class _FakeBackend extends RemoteWriteApi {
     required String meetingId,
     required String event,
     required DateTime at,
+    List<String>? unlockedByMemberIds,
   }) async {
     _guard();
   }

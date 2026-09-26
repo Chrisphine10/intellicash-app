@@ -84,6 +84,15 @@ class MemberRepository {
     return (members: members, watermark: rows.last['id'] as int);
   }
 
+  /// An office changed on the console, brought down to this phone. Written
+  /// without a sync-queue entry: it came from the server, so it must not be
+  /// pushed back to it as if this phone had changed it.
+  Future<void> setRoleFromServer(String memberId, MemberRole role) async {
+    final db = await _db.database;
+    await db.update('members', {'role': role.name},
+        where: 'id = ?', whereArgs: [memberId]);
+  }
+
   Future<void> updateMember(Member member) async {
     final db = await _db.database;
     await db.transaction((txn) async {

@@ -120,7 +120,7 @@ class _DisburseLoanScreenState extends State<DisburseLoanScreen> {
                             fontSize: 13, fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: 6),
-                      KeyValueRow('Total Savings',
+                      KeyValueRow('Total Shares',
                           Formatters.money(eligibility.totalSavings)),
                       KeyValueRow('Active Loan Balance',
                           Formatters.money(eligibility.activeLoanBalance)),

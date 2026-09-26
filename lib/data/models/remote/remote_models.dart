@@ -124,9 +124,14 @@ class RemoteGroup {
         .where((f) => f.type == type)
         .fold(0.0, (sum, f) => sum + f.balance);
 
-    /// The backend uses INTERNAL_LOAN for share purchases (no SAVINGS fund type exists).
-    /// See packages/shared/src/index.ts fundTypes enum.
+    /// The loan fund's CASH balance (INTERNAL_LOAN). Shares are paid into it,
+    /// but it falls every time a loan goes out, so it is NOT the group's total
+    /// shares — that is [totalShares]. Kept for older screens.
     double get savingsBalance => _fund('INTERNAL_LOAN');
+
+    /// Shares members bought this cycle, as the server counts them. Null when
+    /// an older server did not say.
+    double? get totalShares => totalSavingsCents == null ? null : totalSavingsCents! / 100;
     double get socialFundBalance => _fund('SOCIAL');
     double get internalLoanBalance => _fund('INTERNAL_LOAN');
 
@@ -167,7 +172,11 @@ class RemoteGroup {
           : (j['contactPhone'] as String).trim(),
       memberCount: count == null ? null : _toInt(count['members']),
       meetingCount: count == null ? null : _toInt(count['meetings']),
-      totalSavingsCents: j['totalSavingsCents'] != null ? (j['totalSavingsCents'] as num).toDouble() : null,
+      // `totalSharesCents` from servers since 26 Sep 2026; the same figure was
+      // sent as `totalSavingsCents` before, and still is for older phones.
+      totalSavingsCents: (j['totalSharesCents'] ?? j['totalSavingsCents']) != null
+          ? ((j['totalSharesCents'] ?? j['totalSavingsCents']) as num).toDouble()
+          : null,
       totalSocialFundCents: j['totalSocialFundCents'] != null ? (j['totalSocialFundCents'] as num).toDouble() : null,
       modules: j['modules'] is Map<String, dynamic>
           ? GroupModules.fromJson(j['modules'] as Map<String, dynamic>)
