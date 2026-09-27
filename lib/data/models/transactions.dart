@@ -14,6 +14,7 @@ class SharePurchase {
     required this.amount,
     this.paymentMethod = PaymentMethod.cash,
     this.paymentReference,
+    this.groupPaymentId,
     required this.createdAt,
   });
 
@@ -28,6 +29,11 @@ class SharePurchase {
   /// M-Pesa code / bank slip / mobile-money reference, when the method
   /// requires one. Carried into the backend ledger `externalReference`.
   final String? paymentReference;
+
+  /// The online payment (server id) this purchase was paid by, when the
+  /// member paid through M-Pesa STK or Paystack. The server posts that
+  /// payment itself, so the sync links to it instead of posting it again.
+  final String? groupPaymentId;
   final DateTime createdAt;
 
   factory SharePurchase.fromMap(Map<String, Object?> map) {
@@ -41,6 +47,7 @@ class SharePurchase {
       paymentMethod: enumFromName(PaymentMethod.values,
           (map['payment_method'] ?? 'cash') as String, PaymentMethod.cash),
       paymentReference: map['payment_reference'] as String?,
+      groupPaymentId: map['group_payment_id'] as String?,
       createdAt: DateTime.parse(map['created_at'] as String),
     );
   }
@@ -55,6 +62,7 @@ class SharePurchase {
       'amount': amount,
       'payment_method': paymentMethod.name,
       'payment_reference': paymentReference,
+      'group_payment_id': groupPaymentId,
       'created_at': createdAt.toIso8601String(),
     };
   }

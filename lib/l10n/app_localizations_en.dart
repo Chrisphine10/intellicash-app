@@ -1049,9 +1049,6 @@ class L10nEn extends L10n {
       'Once a group accepts you, your shares will show here.';
 
   @override
-  String get buySharesEnterCodeByHand => 'Enter Code by Hand';
-
-  @override
   String get buySharesRecordPurchase => 'Record Purchase';
 
   @override
@@ -2336,4 +2333,182 @@ class L10nEn extends L10n {
 
   @override
   String get meetingHistoryPendingStartAnyway => 'Start anyway';
+
+  @override
+  String paymentAmountToGroup(String amount) {
+    return '$amount to the group';
+  }
+
+  @override
+  String get paymentToTheGroup => 'To the group';
+
+  @override
+  String get paymentPlatformFee => 'IWL platform fee';
+
+  @override
+  String get paymentCharges => 'Payment charges';
+
+  @override
+  String get paymentMemberPays => 'Member pays';
+
+  @override
+  String paymentPayAmount(String amount) {
+    return 'Pay $amount';
+  }
+
+  @override
+  String get paymentTryAgain => 'Try again';
+
+  @override
+  String get paymentClose => 'Close';
+
+  @override
+  String get paymentHeldNotice =>
+      'The payment arrived but is being checked. Do not record it by hand or charge again.';
+
+  @override
+  String get paymentNoConfirmationYet =>
+      'No confirmation yet. Do not record it by hand: if the member paid, it is added to the group\'s books automatically and shows in the meeting as an online payment to add.';
+
+  @override
+  String onlinePaymentsNotInBook(int count, String amount) {
+    return '$count online payment(s) not yet in this book · $amount';
+  }
+
+  @override
+  String get onlinePaymentsExplain =>
+      'Members paid these by M-Pesa or Paystack and the money is confirmed. Add them here so the book matches. They will not be counted twice.';
+
+  @override
+  String get onlinePaymentsAddToMeeting => 'Add to this meeting';
+
+  @override
+  String get payIntoMyGroup => 'Pay into my group';
+
+  @override
+  String get payOnlineShares => 'Shares';
+
+  @override
+  String get payOnlineSocialFund => 'Social fund';
+
+  @override
+  String get payOnlineChargesShownNext =>
+      'The next screen shows the charges added on top before you pay.';
+
+  @override
+  String get payOnlineConfirmed =>
+      'Payment confirmed. It is in your group\'s books.';
+
+  @override
+  String get paymentYouPay => 'You pay';
+
+  @override
+  String get paymentEnterYourPin =>
+      'Request sent. Enter your M-Pesa PIN on your phone.';
+
+  @override
+  String get paymentWaitingForCheckout =>
+      'Waiting for the payment to go through…';
+
+  @override
+  String get purposeFine => 'Fine';
+
+  @override
+  String get purposeLoanRepayment => 'Loan repayment';
+
+  @override
+  String get requestPaymentNoLoan => 'There is no loan to repay.';
+
+  @override
+  String requestPaymentMoreThanOwed(String amount) {
+    return 'That is more than the $amount owed.';
+  }
+
+  @override
+  String requestPaymentWelfareAmount(String amount) {
+    return 'Welfare contribution: $amount';
+  }
+
+  @override
+  String get requestPaymentAmount => 'Amount (KSh)';
+
+  @override
+  String requestPaymentYouOwe(String amount) {
+    return 'You owe $amount';
+  }
+
+  @override
+  String get requestPaymentContinue => 'Continue';
+
+  @override
+  String requestPaymentFor(String amount) {
+    return 'Continue with $amount';
+  }
+
+  @override
+  String howDidMemberPay(String name) {
+    return 'How did $name pay?';
+  }
+
+  @override
+  String get requestPaymentMemberNotOnline =>
+      'This member is not backed up online yet. Back up the group first.';
+
+  @override
+  String get payMethodTitle => 'How is the member paying?';
+
+  @override
+  String get payHintCash => 'Recorded now';
+
+  @override
+  String get payHintMpesa => 'Prompt on the member\'s phone. No code to type.';
+
+  @override
+  String get payHintClassic =>
+      'Paid to the Paybill or Till. Type the M-Pesa code.';
+
+  @override
+  String get payHintPaystack => 'Card or mobile money, by link';
+
+  @override
+  String get payHintNeedsInternet => 'Needs the group online';
+
+  @override
+  String get mpesaCodeLabel => 'M-Pesa code from the member\'s SMS';
+
+  @override
+  String get mpesaCodeHint => 'e.g. SLK4H2X9Y1';
+
+  @override
+  String get mpesaCodeInvalid =>
+      'Enter the M-Pesa code: letters and numbers, usually 10.';
+
+  @override
+  String get paySendMpesaPrompt => 'Send M-Pesa prompt';
+
+  @override
+  String get payCreatePaystackLink => 'Create Paystack link';
+
+  @override
+  String get payConfirm => 'Confirm payment';
+
+  @override
+  String get payHintSwitchedOff => 'Switched off for this group';
+
+  @override
+  String get onlinePaymentsTitle => 'Online payments';
+
+  @override
+  String get onlinePaymentsSwitchHint =>
+      'Switch M-Pesa and Paystack on or off for this group. Cash and M-Pesa Classic always work.';
+
+  @override
+  String onlinePaymentsSwitchedOn(String provider) {
+    return '$provider is now on for this group.';
+  }
+
+  @override
+  String onlinePaymentsSwitchedOff(String provider) {
+    return '$provider is now off for this group.';
+  }
 }

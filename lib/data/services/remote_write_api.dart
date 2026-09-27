@@ -206,9 +206,14 @@ class LedgerEntryInput {
     this.externalReference,
     required this.clientRequestId,
     this.loan,
+    this.groupPaymentId,
   });
 
   final String memberId;
+
+  /// The online payment this entry records. The server posts a verified
+  /// payment itself and answers this entry with that one.
+  final String? groupPaymentId;
 
   /// For a disbursement: the terms the loan was agreed at on this phone
   /// ({termMonths, interestRateBps, interestType}), so the server records the
@@ -233,6 +238,7 @@ class LedgerEntryInput {
         if (externalReference != null && externalReference!.isNotEmpty)
           'externalReference': externalReference,
         'clientRequestId': clientRequestId,
+        if (groupPaymentId != null) 'groupPaymentId': groupPaymentId,
       };
 }
 

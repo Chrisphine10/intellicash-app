@@ -6,11 +6,13 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/remote/member_passbook.dart';
 import '../../data/models/remote/membership.dart';
+import '../../data/services/remote_payments_api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/connection_provider.dart';
 import '../../shared/widgets/common.dart';
 import '../more/language_screen.dart';
 import 'join_group_screen.dart';
+import 'pay_online_sheet.dart';
 import '../reports/member_report_screen.dart';
 import '../account/sign_out_flow.dart';
 import '../reports/my_savings_screen.dart';
@@ -36,6 +38,9 @@ class _MemberPassbookScreenState extends State<MemberPassbookScreen> {
   /// Every group this person saves with. More than one is normal.
   List<Membership> _memberships = const [];
 
+  /// Whether this member's group lets them pay from the passbook.
+  SelfPayOptions _payOptions = const SelfPayOptions(enabled: false, providers: []);
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +49,7 @@ class _MemberPassbookScreenState extends State<MemberPassbookScreen> {
 
   Future<void> _load() async {
     final connection = context.read<ConnectionProvider>();
+    final payments = context.read<RemotePaymentsApi>();
     setState(() {
       _loading = true;
       _error = null;
@@ -65,6 +71,8 @@ class _MemberPassbookScreenState extends State<MemberPassbookScreen> {
       // The server totals a member's own passbook; fall back to summing the
       // ledger here if that endpoint isn't available.
       final passbook = await connection.api.myPassbook();
+      final payOptions = await payments.selfOptions();
+      if (mounted) setState(() => _payOptions = payOptions);
       final entries = passbook != null
           ? passbook.recentEntries
           : await connection.api.ledger(group.id);
@@ -223,6 +231,23 @@ class _MemberPassbookScreenState extends State<MemberPassbookScreen> {
                 ),
               ),
             ),
+            if (_payOptions.enabled && _payOptions.providers.isNotEmpty && group != null) ...[
+              const SizedBox(height: 12),
+              FilledButton.icon(
+                icon: const Icon(Icons.phone_android, size: 18),
+                label: Text(l10n.payIntoMyGroup),
+                onPressed: () async {
+                  final paid = await showModalBottomSheet<bool>(
+                    context: context,
+                    isScrollControlled: true,
+                    builder: (_) => PayOnlineSheet(options: _payOptions, memberPhone: user?.phone),
+                  );
+                  if (paid != true || !context.mounted) return;
+                  showAppSnack(context, l10n.payOnlineConfirmed);
+                  await _load();
+                },
+              ),
+            ],
             // Every group this person saves with, always listed. This used to
             // be a popup menu that hid itself below two groups, so a member
             // could not see which groups they belong to at all — and with two

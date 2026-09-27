@@ -96,6 +96,53 @@ class GroupPaymentProviders {
   }
 }
 
+/// Which online providers a group has switched on, and how it collects.
+///
+/// Mirrors the server's `/groups/:id/payment-settings`. No settings saved
+/// means every provider is on (as before switches existed); a saved empty
+/// list means online payments are off — cash and M-Pesa Classic still work.
+class GroupPaymentSettings {
+  const GroupPaymentSettings({
+    required this.collectionMode,
+    required this.enabledProviders,
+    required this.memberSelfPayEnabled,
+  });
+
+  static const mpesa = 'MPESA_DARAJA';
+  static const paystack = 'PAYSTACK';
+
+  /// The mode in force: the saved one, or what the server infers (the
+  /// group's own account once it has its own details, else Intelli-Cash).
+  final String collectionMode;
+  final Set<String> enabledProviders;
+  final bool memberSelfPayEnabled;
+
+  bool isOn(String provider) => enabledProviders.contains(provider);
+
+  factory GroupPaymentSettings.fromJson(Map<String, dynamic> json) {
+    final settings = Map<String, dynamic>.from((json['settings'] ?? json) as Map);
+    final own = (settings['ownCredentialProviders'] as List? ?? const []).cast<Object?>();
+    return GroupPaymentSettings(
+      collectionMode: settings['collectionMode'] as String? ?? (own.isNotEmpty ? 'OWN_ACCOUNT' : 'SYSTEM'),
+      enabledProviders: (settings['enabledProviders'] as List? ?? const [mpesa, paystack]).map((e) => '$e').toSet(),
+      memberSelfPayEnabled: settings['memberSelfPayEnabled'] == true,
+    );
+  }
+
+  GroupPaymentSettings withProvider(String provider, bool on) => GroupPaymentSettings(
+        collectionMode: collectionMode,
+        enabledProviders: on ? {...enabledProviders, provider} : ({...enabledProviders}..remove(provider)),
+        memberSelfPayEnabled: memberSelfPayEnabled,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'collectionMode': collectionMode,
+        // A stable order, so the saved list reads the same every time.
+        'enabledProviders': [mpesa, paystack].where(enabledProviders.contains).toList(),
+        'memberSelfPayEnabled': memberSelfPayEnabled,
+      };
+}
+
 class RemotePaymentProvidersApi {
   RemotePaymentProvidersApi(this._client);
 
@@ -119,6 +166,17 @@ class RemotePaymentProvidersApi {
       body: {'credentials': credentials, 'enabled': enabled},
     );
     return GroupPaymentProvider.fromJson(Map<String, dynamic>.from(data as Map));
+  }
+
+  Future<GroupPaymentSettings> settings(String groupId) async {
+    final data = await _client.getData('/groups/$groupId/payment-settings');
+    return GroupPaymentSettings.fromJson(Map<String, dynamic>.from(data as Map));
+  }
+
+  /// Saves the whole settings row: the server replaces it, so the collection
+  /// mode and passbook switch travel with every provider change.
+  Future<void> saveSettings(String groupId, GroupPaymentSettings settings) async {
+    await _client.putData('/groups/$groupId/payment-settings', body: settings.toJson());
   }
 
   /// Hands the group back to the platform's account.

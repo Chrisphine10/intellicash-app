@@ -294,6 +294,7 @@ class WriteSyncService {
         description: '${row['shares']} share(s) · ${method.label}',
         externalReference: row['payment_reference'] as String?,
         clientRequestId: crid,
+        groupPaymentId: row['group_payment_id'] as String?,
       ));
     }
 
@@ -308,7 +309,9 @@ class WriteSyncService {
         type: 'SOCIAL_CONTRIBUTION',
         amountCents: _cents(row['amount'] as num),
         description: 'Social fund contribution',
+        externalReference: row['payment_reference'] as String?,
         clientRequestId: crid,
+        groupPaymentId: row['group_payment_id'] as String?,
       ));
     }
 
@@ -337,7 +340,7 @@ class WriteSyncService {
 
     // Repayments in this meeting -> LOAN_REPAYMENT (member via the loan).
     for (final row in await db.rawQuery('''
-      SELECT r.id, r.amount, l.member_id
+      SELECT r.id, r.amount, r.group_payment_id, r.payment_reference, l.member_id
       FROM loan_repayments r JOIN loans l ON l.id = r.loan_id
       WHERE r.meeting_id = ?
     ''', [meetingId])) {
@@ -349,7 +352,9 @@ class WriteSyncService {
         type: 'LOAN_REPAYMENT',
         amountCents: _cents(row['amount'] as num),
         description: 'Loan repayment',
+        externalReference: row['payment_reference'] as String?,
         clientRequestId: crid,
+        groupPaymentId: row['group_payment_id'] as String?,
       ));
     }
 
@@ -366,7 +371,9 @@ class WriteSyncService {
         amountCents: _cents(row['amount'] as num),
         description:
             reason == null || reason.isEmpty ? 'Fine' : 'Fine · $reason',
+        externalReference: row['payment_reference'] as String?,
         clientRequestId: crid,
+        groupPaymentId: row['group_payment_id'] as String?,
       ));
     }
 

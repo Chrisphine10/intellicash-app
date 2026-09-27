@@ -342,7 +342,6 @@
   "moreIntelliCash": "Intelli-Cash",
   "mySavingsMySavings": "My Shares",
   "mySavingsOnceAGroupAcceptsYou": "Once a group accepts you, your shares will show here.",
-  "buySharesEnterCodeByHand": "Enter Code by Hand",
   "buySharesRecordPurchase": "Record Purchase",
   "sharesLedgerNoPurchasesYet": "No purchases yet",
   "socialFundThisMeetingIsClosedThe": "This meeting is closed — the record is read-only.",
@@ -968,5 +967,243 @@
   "meetingHistoryPendingTitle": "The group's history is still coming",
   "meetingHistoryPendingBody": "Earlier meetings, shares and loans from the online record have not finished coming onto this phone. If a meeting is started now, they can no longer be added underneath it. Connect to the internet and wait a moment, or start anyway.",
   "meetingHistoryPendingWait": "Wait for it",
-  "meetingHistoryPendingStartAnyway": "Start anyway"
+  "meetingHistoryPendingStartAnyway": "Start anyway",
+  "paymentAmountToGroup": "{amount} to the group",
+  "@paymentAmountToGroup": {
+    "description": "Payment sheet subtitle: what the group receives",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentToTheGroup": "To the group",
+  "@paymentToTheGroup": {
+    "description": "Fee breakdown line: the group's money"
+  },
+  "paymentPlatformFee": "IWL platform fee",
+  "@paymentPlatformFee": {
+    "description": "Fee breakdown line: Intelli-Cash's fee"
+  },
+  "paymentCharges": "Payment charges",
+  "@paymentCharges": {
+    "description": "Fee breakdown line: the payment provider's charge"
+  },
+  "paymentMemberPays": "Member pays",
+  "@paymentMemberPays": {
+    "description": "Fee breakdown total"
+  },
+  "paymentPayAmount": "Pay {amount}",
+  "@paymentPayAmount": {
+    "description": "Button that starts the charge for the quoted total",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentTryAgain": "Try again",
+  "@paymentTryAgain": {
+    "description": "Retry fetching the charges"
+  },
+  "paymentClose": "Close",
+  "@paymentClose": {
+    "description": "Close the payment sheet once a charge was sent"
+  },
+  "paymentHeldNotice": "The payment arrived but is being checked. Do not record it by hand or charge again.",
+  "@paymentHeldNotice": {
+    "description": "A payment held for checking by an administrator"
+  },
+  "paymentNoConfirmationYet": "No confirmation yet. Do not record it by hand: if the member paid, it is added to the group's books automatically and shows in the meeting as an online payment to add.",
+  "@paymentNoConfirmationYet": {
+    "description": "Shown when the phone stops waiting for a payment"
+  },
+  "onlinePaymentsNotInBook": "{count} online payment(s) not yet in this book · {amount}",
+  "@onlinePaymentsNotInBook": {
+    "description": "Meeting banner for server-confirmed payments missing on this phone",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "onlinePaymentsExplain": "Members paid these by M-Pesa or Paystack and the money is confirmed. Add them here so the book matches. They will not be counted twice.",
+  "@onlinePaymentsExplain": {
+    "description": "Explains the online payments banner"
+  },
+  "onlinePaymentsAddToMeeting": "Add to this meeting",
+  "@onlinePaymentsAddToMeeting": {
+    "description": "Button: record the online payments in this meeting"
+  },
+  "payIntoMyGroup": "Pay into my group",
+  "@payIntoMyGroup": {
+    "description": "Member passbook: pay online"
+  },
+  "payOnlineShares": "Shares",
+  "@payOnlineShares": {
+    "description": "Pay-online choice: buy shares"
+  },
+  "payOnlineSocialFund": "Social fund",
+  "@payOnlineSocialFund": {
+    "description": "Pay-online choice: social fund"
+  },
+  "payOnlineChargesShownNext": "The next screen shows the charges added on top before you pay.",
+  "@payOnlineChargesShownNext": {
+    "description": "Pay-online note"
+  },
+  "payOnlineConfirmed": "Payment confirmed. It is in your group's books.",
+  "@payOnlineConfirmed": {
+    "description": "After a member's own online payment"
+  },
+  "paymentYouPay": "You pay",
+  "@paymentYouPay": {
+    "description": "Fee breakdown total when a member pays for themselves"
+  },
+  "paymentEnterYourPin": "Request sent. Enter your M-Pesa PIN on your phone.",
+  "@paymentEnterYourPin": {
+    "description": "Self-pay: waiting for the member's own PIN"
+  },
+  "paymentWaitingForCheckout": "Waiting for the payment to go through…",
+  "@paymentWaitingForCheckout": {
+    "description": "Paystack: waiting for checkout"
+  },
+  "purposeFine": "Fine",
+  "@purposeFine": {
+    "description": "Payment type: a fine"
+  },
+  "purposeLoanRepayment": "Loan repayment",
+  "@purposeLoanRepayment": {
+    "description": "Payment type: repaying a loan"
+  },
+  "requestPaymentNoLoan": "There is no loan to repay.",
+  "@requestPaymentNoLoan": {
+    "description": "Repayment blocked: nothing owed"
+  },
+  "requestPaymentMoreThanOwed": "That is more than the {amount} owed.",
+  "@requestPaymentMoreThanOwed": {
+    "description": "Repayment blocked: more than owed",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "requestPaymentWelfareAmount": "Welfare contribution: {amount}",
+  "@requestPaymentWelfareAmount": {
+    "description": "Fixed welfare amount",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "requestPaymentAmount": "Amount (KSh)",
+  "@requestPaymentAmount": {
+    "description": "Amount field"
+  },
+  "requestPaymentYouOwe": "You owe {amount}",
+  "@requestPaymentYouOwe": {
+    "description": "Loan owed by the member themselves",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "requestPaymentContinue": "Continue",
+  "@requestPaymentContinue": {
+    "description": "Continue button without an amount"
+  },
+  "requestPaymentFor": "Continue with {amount}",
+  "@requestPaymentFor": {
+    "description": "Continue button with the amount",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "howDidMemberPay": "How did {name} pay?",
+  "@howDidMemberPay": {
+    "description": "Social fund: ask how the member paid",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "requestPaymentMemberNotOnline": "This member is not backed up online yet. Back up the group first.",
+  "@requestPaymentMemberNotOnline": {
+    "description": "Online payment blocked: member not linked"
+  },
+  "payMethodTitle": "How is the member paying?",
+  "@payMethodTitle": {
+    "description": "Payment card heading"
+  },
+  "payHintCash": "Recorded now",
+  "@payHintCash": {
+    "description": "Payment card: cash"
+  },
+  "payHintMpesa": "Prompt on the member's phone. No code to type.",
+  "@payHintMpesa": {
+    "description": "Payment card: automated M-Pesa"
+  },
+  "payHintClassic": "Paid to the Paybill or Till. Type the M-Pesa code.",
+  "@payHintClassic": {
+    "description": "Payment card: M-Pesa Classic"
+  },
+  "payHintPaystack": "Card or mobile money, by link",
+  "@payHintPaystack": {
+    "description": "Payment card: Paystack"
+  },
+  "payHintNeedsInternet": "Needs the group online",
+  "@payHintNeedsInternet": {
+    "description": "Payment card: automated method unavailable offline"
+  },
+  "mpesaCodeLabel": "M-Pesa code from the member's SMS",
+  "@mpesaCodeLabel": {
+    "description": "M-Pesa Classic code field"
+  },
+  "mpesaCodeHint": "e.g. SLK4H2X9Y1",
+  "@mpesaCodeHint": {
+    "description": "M-Pesa code example"
+  },
+  "mpesaCodeInvalid": "Enter the M-Pesa code: letters and numbers, usually 10.",
+  "@mpesaCodeInvalid": {
+    "description": "M-Pesa code validation"
+  },
+  "paySendMpesaPrompt": "Send M-Pesa prompt",
+  "@paySendMpesaPrompt": {
+    "description": "Action: automated M-Pesa"
+  },
+  "payCreatePaystackLink": "Create Paystack link",
+  "@payCreatePaystackLink": {
+    "description": "Action: Paystack"
+  },
+  "payConfirm": "Confirm payment",
+  "@payConfirm": {
+    "description": "Action: record a cash or Classic payment"
+  },
+  "payHintSwitchedOff": "Switched off for this group",
+  "onlinePaymentsTitle": "Online payments",
+  "onlinePaymentsSwitchHint": "Switch M-Pesa and Paystack on or off for this group. Cash and M-Pesa Classic always work.",
+  "onlinePaymentsSwitchedOn": "{provider} is now on for this group.",
+  "@onlinePaymentsSwitchedOn": {
+    "placeholders": {
+      "provider": {
+        "type": "String"
+      }
+    }
+  },
+  "onlinePaymentsSwitchedOff": "{provider} is now off for this group.",
+  "@onlinePaymentsSwitchedOff": {
+    "placeholders": {
+      "provider": {
+        "type": "String"
+      }
+    }
+  }
 }

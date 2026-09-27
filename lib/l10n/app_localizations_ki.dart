@@ -1052,9 +1052,6 @@ class L10nKi extends L10n {
       'Gĩkundi kĩngĩgwĩtĩkĩra, hisa ciaku nĩũkonekaga haha.';
 
   @override
-  String get buySharesEnterCodeByHand => 'Andĩka Kĩmenyithia na Guoko';
-
-  @override
   String get buySharesRecordPurchase => 'Andĩka Ũgũri';
 
   @override
@@ -2339,4 +2336,182 @@ class L10nKi extends L10n {
 
   @override
   String get meetingHistoryPendingStartAnyway => 'Start anyway';
+
+  @override
+  String paymentAmountToGroup(String amount) {
+    return '$amount kwa kikundi';
+  }
+
+  @override
+  String get paymentToTheGroup => 'Kwa kikundi';
+
+  @override
+  String get paymentPlatformFee => 'Ada ya jukwaa la IWL';
+
+  @override
+  String get paymentCharges => 'Gharama za malipo';
+
+  @override
+  String get paymentMemberPays => 'Mwanachama analipa';
+
+  @override
+  String paymentPayAmount(String amount) {
+    return 'Lipa $amount';
+  }
+
+  @override
+  String get paymentTryAgain => 'Jaribu tena';
+
+  @override
+  String get paymentClose => 'Funga';
+
+  @override
+  String get paymentHeldNotice =>
+      'Malipo yamefika lakini yanakaguliwa. Usiyaandike kwa mkono wala usitoze tena.';
+
+  @override
+  String get paymentNoConfirmationYet =>
+      'Bado hakuna uthibitisho. Usiandike kwa mkono: kama mwanachama alilipa, yataingizwa kwenye vitabu vya kikundi yenyewe na kuonekana kwenye mkutano kama malipo ya mtandaoni ya kuongeza.';
+
+  @override
+  String onlinePaymentsNotInBook(int count, String amount) {
+    return 'Malipo $count ya mtandaoni bado hayajaingia kwenye kitabu hiki · $amount';
+  }
+
+  @override
+  String get onlinePaymentsExplain =>
+      'Wanachama walilipa haya kwa M-Pesa au Paystack na pesa zimethibitishwa. Yaongeze hapa ili kitabu kilingane. Hayatahesabiwa mara mbili.';
+
+  @override
+  String get onlinePaymentsAddToMeeting => 'Ongeza kwenye mkutano huu';
+
+  @override
+  String get payIntoMyGroup => 'Lipa kwa kikundi changu';
+
+  @override
+  String get payOnlineShares => 'Hisa';
+
+  @override
+  String get payOnlineSocialFund => 'Mfuko wa jamii';
+
+  @override
+  String get payOnlineChargesShownNext =>
+      'Skrini inayofuata inaonyesha gharama zinazoongezwa kabla hujalipa.';
+
+  @override
+  String get payOnlineConfirmed =>
+      'Malipo yamethibitishwa. Yako kwenye vitabu vya kikundi chako.';
+
+  @override
+  String get paymentYouPay => 'Unalipa';
+
+  @override
+  String get paymentEnterYourPin =>
+      'Ombi limetumwa. Weka PIN yako ya M-Pesa kwenye simu yako.';
+
+  @override
+  String get paymentWaitingForCheckout => 'Tunasubiri malipo yakamilike…';
+
+  @override
+  String get purposeFine => 'Faini';
+
+  @override
+  String get purposeLoanRepayment => 'Kulipa mkopo';
+
+  @override
+  String get requestPaymentNoLoan => 'Hakuna mkopo wa kulipa.';
+
+  @override
+  String requestPaymentMoreThanOwed(String amount) {
+    return 'Hiyo ni zaidi ya $amount zinazodaiwa.';
+  }
+
+  @override
+  String requestPaymentWelfareAmount(String amount) {
+    return 'Mchango wa mfuko wa jamii: $amount';
+  }
+
+  @override
+  String get requestPaymentAmount => 'Kiasi (KSh)';
+
+  @override
+  String requestPaymentYouOwe(String amount) {
+    return 'Unadaiwa $amount';
+  }
+
+  @override
+  String get requestPaymentContinue => 'Endelea';
+
+  @override
+  String requestPaymentFor(String amount) {
+    return 'Endelea na $amount';
+  }
+
+  @override
+  String howDidMemberPay(String name) {
+    return '$name alilipa vipi?';
+  }
+
+  @override
+  String get requestPaymentMemberNotOnline =>
+      'Mwanachama huyu bado hajahifadhiwa mtandaoni. Hifadhi kikundi kwanza.';
+
+  @override
+  String get payMethodTitle => 'Mwanachama analipa vipi?';
+
+  @override
+  String get payHintCash => 'Inaandikwa sasa hivi';
+
+  @override
+  String get payHintMpesa =>
+      'Ombi kwenye simu ya mwanachama. Hakuna msimbo wa kuandika.';
+
+  @override
+  String get payHintClassic =>
+      'Amelipa kwa Paybill au Till. Andika msimbo wa M-Pesa.';
+
+  @override
+  String get payHintPaystack => 'Kadi au pesa ya simu, kwa kiungo';
+
+  @override
+  String get payHintNeedsInternet => 'Inahitaji kikundi kiwe mtandaoni';
+
+  @override
+  String get mpesaCodeLabel => 'Msimbo wa M-Pesa kutoka kwa SMS ya mwanachama';
+
+  @override
+  String get mpesaCodeHint => 'mfano SLK4H2X9Y1';
+
+  @override
+  String get mpesaCodeInvalid =>
+      'Andika msimbo wa M-Pesa: herufi na nambari, kwa kawaida 10.';
+
+  @override
+  String get paySendMpesaPrompt => 'Tuma ombi la M-Pesa';
+
+  @override
+  String get payCreatePaystackLink => 'Tengeneza kiungo cha Paystack';
+
+  @override
+  String get payConfirm => 'Thibitisha malipo';
+
+  @override
+  String get payHintSwitchedOff => 'Imezimwa kwa kikundi hiki';
+
+  @override
+  String get onlinePaymentsTitle => 'Malipo ya mtandaoni';
+
+  @override
+  String get onlinePaymentsSwitchHint =>
+      'Washa au zima M-Pesa na Paystack kwa kikundi hiki. Pesa taslimu na M-Pesa Classic hufanya kazi kila wakati.';
+
+  @override
+  String onlinePaymentsSwitchedOn(String provider) {
+    return '$provider sasa imewashwa kwa kikundi hiki.';
+  }
+
+  @override
+  String onlinePaymentsSwitchedOff(String provider) {
+    return '$provider sasa imezimwa kwa kikundi hiki.';
+  }
 }

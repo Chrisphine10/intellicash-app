@@ -232,6 +232,7 @@ class MeetingRepository {
     required int shares,
     PaymentMethod paymentMethod = PaymentMethod.cash,
     String? paymentReference,
+    String? groupPaymentId,
   }) async {
     _requireOpen(meeting);
     if (shares < 1 || shares > group.maxSharesPerMeeting) {
@@ -269,6 +270,7 @@ class MeetingRepository {
       paymentReference: (trimmedRef == null || trimmedRef.isEmpty)
           ? null
           : trimmedRef,
+      groupPaymentId: groupPaymentId,
       createdAt: DateTime.now(),
     );
     await db.transaction((txn) async {
@@ -289,6 +291,9 @@ class MeetingRepository {
     required String memberId,
     required double amount,
     required String reason,
+    String? groupPaymentId,
+    PaymentMethod paymentMethod = PaymentMethod.cash,
+    String? paymentReference,
   }) async {
     _requireOpen(meeting);
     if (amount <= 0) throw const DomainException('Fine must be above zero.');
@@ -302,14 +307,20 @@ class MeetingRepository {
       createdAt: DateTime.now(),
     );
     final db = await _db.database;
+    final row = {
+      ...fine.toMap(),
+      'payment_method': paymentMethod.name,
+      'payment_reference': _cleanReference(paymentReference),
+      if (groupPaymentId != null) 'group_payment_id': groupPaymentId,
+    };
     await db.transaction((txn) async {
-      await txn.insert('fines', fine.toMap());
+      await txn.insert('fines', row);
       await SyncRepository.enqueue(
         txn,
         entityType: 'fine',
         entityId: fine.id,
         operation: 'create',
-        payload: fine.toMap(),
+        payload: row,
       );
     });
     return fine;
@@ -396,6 +407,9 @@ class MeetingRepository {
     required Group group,
     required String memberId,
     required bool paid,
+    String? groupPaymentId,
+    PaymentMethod paymentMethod = PaymentMethod.cash,
+    String? paymentReference,
   }) async {
     _requireOpen(meeting);
     final db = await _db.database;
@@ -422,14 +436,20 @@ class MeetingRepository {
         amount: group.socialFundAmount,
         createdAt: DateTime.now(),
       );
+      final row = {
+        ...entry.toMap(),
+        'payment_method': paymentMethod.name,
+        'payment_reference': _cleanReference(paymentReference),
+        if (groupPaymentId != null) 'group_payment_id': groupPaymentId,
+      };
       await db.transaction((txn) async {
-        await txn.insert('social_fund_entries', entry.toMap());
+        await txn.insert('social_fund_entries', row);
         await SyncRepository.enqueue(
           txn,
           entityType: 'social_fund_entry',
           entityId: entry.id,
           operation: 'create',
-          payload: entry.toMap(),
+          payload: row,
         );
       });
     } else {
@@ -550,5 +570,11 @@ class MeetingRepository {
         'Meeting #${meeting.number} is closed. Its records are locked.',
       );
     }
+  }
+
+  /// A typed M-Pesa code, as the member's SMS shows it; null when blank.
+  static String? _cleanReference(String? reference) {
+    final trimmed = reference?.trim().toUpperCase();
+    return (trimmed == null || trimmed.isEmpty) ? null : trimmed;
   }
 }

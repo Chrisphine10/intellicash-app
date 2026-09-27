@@ -72,6 +72,7 @@ class MeetingProvider extends ChangeNotifier {
     required int shares,
     PaymentMethod paymentMethod = PaymentMethod.cash,
     String? paymentReference,
+    String? groupPaymentId,
   }) async {
     final meeting = _requireMeeting();
     final purchase = await _repository.recordSharePurchase(
@@ -81,6 +82,7 @@ class MeetingProvider extends ChangeNotifier {
       shares: shares,
       paymentMethod: paymentMethod,
       paymentReference: paymentReference,
+      groupPaymentId: groupPaymentId,
     );
     await _refreshSession();
     notifyListeners();
@@ -91,6 +93,9 @@ class MeetingProvider extends ChangeNotifier {
     required String memberId,
     required double amount,
     required String reason,
+    String? groupPaymentId,
+    PaymentMethod paymentMethod = PaymentMethod.cash,
+    String? paymentReference,
   }) async {
     final meeting = _requireMeeting();
     await _repository.recordFine(
@@ -98,6 +103,9 @@ class MeetingProvider extends ChangeNotifier {
       memberId: memberId,
       amount: amount,
       reason: reason,
+      groupPaymentId: groupPaymentId,
+      paymentMethod: paymentMethod,
+      paymentReference: paymentReference,
     );
     await _refreshSession();
     notifyListeners();
@@ -131,6 +139,9 @@ class MeetingProvider extends ChangeNotifier {
     required Group group,
     required String memberId,
     required bool paid,
+    String? groupPaymentId,
+    PaymentMethod paymentMethod = PaymentMethod.cash,
+    String? paymentReference,
   }) async {
     final meeting = _requireMeeting();
     await _repository.setSocialFundPaid(
@@ -138,6 +149,9 @@ class MeetingProvider extends ChangeNotifier {
       group: group,
       memberId: memberId,
       paid: paid,
+      groupPaymentId: groupPaymentId,
+      paymentMethod: paymentMethod,
+      paymentReference: paymentReference,
     );
     await _refreshSession();
     notifyListeners();

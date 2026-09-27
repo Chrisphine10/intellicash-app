@@ -94,10 +94,20 @@ enum MemberRole {
 /// confirmation reference the member provides.
 enum PaymentMethod {
   cash('Cash', 'payments', needsReference: false),
-  mpesa('M-Pesa', 'phone_android', automated: true),
+  /// A prompt on the member's phone; the receipt comes back from M-Pesa, so
+  /// nobody types a code.
+  mpesa('M-Pesa', 'phone_android', automated: true, needsReference: false),
+  /// The member paid the group's Paybill / Till themselves; the treasurer
+  /// types the confirmation code from their SMS.
   mpesaClassic('M-Pesa Classic', 'dialpad'),
-  paystack('Paystack', 'account_balance_wallet', automated: true),
+  /// Card or mobile money through Paystack's checkout.
+  paystack('Paystack', 'account_balance_wallet', automated: true, needsReference: false),
+  /// No longer offered (Paystack takes cards). Kept so rows recorded with it
+  /// still read.
   card('Card', 'credit_card', automated: true);
+
+  /// What a member can pay with, in the order it is offered.
+  static const offered = [cash, mpesa, mpesaClassic, paystack];
 
   const PaymentMethod(
     this.label,

@@ -22,6 +22,7 @@ import '../store/store_screen.dart';
 import '../voting/polls_screen.dart';
 import 'attendance_screen.dart';
 import 'buy_shares_sheet.dart';
+import 'online_payments_to_add.dart';
 import 'record_fine_sheet.dart';
 import 'repayment_sheet.dart';
 import 'shares_ledger_screen.dart';
@@ -88,6 +89,8 @@ class _MeetingHubScreenState extends State<MeetingHubScreen> {
             '${totals.presentCount} present',
             style: Theme.of(context).textTheme.bodySmall,
           ),
+          if (isOpen && _remoteGroupId != null)
+            OnlinePaymentsToAdd(remoteGroupId: _remoteGroupId!),
           const SectionLabel('Record'),
           GridView.count(
             crossAxisCount: 2,

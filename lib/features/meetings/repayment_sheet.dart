@@ -3,13 +3,17 @@ import 'package:provider/provider.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/domain_exception.dart';
+import '../../core/utils/user_message.dart';
 import '../../core/utils/formatters.dart';
+import '../../data/models/enums.dart';
 import '../../data/models/loan.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/app_state.dart';
 import '../../providers/loan_provider.dart';
 import '../../providers/meeting_provider.dart';
 import '../../shared/widgets/common.dart';
+import '../../shared/widgets/payment_method_panel.dart';
+import 'online_charge.dart';
 
 /// Record a repayment against any outstanding loan, inside the meeting.
 class RepaymentSheet extends StatefulWidget {
@@ -22,8 +26,13 @@ class RepaymentSheet extends StatefulWidget {
 class _RepaymentSheetState extends State<RepaymentSheet> {
   final _formKey = GlobalKey<FormState>();
   final _amountCtrl = TextEditingController();
+  final _codeCtrl = TextEditingController();
   Loan? _loan;
   bool _saving = false;
+  PaymentMethod _method = PaymentMethod.cash;
+
+  /// Set when the book can charge members online; null means cash only.
+  OnlineCharge? _online;
 
   @override
   void initState() {
@@ -33,12 +42,16 @@ class _RepaymentSheetState extends State<RepaymentSheet> {
       if (group != null) {
         context.read<LoanProvider>().load(group.id);
       }
+      OnlineCharge.load(context).then((online) {
+        if (mounted) setState(() => _online = online);
+      });
     });
   }
 
   @override
   void dispose() {
     _amountCtrl.dispose();
+    _codeCtrl.dispose();
     super.dispose();
   }
 
@@ -135,10 +148,18 @@ class _RepaymentSheetState extends State<RepaymentSheet> {
                 },
               ),
               const SizedBox(height: 16),
+              PaymentMethodPanel(
+                value: _method,
+                online: _online != null && _online!.canCharge(_loan?.memberId),
+                switchedOff: _online?.switchedOff ?? const {},
+                codeController: _codeCtrl,
+                onChanged: (m) => setState(() => _method = m),
+              ),
+              const SizedBox(height: 16),
               FilledButton.icon(
                 onPressed: _saving ? null : _record,
-                icon: const Icon(Icons.check, size: 18),
-                label: Text(l10n.repaymentRecordRepayment),
+                icon: Icon(paymentActionIcon(_method), size: 18),
+                label: Text(paymentActionLabel(l10n, _method, l10n.repaymentRecordRepayment)),
               ),
             ],
           ],
@@ -149,15 +170,32 @@ class _RepaymentSheetState extends State<RepaymentSheet> {
 
   Future<void> _record() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    setState(() => _saving = true);
     final appState = context.read<AppState>();
     final loanProvider = context.read<LoanProvider>();
     final meetingProvider = context.read<MeetingProvider>();
+    final amount = double.parse(_amountCtrl.text);
+    // M-Pesa / Paystack: the member approves on their own phone first, and
+    // the repayment is recorded once the server confirms the money. Cash and
+    // M-Pesa Classic (code typed above) are recorded straight away.
+    final settled = await settlePayment(
+      context,
+      online: _online,
+      method: _method,
+      purpose: PaymentPurpose.loanRepayment,
+      amount: amount,
+      localMemberId: _loan!.memberId,
+      typedCode: _codeCtrl.text,
+    );
+    if (settled == null || !mounted) return;
+    setState(() => _saving = true);
     try {
       final updated = await loanProvider.repay(
         loan: _loan!,
-        amount: double.parse(_amountCtrl.text),
+        amount: amount,
         meetingId: meetingProvider.activeMeeting?.id,
+        groupPaymentId: settled.groupPaymentId,
+        paymentMethod: settled.method,
+        paymentReference: settled.reference,
       );
       // A payment clears the member's oldest loan first (the server's rule),
       // so what is left is told across all their loans, not just this one.
@@ -175,6 +213,9 @@ class _RepaymentSheetState extends State<RepaymentSheet> {
       );
     } on DomainException catch (e) {
       if (mounted) showAppSnack(context, e.message, error: true);
+    } catch (e) {
+      // Anything else (a storage fault) must say so, never fail silently.
+      if (mounted) showAppSnack(context, userMessage(e), error: true);
     } finally {
       if (mounted) setState(() => _saving = false);
     }

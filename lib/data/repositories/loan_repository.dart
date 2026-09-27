@@ -215,6 +215,12 @@ class LoanRepository {
     required Loan loan,
     required double amount,
     String? meetingId,
+    // The online payment this repayment came from. Every slice carries it, so
+    // the server — which posted the payment once — links them all to that one
+    // entry instead of booking the money again.
+    String? groupPaymentId,
+    PaymentMethod paymentMethod = PaymentMethod.cash,
+    String? paymentReference,
   }) async {
     if (amount <= 0) {
       throw const DomainException('Repayment must be above zero.');
@@ -269,7 +275,14 @@ class LoanRepository {
     final db = await _db.database;
     await db.transaction((txn) async {
       for (final (target, repayment, settled) in slices) {
-        await txn.insert('loan_repayments', repayment.toMap());
+        final reference = paymentReference?.trim().toUpperCase();
+        final row = {
+          ...repayment.toMap(),
+          'payment_method': paymentMethod.name,
+          'payment_reference': (reference == null || reference.isEmpty) ? null : reference,
+          if (groupPaymentId != null) 'group_payment_id': groupPaymentId,
+        };
+        await txn.insert('loan_repayments', row);
         if (settled) {
           await txn.update(
             'loans',
@@ -283,7 +296,7 @@ class LoanRepository {
           entityType: 'loan_repayment',
           entityId: repayment.id,
           operation: 'create',
-          payload: repayment.toMap(),
+          payload: row,
         );
       }
     });

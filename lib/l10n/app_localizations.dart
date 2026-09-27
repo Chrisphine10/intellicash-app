@@ -2053,12 +2053,6 @@ abstract class L10n {
   /// **'Once a group accepts you, your shares will show here.'**
   String get mySavingsOnceAGroupAcceptsYou;
 
-  /// No description provided for @buySharesEnterCodeByHand.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter Code by Hand'**
-  String get buySharesEnterCodeByHand;
-
   /// No description provided for @buySharesRecordPurchase.
   ///
   /// In en, this message translates to:
@@ -4200,6 +4194,300 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Start anyway'**
   String get meetingHistoryPendingStartAnyway;
+
+  /// Payment sheet subtitle: what the group receives
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} to the group'**
+  String paymentAmountToGroup(String amount);
+
+  /// Fee breakdown line: the group's money
+  ///
+  /// In en, this message translates to:
+  /// **'To the group'**
+  String get paymentToTheGroup;
+
+  /// Fee breakdown line: Intelli-Cash's fee
+  ///
+  /// In en, this message translates to:
+  /// **'IWL platform fee'**
+  String get paymentPlatformFee;
+
+  /// Fee breakdown line: the payment provider's charge
+  ///
+  /// In en, this message translates to:
+  /// **'Payment charges'**
+  String get paymentCharges;
+
+  /// Fee breakdown total
+  ///
+  /// In en, this message translates to:
+  /// **'Member pays'**
+  String get paymentMemberPays;
+
+  /// Button that starts the charge for the quoted total
+  ///
+  /// In en, this message translates to:
+  /// **'Pay {amount}'**
+  String paymentPayAmount(String amount);
+
+  /// Retry fetching the charges
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get paymentTryAgain;
+
+  /// Close the payment sheet once a charge was sent
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get paymentClose;
+
+  /// A payment held for checking by an administrator
+  ///
+  /// In en, this message translates to:
+  /// **'The payment arrived but is being checked. Do not record it by hand or charge again.'**
+  String get paymentHeldNotice;
+
+  /// Shown when the phone stops waiting for a payment
+  ///
+  /// In en, this message translates to:
+  /// **'No confirmation yet. Do not record it by hand: if the member paid, it is added to the group\'s books automatically and shows in the meeting as an online payment to add.'**
+  String get paymentNoConfirmationYet;
+
+  /// Meeting banner for server-confirmed payments missing on this phone
+  ///
+  /// In en, this message translates to:
+  /// **'{count} online payment(s) not yet in this book · {amount}'**
+  String onlinePaymentsNotInBook(int count, String amount);
+
+  /// Explains the online payments banner
+  ///
+  /// In en, this message translates to:
+  /// **'Members paid these by M-Pesa or Paystack and the money is confirmed. Add them here so the book matches. They will not be counted twice.'**
+  String get onlinePaymentsExplain;
+
+  /// Button: record the online payments in this meeting
+  ///
+  /// In en, this message translates to:
+  /// **'Add to this meeting'**
+  String get onlinePaymentsAddToMeeting;
+
+  /// Member passbook: pay online
+  ///
+  /// In en, this message translates to:
+  /// **'Pay into my group'**
+  String get payIntoMyGroup;
+
+  /// Pay-online choice: buy shares
+  ///
+  /// In en, this message translates to:
+  /// **'Shares'**
+  String get payOnlineShares;
+
+  /// Pay-online choice: social fund
+  ///
+  /// In en, this message translates to:
+  /// **'Social fund'**
+  String get payOnlineSocialFund;
+
+  /// Pay-online note
+  ///
+  /// In en, this message translates to:
+  /// **'The next screen shows the charges added on top before you pay.'**
+  String get payOnlineChargesShownNext;
+
+  /// After a member's own online payment
+  ///
+  /// In en, this message translates to:
+  /// **'Payment confirmed. It is in your group\'s books.'**
+  String get payOnlineConfirmed;
+
+  /// Fee breakdown total when a member pays for themselves
+  ///
+  /// In en, this message translates to:
+  /// **'You pay'**
+  String get paymentYouPay;
+
+  /// Self-pay: waiting for the member's own PIN
+  ///
+  /// In en, this message translates to:
+  /// **'Request sent. Enter your M-Pesa PIN on your phone.'**
+  String get paymentEnterYourPin;
+
+  /// Paystack: waiting for checkout
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the payment to go through…'**
+  String get paymentWaitingForCheckout;
+
+  /// Payment type: a fine
+  ///
+  /// In en, this message translates to:
+  /// **'Fine'**
+  String get purposeFine;
+
+  /// Payment type: repaying a loan
+  ///
+  /// In en, this message translates to:
+  /// **'Loan repayment'**
+  String get purposeLoanRepayment;
+
+  /// Repayment blocked: nothing owed
+  ///
+  /// In en, this message translates to:
+  /// **'There is no loan to repay.'**
+  String get requestPaymentNoLoan;
+
+  /// Repayment blocked: more than owed
+  ///
+  /// In en, this message translates to:
+  /// **'That is more than the {amount} owed.'**
+  String requestPaymentMoreThanOwed(String amount);
+
+  /// Fixed welfare amount
+  ///
+  /// In en, this message translates to:
+  /// **'Welfare contribution: {amount}'**
+  String requestPaymentWelfareAmount(String amount);
+
+  /// Amount field
+  ///
+  /// In en, this message translates to:
+  /// **'Amount (KSh)'**
+  String get requestPaymentAmount;
+
+  /// Loan owed by the member themselves
+  ///
+  /// In en, this message translates to:
+  /// **'You owe {amount}'**
+  String requestPaymentYouOwe(String amount);
+
+  /// Continue button without an amount
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get requestPaymentContinue;
+
+  /// Continue button with the amount
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with {amount}'**
+  String requestPaymentFor(String amount);
+
+  /// Social fund: ask how the member paid
+  ///
+  /// In en, this message translates to:
+  /// **'How did {name} pay?'**
+  String howDidMemberPay(String name);
+
+  /// Online payment blocked: member not linked
+  ///
+  /// In en, this message translates to:
+  /// **'This member is not backed up online yet. Back up the group first.'**
+  String get requestPaymentMemberNotOnline;
+
+  /// Payment card heading
+  ///
+  /// In en, this message translates to:
+  /// **'How is the member paying?'**
+  String get payMethodTitle;
+
+  /// Payment card: cash
+  ///
+  /// In en, this message translates to:
+  /// **'Recorded now'**
+  String get payHintCash;
+
+  /// Payment card: automated M-Pesa
+  ///
+  /// In en, this message translates to:
+  /// **'Prompt on the member\'s phone. No code to type.'**
+  String get payHintMpesa;
+
+  /// Payment card: M-Pesa Classic
+  ///
+  /// In en, this message translates to:
+  /// **'Paid to the Paybill or Till. Type the M-Pesa code.'**
+  String get payHintClassic;
+
+  /// Payment card: Paystack
+  ///
+  /// In en, this message translates to:
+  /// **'Card or mobile money, by link'**
+  String get payHintPaystack;
+
+  /// Payment card: automated method unavailable offline
+  ///
+  /// In en, this message translates to:
+  /// **'Needs the group online'**
+  String get payHintNeedsInternet;
+
+  /// M-Pesa Classic code field
+  ///
+  /// In en, this message translates to:
+  /// **'M-Pesa code from the member\'s SMS'**
+  String get mpesaCodeLabel;
+
+  /// M-Pesa code example
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. SLK4H2X9Y1'**
+  String get mpesaCodeHint;
+
+  /// M-Pesa code validation
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the M-Pesa code: letters and numbers, usually 10.'**
+  String get mpesaCodeInvalid;
+
+  /// Action: automated M-Pesa
+  ///
+  /// In en, this message translates to:
+  /// **'Send M-Pesa prompt'**
+  String get paySendMpesaPrompt;
+
+  /// Action: Paystack
+  ///
+  /// In en, this message translates to:
+  /// **'Create Paystack link'**
+  String get payCreatePaystackLink;
+
+  /// Action: record a cash or Classic payment
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm payment'**
+  String get payConfirm;
+
+  /// No description provided for @payHintSwitchedOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Switched off for this group'**
+  String get payHintSwitchedOff;
+
+  /// No description provided for @onlinePaymentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Online payments'**
+  String get onlinePaymentsTitle;
+
+  /// No description provided for @onlinePaymentsSwitchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch M-Pesa and Paystack on or off for this group. Cash and M-Pesa Classic always work.'**
+  String get onlinePaymentsSwitchHint;
+
+  /// No description provided for @onlinePaymentsSwitchedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'{provider} is now on for this group.'**
+  String onlinePaymentsSwitchedOn(String provider);
+
+  /// No description provided for @onlinePaymentsSwitchedOff.
+  ///
+  /// In en, this message translates to:
+  /// **'{provider} is now off for this group.'**
+  String onlinePaymentsSwitchedOff(String provider);
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/database/app_database.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/domain_exception.dart';
+import '../../core/utils/user_message.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/models/enums.dart';
 import '../../data/repositories/id_map_repository.dart';
@@ -13,17 +14,9 @@ import '../../providers/connection_provider.dart';
 import '../../providers/meeting_provider.dart';
 import '../../providers/member_provider.dart';
 import '../../shared/widgets/common.dart';
+import '../../shared/widgets/payment_method_panel.dart';
 import 'gateway_payment_sheet.dart';
-
-/// Icon for each payment method (enum stores a string key to stay
-/// Flutter-free in the data layer).
-IconData paymentIcon(PaymentMethod method) => switch (method) {
-      PaymentMethod.cash => Icons.payments_outlined,
-      PaymentMethod.mpesa => Icons.phone_android,
-      PaymentMethod.mpesaClassic => Icons.dialpad,
-      PaymentMethod.paystack => Icons.account_balance_wallet_outlined,
-      PaymentMethod.card => Icons.credit_card,
-    };
+import 'online_charge.dart';
 
 /// Pick a member, a share count, and how they paid — the total computes
 /// itself before the purchase is committed to the ledger.
@@ -39,6 +32,7 @@ class _BuySharesSheetState extends State<BuySharesSheet> {
   int _shares = 1;
   PaymentMethod _method = PaymentMethod.cash;
   final _refCtrl = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
   bool _saving = false;
 
   @override
@@ -52,14 +46,6 @@ class _BuySharesSheetState extends State<BuySharesSheet> {
     _refCtrl.dispose();
     super.dispose();
   }
-
-  String _refLabel(PaymentMethod method) => switch (method) {
-        PaymentMethod.mpesa => 'M-Pesa transaction code',
-        PaymentMethod.mpesaClassic => 'M-Pesa code (Paybill / Till)',
-        PaymentMethod.paystack => 'Paystack reference',
-        PaymentMethod.card => 'Card authorization reference',
-        _ => 'Reference',
-      };
 
   @override
   Widget build(BuildContext context) {
@@ -160,100 +146,28 @@ class _BuySharesSheetState extends State<BuySharesSheet> {
               ),
             ),
           ),
-          const SectionLabel('Payment method'),
-          Wrap(
-            spacing: 8,
-            runSpacing: 4,
-            children: [
-              for (final method in PaymentMethod.values)
-                ChoiceChip(
-                  avatar: Icon(
-                    paymentIcon(method),
-                    size: 16,
-                    color: _method == method
-                        ? AppColors.primary
-                        : AppColors.textSecondary,
-                  ),
-                  label: Text(method.label),
-                  selected: _method == method,
-                  selectedColor: AppColors.primaryTint,
-                  labelStyle: TextStyle(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w600,
-                    color: _method == method
-                        ? AppColors.primary
-                        : AppColors.textPrimary,
-                  ),
-                  onSelected: (_) => setState(() {
-                    _method = method;
-                    if (!method.needsReference) _refCtrl.clear();
-                  }),
-                ),
-            ],
+          const SizedBox(height: 12),
+          Form(
+            key: _formKey,
+            child: PaymentMethodPanel(
+              value: _method,
+              online: _canChargeOnline,
+              switchedOff: _switchedOff,
+              codeController: _refCtrl,
+              onChanged: (method) => setState(() {
+                _method = method;
+                if (!method.needsReference) _refCtrl.clear();
+              }),
+            ),
           ),
-          if (_method.automated) ...[
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceRaised,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.info_outline,
-                      size: 16, color: AppColors.textSecondary),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      _canChargeOnline
-                          ? 'Tap Charge ${_method.label} to send the request to '
-                              'the member. The confirmation code is filled in '
-                              'for you once they pay.'
-                          : 'Automatic ${_method.label} needs this group backed '
-                              'up to the cloud. For now, record the '
-                              'confirmation code below by hand.',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-          if (_method.needsReference) ...[
-            const SizedBox(height: 12),
-            TextField(
-              controller: _refCtrl,
-              textCapitalization: TextCapitalization.characters,
-              decoration: InputDecoration(
-                labelText: _refLabel(_method),
-                hintText: _method == PaymentMethod.mpesa ? 'e.g. SLK4H2X9Y1' : null,
-              ),
-            ),
-          ],
           const SizedBox(height: 16),
-          if (_method.automated && _canChargeOnline) ...[
-            FilledButton.icon(
-              onPressed: _memberId == null || _saving ? null : _charge,
-              icon: Icon(
-                  _method == PaymentMethod.mpesa
-                      ? Icons.phone_android
-                      : Icons.open_in_new,
-                  size: 18),
-              label: Text('Charge ${_method.label}'),
-            ),
-            const SizedBox(height: 8),
-            OutlinedButton.icon(
-              onPressed: _memberId == null || _saving ? null : _record,
-              icon: const Icon(Icons.edit_note, size: 18),
-              label: Text(l10n.buySharesEnterCodeByHand),
-            ),
-          ] else
-            FilledButton.icon(
-              onPressed: _memberId == null || _saving ? null : _record,
-              icon: const Icon(Icons.check, size: 18),
-              label: Text(l10n.buySharesRecordPurchase),
-            ),
+          FilledButton.icon(
+            onPressed: _memberId == null || _saving
+                ? null
+                : (_method.automated ? _charge : () => _record()),
+            icon: Icon(paymentActionIcon(_method), size: 18),
+            label: Text(paymentActionLabel(l10n, _method, l10n.buySharesRecordPurchase)),
+          ),
         ],
       ),
     );
@@ -262,6 +176,7 @@ class _BuySharesSheetState extends State<BuySharesSheet> {
   final _idMap = IdMapRepository(AppDatabase.instance);
   String? _remoteGroupId;
   Map<String, String> _remoteMemberIds = const {};
+  Set<PaymentMethod> _switchedOff = const {};
 
   /// Online charging needs a live connection AND this group mirrored to the
   /// backend — the gateway charges against the cloud group, not the local one.
@@ -271,12 +186,19 @@ class _BuySharesSheetState extends State<BuySharesSheet> {
   Future<void> _loadCloudIds() async {
     final group = context.read<AppState>().group;
     if (group == null) return;
+    final connected = context.read<ConnectionProvider>().isConnected;
+    final providersApi = OnlineCharge.providersApiOf(context);
     final remoteGroupId = await _idMap.remoteId(MapEntity.group, group.id);
     final members = await _idMap.mappings(MapEntity.member);
+    if (!mounted) return;
+    final switchedOff = remoteGroupId == null || !connected
+        ? const <PaymentMethod>{}
+        : await OnlineCharge.switchedOffFor(providersApi, remoteGroupId);
     if (!mounted) return;
     setState(() {
       _remoteGroupId = remoteGroupId;
       _remoteMemberIds = members;
+      _switchedOff = switchedOff;
     });
   }
 
@@ -291,31 +213,38 @@ class _BuySharesSheetState extends State<BuySharesSheet> {
         .where((f) => f.member.id == _memberId)
         .firstOrNull
         ?.member;
-    final reference = await showModalBottomSheet<String>(
+    final meeting = context.read<MeetingProvider>().activeMeeting;
+    final meetingRemoteId = meeting == null
+        ? null
+        : await _idMap.remoteId(MapEntity.meetingTwin, meeting.id) ??
+            await _idMap.remoteId(MapEntity.meeting, meeting.id);
+    if (!mounted) return;
+    final result = await showModalBottomSheet<GatewayPaymentResult>(
       context: context,
       isScrollControlled: true,
-      builder: (_) => GatewayPaymentSheet(
+      builder: (sheetContext) => GatewayPaymentSheet.forGroup(
+        sheetContext,
         groupRemoteId: _remoteGroupId!,
         method: _method,
         amount: _shares * group.shareValue,
         purpose: 'SHARE_PURCHASE',
         memberRemoteId: _remoteMemberIds[_memberId],
+        meetingRemoteId: meetingRemoteId,
         memberName: memberName?.name,
         memberPhone: memberName?.phone,
       ),
     );
-    if (reference == null || !mounted) return;
-    _refCtrl.text = reference;
-    await _record();
+    if (result == null || !mounted) return;
+    _refCtrl.text = result.reference;
+    // The server has already put this payment in the group's books; the id
+    // makes this phone's record of it the same entry, not a second one.
+    await _record(groupPaymentId: result.paymentId);
   }
 
-  Future<void> _record() async {
-    final ref = _refCtrl.text.trim();
-    if (_method.needsReference && ref.isEmpty) {
-      showAppSnack(context, 'Enter the ${_refLabel(_method).toLowerCase()}.',
-          error: true);
-      return;
-    }
+  Future<void> _record({String? groupPaymentId}) async {
+    final ref = _refCtrl.text.trim().toUpperCase();
+    // M-Pesa Classic: the code from the member's SMS is the proof of payment.
+    if (_method.needsReference && !(_formKey.currentState?.validate() ?? false)) return;
     setState(() => _saving = true);
     final appState = context.read<AppState>();
     final meetingProvider = context.read<MeetingProvider>();
@@ -328,6 +257,7 @@ class _BuySharesSheetState extends State<BuySharesSheet> {
         shares: _shares,
         paymentMethod: _method,
         paymentReference: ref,
+        groupPaymentId: groupPaymentId,
       );
       await memberProvider.load(group.id);
       await appState.refreshPendingSync();
@@ -337,6 +267,9 @@ class _BuySharesSheetState extends State<BuySharesSheet> {
           'Recorded $_shares share(s) via ${_method.label} — ${Formatters.money(_shares * group.shareValue)}.');
     } on DomainException catch (e) {
       if (mounted) showAppSnack(context, e.message, error: true);
+    } catch (e) {
+      // Anything else (a storage fault) must say so, never fail silently.
+      if (mounted) showAppSnack(context, userMessage(e), error: true);
     } finally {
       if (mounted) setState(() => _saving = false);
     }

@@ -35,10 +35,11 @@ class _GroupPolicyScreenState extends State<GroupPolicyScreen> {
   /// thinks in bps — and converted only at the edges.
   int _rateBps = 0;
 
+  // The group's real funds. There is no separate "shares fund": shares are
+  // held in the loan fund. The server reads an old SAVINGS choice as that.
   static const _funds = <String, String>{
     'SOCIAL': 'Welfare (social) fund',
-    'SAVINGS': 'Shares fund',
-    'INTERNAL_LOAN': 'Loan fund',
+    'INTERNAL_LOAN': 'Loan fund (holds the shares)',
   };
 
   String? get _groupId => context.read<ConnectionProvider>().selectedGroup?.id;
@@ -69,7 +70,8 @@ class _GroupPolicyScreenState extends State<GroupPolicyScreen> {
       setState(() {
         _policy = policy;
         _term = policy.defaultLoanTermMonths;
-        _fund = policy.expenseFundType;
+        // A dropdown value missing from its items throws; SAVINGS meant the loan fund.
+        _fund = _funds.containsKey(policy.expenseFundType) ? policy.expenseFundType : (policy.expenseFundType == 'SAVINGS' ? 'INTERNAL_LOAN' : 'SOCIAL');
         _rateBps = policy.loanInterestRateBps;
         _loading = false;
       });

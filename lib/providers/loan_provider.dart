@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../data/models/enums.dart';
 import '../data/models/group.dart';
 import '../data/models/loan.dart';
 import '../data/repositories/loan_repository.dart';
@@ -56,11 +57,17 @@ class LoanProvider extends ChangeNotifier {
     required Loan loan,
     required double amount,
     String? meetingId,
+    String? groupPaymentId,
+    PaymentMethod paymentMethod = PaymentMethod.cash,
+    String? paymentReference,
   }) async {
     final updated = await _repository.repay(
       loan: loan,
       amount: amount,
       meetingId: meetingId,
+      groupPaymentId: groupPaymentId,
+      paymentMethod: paymentMethod,
+      paymentReference: paymentReference,
     );
     await load(loan.groupId);
     return updated;

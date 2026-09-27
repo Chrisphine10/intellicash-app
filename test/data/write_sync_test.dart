@@ -203,6 +203,8 @@ void main() {
         shares: 10, // 1000 -> 100000 cents, and makes Achieng loan-eligible
         paymentMethod: PaymentMethod.mpesa,
         paymentReference: 'MPESA123',
+        // Paid online: the server already posted it, so the sync must say which payment.
+        groupPaymentId: 'gp-remote-1',
       );
       await meetings.collectSocialFundFromPresent(
           meeting: meeting, group: group); // 50 for Achieng -> 5000 cents
@@ -213,12 +215,16 @@ void main() {
         dueDate: DateTime.now().add(const Duration(days: 90)),
         meetingId: meeting.id,
       );
-      await loans.repay(loan: loan, amount: 200, meetingId: meeting.id); // 20000
+      // Both paid online: each row carries the server's payment id.
+      await loans.repay(loan: loan, amount: 200, meetingId: meeting.id, groupPaymentId: 'gp-remote-loan'); // 20000
       await meetings.recordFine(
         meeting: meeting,
         memberId: achieng.id,
         amount: 150, // -> 15000 cents
         reason: 'Late arrival',
+        // Paid by M-Pesa Classic: the code the treasurer typed is the proof.
+        paymentMethod: PaymentMethod.mpesaClassic,
+        paymentReference: 'slk4fine01',
       );
 
       // Bind group + two of three members; leave Baraka unmapped.
@@ -245,6 +251,12 @@ void main() {
       expect(byType['SHARE_PURCHASE']!.amountCents, 100000);
       expect(byType['SHARE_PURCHASE']!.memberId, 'r-achieng');
       expect(byType['SHARE_PURCHASE']!.externalReference, 'MPESA123');
+      expect(byType['SHARE_PURCHASE']!.groupPaymentId, 'gp-remote-1');
+      expect(byType['LOAN_REPAYMENT']!.groupPaymentId, 'gp-remote-loan');
+      expect(byType['FINE_COLLECTION']!.groupPaymentId, isNull);
+      expect(byType['FINE_COLLECTION']!.externalReference, 'SLK4FINE01');
+      expect(byType['SOCIAL_CONTRIBUTION']!.groupPaymentId, isNull); // collected in cash
+      expect(byType['SHARE_PURCHASE']!.toJson()['groupPaymentId'], 'gp-remote-1');
       expect(byType['SHARE_PURCHASE']!.clientRequestId, startsWith('shr-'));
       expect(byType['SOCIAL_CONTRIBUTION']!.amountCents, 5000);
       expect(byType['INTERNAL_LOAN_DISBURSEMENT']!.amountCents, 50000);

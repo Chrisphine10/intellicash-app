@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../data/models/enums.dart';
 import '../../data/services/remote_payment_providers_api.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/connection_provider.dart';
 import '../../shared/widgets/common.dart';
+import '../../shared/widgets/payment_method_button.dart';
 import '../../core/utils/user_message.dart';
 
 /// Where this group's money is collected.
@@ -29,6 +31,11 @@ class _PaymentProvidersScreenState extends State<PaymentProvidersScreen> {
   /// the group appears after it opened (signal returned), but never loops.
   String? _triedGroupId;
   String? _busyProvider;
+
+  /// Which online providers are switched on. Null when it could not be read
+  /// (an older server): the switches are then simply not shown.
+  GroupPaymentSettings? _settings;
+  bool _savingSettings = false;
 
   static const _fieldLabels = <String, String>{
     'MPESA_CONSUMER_KEY': 'Consumer key',
@@ -72,10 +79,18 @@ class _PaymentProvidersScreenState extends State<PaymentProvidersScreen> {
       _error = null;
     });
     try {
-      final data = await _api(context).list(groupId);
+      final api = _api(context);
+      final data = await api.list(groupId);
+      GroupPaymentSettings? settings;
+      try {
+        settings = await api.settings(groupId);
+      } catch (_) {
+        settings = null;
+      }
       if (!mounted) return;
       setState(() {
         _data = data;
+        _settings = settings;
         _loading = false;
       });
     } catch (error) {
@@ -211,6 +226,63 @@ class _PaymentProvidersScreenState extends State<PaymentProvidersScreen> {
     }
   }
 
+  /// Switches one provider on or off, keeping the rest of the settings.
+  Future<void> _switchProvider(String provider, String label, bool on) async {
+    final current = _settings;
+    final groupId = _groupId(context);
+    if (current == null || groupId == null) return;
+    final l10n = L10n.of(context);
+    final next = current.withProvider(provider, on);
+    setState(() {
+      _settings = next;
+      _savingSettings = true;
+    });
+    try {
+      await _api(context).saveSettings(groupId, next);
+      if (!mounted) return;
+      showAppSnack(context, on ? l10n.onlinePaymentsSwitchedOn(label) : l10n.onlinePaymentsSwitchedOff(label));
+    } catch (error) {
+      if (!mounted) return;
+      setState(() => _settings = current);
+      showAppSnack(context, userMessage(error), error: true);
+    } finally {
+      if (mounted) setState(() => _savingSettings = false);
+    }
+  }
+
+  Widget _switchesCard(GroupPaymentProviders data, GroupPaymentSettings settings) {
+    final l10n = L10n.of(context);
+    Widget row(PaymentMethod method, String provider, String hint) {
+      final on = settings.isOn(provider);
+      return SwitchListTile(
+        contentPadding: EdgeInsets.zero,
+        value: on,
+        onChanged: data.canConfigure && !_savingSettings ? (value) => _switchProvider(provider, method.label, value) : null,
+        secondary: PaymentLogo(method, height: 20),
+        title: Text(method.label, style: const TextStyle(fontWeight: FontWeight.w700)),
+        subtitle: Text(on ? hint : l10n.payHintSwitchedOff, style: const TextStyle(fontSize: 12)),
+      );
+    }
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14, 12, 14, 6),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.onlinePaymentsTitle, style: Theme.of(context).textTheme.titleSmall),
+            const SizedBox(height: 4),
+            Text(l10n.onlinePaymentsSwitchHint, style: Theme.of(context).textTheme.bodySmall),
+            const SizedBox(height: 4),
+            row(PaymentMethod.mpesa, GroupPaymentSettings.mpesa, l10n.payHintMpesa),
+            row(PaymentMethod.paystack, GroupPaymentSettings.paystack, l10n.payHintPaystack),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final groupNow = context.watch<ConnectionProvider>().selectedGroup?.id;
@@ -269,6 +341,7 @@ class _PaymentProvidersScreenState extends State<PaymentProvidersScreen> {
           style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(height: 8),
+        if (_settings != null) _switchesCard(data, _settings!),
         Card(
           child: Padding(
             padding: const EdgeInsets.all(12),

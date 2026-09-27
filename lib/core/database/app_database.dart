@@ -10,7 +10,7 @@ class AppDatabase {
   AppDatabase._();
   static final AppDatabase instance = AppDatabase._();
 
-  static const int _version = 12;
+  static const int _version = 15;
   Database? _db;
 
   /// Test hook: lets tests inject an in-memory/ffi database factory.
@@ -130,6 +130,7 @@ class AppDatabase {
         amount REAL NOT NULL,
         payment_method TEXT NOT NULL DEFAULT 'cash',
         payment_reference TEXT,
+        group_payment_id TEXT,
         created_at TEXT NOT NULL
       )
     ''');
@@ -140,6 +141,9 @@ class AppDatabase {
         member_id TEXT NOT NULL REFERENCES members(id) ON DELETE CASCADE,
         amount REAL NOT NULL,
         reason TEXT NOT NULL,
+        payment_method TEXT NOT NULL DEFAULT 'cash',
+        payment_reference TEXT,
+        group_payment_id TEXT,
         created_at TEXT NOT NULL
       )
     ''');
@@ -149,6 +153,9 @@ class AppDatabase {
         meeting_id TEXT NOT NULL REFERENCES meetings(id) ON DELETE CASCADE,
         member_id TEXT NOT NULL REFERENCES members(id) ON DELETE CASCADE,
         amount REAL NOT NULL,
+        payment_method TEXT NOT NULL DEFAULT 'cash',
+        payment_reference TEXT,
+        group_payment_id TEXT,
         created_at TEXT NOT NULL
       )
     ''');
@@ -174,6 +181,9 @@ class AppDatabase {
         loan_id TEXT NOT NULL REFERENCES loans(id) ON DELETE CASCADE,
         meeting_id TEXT REFERENCES meetings(id) ON DELETE SET NULL,
         amount REAL NOT NULL,
+        payment_method TEXT NOT NULL DEFAULT 'cash',
+        payment_reference TEXT,
+        group_payment_id TEXT,
         paid_at TEXT NOT NULL
       )
     ''');
@@ -779,6 +789,34 @@ class AppDatabase {
         'CREATE TABLE',
         'CREATE TABLE IF NOT EXISTS',
       ));
+    }
+
+    // v13, v14 and v15 run the same safe step: each pre-release build added
+    // less of it (v13: share_purchases only; v14: no payment_method /
+    // payment_reference on fines, social fund or repayments). Re-running it
+    // makes every money table whole, whatever this book last saw.
+    if (oldVersion < 15) {
+      // The online payment each money row was paid by. The server posts a
+      // verified payment itself; the phone's copy carries this id so the two
+      // are one entry, never two. Safe to run twice.
+      for (final table in const ['share_purchases', 'fines', 'social_fund_entries', 'loan_repayments']) {
+        final columns = {
+          for (final row in await db.rawQuery('PRAGMA table_info($table)'))
+            row['name'] as String,
+        };
+        if (columns.isEmpty) continue; // no such table in this book
+        if (!columns.contains('group_payment_id')) {
+          await db.execute('ALTER TABLE $table ADD COLUMN group_payment_id TEXT');
+        }
+        // How it was paid, and the M-Pesa Classic code a treasurer typed.
+        // share_purchases has had these since v2.
+        if (!columns.contains('payment_method')) {
+          await db.execute("ALTER TABLE $table ADD COLUMN payment_method TEXT NOT NULL DEFAULT 'cash'");
+        }
+        if (!columns.contains('payment_reference')) {
+          await db.execute('ALTER TABLE $table ADD COLUMN payment_reference TEXT');
+        }
+      }
     }
   }
 }

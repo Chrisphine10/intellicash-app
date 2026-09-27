@@ -3,13 +3,16 @@ import 'package:provider/provider.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/domain_exception.dart';
+import '../../core/utils/user_message.dart';
 import '../../core/utils/formatters.dart';
+import '../../data/models/enums.dart';
 import '../../data/models/meeting.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/app_state.dart';
 import '../../providers/meeting_provider.dart';
 import '../../providers/member_provider.dart';
 import '../../shared/widgets/common.dart';
+import 'online_charge.dart';
 
 /// Social-fund collection as a per-member checklist. The amount is the same
 /// for everyone (the group's standing social-fund amount), so each member is
@@ -52,10 +55,26 @@ class _SocialFundScreenState extends State<SocialFundScreen> {
     });
   }
 
-  Future<void> _toggle(String memberId, bool paid) async {
+  Future<void> _toggle(String memberId, bool paid, String memberName) async {
     final appState = context.read<AppState>();
     final provider = context.read<MeetingProvider>();
     final group = appState.group!;
+    // Marking paid: ask how, on the same payment card as every other money
+    // action. Cash and M-Pesa Classic (code typed) record at once; M-Pesa and
+    // Paystack prompt the member and record when the money is confirmed.
+    SettledPayment? settled;
+    if (paid) {
+      final online = await OnlineCharge.load(context);
+      if (!mounted) return;
+      settled = await askHowPaid(
+        context,
+        memberName: memberName,
+        localMemberId: memberId,
+        amount: group.socialFundAmount,
+        online: online,
+      );
+      if (settled == null || !mounted) return;
+    }
     setState(() {
       _busy.add(memberId);
       if (paid) {
@@ -66,11 +85,17 @@ class _SocialFundScreenState extends State<SocialFundScreen> {
     });
     try {
       await provider.setSocialFundPaid(
-          group: group, memberId: memberId, paid: paid);
+          group: group,
+          memberId: memberId,
+          paid: paid,
+          groupPaymentId: settled?.groupPaymentId,
+          paymentMethod: settled?.method ?? PaymentMethod.cash,
+          paymentReference: settled?.reference);
       final collected = await provider.socialFundCollected();
       if (mounted) setState(() => _collected = collected);
       await appState.refreshPendingSync();
-    } on DomainException catch (e) {
+    } catch (e) {
+      // A rule the book enforces, or a storage fault: undo the switch and say why.
       if (mounted) {
         setState(() {
           // revert
@@ -80,7 +105,7 @@ class _SocialFundScreenState extends State<SocialFundScreen> {
             _paid.add(memberId);
           }
         });
-        showAppSnack(context, e.message, error: true);
+        showAppSnack(context, e is DomainException ? e.message : userMessage(e), error: true);
       }
     } finally {
       if (mounted) setState(() => _busy.remove(memberId));
@@ -187,7 +212,7 @@ class _SocialFundScreenState extends State<SocialFundScreen> {
                       ),
                       value: _paid.contains(f.member.id),
                       onChanged: (isOpen && amount > 0 && !_busy.contains(f.member.id))
-                          ? (v) => _toggle(f.member.id, v)
+                          ? (v) => _toggle(f.member.id, v, f.member.name)
                           : null,
                     ),
                   ),
