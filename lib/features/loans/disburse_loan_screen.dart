@@ -88,6 +88,7 @@ class _DisburseLoanScreenState extends State<DisburseLoanScreen> {
                 style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
+              isExpanded: true,
               initialValue: _memberId,
               decoration: InputDecoration(labelText: l10n.disburseLoanSelectMember),
               dropdownColor: AppColors.surfaceRaised,

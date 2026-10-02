@@ -67,6 +67,7 @@ class _PayOnlineSheetState extends State<PayOnlineSheet> {
     final result = await showModalBottomSheet<GatewayPaymentResult>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       builder: (_) => GatewayPaymentSheet(
         channel: SelfPaymentChannel(api, purpose: _purpose.wire, groupAmount: amount),
         method: _method,

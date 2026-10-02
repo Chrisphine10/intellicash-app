@@ -310,6 +310,7 @@ class _WelfareScreenState extends State<WelfareScreen> {
           )
         else ...[
           DropdownButtonFormField<String>(
+            isExpanded: true,
             decoration: InputDecoration(labelText: l10n.welfareRecordedInMeeting),
             initialValue: _meetingId,
             items: [
@@ -330,6 +331,7 @@ class _WelfareScreenState extends State<WelfareScreen> {
           ),
           const SizedBox(height: 10),
           DropdownButtonFormField<String>(
+            isExpanded: true,
             decoration: InputDecoration(labelText: l10n.welfareWhatFor),
             initialValue: _category,
             items: [

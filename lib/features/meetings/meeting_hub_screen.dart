@@ -74,11 +74,15 @@ class _MeetingHubScreenState extends State<MeetingHubScreen> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
         children: [
-          Row(
+          // Wraps the status under the title on a narrow phone or with
+          // large text, instead of running off the right edge.
+          Wrap(
+            spacing: 10,
+            runSpacing: 4,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               Text('Meeting #${meeting.number}',
                   style: Theme.of(context).textTheme.headlineSmall),
-              const SizedBox(width: 10),
               StatusChip.meeting(meeting.status),
             ],
           ),
@@ -309,6 +313,7 @@ class _MeetingHubScreenState extends State<MeetingHubScreen> {
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       builder: (_) => sheet,
     );
   }

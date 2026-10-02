@@ -108,6 +108,7 @@ class ProductDetailScreen extends StatelessWidget {
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       builder: (_) => _CreditRequestSheet(product: product),
     );
   }

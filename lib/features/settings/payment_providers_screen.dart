@@ -111,6 +111,7 @@ class _PaymentProvidersScreenState extends State<PaymentProvidersScreen> {
     final saved = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       builder: (sheetContext) => Padding(
         padding: EdgeInsets.only(
           left: 16,

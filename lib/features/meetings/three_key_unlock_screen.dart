@@ -197,6 +197,7 @@ class _ThreeKeyUnlockScreenState extends State<ThreeKeyUnlockScreen> {
       final result = await showModalBottomSheet<Object>(
         context: context,
         isScrollControlled: true,
+        useSafeArea: true,
         builder: (_) => _OtpSheet(
           member: member,
           groupRemoteId: _remoteGroupId!,
@@ -219,6 +220,7 @@ class _ThreeKeyUnlockScreenState extends State<ThreeKeyUnlockScreen> {
     final result = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       builder: (_) => _PinSheet(
         member: member,
         onSetPin: (hash) async {
@@ -279,70 +281,73 @@ class _OtpSheetState extends State<_OtpSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = L10n.of(context);
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 20,
-        right: 20,
-        top: 16,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('${widget.member.name}\'s key',
-              style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 4),
-          Text(
-            _sent
-                ? 'A code was sent${_maskedPhone != null ? ' to $_maskedPhone' : ' to your phone'}. '
-                    'Type it below to turn your key.'
-                : 'We\'ll send a one-time code to your phone by SMS.',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          const SizedBox(height: 14),
-          if (!_sent)
-            FilledButton.icon(
-              onPressed: _sending ? null : _sendCode,
-              icon: _sending
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.sms_outlined, size: 18),
-              label: Text(_sending ? 'Sending…' : 'Send My Code'),
-            )
-          else ...[
-            TextField(
-              controller: _codeCtrl,
-              autofocus: true,
-              keyboardType: TextInputType.number,
-              maxLength: 6,
-              decoration: InputDecoration(
-                labelText: l10n.threeKeyUnlockOneTimeCode,
-                counterText: '',
-                errorText: _error,
+    return SingleChildScrollView(
+      // A small phone cannot fit the whole sheet: let it scroll.
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 16,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('${widget.member.name}\'s key',
+                style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 4),
+            Text(
+              _sent
+                  ? 'A code was sent${_maskedPhone != null ? ' to $_maskedPhone' : ' to your phone'}. '
+                      'Type it below to turn your key.'
+                  : 'We\'ll send a one-time code to your phone by SMS.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 14),
+            if (!_sent)
+              FilledButton.icon(
+                onPressed: _sending ? null : _sendCode,
+                icon: _sending
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Icon(Icons.sms_outlined, size: 18),
+                label: Text(_sending ? 'Sending…' : 'Send My Code'),
+              )
+            else ...[
+              TextField(
+                controller: _codeCtrl,
+                autofocus: true,
+                keyboardType: TextInputType.number,
+                maxLength: 6,
+                decoration: InputDecoration(
+                  labelText: l10n.threeKeyUnlockOneTimeCode,
+                  counterText: '',
+                  errorText: _error,
+                ),
+              ),
+              const SizedBox(height: 10),
+              FilledButton(
+                onPressed: _verifying ? null : _verify,
+                child: Text(_verifying ? 'Checking…' : 'Turn Key'),
+              ),
+              TextButton(
+                onPressed: _sending ? null : _sendCode,
+                child: Text(l10n.threeKeyUnlockSendANewCode),
+              ),
+            ],
+            const SizedBox(height: 4),
+            Center(
+              child: TextButton(
+                onPressed: () =>
+                    Navigator.of(context).pop(_kUsePinFallback),
+                child: Text(l10n.threeKeyUnlockNoSmsUseMySaved),
               ),
             ),
-            const SizedBox(height: 10),
-            FilledButton(
-              onPressed: _verifying ? null : _verify,
-              child: Text(_verifying ? 'Checking…' : 'Turn Key'),
-            ),
-            TextButton(
-              onPressed: _sending ? null : _sendCode,
-              child: Text(l10n.threeKeyUnlockSendANewCode),
-            ),
           ],
-          const SizedBox(height: 4),
-          Center(
-            child: TextButton(
-              onPressed: () =>
-                  Navigator.of(context).pop(_kUsePinFallback),
-              child: Text(l10n.threeKeyUnlockNoSmsUseMySaved),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -426,68 +431,71 @@ class _PinSheetState extends State<_PinSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = L10n.of(context);
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 20,
-        right: 20,
-        top: 16,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            _isFirstTime
-                ? 'Set a PIN for ${widget.member.name}'
-                : '${widget.member.name}\'s PIN',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            _isFirstTime
-                ? 'Choose a secret ${MeetingUnlock.pinLength}-digit PIN. Only you should '
-                    'know it — '
-                    'it is your key to the group\'s meetings.'
-                : 'Enter your secret PIN to turn your key.',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          const SizedBox(height: 14),
-          TextField(
-            controller: _pinCtrl,
-            autofocus: true,
-            obscureText: true,
-            keyboardType: TextInputType.number,
-            // Four to set; up to six to enter, because that is what members who
-            // set a PIN before this change are still holding.
-            maxLength: _isFirstTime
-                ? MeetingUnlock.pinLength
-                : MeetingUnlock.legacyPinLength,
-            decoration: InputDecoration(
-              labelText: _isFirstTime ? 'New PIN' : 'PIN',
-              counterText: '',
-              errorText: _error,
+    return SingleChildScrollView(
+      // A small phone cannot fit the whole sheet: let it scroll.
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 16,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              _isFirstTime
+                  ? 'Set a PIN for ${widget.member.name}'
+                  : '${widget.member.name}\'s PIN',
+              style: Theme.of(context).textTheme.titleMedium,
             ),
-          ),
-          if (_isFirstTime) ...[
-            const SizedBox(height: 10),
+            const SizedBox(height: 4),
+            Text(
+              _isFirstTime
+                  ? 'Choose a secret ${MeetingUnlock.pinLength}-digit PIN. Only you should '
+                      'know it — '
+                      'it is your key to the group\'s meetings.'
+                  : 'Enter your secret PIN to turn your key.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 14),
             TextField(
-              controller: _confirmCtrl,
+              controller: _pinCtrl,
+              autofocus: true,
               obscureText: true,
               keyboardType: TextInputType.number,
-              maxLength: MeetingUnlock.pinLength,
+              // Four to set; up to six to enter, because that is what members who
+              // set a PIN before this change are still holding.
+              maxLength: _isFirstTime
+                  ? MeetingUnlock.pinLength
+                  : MeetingUnlock.legacyPinLength,
               decoration: InputDecoration(
-                labelText: l10n.threeKeyUnlockRepeatPin,
+                labelText: _isFirstTime ? 'New PIN' : 'PIN',
                 counterText: '',
+                errorText: _error,
               ),
             ),
+            if (_isFirstTime) ...[
+              const SizedBox(height: 10),
+              TextField(
+                controller: _confirmCtrl,
+                obscureText: true,
+                keyboardType: TextInputType.number,
+                maxLength: MeetingUnlock.pinLength,
+                decoration: InputDecoration(
+                  labelText: l10n.threeKeyUnlockRepeatPin,
+                  counterText: '',
+                ),
+              ),
+            ],
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: _submit,
+              child: Text(_isFirstTime ? 'Set PIN & Turn Key' : 'Turn Key'),
+            ),
           ],
-          const SizedBox(height: 16),
-          FilledButton(
-            onPressed: _submit,
-            child: Text(_isFirstTime ? 'Set PIN & Turn Key' : 'Turn Key'),
-          ),
-        ],
+        ),
       ),
     );
   }

@@ -339,104 +339,107 @@ class _GatewayPaymentSheetState extends State<GatewayPaymentSheet> {
     final waiting = payment != null && payment.isPending && _error == null && _notice == null;
     final started = payment != null;
 
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 20,
-        right: 20,
-        top: 16,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(_isMpesa ? 'Pay by M-Pesa' : 'Pay by Paystack', style: Theme.of(context).textTheme.titleMedium),
-              ),
-              PaymentLogo(widget.method, height: 20),
-            ],
-          ),
-          const SizedBox(height: 2),
-          Text(
-            '${l10n.paymentAmountToGroup(Formatters.money(widget.amount))}'
-            '${widget.memberName != null ? ' · ${widget.memberName}' : ''}',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          const SizedBox(height: 12),
-          if (_quoting)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 12),
-              child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
-            )
-          else if (quote != null)
-            _breakdown(quote),
-          const SizedBox(height: 12),
-          if (_notice != null) ...[
-            Text(_notice!, style: Theme.of(context).textTheme.bodySmall),
-            const SizedBox(height: 8),
-          ],
-          if (waiting) ...[
+    return SingleChildScrollView(
+      // A small phone cannot fit the whole sheet: let it scroll.
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 16,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             Row(
               children: [
-                const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
-                const SizedBox(width: 12),
                 Expanded(
-                  child: Text(
-                    _isMpesa
-                        ? (_isSelf ? l10n.paymentEnterYourPin : l10n.gatewayPaymentRequestSentAskTheMemberTo)
-                        : l10n.paymentWaitingForCheckout,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
+                  child: Text(_isMpesa ? 'Pay by M-Pesa' : 'Pay by Paystack', style: Theme.of(context).textTheme.titleMedium),
                 ),
+                PaymentLogo(widget.method, height: 20),
               ],
             ),
-            if (payment.checkoutUrl != null) ...[
-              const SizedBox(height: 12),
-              OutlinedButton.icon(
-                onPressed: () => _openCheckout(payment.checkoutUrl!),
-                icon: const Icon(Icons.open_in_new, size: 18),
-                label: Text(l10n.gatewayPaymentOpenThisLinkToPay),
-              ),
-              const SizedBox(height: 4),
-              SelectableText(payment.checkoutUrl!, style: TextStyle(fontSize: 12, color: AppColors.primary)),
+            const SizedBox(height: 2),
+            Text(
+              '${l10n.paymentAmountToGroup(Formatters.money(widget.amount))}'
+              '${widget.memberName != null ? ' · ${widget.memberName}' : ''}',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 12),
+            if (_quoting)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+              )
+            else if (quote != null)
+              _breakdown(quote),
+            const SizedBox(height: 12),
+            if (_notice != null) ...[
+              Text(_notice!, style: Theme.of(context).textTheme.bodySmall),
+              const SizedBox(height: 8),
             ],
-          ] else if (!started) ...[
-            TextField(
-              controller: _contactCtrl,
-              keyboardType: _isMpesa ? TextInputType.phone : TextInputType.emailAddress,
-              decoration: InputDecoration(
-                labelText: _isMpesa ? 'Phone number' : 'Email address',
-                hintText: _isMpesa ? '07XX XXX XXX' : 'name@example.com',
-                errorText: _error,
+            if (waiting) ...[
+              Row(
+                children: [
+                  const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      _isMpesa
+                          ? (_isSelf ? l10n.paymentEnterYourPin : l10n.gatewayPaymentRequestSentAskTheMemberTo)
+                          : l10n.paymentWaitingForCheckout,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ),
+                ],
               ),
+              if (payment.checkoutUrl != null) ...[
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  onPressed: () => _openCheckout(payment.checkoutUrl!),
+                  icon: const Icon(Icons.open_in_new, size: 18),
+                  label: Text(l10n.gatewayPaymentOpenThisLinkToPay),
+                ),
+                const SizedBox(height: 4),
+                SelectableText(payment.checkoutUrl!, style: TextStyle(fontSize: 12, color: AppColors.primary)),
+              ],
+            ] else if (!started) ...[
+              TextField(
+                controller: _contactCtrl,
+                keyboardType: _isMpesa ? TextInputType.phone : TextInputType.emailAddress,
+                decoration: InputDecoration(
+                  labelText: _isMpesa ? 'Phone number' : 'Email address',
+                  hintText: _isMpesa ? '07XX XXX XXX' : 'name@example.com',
+                  errorText: _error,
+                ),
+              ),
+              const SizedBox(height: 14),
+              FilledButton.icon(
+                onPressed: _sending || quote == null ? null : _start,
+                icon: _sending
+                    ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                    : Icon(_isMpesa ? Icons.phone_android : Icons.open_in_new, size: 18),
+                label: Text(_sending
+                    ? 'Sending…'
+                    : quote == null
+                        ? 'Pay'
+                        : l10n.paymentPayAmount(Formatters.money(quote.total))),
+              ),
+              if (quote == null && !_quoting)
+                TextButton(onPressed: _loadQuote, child: Text(l10n.paymentTryAgain)),
+            ] else if (_error != null) ...[
+              Text(_error!, style: TextStyle(color: AppColors.defaulted, fontSize: 13)),
+            ],
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              // Once a charge has been sent, closing never cancels it: the
+              // server keeps waiting for the provider and books it when it lands.
+              child: Text(started ? l10n.paymentClose : l10n.cancel),
             ),
-            const SizedBox(height: 14),
-            FilledButton.icon(
-              onPressed: _sending || quote == null ? null : _start,
-              icon: _sending
-                  ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                  : Icon(_isMpesa ? Icons.phone_android : Icons.open_in_new, size: 18),
-              label: Text(_sending
-                  ? 'Sending…'
-                  : quote == null
-                      ? 'Pay'
-                      : l10n.paymentPayAmount(Formatters.money(quote.total))),
-            ),
-            if (quote == null && !_quoting)
-              TextButton(onPressed: _loadQuote, child: Text(l10n.paymentTryAgain)),
-          ] else if (_error != null) ...[
-            Text(_error!, style: TextStyle(color: AppColors.defaulted, fontSize: 13)),
           ],
-          const SizedBox(height: 8),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            // Once a charge has been sent, closing never cancels it: the
-            // server keeps waiting for the provider and books it when it lands.
-            child: Text(started ? l10n.paymentClose : l10n.cancel),
-          ),
-        ],
+        ),
       ),
     );
   }

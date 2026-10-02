@@ -171,6 +171,7 @@ class _GroupSyncScreenState extends State<GroupSyncScreen> {
     final chosen = await showModalBottomSheet<RemoteMember>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       builder: (ctx) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -273,6 +274,7 @@ class _LinkSection extends StatelessWidget {
           )
         else ...[
           DropdownButtonFormField<String>(
+            isExpanded: true,
             initialValue: selected ?? remoteGroups.first.id,
             decoration: InputDecoration(labelText: l10n.groupSyncBackendGroup),
             dropdownColor: AppColors.surfaceRaised,

@@ -43,6 +43,7 @@ Future<void> showExternalLoanApplySheet(
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
+    useSafeArea: true,
     builder: (_) => ExternalLoanApplySheet(product: product),
   );
 }

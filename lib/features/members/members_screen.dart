@@ -134,6 +134,7 @@ class _MembersScreenState extends State<MembersScreen> {
           await showModalBottomSheet<void>(
             context: context,
             isScrollControlled: true,
+            useSafeArea: true,
             builder: (_) => const AddMemberSheet(),
           );
         },

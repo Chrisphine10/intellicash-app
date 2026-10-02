@@ -240,6 +240,7 @@ class _MemberPassbookScreenState extends State<MemberPassbookScreen> {
                   final paid = await showModalBottomSheet<bool>(
                     context: context,
                     isScrollControlled: true,
+                    useSafeArea: true,
                     builder: (_) => PayOnlineSheet(options: _payOptions, memberPhone: user?.phone),
                   );
                   if (paid != true || !context.mounted) return;

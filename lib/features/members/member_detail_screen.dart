@@ -93,6 +93,7 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
     final password = await showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       builder: (_) => _AccountPasswordSheet(memberName: memberName),
     );
     if (password == null || !mounted) return;
@@ -125,6 +126,7 @@ class _MemberDetailScreenState extends State<MemberDetailScreen> {
     final password = await showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       builder: (_) => _AccountPasswordSheet(memberName: memberName),
     );
     if (password == null || !mounted) return;
@@ -349,60 +351,63 @@ class _AccountPasswordSheetState extends State<_AccountPasswordSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = L10n.of(context);
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 20,
-        right: 20,
-        top: 16,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Account for ${widget.memberName}',
-              style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 4),
-          Text(
-            'Choose a starting password. ${widget.memberName} signs in with '
-            'their phone number and this password, and should change it '
-            'after the first sign-in.',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          const SizedBox(height: 14),
-          TextField(
-            controller: _passwordCtrl,
-            autofocus: true,
-            obscureText: true,
-            decoration: InputDecoration(
-              labelText: l10n.memberDetailStartingPassword,
-              helperText: l10n.memberDetailAtLeast6Characters,
-              errorText: _error,
+    return SingleChildScrollView(
+      // A small phone cannot fit the whole sheet: let it scroll.
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 16,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Account for ${widget.memberName}',
+                style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 4),
+            Text(
+              'Choose a starting password. ${widget.memberName} signs in with '
+              'their phone number and this password, and should change it '
+              'after the first sign-in.',
+              style: Theme.of(context).textTheme.bodySmall,
             ),
-          ),
-          const SizedBox(height: 10),
-          TextField(
-            controller: _repeatCtrl,
-            obscureText: true,
-            decoration: InputDecoration(labelText: l10n.repeatPassword),
-          ),
-          const SizedBox(height: 16),
-          FilledButton(
-            onPressed: () {
-              final password = _passwordCtrl.text;
-              if (password.length < 6) {
-                setState(() => _error = 'Use at least 6 characters.');
-                return;
-              }
-              if (_repeatCtrl.text != password) {
-                setState(() => _error = 'Passwords don\'t match.');
-                return;
-              }
-              Navigator.of(context).pop(password);
-            },
-            child: Text(l10n.createAccount),
-          ),
-        ],
+            const SizedBox(height: 14),
+            TextField(
+              controller: _passwordCtrl,
+              autofocus: true,
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: l10n.memberDetailStartingPassword,
+                helperText: l10n.memberDetailAtLeast6Characters,
+                errorText: _error,
+              ),
+            ),
+            const SizedBox(height: 10),
+            TextField(
+              controller: _repeatCtrl,
+              obscureText: true,
+              decoration: InputDecoration(labelText: l10n.repeatPassword),
+            ),
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: () {
+                final password = _passwordCtrl.text;
+                if (password.length < 6) {
+                  setState(() => _error = 'Use at least 6 characters.');
+                  return;
+                }
+                if (_repeatCtrl.text != password) {
+                  setState(() => _error = 'Passwords don\'t match.');
+                  return;
+                }
+                Navigator.of(context).pop(password);
+              },
+              child: Text(l10n.createAccount),
+            ),
+          ],
+        ),
       ),
     );
   }

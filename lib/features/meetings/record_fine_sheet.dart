@@ -69,92 +69,96 @@ class _RecordFineSheetState extends State<RecordFineSheet> {
     final l10n = L10n.of(context);
     final members = context.watch<MemberProvider>().members;
 
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 20,
-        right: 20,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-      ),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(l10n.meetingHubRecordFine,
-                style: Theme.of(context).textTheme.headlineSmall),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              initialValue: _memberId,
-              decoration: InputDecoration(labelText: l10n.disburseLoanSelectMember),
-              dropdownColor: AppColors.surfaceRaised,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              validator: (v) => v == null ? 'Pick a member' : null,
-              items: [
-                for (final financials in members)
-                  DropdownMenuItem(
-                    value: financials.member.id,
-                    child: Text(financials.member.name,
-                        style: const TextStyle(fontSize: 14)),
-                  ),
-              ],
-              onChanged: (v) => setState(() => _memberId = v),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _amountCtrl,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              decoration: InputDecoration(labelText: l10n.welfareAmountKsh),
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              validator: (v) => (double.tryParse(v ?? '') ?? 0) <= 0
-                  ? 'Enter an amount above zero'
-                  : null,
-            ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              initialValue: _reason,
-              decoration: InputDecoration(labelText: l10n.recordFineReason),
-              dropdownColor: AppColors.surfaceRaised,
-              isExpanded: true,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              validator: (v) => v == null ? 'Pick a reason' : null,
-              items: [
-                for (final r in kFineReasons)
-                  DropdownMenuItem(
-                    value: r,
-                    child: Text(r, style: const TextStyle(fontSize: 14)),
-                  ),
-              ],
-              onChanged: (v) => setState(() => _reason = v),
-            ),
-            if (_reason == 'Other') ...[
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _reasonCtrl,
-                textCapitalization: TextCapitalization.sentences,
-                decoration: InputDecoration(labelText: l10n.recordFineSpecifyReason),
+    return SingleChildScrollView(
+      // A small phone cannot fit the whole sheet: let it scroll.
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+        ),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(l10n.meetingHubRecordFine,
+                  style: Theme.of(context).textTheme.headlineSmall),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                isExpanded: true,
+                initialValue: _memberId,
+                decoration: InputDecoration(labelText: l10n.disburseLoanSelectMember),
+                dropdownColor: AppColors.surfaceRaised,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
-                validator: (v) => (v == null || v.trim().isEmpty)
-                    ? 'Describe the reason'
+                validator: (v) => v == null ? 'Pick a member' : null,
+                items: [
+                  for (final financials in members)
+                    DropdownMenuItem(
+                      value: financials.member.id,
+                      child: Text(financials.member.name,
+                          style: const TextStyle(fontSize: 14)),
+                    ),
+                ],
+                onChanged: (v) => setState(() => _memberId = v),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _amountCtrl,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                decoration: InputDecoration(labelText: l10n.welfareAmountKsh),
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                validator: (v) => (double.tryParse(v ?? '') ?? 0) <= 0
+                    ? 'Enter an amount above zero'
                     : null,
               ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                initialValue: _reason,
+                decoration: InputDecoration(labelText: l10n.recordFineReason),
+                dropdownColor: AppColors.surfaceRaised,
+                isExpanded: true,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                validator: (v) => v == null ? 'Pick a reason' : null,
+                items: [
+                  for (final r in kFineReasons)
+                    DropdownMenuItem(
+                      value: r,
+                      child: Text(r, style: const TextStyle(fontSize: 14)),
+                    ),
+                ],
+                onChanged: (v) => setState(() => _reason = v),
+              ),
+              if (_reason == 'Other') ...[
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _reasonCtrl,
+                  textCapitalization: TextCapitalization.sentences,
+                  decoration: InputDecoration(labelText: l10n.recordFineSpecifyReason),
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? 'Describe the reason'
+                      : null,
+                ),
+              ],
+              const SizedBox(height: 16),
+              PaymentMethodPanel(
+                value: _method,
+                online: _online != null && _online!.canCharge(_memberId),
+                switchedOff: _online?.switchedOff ?? const {},
+                codeController: _codeCtrl,
+                onChanged: (m) => setState(() => _method = m),
+              ),
+              const SizedBox(height: 16),
+              FilledButton.icon(
+                onPressed: _saving ? null : _record,
+                icon: Icon(paymentActionIcon(_method), size: 18),
+                label: Text(paymentActionLabel(l10n, _method, l10n.meetingHubRecordFine)),
+              ),
             ],
-            const SizedBox(height: 16),
-            PaymentMethodPanel(
-              value: _method,
-              online: _online != null && _online!.canCharge(_memberId),
-              switchedOff: _online?.switchedOff ?? const {},
-              codeController: _codeCtrl,
-              onChanged: (m) => setState(() => _method = m),
-            ),
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              onPressed: _saving ? null : _record,
-              icon: Icon(paymentActionIcon(_method), size: 18),
-              label: Text(paymentActionLabel(l10n, _method, l10n.meetingHubRecordFine)),
-            ),
-          ],
+          ),
         ),
       ),
     );

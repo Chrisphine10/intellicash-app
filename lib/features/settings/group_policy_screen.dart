@@ -213,6 +213,7 @@ class _GroupPolicyScreenState extends State<GroupPolicyScreen> {
 
         Text(l10n.groupPolicyExpensesArePaidFrom, style: Theme.of(context).textTheme.titleSmall),
         DropdownButtonFormField<String>(
+          isExpanded: true,
           initialValue: _fund,
           items: [
             for (final entry in _funds.entries)

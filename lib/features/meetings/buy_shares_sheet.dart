@@ -55,120 +55,124 @@ class _BuySharesSheetState extends State<BuySharesSheet> {
     final attendance = context.watch<MeetingProvider>().attendance;
     final total = _shares * group.shareValue;
 
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 20,
-        right: 20,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(l10n.meetingHubBuyShares, style: Theme.of(context).textTheme.headlineSmall),
-          const SizedBox(height: 16),
-          DropdownButtonFormField<String>(
-            initialValue: _memberId,
-            decoration: InputDecoration(labelText: l10n.disburseLoanSelectMember),
-            dropdownColor: AppColors.surfaceRaised,
-            items: [
-              for (final financials in members)
-                DropdownMenuItem(
-                  value: financials.member.id,
-                  // A member marked absent may still pay (by M-Pesa, or through
-                  // someone), so they are not hidden - but the treasurer sees
-                  // it before recording, rather than finding out from the
-                  // attendance list afterwards.
+    return SingleChildScrollView(
+      // A small phone cannot fit the whole sheet: let it scroll.
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(l10n.meetingHubBuyShares, style: Theme.of(context).textTheme.headlineSmall),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String>(
+              isExpanded: true,
+              initialValue: _memberId,
+              decoration: InputDecoration(labelText: l10n.disburseLoanSelectMember),
+              dropdownColor: AppColors.surfaceRaised,
+              items: [
+                for (final financials in members)
+                  DropdownMenuItem(
+                    value: financials.member.id,
+                    // A member marked absent may still pay (by M-Pesa, or through
+                    // someone), so they are not hidden - but the treasurer sees
+                    // it before recording, rather than finding out from the
+                    // attendance list afterwards.
+                    child: Text(
+                      (attendance[financials.member.id] ?? false)
+                          ? financials.member.name
+                          : '${financials.member.name} · ${l10n.buySharesAbsentTag}',
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ),
+              ],
+              onChanged: (v) => setState(() => _memberId = v),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
                   child: Text(
-                    (attendance[financials.member.id] ?? false)
-                        ? financials.member.name
-                        : '${financials.member.name} · ${l10n.buySharesAbsentTag}',
+                    'Shares (1–${group.maxSharesPerMeeting})',
                     style: const TextStyle(fontSize: 14),
                   ),
                 ),
-            ],
-            onChanged: (v) => setState(() => _memberId = v),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Shares (1–${group.maxSharesPerMeeting})',
-                  style: const TextStyle(fontSize: 14),
+                IconButton.outlined(
+                  onPressed: _shares > 1
+                      ? () => setState(() => _shares--)
+                      : null,
+                  icon: const Icon(Icons.remove, size: 18),
                 ),
-              ),
-              IconButton.outlined(
-                onPressed: _shares > 1
-                    ? () => setState(() => _shares--)
-                    : null,
-                icon: const Icon(Icons.remove, size: 18),
-              ),
-              SizedBox(
-                width: 44,
-                child: Text(
-                  '$_shares',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.w700),
-                ),
-              ),
-              IconButton.filled(
-                onPressed: _shares < group.maxSharesPerMeeting
-                    ? () => setState(() => _shares++)
-                    : null,
-                icon: const Icon(Icons.add, size: 18),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Card(
-            color: AppColors.surfaceRaised,
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '$_shares share(s) × ${Formatters.money(group.shareValue)}',
-                    style: Theme.of(context).textTheme.bodySmall,
+                SizedBox(
+                  width: 44,
+                  child: Text(
+                    '$_shares',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.w700),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Total: ${Formatters.money(total)}',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.primary,
+                ),
+                IconButton.filled(
+                  onPressed: _shares < group.maxSharesPerMeeting
+                      ? () => setState(() => _shares++)
+                      : null,
+                  icon: const Icon(Icons.add, size: 18),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Card(
+              color: AppColors.surfaceRaised,
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '$_shares share(s) × ${Formatters.money(group.shareValue)}',
+                      style: Theme.of(context).textTheme.bodySmall,
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 4),
+                    Text(
+                      'Total: ${Formatters.money(total)}',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 12),
-          Form(
-            key: _formKey,
-            child: PaymentMethodPanel(
-              value: _method,
-              online: _canChargeOnline,
-              switchedOff: _switchedOff,
-              codeController: _refCtrl,
-              onChanged: (method) => setState(() {
-                _method = method;
-                if (!method.needsReference) _refCtrl.clear();
-              }),
+            const SizedBox(height: 12),
+            Form(
+              key: _formKey,
+              child: PaymentMethodPanel(
+                value: _method,
+                online: _canChargeOnline,
+                switchedOff: _switchedOff,
+                codeController: _refCtrl,
+                onChanged: (method) => setState(() {
+                  _method = method;
+                  if (!method.needsReference) _refCtrl.clear();
+                }),
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          FilledButton.icon(
-            onPressed: _memberId == null || _saving
-                ? null
-                : (_method.automated ? _charge : () => _record()),
-            icon: Icon(paymentActionIcon(_method), size: 18),
-            label: Text(paymentActionLabel(l10n, _method, l10n.buySharesRecordPurchase)),
-          ),
-        ],
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: _memberId == null || _saving
+                  ? null
+                  : (_method.automated ? _charge : () => _record()),
+              icon: Icon(paymentActionIcon(_method), size: 18),
+              label: Text(paymentActionLabel(l10n, _method, l10n.buySharesRecordPurchase)),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -222,6 +226,7 @@ class _BuySharesSheetState extends State<BuySharesSheet> {
     final result = await showModalBottomSheet<GatewayPaymentResult>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       builder: (sheetContext) => GatewayPaymentSheet.forGroup(
         sheetContext,
         groupRemoteId: _remoteGroupId!,

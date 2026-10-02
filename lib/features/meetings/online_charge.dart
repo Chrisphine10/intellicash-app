@@ -107,6 +107,7 @@ class OnlineCharge {
     return showModalBottomSheet<GatewayPaymentResult>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       builder: (sheetContext) => GatewayPaymentSheet.forGroup(
         sheetContext,
         groupRemoteId: remoteGroupId,
@@ -169,6 +170,7 @@ Future<SettledPayment?> askHowPaid(
   final chosen = await showModalBottomSheet<(PaymentMethod, String)>(
     context: context,
     isScrollControlled: true,
+    useSafeArea: true,
     builder: (_) => _HowPaidSheet(
       memberName: memberName,
       online: online != null && online.canCharge(localMemberId),
@@ -212,32 +214,35 @@ class _HowPaidSheetState extends State<_HowPaidSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = L10n.of(context);
-    return Padding(
-      padding: EdgeInsets.only(left: 20, right: 20, top: 16, bottom: MediaQuery.of(context).viewInsets.bottom + 20),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            PaymentMethodPanel(
-              title: l10n.howDidMemberPay(widget.memberName),
-              value: _method,
-              online: widget.online,
-              switchedOff: widget.switchedOff,
-              codeController: _code,
-              onChanged: (m) => setState(() => _method = m),
-            ),
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              icon: Icon(paymentActionIcon(_method), size: 18),
-              label: Text(paymentActionLabel(l10n, _method, l10n.payConfirm)),
-              onPressed: () {
-                if (_method.needsReference && !(_formKey.currentState?.validate() ?? false)) return;
-                Navigator.of(context).pop((_method, _code.text));
-              },
-            ),
-          ],
+    return SingleChildScrollView(
+      // A small phone cannot fit the whole sheet: let it scroll.
+      child: Padding(
+        padding: EdgeInsets.only(left: 20, right: 20, top: 16, bottom: MediaQuery.of(context).viewInsets.bottom + 20),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              PaymentMethodPanel(
+                title: l10n.howDidMemberPay(widget.memberName),
+                value: _method,
+                online: widget.online,
+                switchedOff: widget.switchedOff,
+                codeController: _code,
+                onChanged: (m) => setState(() => _method = m),
+              ),
+              const SizedBox(height: 16),
+              FilledButton.icon(
+                icon: Icon(paymentActionIcon(_method), size: 18),
+                label: Text(paymentActionLabel(l10n, _method, l10n.payConfirm)),
+                onPressed: () {
+                  if (_method.needsReference && !(_formKey.currentState?.validate() ?? false)) return;
+                  Navigator.of(context).pop((_method, _code.text));
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

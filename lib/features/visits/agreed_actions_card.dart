@@ -63,6 +63,7 @@ class _AgreedActionsCardState extends State<AgreedActionsCard> {
     final draft = await showModalBottomSheet<_ActionDraft>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       builder: (context) => const _AgreeActionSheet(),
     );
     if (draft == null) return;

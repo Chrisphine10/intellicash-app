@@ -64,105 +64,108 @@ class _RepaymentSheetState extends State<RepaymentSheet> {
         .where((loan) => loan.outstanding > 0)
         .toList();
 
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 20,
-        right: 20,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-      ),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(l10n.repaymentRecordRepayment,
-                style: Theme.of(context).textTheme.headlineSmall),
-            const SizedBox(height: 16),
-            if (outstandingLoans.isEmpty)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: Text(
-                  l10n.repaymentNoOutstandingLoansNothingTo,
-                  style: Theme.of(context).textTheme.bodySmall,
+    return SingleChildScrollView(
+      // A small phone cannot fit the whole sheet: let it scroll.
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+        ),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(l10n.repaymentRecordRepayment,
+                  style: Theme.of(context).textTheme.headlineSmall),
+              const SizedBox(height: 16),
+              if (outstandingLoans.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Text(
+                    l10n.repaymentNoOutstandingLoansNothingTo,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                )
+              else ...[
+                DropdownButtonFormField<Loan>(
+                  initialValue: _loan,
+                  isExpanded: true,
+                  decoration: InputDecoration(labelText: l10n.repaymentSelectLoan),
+                  dropdownColor: AppColors.surfaceRaised,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (v) => v == null ? 'Pick a loan' : null,
+                  items: [
+                    for (final loan in outstandingLoans)
+                      DropdownMenuItem(
+                        value: loan,
+                        child: Text(
+                          '${loan.memberName} — '
+                          '${Formatters.moneyCompact(loan.outstanding)} due',
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 13.5),
+                        ),
+                      ),
+                  ],
+                  onChanged: (v) => setState(() => _loan = v),
                 ),
-              )
-            else ...[
-              DropdownButtonFormField<Loan>(
-                initialValue: _loan,
-                isExpanded: true,
-                decoration: InputDecoration(labelText: l10n.repaymentSelectLoan),
-                dropdownColor: AppColors.surfaceRaised,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                validator: (v) => v == null ? 'Pick a loan' : null,
-                items: [
-                  for (final loan in outstandingLoans)
-                    DropdownMenuItem(
-                      value: loan,
-                      child: Text(
-                        '${loan.memberName} — '
-                        '${Formatters.moneyCompact(loan.outstanding)} due',
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 13.5),
+                if (_loan != null) ...[
+                  const SizedBox(height: 12),
+                  Card(
+                    color: AppColors.surfaceRaised,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 10),
+                      child: Column(
+                        children: [
+                          KeyValueRow('Principal',
+                              Formatters.money(_loan!.principal)),
+                          KeyValueRow(
+                              'Repaid so far', Formatters.money(_loan!.amountRepaid)),
+                          KeyValueRow('Outstanding',
+                              Formatters.money(_loan!.outstanding),
+                              emphasize: true),
+                        ],
                       ),
                     ),
-                ],
-                onChanged: (v) => setState(() => _loan = v),
-              ),
-              if (_loan != null) ...[
-                const SizedBox(height: 12),
-                Card(
-                  color: AppColors.surfaceRaised,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 10),
-                    child: Column(
-                      children: [
-                        KeyValueRow('Principal',
-                            Formatters.money(_loan!.principal)),
-                        KeyValueRow(
-                            'Repaid so far', Formatters.money(_loan!.amountRepaid)),
-                        KeyValueRow('Outstanding',
-                            Formatters.money(_loan!.outstanding),
-                            emphasize: true),
-                      ],
-                    ),
                   ),
+                ],
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _amountCtrl,
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  decoration: InputDecoration(labelText: l10n.welfareAmountKsh),
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (v) {
+                    final amount = double.tryParse(v ?? '') ?? 0;
+                    if (amount <= 0) return 'Enter an amount above zero';
+                    final loan = _loan;
+                    if (loan != null && amount > loan.outstanding) {
+                      return 'More than the outstanding balance';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                PaymentMethodPanel(
+                  value: _method,
+                  online: _online != null && _online!.canCharge(_loan?.memberId),
+                  switchedOff: _online?.switchedOff ?? const {},
+                  codeController: _codeCtrl,
+                  onChanged: (m) => setState(() => _method = m),
+                ),
+                const SizedBox(height: 16),
+                FilledButton.icon(
+                  onPressed: _saving ? null : _record,
+                  icon: Icon(paymentActionIcon(_method), size: 18),
+                  label: Text(paymentActionLabel(l10n, _method, l10n.repaymentRecordRepayment)),
                 ),
               ],
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _amountCtrl,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                decoration: InputDecoration(labelText: l10n.welfareAmountKsh),
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                validator: (v) {
-                  final amount = double.tryParse(v ?? '') ?? 0;
-                  if (amount <= 0) return 'Enter an amount above zero';
-                  final loan = _loan;
-                  if (loan != null && amount > loan.outstanding) {
-                    return 'More than the outstanding balance';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              PaymentMethodPanel(
-                value: _method,
-                online: _online != null && _online!.canCharge(_loan?.memberId),
-                switchedOff: _online?.switchedOff ?? const {},
-                codeController: _codeCtrl,
-                onChanged: (m) => setState(() => _method = m),
-              ),
-              const SizedBox(height: 16),
-              FilledButton.icon(
-                onPressed: _saving ? null : _record,
-                icon: Icon(paymentActionIcon(_method), size: 18),
-                label: Text(paymentActionLabel(l10n, _method, l10n.repaymentRecordRepayment)),
-              ),
             ],
-          ],
+          ),
         ),
       ),
     );

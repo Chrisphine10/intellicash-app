@@ -150,8 +150,9 @@ class _MethodTile extends StatelessWidget {
           onTap: enabled ? onTap : null,
           borderRadius: BorderRadius.circular(12),
           child: Container(
-            // One height for all four, so the grid lines up whatever the hint.
-            height: 118,
+            // One height for all four, so the grid lines up whatever the hint —
+            // grown with the phone's font size, or larger text is cut off.
+            height: MediaQuery.textScalerOf(context).scale(118).clamp(118.0, 200.0),
             padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
             decoration: BoxDecoration(
               color: selected ? AppColors.primaryTint : AppColors.surface,
@@ -177,7 +178,14 @@ class _MethodTile extends StatelessWidget {
                               children: [
                                 Icon(Icons.payments_outlined, size: 20, color: AppColors.primary),
                                 const SizedBox(width: 6),
-                                Text(method.label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+                                Flexible(
+                                  child: Text(
+                                    method.label,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                                  ),
+                                ),
                               ],
                             ),
                     ),

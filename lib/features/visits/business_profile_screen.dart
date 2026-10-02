@@ -201,6 +201,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
     final chosen = await showModalBottomSheet<Map<String, String>>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       builder: (_) => _SupportNeedSheet(needTypes: _needTypes),
     );
     if (chosen == null || !mounted) return;
@@ -694,6 +695,7 @@ class _EnterpriseEditorState extends State<_EnterpriseEditor> {
           const SizedBox(height: 8),
 
           DropdownButtonFormField<String>(
+            isExpanded: true,
             initialValue: _reach,
             decoration: InputDecoration(labelText: l10n.enterpriseHowFarItReaches),
             items: [
@@ -744,6 +746,7 @@ class _EnterpriseEditorState extends State<_EnterpriseEditor> {
 
           const SizedBox(height: 12),
           DropdownButtonFormField<bool?>(
+            isExpanded: true,
             initialValue: _agreement,
             decoration: InputDecoration(
               labelText: l10n.enterpriseIsThereWrittenAgreement,

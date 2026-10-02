@@ -25,6 +25,7 @@ class EditMemberSheet extends StatefulWidget {
     return showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       builder: (_) => Padding(
         padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
         child: EditMemberSheet(member: member),
@@ -116,59 +117,63 @@ class _EditMemberSheetState extends State<EditMemberSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = L10n.of(context);
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(l10n.editMemberEditMember, style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 4),
-            Text(
-              l10n.editMemberCorrectingASpellingOrAMistyped,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _name,
-              decoration: InputDecoration(labelText: l10n.editMemberFullName),
-              enabled: !_saving,
-              textCapitalization: TextCapitalization.words,
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _phone,
-              decoration: InputDecoration(
-                labelText: l10n.phoneNumber,
-                helperText: '07XX XXX XXX or +254…',
+    return SingleChildScrollView(
+      // Scrolls on a short screen, and lifts above the keyboard.
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l10n.editMemberEditMember, style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 4),
+              Text(
+                l10n.editMemberCorrectingASpellingOrAMistyped,
+                style: Theme.of(context).textTheme.bodySmall,
               ),
-              enabled: !_saving,
-              keyboardType: TextInputType.phone,
-            ),
-            if (_error != null) ...[
+              const SizedBox(height: 16),
+              TextField(
+                controller: _name,
+                decoration: InputDecoration(labelText: l10n.editMemberFullName),
+                enabled: !_saving,
+                textCapitalization: TextCapitalization.words,
+              ),
               const SizedBox(height: 12),
-              Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
-            ],
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: _saving ? null : () => Navigator.of(context).pop(false),
-                    child: Text(l10n.cancel),
-                  ),
+              TextField(
+                controller: _phone,
+                decoration: InputDecoration(
+                  labelText: l10n.phoneNumber,
+                  helperText: '07XX XXX XXX or +254…',
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: FilledButton(
-                    onPressed: _saving ? null : _save,
-                    child: Text(_saving ? 'Saving…' : 'Save'),
-                  ),
-                ),
+                enabled: !_saving,
+                keyboardType: TextInputType.phone,
+              ),
+              if (_error != null) ...[
+                const SizedBox(height: 12),
+                Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
               ],
-            ),
-          ],
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: _saving ? null : () => Navigator.of(context).pop(false),
+                      child: Text(l10n.cancel),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: _saving ? null : _save,
+                      child: Text(_saving ? 'Saving…' : 'Save'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -127,6 +127,7 @@ class _GroupSelector extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: DropdownButtonFormField<String>(
+        isExpanded: true,
         initialValue: connection.selectedGroup?.id,
         decoration: InputDecoration(labelText: l10n.sectionGroup),
         dropdownColor: AppColors.surfaceRaised,

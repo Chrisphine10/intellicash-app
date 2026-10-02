@@ -26,6 +26,7 @@ Future<void> showCreatePollSheet(
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
+    useSafeArea: true,
     builder: (_) => CreatePollSheet(groupId: groupId, meetingId: meetingId),
   );
 }
@@ -125,6 +126,7 @@ class _CreatePollSheetState extends State<CreatePollSheet> {
               const SizedBox(height: 16),
               if (_isElection) ...[
                 DropdownButtonFormField<String>(
+                  isExpanded: true,
                   initialValue: _role,
                   decoration: InputDecoration(
                       labelText: l10n.createPollWhichPosition),

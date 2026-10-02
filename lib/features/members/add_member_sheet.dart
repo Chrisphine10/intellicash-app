@@ -35,68 +35,72 @@ class _AddMemberSheetState extends State<AddMemberSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = L10n.of(context);
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 20,
-        right: 20,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-      ),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(l10n.addMemberAddMember,
-                style: Theme.of(context).textTheme.headlineSmall),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _nameCtrl,
-              textCapitalization: TextCapitalization.words,
-              decoration: InputDecoration(labelText: l10n.addMemberFullName),
-              validator: (v) => (v == null || v.trim().isEmpty)
-                  ? 'Enter the member\'s name'
-                  : null,
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _phoneCtrl,
-              keyboardType: TextInputType.phone,
-              decoration: InputDecoration(
-                labelText: l10n.addMemberPhoneOptional,
-                hintText: '07XX XXX XXX',
+    return SingleChildScrollView(
+      // A small phone cannot fit the whole sheet: let it scroll.
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+        ),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(l10n.addMemberAddMember,
+                  style: Theme.of(context).textTheme.headlineSmall),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _nameCtrl,
+                textCapitalization: TextCapitalization.words,
+                decoration: InputDecoration(labelText: l10n.addMemberFullName),
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? 'Enter the member\'s name'
+                    : null,
               ),
-              // Optional, but if it is typed it must look like a number. The
-              // same rule as the server's, so a member saved here is never
-              // turned away when the phone sends it up: "12345" used to be
-              // accepted and then refused at sync, leaving the member on this
-              // phone only.
-              validator: (v) => (v == null || v.trim().isEmpty || looksLikePhone(v))
-                  ? null
-                  : 'Enter a valid phone number, or leave it empty',
-            ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<MemberRole>(
-              initialValue: _role,
-              decoration: InputDecoration(labelText: l10n.addMemberRole),
-              dropdownColor: AppColors.surfaceRaised,
-              items: [
-                for (final role in MemberRole.values)
-                  DropdownMenuItem(
-                    value: role,
-                    child: Text(role.label,
-                        style: const TextStyle(fontSize: 14)),
-                  ),
-              ],
-              onChanged: (v) => setState(() => _role = v ?? _role),
-            ),
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              onPressed: _saving ? null : _save,
-              icon: const Icon(Icons.person_add_alt, size: 18),
-              label: Text(l10n.addMemberRegisterMember),
-            ),
-          ],
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _phoneCtrl,
+                keyboardType: TextInputType.phone,
+                decoration: InputDecoration(
+                  labelText: l10n.addMemberPhoneOptional,
+                  hintText: '07XX XXX XXX',
+                ),
+                // Optional, but if it is typed it must look like a number. The
+                // same rule as the server's, so a member saved here is never
+                // turned away when the phone sends it up: "12345" used to be
+                // accepted and then refused at sync, leaving the member on this
+                // phone only.
+                validator: (v) => (v == null || v.trim().isEmpty || looksLikePhone(v))
+                    ? null
+                    : 'Enter a valid phone number, or leave it empty',
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<MemberRole>(
+                isExpanded: true,
+                initialValue: _role,
+                decoration: InputDecoration(labelText: l10n.addMemberRole),
+                dropdownColor: AppColors.surfaceRaised,
+                items: [
+                  for (final role in MemberRole.values)
+                    DropdownMenuItem(
+                      value: role,
+                      child: Text(role.label,
+                          style: const TextStyle(fontSize: 14)),
+                    ),
+                ],
+                onChanged: (v) => setState(() => _role = v ?? _role),
+              ),
+              const SizedBox(height: 16),
+              FilledButton.icon(
+                onPressed: _saving ? null : _save,
+                icon: const Icon(Icons.person_add_alt, size: 18),
+                label: Text(l10n.addMemberRegisterMember),
+              ),
+            ],
+          ),
         ),
       ),
     );
