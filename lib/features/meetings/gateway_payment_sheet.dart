@@ -178,7 +178,10 @@ class _GatewayPaymentSheetState extends State<GatewayPaymentSheet> {
   @override
   void initState() {
     super.initState();
-    _contactCtrl = TextEditingController(text: _isMpesa ? (widget.memberPhone ?? '') : (widget.memberEmail ?? ''));
+    // Only M-Pesa needs anything typed: the number to prompt. Paystack's
+    // receipt email comes from the system (the member's or the group's
+    // login), so the member is never asked for one.
+    _contactCtrl = TextEditingController(text: _isMpesa ? (widget.memberPhone ?? '') : '');
     _loadQuote();
   }
 
@@ -212,10 +215,6 @@ class _GatewayPaymentSheetState extends State<GatewayPaymentSheet> {
       setState(() => _error = 'Enter the phone number to send the request to.');
       return;
     }
-    if (!_isMpesa && !contact.contains('@')) {
-      setState(() => _error = 'Enter an email address for the receipt.');
-      return;
-    }
 
     setState(() {
       _sending = true;
@@ -225,7 +224,7 @@ class _GatewayPaymentSheetState extends State<GatewayPaymentSheet> {
       final payment = await widget.channel.initiate(
         quote,
         phone: _isMpesa ? contact : null,
-        email: _isMpesa ? null : contact,
+        email: _isMpesa ? null : widget.memberEmail,
         clientRequestId: _clientRequestId,
       );
       if (!mounted) return;
@@ -405,15 +404,18 @@ class _GatewayPaymentSheetState extends State<GatewayPaymentSheet> {
                 SelectableText(payment.checkoutUrl!, style: TextStyle(fontSize: 12, color: AppColors.primary)),
               ],
             ] else if (!started) ...[
-              TextField(
-                controller: _contactCtrl,
-                keyboardType: _isMpesa ? TextInputType.phone : TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  labelText: _isMpesa ? 'Phone number' : 'Email address',
-                  hintText: _isMpesa ? '07XX XXX XXX' : 'name@example.com',
-                  errorText: _error,
-                ),
-              ),
+              if (_isMpesa)
+                TextField(
+                  controller: _contactCtrl,
+                  keyboardType: TextInputType.phone,
+                  decoration: InputDecoration(
+                    labelText: 'Phone number',
+                    hintText: '07XX XXX XXX',
+                    errorText: _error,
+                  ),
+                )
+              else if (_error != null)
+                Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 13)),
               const SizedBox(height: 14),
               FilledButton.icon(
                 onPressed: _sending || quote == null ? null : _start,

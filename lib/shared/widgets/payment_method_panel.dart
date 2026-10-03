@@ -27,8 +27,8 @@ IconData paymentActionIcon(PaymentMethod method) =>
 /// as four equal tiles, and — only for M-Pesa Classic — the code to type.
 ///
 /// M-Pesa and Paystack are charged online, so they need the book to be
-/// online; offline — or switched off for the group — they show but cannot be
-/// chosen, and say why.
+/// online; offline they show but cannot be chosen, and say why. One the group
+/// has switched off is not shown at all — Cash and M-Pesa Classic always are.
 class PaymentMethodPanel extends StatelessWidget {
   const PaymentMethodPanel({
     super.key,
@@ -53,9 +53,7 @@ class PaymentMethodPanel extends StatelessWidget {
   /// Online methods the group has switched off (Payments settings).
   final Set<PaymentMethod> switchedOff;
 
-  String _hint(L10n l10n, PaymentMethod method) => switchedOff.contains(method)
-      ? l10n.payHintSwitchedOff
-      : switch (method) {
+  String _hint(L10n l10n, PaymentMethod method) => switch (method) {
         PaymentMethod.cash => l10n.payHintCash,
         PaymentMethod.mpesa => online ? l10n.payHintMpesa : l10n.payHintNeedsInternet,
         PaymentMethod.mpesaClassic => l10n.payHintClassic,
@@ -85,14 +83,14 @@ class PaymentMethodPanel extends StatelessWidget {
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  for (final method in PaymentMethod.offered)
+                  for (final method in PaymentMethod.offered.where((m) => !switchedOff.contains(m)))
                     SizedBox(
                       width: tileWidth,
                       child: _MethodTile(
                         method: method,
                         hint: _hint(l10n, method),
                         selected: value == method,
-                        enabled: !method.automated || (online && !switchedOff.contains(method)),
+                        enabled: !method.automated || online,
                         onTap: () => onChanged(method),
                       ),
                     ),

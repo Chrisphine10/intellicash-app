@@ -80,7 +80,7 @@ void main() {
     expect(find.textContaining('Needs the group online'), findsNWidgets(2));
   });
 
-  testWidgets('a provider the group switched off shows but cannot be chosen', (tester) async {
+  testWidgets('a provider the group switched off is not offered at all', (tester) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
@@ -92,11 +92,12 @@ void main() {
       codeController: TextEditingController(),
       onChanged: chosen.add,
     )));
-    await tester.tap(find.bySemanticsLabel(RegExp('^Paystack')));
+    expect(find.bySemanticsLabel(RegExp('^Paystack')), findsNothing);
+    expect(find.bySemanticsLabel(RegExp('^Cash')), findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp('^M-Pesa Classic')), findsOneWidget);
     await tester.tap(find.bySemanticsLabel(RegExp('^M-Pesa\\.')));
     await tester.pump();
     expect(chosen, [PaymentMethod.mpesa]);
-    expect(find.text('Switched off for this group'), findsOneWidget);
   });
 
   test('payment settings: no saved row means both on; saved empty means off', () {
