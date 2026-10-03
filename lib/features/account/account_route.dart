@@ -24,7 +24,7 @@ class AccountRoute extends StatelessWidget {
 
   /// Kept in step with `pubspec.yaml` (test/core/app_version_test.dart fails when it is not). Reading it at
   /// runtime would mean adding `package_info_plus` for one line of text.
-  static const appVersion = '2.7.0 (28)';
+  static const appVersion = '2.7.1 (29)';
 
   @override
   Widget build(BuildContext context) {
